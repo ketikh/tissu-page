@@ -1,0 +1,130 @@
+@import "tailwindcss";
+
+@custom-variant dark (&:is(.dark *));
+
+@theme {
+  --font-sans: var(--font-inter);
+  --font-serif: var(--font-playfair);
+
+  --color-border: var(--border);
+  --color-input: var(--input);
+  --color-ring: var(--ring);
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+
+  --color-primary: var(--primary);
+  --color-primary-foreground: var(--primary-foreground);
+
+  --color-secondary: var(--secondary);
+  --color-secondary-foreground: var(--secondary-foreground);
+
+  --color-destructive: var(--destructive);
+  --color-destructive-foreground: var(--destructive-foreground);
+
+  --color-muted: var(--muted);
+  --color-muted-foreground: var(--muted-foreground);
+
+  --color-accent: var(--accent);
+  --color-accent-foreground: var(--accent-foreground);
+
+  --color-popover: var(--popover);
+  --color-popover-foreground: var(--popover-foreground);
+
+  --color-card: var(--card);
+  --color-card-foreground: var(--card-foreground);
+
+  --color-brand-primary: var(--brand-primary);
+  --color-brand-secondary: var(--brand-secondary);
+  --color-brand-accent: var(--brand-accent);
+  --color-brand-soft: var(--brand-soft);
+  --color-brand-dark: var(--brand-dark);
+
+  --radius-lg: var(--radius);
+  --radius-md: calc(var(--radius) - 2px);
+  --radius-sm: calc(var(--radius) - 4px);
+
+  --animate-accordion-down: accordion-down 0.2s ease-out;
+  --animate-accordion-up: accordion-up 0.2s ease-out;
+
+  @keyframes accordion-down {
+    from { height: 0; }
+    to { height: var(--radix-accordion-content-height); }
+  }
+  @keyframes accordion-up {
+    from { height: var(--radix-accordion-content-height); }
+    to { height: 0; }
+  }
+}
+
+@utility container {
+  margin-inline: auto;
+  padding-inline: 1.5rem;
+  max-width: 88rem;
+}
+
+/* Base styles for Tissu */
+@layer base {
+  :root {
+    --background: #faf9f7; /* Very soft warm beige/off-white */
+    --foreground: #2d2a26; /* Soft black/dark brown */
+
+    --card: #ffffff;
+    --card-foreground: #2d2a26;
+
+    --popover: #ffffff;
+    --popover-foreground: #2d2a26;
+
+    --primary: #2d2a26;
+    --primary-foreground: #faf9f7;
+
+    --secondary: #eee9e3;
+    --secondary-foreground: #2d2a26;
+
+    --muted: #f2efe9;
+    --muted-foreground: #6b6762;
+
+    --accent: #eee9e3;
+    --accent-foreground: #2d2a26;
+
+    --destructive: #d15656;
+    --destructive-foreground: #ffffff;
+
+    --border: #e6e0d8;
+    --input: #e6e0d8;
+    --ring: #2d2a26;
+
+    --radius: 0.75rem;
+
+    /* Tissu Brand Palette */
+    --brand-primary: #8c7d6e; /* Soft taupe */
+    --brand-secondary: #d6cfc7; /* Lighter taupe/grey */
+    --brand-accent: #c4a991; /* Warm caramel */
+    --brand-soft: #f4f1ec; /* Softest neutral */
+    --brand-dark: #3a3632; /* Deep charcoal/brown */
+  }
+
+  * {
+    @apply border-border;
+  }
+
+  body {
+    @apply bg-background text-foreground tracking-wide font-sans antialiased overflow-x-hidden;
+  }
+
+  h1, h2, h3, h4, h5, h6 {
+    @apply font-serif tracking-tight font-medium;
+  }
+}
+
+/* Custom Utilities */
+@layer utilities {
+  .text-balance {
+    text-wrap: balance;
+  }
+  .focus-ring {
+    @apply focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring focus-visible:ring-offset-1;
+  }
+  .glass {
+    @apply bg-background/80 backdrop-blur-lg border-b border-border/50;
+  }
+}
