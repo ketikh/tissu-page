@@ -7,7 +7,6 @@ import { Navbar } from "@/components/layout/Navbar";
 import { Footer } from "@/components/layout/Footer";
 import { CartDrawer } from "@/components/layout/CartDrawer";
 import { getDictionary } from "@/i18n/getDictionary";
-import { GoogleOAuthProvider } from "@react-oauth/google";
 
 
 
@@ -66,7 +65,6 @@ export default async function RootLayout({
       className={`${inter.variable} ${playfair.variable} ${notoOld.variable} ${notoSerif.variable} scroll-smooth`}
     >
       <body className={`min-h-screen flex flex-col antialiased bg-background text-foreground ${locale === 'ka' ? 'font-noto-sans' : 'font-sans'}`}>
-        <GoogleOAuthProvider clientId={process.env.NEXT_PUBLIC_GOOGLE_CLIENT_ID || ""}>
           <AnnouncementBar lang={locale} dictionary={dictionary} />
           <Navbar lang={locale} dictionary={dictionary} />
           <CartDrawer dictionary={dictionary} lang={locale} />
@@ -74,7 +72,6 @@ export default async function RootLayout({
             {children}
           </main>
           <Footer dictionary={dictionary} />
-        </GoogleOAuthProvider>
       </body>
     </html>
   );

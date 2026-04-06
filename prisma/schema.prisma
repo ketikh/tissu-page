@@ -10,9 +10,8 @@ datasource db {
 }
 
 model User {
-  id        String    @id @default(cuid())
+  id        String    @id @default(uuid())
   email     String    @unique
-  password  String?
   firstName String
   lastName  String
   phone     String?
@@ -21,17 +20,6 @@ model User {
   createdAt DateTime  @default(now())
   updatedAt DateTime  @updatedAt
 
-  @@schema("website")
-}
-
-model PasswordResetToken {
-  id        String   @id @default(cuid())
-  email     String
-  token     String   @unique
-  expires   DateTime
-  createdAt DateTime @default(now())
-
-  @@unique([email, token])
   @@schema("website")
 }
 

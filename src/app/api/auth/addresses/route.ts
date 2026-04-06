@@ -1,16 +1,12 @@
 import { NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
-import { verifyJwt } from "@/lib/jwt";
-import { AUTH_CONFIG } from "@/lib/config/auth.config";
-import { cookies } from "next/headers";
+import { createClient } from "@/lib/supabase/server";
 
-// Helper to get user ID from token
 async function getUserId() {
-  const cookieStore = await cookies();
-  const token = cookieStore.get(AUTH_CONFIG.TOKEN_COOKIE)?.value;
-  if (!token) return null;
-  const decoded = (await verifyJwt(token)) as any;
-  return decoded?.id || null;
+  const supabase = await createClient();
+  const { data: { user }, error } = await supabase.auth.getUser();
+  if (error || !user) return null;
+  return user.id;
 }
 
 export async function POST(req: Request) {
@@ -20,7 +16,6 @@ export async function POST(req: Request) {
 
     const addressData = await req.json();
 
-    // If new address is default, unset existing default
     if (addressData.isDefault) {
       await prisma.address.updateMany({
         where: { userId, isDefault: true },
@@ -29,14 +24,11 @@ export async function POST(req: Request) {
     }
 
     const newAddress = await prisma.address.create({
-      data: {
-        ...addressData,
-        userId,
-      },
+      data: { ...addressData, userId },
     });
 
     return NextResponse.json(newAddress, { status: 201 });
-  } catch (error: any) {
+  } catch (error) {
     console.error("Add Address Error:", error);
     return NextResponse.json({ error: "Internal Server Error" }, { status: 500 });
   }
@@ -50,7 +42,6 @@ export async function PATCH(req: Request) {
     const { id, isDefault } = await req.json();
 
     if (isDefault) {
-      // Unset previous default
       await prisma.address.updateMany({
         where: { userId, isDefault: true },
         data: { isDefault: false },
@@ -63,7 +54,7 @@ export async function PATCH(req: Request) {
     });
 
     return NextResponse.json(updatedAddress, { status: 200 });
-  } catch (error: any) {
+  } catch (error) {
     console.error("Update Address Error:", error);
     return NextResponse.json({ error: "Internal Server Error" }, { status: 500 });
   }
@@ -84,7 +75,7 @@ export async function DELETE(req: Request) {
     });
 
     return NextResponse.json({ success: true }, { status: 200 });
-  } catch (error: any) {
+  } catch (error) {
     console.error("Delete Address Error:", error);
     return NextResponse.json({ error: "Internal Server Error" }, { status: 500 });
   }

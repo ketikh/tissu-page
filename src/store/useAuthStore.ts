@@ -1,23 +1,21 @@
 import { create } from 'zustand';
 import { persist } from 'zustand/middleware';
-import { User, Address, Order, LoginCredentials, RegisterData } from '@/lib/types';
+import { User, Address, Order } from '@/lib/types';
 import { authService } from '@/services/auth.service';
-import { AUTH_CONFIG } from '@/lib/config/auth.config';
-import { setCookie, removeCookie } from '@/lib/utils';
 
 interface AuthState {
   user: User | null;
   isAuthenticated: boolean;
   isLoading: boolean;
   error: string | null;
-  
-  // Actions
-  login: (credentials: LoginCredentials) => Promise<void>;
-  register: (data: RegisterData) => Promise<void>;
-  loginWithGoogle: (idToken: string) => Promise<void>;
+
+  login: (credentials: { email: string; password: string }) => Promise<void>;
+  register: (data: { firstName: string; lastName: string; email: string; password: string }) => Promise<void>;
+  loginWithGoogle: () => Promise<void>;
   logout: () => Promise<void>;
   forgotPassword: (email: string) => Promise<void>;
-  resetPassword: (token: string, password: string) => Promise<void>;
+  resetPassword: (password: string) => Promise<void>;
+  refreshProfile: () => Promise<void>;
   updateProfile: (data: Partial<User>) => Promise<void>;
   addAddress: (address: Omit<Address, 'id'>) => Promise<void>;
   removeAddress: (id: string) => Promise<void>;
@@ -28,7 +26,7 @@ interface AuthState {
 
 export const useAuthStore = create<AuthState>()(
   persist(
-    (set, get) => ({
+    (set) => ({
       user: null,
       isAuthenticated: false,
       isLoading: false,
@@ -37,17 +35,8 @@ export const useAuthStore = create<AuthState>()(
       login: async (credentials) => {
         set({ isLoading: true, error: null });
         try {
-          const { user, token } = await authService.login(credentials);
-          
-          // Persistence sync for middleware
-          setCookie(AUTH_CONFIG.TOKEN_COOKIE, token, AUTH_CONFIG.COOKIE_OPTIONS);
-          setCookie(AUTH_CONFIG.USER_COOKIE, JSON.stringify(user), AUTH_CONFIG.COOKIE_OPTIONS);
-          
-          set({ 
-            user, 
-            isAuthenticated: true, 
-            isLoading: false 
-          });
+          const { user } = await authService.login(credentials);
+          set({ user, isAuthenticated: true, isLoading: false });
         } catch (err) {
           const message = err instanceof Error ? err.message : 'Login failed';
           set({ isLoading: false, error: message });
@@ -57,35 +46,19 @@ export const useAuthStore = create<AuthState>()(
       register: async (data) => {
         set({ isLoading: true, error: null });
         try {
-          const { user, token } = await authService.register(data);
-          
-          setCookie(AUTH_CONFIG.TOKEN_COOKIE, token, AUTH_CONFIG.COOKIE_OPTIONS);
-          setCookie(AUTH_CONFIG.USER_COOKIE, JSON.stringify(user), AUTH_CONFIG.COOKIE_OPTIONS);
-          
-          set({ 
-            user, 
-            isAuthenticated: true, 
-            isLoading: false 
-          });
+          const { user } = await authService.register(data);
+          set({ user, isAuthenticated: true, isLoading: false });
         } catch (err) {
           const message = err instanceof Error ? err.message : 'Registration failed';
           set({ isLoading: false, error: message });
         }
       },
 
-      loginWithGoogle: async (idToken: string) => {
+      loginWithGoogle: async () => {
         set({ isLoading: true, error: null });
         try {
-          const { user, token } = await authService.loginWithGoogle(idToken);
-          
-          setCookie(AUTH_CONFIG.TOKEN_COOKIE, token, AUTH_CONFIG.COOKIE_OPTIONS);
-          setCookie(AUTH_CONFIG.USER_COOKIE, JSON.stringify(user), AUTH_CONFIG.COOKIE_OPTIONS);
-          
-          set({ 
-            user, 
-            isAuthenticated: true, 
-            isLoading: false 
-          });
+          await authService.loginWithGoogle();
+          // Redirect happens via Supabase OAuth — state updated on callback
         } catch (err) {
           const message = err instanceof Error ? err.message : 'Google login failed';
           set({ isLoading: false, error: message });
@@ -97,9 +70,6 @@ export const useAuthStore = create<AuthState>()(
         try {
           await authService.logout();
         } finally {
-          // Always clear local state even if server-side logout fails
-          removeCookie(AUTH_CONFIG.TOKEN_COOKIE);
-          removeCookie(AUTH_CONFIG.USER_COOKIE);
           set({ user: null, isAuthenticated: false, isLoading: false });
         }
       },
@@ -116,10 +86,10 @@ export const useAuthStore = create<AuthState>()(
         }
       },
 
-      resetPassword: async (token: string, passwordMod: string) => {
+      resetPassword: async (password: string) => {
         set({ isLoading: true, error: null });
         try {
-          await authService.resetPassword(token, passwordMod);
+          await authService.resetPassword(password);
           set({ isLoading: false });
         } catch (err) {
           const message = err instanceof Error ? err.message : 'Error resetting password';
@@ -128,18 +98,21 @@ export const useAuthStore = create<AuthState>()(
         }
       },
 
+      refreshProfile: async () => {
+        set({ isLoading: true });
+        try {
+          const user = await authService.fetchProfile();
+          set({ user, isAuthenticated: true, isLoading: false });
+        } catch {
+          set({ user: null, isAuthenticated: false, isLoading: false });
+        }
+      },
+
       updateProfile: async (data: Partial<User>) => {
         set({ isLoading: true });
         try {
           const updatedUser = await authService.updateProfile(data);
-          
-          set({
-            user: updatedUser,
-            isLoading: false
-          });
-
-          // Sync updated user to cookie
-          setCookie(AUTH_CONFIG.USER_COOKIE, JSON.stringify(updatedUser), AUTH_CONFIG.COOKIE_OPTIONS);
+          set({ user: updatedUser, isLoading: false });
         } catch (err) {
           const message = err instanceof Error ? err.message : 'Update failed';
           set({ isLoading: false, error: message });
@@ -150,26 +123,15 @@ export const useAuthStore = create<AuthState>()(
         set({ isLoading: true });
         try {
           const newAddress = await authService.addAddress(addressData);
-          
           set((state) => {
             if (!state.user) return state;
-            
             let addresses = [...state.user.addresses];
             if (newAddress.isDefault) {
               addresses = addresses.map(a => ({ ...a, isDefault: false }));
             }
-            
-            const updatedUser: User = {
-              ...state.user,
-              addresses: [...addresses, newAddress]
-            };
-
-            // Sync updated user to cookie
-            setCookie(AUTH_CONFIG.USER_COOKIE, JSON.stringify(updatedUser), AUTH_CONFIG.COOKIE_OPTIONS);
-
             return {
-              user: updatedUser,
-              isLoading: false
+              user: { ...state.user, addresses: [...addresses, newAddress] },
+              isLoading: false,
             };
           });
         } catch (err) {
@@ -182,21 +144,11 @@ export const useAuthStore = create<AuthState>()(
         set({ isLoading: true });
         try {
           await authService.removeAddress(id);
-          
           set((state) => {
             if (!state.user) return state;
-            
-            const updatedUser: User = {
-              ...state.user,
-              addresses: state.user.addresses.filter(a => a.id !== id)
-            };
-
-            // Sync updated user to cookie
-            setCookie(AUTH_CONFIG.USER_COOKIE, JSON.stringify(updatedUser), AUTH_CONFIG.COOKIE_OPTIONS);
-
             return {
-              user: updatedUser,
-              isLoading: false
+              user: { ...state.user, addresses: state.user.addresses.filter(a => a.id !== id) },
+              isLoading: false,
             };
           });
         } catch (err) {
@@ -208,25 +160,15 @@ export const useAuthStore = create<AuthState>()(
       setAddressAsDefault: async (id) => {
         set({ isLoading: true });
         try {
-          const updatedAddress = await authService.setAddressAsDefault(id);
-          
+          await authService.setAddressAsDefault(id);
           set((state) => {
             if (!state.user) return state;
-            
-            const updatedUser: User = {
-              ...state.user,
-              addresses: state.user.addresses.map(a => ({
-                ...a,
-                isDefault: a.id === id
-              }))
-            };
-
-            // Sync updated user to cookie
-            setCookie(AUTH_CONFIG.USER_COOKIE, JSON.stringify(updatedUser), AUTH_CONFIG.COOKIE_OPTIONS);
-
             return {
-              user: updatedUser,
-              isLoading: false
+              user: {
+                ...state.user,
+                addresses: state.user.addresses.map(a => ({ ...a, isDefault: a.id === id })),
+              },
+              isLoading: false,
             };
           });
         } catch (err) {
@@ -238,12 +180,7 @@ export const useAuthStore = create<AuthState>()(
       addOrder: (order) => {
         set((state) => {
           if (!state.user) return state;
-          return {
-            user: {
-              ...state.user,
-              orders: [order, ...state.user.orders]
-            }
-          };
+          return { user: { ...state.user, orders: [order, ...state.user.orders] } };
         });
       },
 

@@ -1,12 +1,12 @@
 "use client";
 
 import { useState } from "react";
-import { useRouter, useSearchParams } from "next/navigation";
+import { useRouter } from "next/navigation";
+import Link from "next/link";
 import { Button } from "@/components/ui/Button";
 import { Input } from "@/components/ui/Input";
 import { Locale } from "@/i18n/config";
 import { Loader2, CheckCircle2, AlertCircle } from "lucide-react";
-
 import { useAuthStore } from "@/store/useAuthStore";
 
 interface ResetPasswordClientProps {
@@ -16,9 +16,6 @@ interface ResetPasswordClientProps {
 
 export default function ResetPasswordClient({ dictionary, lang }: ResetPasswordClientProps) {
   const router = useRouter();
-  const searchParams = useSearchParams();
-  const [token, setToken] = useState(searchParams.get("token") || "");
-  
   const [password, setPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
   const { resetPassword, isLoading, error: storeError, clearError } = useAuthStore();
@@ -30,19 +27,17 @@ export default function ResetPasswordClient({ dictionary, lang }: ResetPasswordC
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (password !== confirmPassword) {
-      setLocalError(dictionary.validation.passwordsMatch);
+      setLocalError(dictionary.validation?.passwordsMatch || "Passwords do not match");
       return;
     }
 
     try {
-      await resetPassword(token, password);
+      await resetPassword(password);
       setIsSuccess(true);
-      
-      // Auto-redirect to login after 3 seconds
       setTimeout(() => {
         router.push(`/${lang}/account/login`);
       }, 3000);
-    } catch (err) {
+    } catch {
       // Error handled by store
     }
   };
@@ -50,7 +45,6 @@ export default function ResetPasswordClient({ dictionary, lang }: ResetPasswordC
   return (
     <div className="flex-1 flex flex-col items-center justify-center p-4 py-20 bg-brand-soft/20">
       <div className="w-full max-w-sm space-y-8 bg-card p-10 rounded-3xl shadow-xl shadow-brand-dark/5 border border-border relative overflow-hidden">
-        {/* Top decoration */}
         <div className="absolute top-0 inset-x-0 h-1.5 bg-brand-primary/20" />
 
         <div className="text-center space-y-2">
@@ -89,30 +83,12 @@ export default function ResetPasswordClient({ dictionary, lang }: ResetPasswordC
 
             <div className="space-y-4">
               <div className="space-y-2">
-                <label className="text-sm font-medium text-brand-dark">{dictionary.auth.resetPassword.code}</label>
-                <Input 
-                  type="text" 
-                  placeholder={dictionary.auth.resetPassword.codePlaceholder} 
-                  required 
-                  maxLength={6}
-                  className="h-12 text-center text-xl tracking-[0.5em] font-bold" 
-                  value={token}
-                  onChange={(e) => {
-                    setToken(e.target.value.replace(/[^0-9]/g, '').slice(0, 6));
-                    if (localError) setLocalError(null);
-                    if (storeError) clearError();
-                  }}
-                  disabled={isLoading}
-                />
-              </div>
-
-              <div className="space-y-2">
                 <label className="text-sm font-medium text-brand-dark">{dictionary.auth.resetPassword.newPassword}</label>
-                <Input 
-                  type="password" 
-                  placeholder="••••••••" 
-                  required 
-                  className="h-12" 
+                <Input
+                  type="password"
+                  placeholder="••••••••"
+                  required
+                  className="h-12"
                   value={password}
                   onChange={(e) => {
                     setPassword(e.target.value);
@@ -122,14 +98,14 @@ export default function ResetPasswordClient({ dictionary, lang }: ResetPasswordC
                   disabled={isLoading}
                 />
               </div>
-              
+
               <div className="space-y-2">
                 <label className="text-sm font-medium text-brand-dark">{dictionary.auth.resetPassword.confirmPassword}</label>
-                <Input 
-                  type="password" 
-                  placeholder="••••••••" 
-                  required 
-                  className="h-12" 
+                <Input
+                  type="password"
+                  placeholder="••••••••"
+                  required
+                  className="h-12"
                   value={confirmPassword}
                   onChange={(e) => {
                     setConfirmPassword(e.target.value);
@@ -154,6 +130,3 @@ export default function ResetPasswordClient({ dictionary, lang }: ResetPasswordC
     </div>
   );
 }
-
-// Helper to keep Link working in ResetPasswordClient
-import Link from "next/link";

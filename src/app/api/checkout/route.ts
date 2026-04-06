@@ -1,29 +1,22 @@
 import { NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
-import { verifyJwt } from "@/lib/jwt";
-import { cookies } from "next/headers";
-import { AUTH_CONFIG } from "@/lib/config/auth.config";
+import { createClient } from "@/lib/supabase/server";
 
 export async function POST(req: Request) {
   try {
     const body = await req.json();
     const { items, subtotal, shipping, discount, total, shippingAddress, paymentMethod, isGuest } = body;
 
-    // Optional user validation based on active cookie
     let userId: string | undefined = undefined;
-    
+
     if (!isGuest) {
-      const cookieStore = await cookies();
-      const token = cookieStore.get(AUTH_CONFIG.TOKEN_COOKIE)?.value;
-      if (token) {
-        const payload = await verifyJwt(token);
-        if (payload?.id) {
-          userId = payload.id as string;
-        }
+      const supabase = await createClient();
+      const { data: { user } } = await supabase.auth.getUser();
+      if (user) {
+        userId = user.id;
       }
     }
 
-    // Persist Order into Database
     const order = await prisma.order.create({
       data: {
         subtotal,
@@ -51,7 +44,7 @@ export async function POST(req: Request) {
     });
 
     return NextResponse.json({ order }, { status: 201 });
-  } catch (error: any) {
+  } catch (error) {
     console.error("Checkout Create Error:", error);
     return NextResponse.json(
       { error: "Failed to complete checkout" },

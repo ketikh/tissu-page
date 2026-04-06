@@ -1,79 +1,124 @@
-import { User, LoginCredentials, RegisterData, Address } from "@/lib/types";
+import { createClient } from "@/lib/supabase/client";
+import { User, Address } from "@/lib/types";
 
 class AuthService {
   private baseUrl = process.env.NEXT_PUBLIC_API_URL || "/api";
 
-  async login(credentials: LoginCredentials): Promise<{ user: User; token: string }> {
-    const response = await fetch(`${this.baseUrl}/auth/login`, {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify(credentials),
-    });
-    
-    const data = await response.json();
-    if (!response.ok) {
-      throw new Error(data.error || "Invalid credentials");
-    }
-    
-    return data;
+  private getSupabase() {
+    return createClient();
   }
 
-  async register(data: RegisterData): Promise<{ user: User; token: string }> {
-    const response = await fetch(`${this.baseUrl}/auth/register`, {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify(data),
+  async login(credentials: { email: string; password: string }): Promise<{ user: User }> {
+    const supabase = this.getSupabase();
+
+    const { data, error } = await supabase.auth.signInWithPassword({
+      email: credentials.email,
+      password: credentials.password,
     });
-    
-    const resData = await response.json();
-    if (!response.ok) {
-      throw new Error(resData.error || "Registration failed");
+
+    if (error) {
+      throw new Error(error.message);
     }
-    
-    return resData;
+
+    // Fetch profile data from our API
+    const profile = await this.fetchProfile();
+    return { user: profile };
   }
 
-  async loginWithGoogle(credential: string): Promise<{ user: User; token: string }> {
-    const response = await fetch(`${this.baseUrl}/auth/google`, {
+  async register(data: {
+    firstName: string;
+    lastName: string;
+    email: string;
+    password: string;
+  }): Promise<{ user: User }> {
+    const supabase = this.getSupabase();
+
+    const { data: authData, error } = await supabase.auth.signUp({
+      email: data.email,
+      password: data.password,
+      options: {
+        data: {
+          first_name: data.firstName,
+          last_name: data.lastName,
+        },
+      },
+    });
+
+    if (error) {
+      throw new Error(error.message);
+    }
+
+    // Create profile record in our DB
+    const response = await fetch(`${this.baseUrl}/auth/profile`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ credential }),
+      body: JSON.stringify({
+        firstName: data.firstName,
+        lastName: data.lastName,
+      }),
     });
-    
-    const data = await response.json();
+
     if (!response.ok) {
-      throw new Error(data.error || "Google login failed");
+      const resData = await response.json();
+      throw new Error(resData.error || "Failed to create profile");
     }
-    
-    return data;
+
+    const profile = await response.json();
+    return { user: profile };
+  }
+
+  async loginWithGoogle(): Promise<void> {
+    const supabase = this.getSupabase();
+
+    const { error } = await supabase.auth.signInWithOAuth({
+      provider: "google",
+      options: {
+        redirectTo: `${window.location.origin}/api/auth/callback`,
+      },
+    });
+
+    if (error) {
+      throw new Error(error.message);
+    }
   }
 
   async forgotPassword(email: string): Promise<boolean> {
-    const response = await fetch(`${this.baseUrl}/auth/forgot-password`, {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ email }),
+    const supabase = this.getSupabase();
+
+    const { error } = await supabase.auth.resetPasswordForEmail(email, {
+      redirectTo: `${window.location.origin}/api/auth/callback?next=/account/reset-password`,
     });
-    
-    const data = await response.json();
-    if (!response.ok) {
-      throw new Error(data.error || "Failed to send reset email");
+
+    if (error) {
+      throw new Error(error.message);
     }
+
     return true;
   }
 
-  async resetPassword(token: string, password: string): Promise<boolean> {
-    const response = await fetch(`${this.baseUrl}/auth/reset-password`, {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ token, password }),
+  async resetPassword(password: string): Promise<boolean> {
+    const supabase = this.getSupabase();
+
+    const { error } = await supabase.auth.updateUser({
+      password,
     });
-    
-    const data = await response.json();
-    if (!response.ok) {
-      throw new Error(data.error || "Failed to reset password");
+
+    if (error) {
+      throw new Error(error.message);
     }
+
     return true;
+  }
+
+  async fetchProfile(): Promise<User> {
+    const response = await fetch(`${this.baseUrl}/auth/profile`);
+
+    if (!response.ok) {
+      const data = await response.json();
+      throw new Error(data.error || "Failed to fetch profile");
+    }
+
+    return response.json();
   }
 
   async updateProfile(data: Partial<User>): Promise<User> {
@@ -82,7 +127,7 @@ class AuthService {
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify(data),
     });
-    
+
     const resData = await response.json();
     if (!response.ok) {
       throw new Error(resData.error || "Failed to update profile");
@@ -96,7 +141,7 @@ class AuthService {
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify(address),
     });
-    
+
     const data = await response.json();
     if (!response.ok) {
       throw new Error(data.error || "Failed to add address");
@@ -108,7 +153,7 @@ class AuthService {
     const response = await fetch(`${this.baseUrl}/auth/addresses?id=${id}`, {
       method: "DELETE",
     });
-    
+
     if (!response.ok) {
       const data = await response.json();
       throw new Error(data.error || "Failed to remove address");
@@ -121,7 +166,7 @@ class AuthService {
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ id, isDefault: true }),
     });
-    
+
     const data = await response.json();
     if (!response.ok) {
       throw new Error(data.error || "Failed to set default address");
@@ -130,9 +175,8 @@ class AuthService {
   }
 
   async logout(): Promise<void> {
-    console.log("AuthService: logging out...");
-    // Clear cookies client side is handled by store
-    await new Promise(resolve => setTimeout(resolve, 100));
+    const supabase = this.getSupabase();
+    await supabase.auth.signOut();
   }
 }
 

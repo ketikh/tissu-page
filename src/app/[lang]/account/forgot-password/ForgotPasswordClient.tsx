@@ -25,10 +25,6 @@ export default function ForgotPasswordClient({ dictionary, lang }: ForgotPasswor
     try {
       await forgotPassword(email);
       setIsSubmitted(true);
-      // After 2 seconds redirect to reset-password page
-      setTimeout(() => {
-        router.push(`/${lang}/account/reset-password`);
-      }, 2000);
     } catch (err) {
       // Error handled by store
     }
