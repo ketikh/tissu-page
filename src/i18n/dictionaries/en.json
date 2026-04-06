@@ -1,0 +1,425 @@
+{
+  "nav": {
+    "collection": "Collection",
+    "bestsellers": "Bestsellers",
+    "about": "About",
+    "cart": "Cart",
+    "language": "EN",
+    "shop": "Shop",
+    "faq": "FAQ",
+    "contact": "Contact",
+    "account": "Account",
+    "socials": "Social Media"
+  },
+  "announcement": {
+    "message": "Free Shipping on orders over 150 GEL"
+  },
+  "common": {
+    "loading": "Loading...",
+    "error": "An error occurred",
+    "success": "Operation successful",
+    "save": "Save",
+    "cancel": "Cancel",
+    "delete": "Delete",
+    "edit": "Edit",
+    "back": "Back",
+    "viewAll": "View All",
+    "close": "Close",
+    "add": "Add",
+    "confirm": "Confirm",
+    "remove": "Remove",
+    "default": "Default",
+    "apply": "Apply",
+    "retry": "Try Again"
+  },
+  "validation": {
+    "required": "This field is required",
+    "email": "Enter a valid email",
+    "phone": "Enter a valid phone number",
+    "minLength": "Minimum {count} characters",
+    "maxLength": "Maximum {count} characters",
+    "passwordsMatch": "Passwords do not match"
+  },
+  "home": {
+    "hero": {
+      "subtitle": "Discover the Art of Softness",
+      "title": "Crafting accessories that wrap your daily life in comfort.",
+      "description": "Discover our collection of premium, handcrafted laptop sleeves and accessories designed for your most valued devices.",
+      "cta": "Shop Collection"
+    },
+    "features": {
+      "premium": {
+        "title": "Premium Materials",
+        "description": "Natural, tactile fabrics sourced with care."
+      },
+      "minimal": {
+        "title": "Minimal Design",
+        "description": "Essential forms, refined for the modern life."
+      },
+      "local": {
+        "title": "Locally Crafted",
+        "description": "Designed and produced in Tbilisi, Georgia."
+      }
+    },
+    "bestsellersSection": {
+      "subtitle": "Curated Selection",
+      "title": "Our Bestsellers",
+      "viewAll": "Shop All Products"
+    },
+    "storySection": {
+      "subtitle": "Our Philosophy",
+      "title": "We believe your digital life deserves more tenderness.",
+      "description": "In a world of aluminum, glass, and plastic, we bring back warmth. Tissu creates beautifully tailored protection for your most important tools.",
+      "cta": "Read our story"
+    },
+    "testimonialSection": {
+      "title": "About Tissu",
+      "quote1": "Beautiful material and amazing texture. My laptop deserves protection that is a joy to touch.",
+      "author1": "Ana K.",
+      "quote2": "Minimalist design that feels intentional in every detail. Pure local quality.",
+      "author2": "George M."
+    },
+    "sizeGuideSection": {
+      "title": "How to Choose Size?",
+      "subtitle": "Our sleeves fit your devices perfectly.",
+      "small": "13-14 inch",
+      "large": "15-16 inch",
+      "description": "Perfect for MacBook Air and Pro. See product page for exact dimensions."
+    },
+    "faqPreviewSection": {
+      "title": "Have Questions?",
+      "viewAll": "View all questions"
+    },
+    "gallerySection": {
+      "title": "Your Tissu",
+      "subtitle": "Join us on Instagram @tissu.shop"
+    }
+  },
+  "footer": {
+    "newsletter": {
+      "title": "Join our community",
+      "subtitle": "Subscribe to our newsletter for exclusive offers and updates.",
+      "placeholder": "Email address",
+      "button": "Subscribe"
+    },
+    "help": {
+      "title": "Help",
+      "faq": "FAQ",
+      "shipping": "Shipping & Returns",
+      "contact": "Contact Us"
+    },
+    "shop": {
+      "title": "Shop",
+      "all": "All Products",
+      "sleeves": "Laptop Sleeves",
+      "accessories": "Accessories",
+      "tagline": "Handcrafted textile accessories. Designed to elevate your everyday."
+    },
+    "about": {
+      "title": "About",
+      "story": "Our Story",
+      "sustainability": "Sustainability"
+    },
+    "legal": {
+      "terms": "Terms & Conditions",
+      "privacy": "Privacy Policy",
+      "cookies": "Cookie Policy",
+      "copyright": "© 2026 Tissu Studio. All rights reserved."
+    }
+  },
+  "cartDrawer": {
+    "title": "Your Cart",
+    "empty": "Your cart is currently empty.",
+    "discover": "Discover our collection of premium sleeves and accessories.",
+    "continue": "Return to Shop",
+    "subtotal": "Subtotal",
+    "shipping": "Shipping calculated at checkout",
+    "checkout": "Checkout",
+    "secure": "Secure payment guaranteed",
+    "recommendations": "You might also like",
+    "promo": {
+      "label": "Promo Code",
+      "placeholder": "Enter code",
+      "success": "Promo code applied successfully!",
+      "error": "Invalid promo code"
+    }
+  },
+  "product": {
+    "quickAdd": "Add",
+    "added": "Added",
+    "addToCart": "Add to Cart",
+    "soldOut": "Sold Out",
+    "size": "Size",
+    "color": "Color",
+    "quantity": "Qty",
+    "features": {
+      "shipping": "Free shipping from 100₾",
+      "returns": "30-day return policy",
+      "warranty": "Lifetime warranty"
+    },
+    "tabs": {
+      "description": "Description",
+      "details": "Details",
+      "shipping": "Shipping"
+    },
+    "breadcrumbHome": "Home",
+    "reviewsLabel": "Reviews",
+    "sizeGuide": "Size Guide",
+    "buyNow": "Buy Now",
+    "freeShippingMsg": "Free shipping on orders over {price}",
+    "trust": {
+      "quality": "Premium Quality",
+      "delivery": "Fast Delivery",
+      "returns": "14-Day Returns"
+    },
+    "related": "You May Also Like",
+    "inStock": "In stock",
+    "unavailable": "Out of stock"
+  },
+  "shop": {
+    "title": "All Products",
+    "subtitle": "Discover our unique collection of handcrafted textiles.",
+    "empty": "No products found.",
+    "clearFilters": "Clear Filters",
+    "filters": {
+      "title": "Filters",
+      "mobile": "Filters & Sorting",
+      "active": "Active Filters",
+      "clearAll": "Clear All",
+      "colors": "Colors",
+      "sizes": "Sizes",
+      "sortBy": "Sort by:",
+      "sort": {
+        "featured": "Featured",
+        "priceAsc": "Price: Low to High",
+        "priceDesc": "Price: High to Low",
+        "newest": "Newest"
+      }
+    }
+  },
+  "checkout": {
+    "empty": "Checkout is unavailable. Your cart is empty.",
+    "returnShop": "Return to Shop",
+    "returnCart": "Return to Cart",
+    "summary": "Order details",
+    "subtotal": "Subtotal",
+    "shippingC": "Shipping",
+    "total": "Total",
+    "contact": "Contact Info",
+    "haveAccount": "Already have an account?",
+    "login": "Login",
+    "email": "Email",
+    "phone": "Phone Number",
+    "address": "Shipping Address",
+    "firstName": "First Name",
+    "lastName": "Last Name",
+    "street": "Street Address",
+    "city": "City",
+    "postal": "Postal Code",
+    "notes": "Additional notes (optional)",
+    "shippingMethod": "Shipping Method",
+    "standard": "Standard Shipping",
+    "standardDesc": "3-5 business days",
+    "express": "Express Shipping",
+    "expressDesc": "1-2 business days",
+    "payment": "Payment",
+    "paymentMethod": "Payment Method",
+    "orderSummary": "Order Summary",
+    "secureMsg": "All transactions are secure and encrypted.",
+    "card": "Pay by Card",
+    "cardNumber": "Card Number",
+    "expiryDate": "Expiry Date (MM/YY)",
+    "cvc": "CVC",
+    "nameCard": "Name on Card",
+    "cash": "Cash on Delivery",
+    "pay": "Pay Now",
+    "policies": {
+      "refund": "Refund Policy",
+      "privacy": "Privacy Policy",
+      "terms": "Terms of Service"
+    },
+    "guestCheckout": "Continue as Guest",
+    "loginToContinue": "Login for a faster checkout experience",
+    "discount": "Discount"
+  },
+  "orderStatus": {
+    "success": {
+      "title": "Thank you for your order!",
+      "subtitle": "Your order has been placed successfully. A confirmation email will be sent to you shortly.",
+      "orderNumber": "Order Number",
+      "details": "Order Summary",
+      "track": "Track Order",
+      "continue": "Continue Shopping"
+    },
+    "failed": {
+      "title": "Payment Failed",
+      "subtitle": "Unfortunately, your transaction could not be completed. Please try again or use a different payment method.",
+      "reason": "Reason:",
+      "retry": "Return to Checkout",
+      "support": "Contact Support"
+    }
+  },
+  "notfound": {
+    "title": "Page Not Found",
+    "description": "The page you are looking for doesn't exist. It might have been moved or deleted.",
+    "shop": "Back to Shop",
+    "search": "Search"
+  },
+  "auth": {
+    "login": {
+      "title": "Welcome Back",
+      "subtitle": "Enter your credentials to access your account",
+      "email": "Email Address",
+      "password": "Password",
+      "submit": "Login",
+      "forgot": "Forgot Password?",
+      "noAccount": "Don't have an account?",
+      "register": "Register",
+      "error": "Invalid email or password"
+    },
+    "register": {
+      "title": "Create Account",
+      "subtitle": "Join Tissu to manage your orders and addresses.",
+      "firstName": "First Name",
+      "lastName": "Last Name",
+      "email": "Email Address",
+      "password": "Password",
+      "submit": "Register",
+      "haveAccount": "Already have an account?",
+      "login": "Login"
+    },
+    "forgotPassword": {
+      "title": "Recover Password",
+      "subtitle": "Enter your email to receive recovery instructions.",
+      "email": "Email Address",
+      "submit": "Send",
+      "success": "Recovery instructions have been sent to your email.",
+      "back": "Back to Login"
+    },
+    "resetPassword": {
+      "title": "New Password",
+      "subtitle": "Please enter your new password below.",
+      "newPassword": "New Password",
+      "confirmPassword": "Confirm Password",
+      "code": "6-Digit Reset Code",
+      "codePlaceholder": "000000",
+      "submit": "Update Password",
+      "success": "Your password has been updated successfully.",
+      "resend": "Resend Code",
+      "resendSuccess": "A new code has been sent to your email."
+    }
+  },
+  "account": {
+    "title": "My Account",
+    "sidebar": {
+      "profile": "Profile Overview",
+      "orders": "Order History",
+      "addresses": "Saved Addresses",
+      "wishlist": "Wishlist",
+      "settings": "Settings",
+      "logout": "Logout"
+    },
+    "welcome": "Welcome",
+    "edit": "Edit Profile",
+    "recentOrder": "Recent Order",
+    "viewAll": "View All",
+    "placed": "Placed",
+    "processing": "Processing",
+    "track": "Track",
+    "defaultShipping": "Default Shipping Address",
+    "manage": "Manage",
+    "profile": {
+      "title": "Personal Information",
+      "firstName": "First Name",
+      "lastName": "Last Name",
+      "email": "Email",
+      "phone": "Phone",
+      "update": "Update Profile"
+    },
+    "orders": {
+      "title": "Your Orders",
+      "empty": "You haven't placed any orders yet.",
+      "orderNo": "Order #",
+      "date": "Date",
+      "total": "Total",
+      "status": "Status",
+      "details": "Details"
+    },
+    "addresses": {
+      "title": "Saved Addresses",
+      "add": "Add New Address",
+      "empty": "You have no saved addresses.",
+      "default": "Default Address",
+      "setAsDefault": "Set as Default"
+    }
+  },
+  "about": {
+    "tag": "Our Story",
+    "title": "Crafting accessories that wrap your daily life in comfort.",
+    "desc1": "Tissu started with a simple idea: the tools we use every day shouldn't be cold and impersonal. They should be beautiful, tactile, and crafted with care.",
+    "photo": "Photo",
+    "philTitle": "Softness Philosophy",
+    "philDesc1": "In a world of aluminum, glass, and plastic, we wanted to bring back warmth. Your laptop is the primary tool for your ideas and work - its protection should be just as valuable.",
+    "philDesc2": "We use premium textiles that give you a special feeling - naturally worn organic cotton, luxurious linen, and a lightweight but reliable felted core.",
+    "detailPhoto": "Detail Photo",
+    "commitmentTitle": "Our Quality Standard",
+    "quality1": {
+      "title": "Eco-friendly Materials",
+      "desc": "We only use certified organic cotton and recycled PET padding to reduce environmental impact while maintaining maximum softness."
+    },
+    "quality2": {
+      "title": "Handcrafted Construction",
+      "desc": "Every detail matters. From reinforced seams to hidden magnetic closures that won't scratch your device."
+    },
+    "quality3": {
+      "title": "Designed in Georgia",
+      "desc": "Designed in Tbilisi. We combine local inspiration with a timeless minimalist aesthetic to create a global product."
+    }
+  },
+  "faq": {
+    "title": "Frequently Asked Questions",
+    "subtitle": "Everything you need to know about our products, shipping, and returns.",
+    "stillQuestions": {
+      "title": "Still have questions?",
+      "subtitle": "We're here to help. Contact our support team.",
+      "cta": "Contact Us"
+    }
+  },
+  "contact": {
+    "title": "We'd love to hear from you.",
+    "subtitle": "If you have questions about products, shipping, returns, or just want to say hello - we're here.",
+    "details": {
+      "title": "Contact",
+      "email": {
+        "title": "Email",
+        "tagline": "Our team is here to help."
+      },
+      "office": {
+        "title": "Office",
+        "tagline": "Visit us at our studio.",
+        "address": "Tbilisi, Georgia\n(By appointment only)"
+      },
+      "phone": {
+        "title": "Phone",
+        "tagline": "Mon-Fri / 10am to 6pm."
+      }
+    },
+    "social": {
+      "title": "Follow us on Social",
+      "subtitle": "Discover inspiration and behind-the-scenes content on our social channels."
+    },
+    "form": {
+      "title": "Message Us",
+      "firstName": "First Name",
+      "lastName": "Last Name",
+      "email": "Email",
+      "message": "Message",
+      "placeholder": {
+        "firstName": "Anna",
+        "lastName": "Smith",
+        "message": "How can we help you?"
+      },
+      "send": "Send Message"
+    }
+  }
+}

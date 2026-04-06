@@ -1,0 +1,83 @@
+generator client {
+  provider        = "prisma-client-js"
+  previewFeatures = ["multiSchema"]
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+  schemas  = ["website"]
+}
+
+model User {
+  id        String    @id @default(cuid())
+  email     String    @unique
+  password  String?
+  firstName String
+  lastName  String
+  phone     String?
+  addresses Address[]
+  orders    Order[]
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @updatedAt
+
+  @@schema("website")
+}
+
+model PasswordResetToken {
+  id        String   @id @default(cuid())
+  email     String
+  token     String   @unique
+  expires   DateTime
+  createdAt DateTime @default(now())
+
+  @@unique([email, token])
+  @@schema("website")
+}
+
+model Address {
+  id            String  @id @default(cuid())
+  firstName     String
+  lastName      String
+  city          String
+  streetAddress String
+  phone         String
+  notes         String?
+  isDefault     Boolean @default(false)
+  userId        String
+  user          User    @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@schema("website")
+}
+
+model Order {
+  id              String      @id @default(cuid())
+  date            DateTime    @default(now())
+  status          String      @default("pending")
+  subtotal        Float
+  shipping        Float
+  discount        Float
+  total           Float
+  paymentMethod   String
+  userId          String?
+  user            User?       @relation(fields: [userId], references: [id], onDelete: Cascade)
+  items           OrderItem[]
+  shippingAddress String      // Stored as JSON string
+
+  @@schema("website")
+}
+
+model OrderItem {
+  id          String @id @default(cuid())
+  productId   String
+  variantId   String
+  quantity    Int
+  price       Float
+  productName String // JSON string
+  variantName String // JSON string
+  image       String
+  orderId     String
+  order       Order  @relation(fields: [orderId], references: [id], onDelete: Cascade)
+
+  @@schema("website")
+}

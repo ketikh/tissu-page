@@ -7,8 +7,14 @@ import Image from "next/image";
 import Link from "next/link";
 import { formatPrice } from "@/lib/utils";
 import { Button } from "../ui/Button";
+import { Locale } from "@/i18n/config";
 
-export function CartDrawer() {
+interface CartDrawerProps {
+  dictionary: any;
+  lang: Locale;
+}
+
+export function CartDrawer({ dictionary, lang }: CartDrawerProps) {
   const { isCartOpen, closeCart } = useUIStore();
   const { items, removeItem, updateQuantity, getSummary } = useCartStore();
   const { subtotal } = getSummary();
@@ -26,7 +32,7 @@ export function CartDrawer() {
       {/* Drawer */}
       <div className="fixed inset-y-0 right-0 z-50 w-full max-w-md bg-background shadow-2xl flex flex-col transform transition-transform duration-300 translate-x-0">
         <div className="flex items-center justify-between p-6 border-b border-border">
-          <h2 className="text-xl font-serif font-semibold tracking-wide">Your Cart</h2>
+          <h2 className="text-xl font-serif font-semibold tracking-wide">{dictionary.cartDrawer.title}</h2>
           <button 
             onClick={closeCart}
             className="p-2 -mr-2 text-muted-foreground hover:text-foreground transition-colors rounded-full hover:bg-muted"
@@ -42,13 +48,13 @@ export function CartDrawer() {
                 <ShoppingBag className="w-8 h-8" />
               </div>
               <div className="space-y-2">
-                <p className="text-lg font-serif">Your cart is empty.</p>
+                <p className="text-lg font-serif">{dictionary.cartDrawer.empty}</p>
                 <p className="text-sm text-muted-foreground max-w-[250px] mx-auto text-balance">
-                  Discover our premium collection of sleeves and accessories.
+                  {dictionary.cartDrawer.discover}
                 </p>
               </div>
               <Button onClick={closeCart} asChild variant="premium">
-                <Link href="/shop">Explore Collection</Link>
+                <Link href={`/${lang}/shop`}>{dictionary.cartDrawer.continue}</Link>
               </Button>
             </div>
           ) : (
@@ -57,7 +63,7 @@ export function CartDrawer() {
                 <div className="relative w-20 h-24 rounded-md overflow-hidden bg-muted flex-shrink-0">
                   <Image 
                     src={item.product.images[0] || "/placeholder.jpg"} 
-                    alt={item.product.name}
+                    alt={item.product.name[lang] || item.product.name['ka']}
                     fill
                     className="object-cover"
                   />
@@ -66,17 +72,17 @@ export function CartDrawer() {
                   <div>
                     <div className="flex justify-between items-start gap-2">
                       <h3 className="font-medium text-sm leading-tight text-foreground pr-4">
-                        {item.product.name}
+                        {item.product.name[lang] || item.product.name['ka']}
                       </h3>
                       <button 
-                        onClick={() => removeItem(item.id)}
+            onClick={() => removeItem(item.id)}
                         className="text-muted-foreground hover:text-destructive flex-shrink-0"
                       >
                         <Trash2 className="w-4 h-4" />
                       </button>
                     </div>
                     <p className="text-xs text-muted-foreground mt-1">
-                      {item.variant.color} / {item.variant.size}
+                      {item.variant.color[lang] || item.variant.color['ka']} / {item.variant.size}
                     </p>
                   </div>
                   
@@ -107,22 +113,20 @@ export function CartDrawer() {
         </div>
 
         {items.length > 0 && (
-          <div className="border-t border-border p-6 bg-card space-y-4">
-            <div className="flex justify-between text-base font-medium">
-              <span className="text-muted-foreground">Subtotal</span>
-              <span>{formatPrice(subtotal)}</span>
+          <div className="p-6 border-t border-border bg-card/50 backdrop-blur-sm space-y-4">
+            <div className="flex justify-between items-center mb-1">
+              <span className="text-sm text-muted-foreground font-medium">{dictionary.cartDrawer.subtotal}</span>
+              <span className="text-lg font-serif font-bold text-foreground">{formatPrice(subtotal)}</span>
             </div>
-            <p className="text-xs text-muted-foreground">
-              Shipping and taxes calculated at checkout.
+            <p className="text-xs text-muted-foreground text-center">
+              {dictionary.cartDrawer.shipping}
             </p>
-            <div className="grid gap-3 pt-2">
-              <Button asChild variant="premium" className="w-full text-base" onClick={closeCart}>
-                <Link href="/checkout">Proceed to Checkout</Link>
-              </Button>
-              <Button asChild variant="outline" className="w-full" onClick={closeCart}>
-                <Link href="/cart">View Shopping Cart</Link>
-              </Button>
-            </div>
+            <Button asChild onClick={closeCart} className="w-full h-12 text-base font-medium rounded-xl shadow-xl shadow-brand-primary/10">
+              <Link href={`/${lang}/checkout`}>{dictionary.cartDrawer.checkout}</Link>
+            </Button>
+            <p className="text-[10px] text-muted-foreground text-center uppercase tracking-widest pt-2">
+              • {dictionary.cartDrawer.secure} •
+            </p>
           </div>
         )}
       </div>

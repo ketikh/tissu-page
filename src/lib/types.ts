@@ -1,9 +1,35 @@
 export type Category = "laptop-sleeves" | "accessories" | "pouches" | "all";
 
+export interface BilingualText {
+  ka: string;
+  en: string;
+}
+
+export interface Address {
+  id: string;
+  firstName: string;
+  lastName: string;
+  city: string;
+  streetAddress: string;
+  phone: string;
+  notes?: string;
+  isDefault?: boolean;
+}
+
+export interface User {
+  id: string;
+  email: string;
+  firstName: string;
+  lastName: string;
+  phone?: string;
+  addresses: Address[];
+  orders: Order[];
+}
+
 export interface ProductVariant {
   id: string;
   size: string;
-  color: string;
+  color: BilingualText;
   colorCode: string;
   inStock: boolean;
   price?: number; // Optional override
@@ -14,23 +40,23 @@ export interface Review {
   author: string;
   rating: number;
   date: string;
-  content: string;
+  content: BilingualText;
 }
 
 export interface Product {
   id: string;
   slug: string;
-  name: string;
-  subtitle: string;
-  description: string;
-  materials: string[];
-  careInstructions: string[];
+  name: BilingualText;
+  subtitle: BilingualText;
+  description: BilingualText;
+  materials: BilingualText[];
+  careInstructions: BilingualText[];
   price: number;
   originalPrice?: number;
   images: string[];
   category: Category;
   variants: ProductVariant[];
-  badges: string[]; // e.g., "Best Seller", "New", "Limited"
+  badges: BilingualText[]; // e.g., "Best Seller", "New", "Limited"
   reviews: Review[];
   featured?: boolean;
 }
@@ -44,35 +70,47 @@ export interface CartItem {
   quantity: number;
 }
 
-export interface Address {
-  id: string;
-  firstName: string;
-  lastName: string;
-  city: string; // Crucial for Georgia
-  streetAddress: string;
-  phone: string; // Crucial for Georgia
-  notes?: string;
-  isDefault?: boolean;
+export interface OrderItem {
+  productId: string;
+  variantId: string;
+  quantity: number;
+  price: number;
+  productName: BilingualText;
+  variantName: BilingualText;
+  image: string;
 }
 
 export interface Order {
   id: string;
   date: string;
   status: "pending" | "processing" | "shipped" | "delivered" | "cancelled";
-  items: CartItem[];
+  items: OrderItem[];
   subtotal: number;
   shipping: number;
   discount: number;
   total: number;
-  shippingAddress: Address;
+  shippingAddress: Omit<Address, "id" | "isDefault">;
+  paymentMethod: "card" | "cash";
 }
 
 export interface FAQCategory {
-  title: string;
+  title: BilingualText;
   items: FAQItem[];
 }
 
 export interface FAQItem {
-  question: string;
-  answer: string;
+  question: BilingualText;
+  answer: BilingualText;
+}
+
+export interface LoginCredentials {
+  email: string;
+  password?: string;
+}
+
+export interface RegisterData {
+  firstName: string;
+  lastName: string;
+  email: string;
+  password?: string;
 }

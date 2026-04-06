@@ -4,23 +4,23 @@ import { cva, type VariantProps } from "class-variance-authority"
 import { cn } from "@/lib/utils"
 
 const buttonVariants = cva(
-  "inline-flex items-center justify-center whitespace-nowrap rounded-md text-sm font-medium transition-all focus-ring disabled:pointer-events-none disabled:opacity-50 active:scale-[0.98]",
+  "inline-flex items-center justify-center whitespace-nowrap rounded-[1rem] text-sm font-bold uppercase tracking-widest transition-all focus-ring disabled:pointer-events-none disabled:opacity-50 active:scale-[0.98]",
   {
     variants: {
       variant: {
-        default: "bg-primary text-primary-foreground hover:bg-primary/90 shadow-sm",
+        default: "bg-brand-dark text-white hover:bg-brand-primary shadow-sm",
         destructive: "bg-destructive text-destructive-foreground hover:bg-destructive/90 shadow-sm",
-        outline: "border border-border bg-transparent hover:bg-accent hover:text-accent-foreground",
-        secondary: "bg-secondary text-secondary-foreground hover:bg-secondary/80",
-        ghost: "hover:bg-accent hover:text-accent-foreground",
-        link: "text-primary underline-offset-4 hover:underline",
-        premium: "bg-brand-primary text-primary-foreground hover:bg-brand-dark shadow-md hover:shadow-lg",
+        outline: "border border-border bg-transparent hover:bg-brand-soft hover:text-brand-dark",
+        secondary: "bg-brand-soft text-brand-dark hover:bg-brand-soft/80",
+        ghost: "hover:bg-brand-soft hover:text-brand-dark",
+        link: "text-brand-primary underline-offset-4 hover:underline",
+        premium: "bg-brand-primary text-white hover:bg-brand-dark shadow-xl hover:shadow-brand-primary/10 shadow-brand-primary/10",
       },
       size: {
-        default: "h-11 px-6 py-2",
-        sm: "h-9 px-4 text-xs rounded-sm",
-        lg: "h-14 px-10 text-base rounded-lg",
-        icon: "h-11 w-11",
+        default: "h-12 px-6 py-2",
+        sm: "h-10 px-4 text-[10px] rounded-lg",
+        lg: "h-16 px-10 text-xs rounded-2xl",
+        icon: "h-12 w-12",
       },
     },
     defaultVariants: {
@@ -38,15 +38,12 @@ export interface ButtonProps
 
 const Button = React.forwardRef<HTMLButtonElement, ButtonProps>(
   ({ className, variant, size, asChild = false, ...props }, ref) => {
-    // Basic element or Radix Slot if asChild is used (we can mock slot by simply casting if generic is used)
     const Comp = asChild ? Slot : "button"
-    // Since we don't have radix-ui installed, we'll gracefully degrade if asChild is passed or install it.
-    // Actually, I'll remove Slot since I haven't installed it yet, or I can install it. Let's just use "button" for now.
     
-    // Better yet, just use standard button or anchor manually when needed, or install @radix-ui/react-slot
     return (
-      <button
+      <Comp
         className={cn(buttonVariants({ variant, size, className }))}
+        // @ts-ignore
         ref={ref}
         {...props}
       />
