@@ -4,6 +4,7 @@ import { useState } from "react";
 import Link from "next/link";
 import Image from "next/image";
 import { useCartStore } from "@/store/useCartStore";
+import { useStoreHydration } from "@/store/useHydration";
 import { formatPrice } from "@/lib/utils";
 import { Button } from "@/components/ui/Button";
 import { Trash2, ChevronLeft, ShieldCheck, Tag, ArrowRight, Minus, Plus } from "lucide-react";
@@ -17,6 +18,7 @@ interface CartClientProps {
 }
 
 export default function CartClient({ dictionary, lang }: CartClientProps) {
+  useStoreHydration();
   const { items, removeItem, updateQuantity, getSummary, applyPromoCode, discount } = useCartStore();
   const { subtotal, total, discountAmount, shipping } = getSummary();
   const [promoCode, setPromoCode] = useState("");

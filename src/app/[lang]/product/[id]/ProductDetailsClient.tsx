@@ -6,6 +6,7 @@ import { Product } from "@/lib/types";
 import { Button } from "@/components/ui/Button";
 import { useCartStore } from "@/store/useCartStore";
 import { useUIStore } from "@/store/useUIStore";
+import { useStoreHydration } from "@/store/useHydration";
 import { formatPrice } from "@/lib/utils";
 import { 
   ChevronRight, 
@@ -34,6 +35,7 @@ interface ProductDetailsClientProps {
 }
 
 export function ProductDetailsClient({ product, lang, dictionary }: ProductDetailsClientProps) {
+  useStoreHydration();
   const [selectedVariantId, setSelectedVariantId] = useState(product.variants[0]?.id || "");
   const [quantity, setQuantity] = useState(1);
   const [activeImage, setActiveImage] = useState(0);

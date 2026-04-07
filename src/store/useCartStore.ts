@@ -89,6 +89,7 @@ export const useCartStore = create<CartState>()(
     }),
     {
       name: "tissu-cart",
+      skipHydration: true,
     }
   )
 );

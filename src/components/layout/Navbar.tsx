@@ -10,6 +10,7 @@ import { Locale } from "@/i18n/config";
 import { LanguageSwitcher } from "./LanguageSwitcher";
 import { motion, AnimatePresence } from "framer-motion";
 import { cn } from "@/lib/utils";
+import { useStoreHydration } from "@/store/useHydration";
 
 interface NavbarProps {
   lang: Locale;
@@ -17,12 +18,13 @@ interface NavbarProps {
 }
 
 export function Navbar({ lang, dictionary }: NavbarProps) {
+  const hydrated = useStoreHydration();
   const pathname = usePathname();
   const [isScrolled, setIsScrolled] = useState(false);
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
-  
+
   const openCart = useUIStore((state) => state.openCart);
-  const cartItemCount = useCartStore((state) => state.getSummary().itemsCount);
+  const cartItemCount = hydrated ? useCartStore.getState().getSummary().itemsCount : 0;
 
   useEffect(() => {
     const handleScroll = () => {

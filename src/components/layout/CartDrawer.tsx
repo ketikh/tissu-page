@@ -8,6 +8,7 @@ import Link from "next/link";
 import { formatPrice } from "@/lib/utils";
 import { Button } from "../ui/Button";
 import { Locale } from "@/i18n/config";
+import { useStoreHydration } from "@/store/useHydration";
 
 interface CartDrawerProps {
   dictionary: any;
@@ -15,6 +16,7 @@ interface CartDrawerProps {
 }
 
 export function CartDrawer({ dictionary, lang }: CartDrawerProps) {
+  useStoreHydration();
   const { isCartOpen, closeCart } = useUIStore();
   const { items, removeItem, updateQuantity, getSummary } = useCartStore();
   const { subtotal } = getSummary();
