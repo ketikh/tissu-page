@@ -9,6 +9,7 @@ import { useAuthStore } from "@/store/useAuthStore";
 import { Locale } from "@/i18n/config";
 import { Loader2, AlertCircle, CheckCircle2 } from "lucide-react";
 import { SocialAuth } from "@/components/auth/SocialAuth";
+import { useStoreHydration } from "@/store/useHydration";
 
 interface RegisterClientProps {
   dictionary: any;
@@ -16,6 +17,7 @@ interface RegisterClientProps {
 }
 
 export default function RegisterClient({ dictionary, lang }: RegisterClientProps) {
+  const hydrated = useStoreHydration();
   const router = useRouter();
   const { register, isLoading, error, clearError, needsConfirmation } = useAuthStore();
 

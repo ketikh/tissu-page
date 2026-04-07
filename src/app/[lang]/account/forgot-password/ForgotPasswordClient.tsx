@@ -8,6 +8,7 @@ import { Input } from "@/components/ui/Input";
 import { Locale } from "@/i18n/config";
 import { Loader2, ArrowLeft, CheckCircle2, AlertCircle } from "lucide-react";
 import { useAuthStore } from "@/store/useAuthStore";
+import { useStoreHydration } from "@/store/useHydration";
 
 interface ForgotPasswordClientProps {
   dictionary: any;
@@ -15,6 +16,7 @@ interface ForgotPasswordClientProps {
 }
 
 export default function ForgotPasswordClient({ dictionary, lang }: ForgotPasswordClientProps) {
+  useStoreHydration();
   const router = useRouter();
   const [email, setEmail] = useState("");
   const { forgotPassword, isLoading, error, clearError } = useAuthStore();

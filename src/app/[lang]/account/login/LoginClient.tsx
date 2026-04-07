@@ -10,6 +10,7 @@ import { Locale } from "@/i18n/config";
 import { Loader2, AlertCircle } from "lucide-react";
 import { SocialAuth } from "@/components/auth/SocialAuth";
 import { AUTH_CONFIG } from "@/lib/config/auth.config";
+import { useStoreHydration } from "@/store/useHydration";
 
 interface LoginClientProps {
   dictionary: any;
@@ -17,10 +18,11 @@ interface LoginClientProps {
 }
 
 export default function LoginClient({ dictionary, lang }: LoginClientProps) {
+  const hydrated = useStoreHydration();
   const router = useRouter();
   const searchParams = useSearchParams();
   const callbackUrl = searchParams.get("callbackUrl") || `/${lang}${AUTH_CONFIG.REDIRECTS.AFTER_LOGIN}`;
-  
+
   const { login, isLoading, error, clearError } = useAuthStore();
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");

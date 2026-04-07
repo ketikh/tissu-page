@@ -2,6 +2,7 @@
 
 import Link from "next/link";
 import { useAuthStore } from "@/store/useAuthStore";
+import { useStoreHydration } from "@/store/useHydration";
 import { formatPrice } from "@/lib/utils";
 import { Button } from "@/components/ui/Button";
 import { CheckCircle2, Package, ArrowRight, ShoppingBag, MapPin, Printer } from "lucide-react";
@@ -17,6 +18,7 @@ interface SuccessClientProps {
 }
 
 export default function SuccessClient({ lang, dictionary, orderId }: SuccessClientProps) {
+  useStoreHydration();
   const { user, isAuthenticated } = useAuthStore();
   const [order, setOrder] = useState<Order | null>(null);
 

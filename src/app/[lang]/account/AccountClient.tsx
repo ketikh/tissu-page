@@ -23,6 +23,7 @@ import { Input } from "@/components/ui/Input";
 import { useAuthStore } from "@/store/useAuthStore";
 import { Locale } from "@/i18n/config";
 import { formatPrice } from "@/lib/utils";
+import { useStoreHydration } from "@/store/useHydration";
 import Image from "next/image";
 
 interface AccountClientProps {
@@ -33,27 +34,21 @@ interface AccountClientProps {
 type Tab = "overview" | "orders" | "addresses" | "wishlist" | "settings";
 
 export default function AccountClient({ dictionary, lang }: AccountClientProps) {
+  const hydrated = useStoreHydration();
   const router = useRouter();
   const { user, isAuthenticated, logout, updateProfile, addAddress, removeAddress, setAddressAsDefault, isLoading } = useAuthStore();
   const [activeTab, setActiveTab] = useState<Tab>("overview");
   const [isEditingProfile, setIsEditingProfile] = useState(false);
 
-  const [mounted, setMounted] = useState(false);
-
   useEffect(() => {
-    setMounted(true);
-  }, []);
-
-  useEffect(() => {
-    if (mounted && !user) {
-      // If state hydrated but no user, storage might be cleared while cookies remain
+    if (hydrated && !user) {
       logout().then(() => {
         router.push(`/${lang}/account/login`);
       });
     }
-  }, [mounted, user, logout, router, lang]);
+  }, [hydrated, user, logout, router, lang]);
 
-  if (!mounted || !user) {
+  if (!hydrated || !user) {
     return (
       <div className="min-h-screen flex items-center justify-center bg-brand-soft/20">
         <Loader2 className="w-10 h-10 animate-spin text-brand-primary" />

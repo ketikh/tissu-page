@@ -8,6 +8,7 @@ import { Input } from "@/components/ui/Input";
 import { Locale } from "@/i18n/config";
 import { Loader2, CheckCircle2, AlertCircle } from "lucide-react";
 import { useAuthStore } from "@/store/useAuthStore";
+import { useStoreHydration } from "@/store/useHydration";
 
 interface ResetPasswordClientProps {
   dictionary: any;
@@ -15,6 +16,7 @@ interface ResetPasswordClientProps {
 }
 
 export default function ResetPasswordClient({ dictionary, lang }: ResetPasswordClientProps) {
+  useStoreHydration();
   const router = useRouter();
   const [password, setPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");

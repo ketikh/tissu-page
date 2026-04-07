@@ -5,6 +5,7 @@ import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useCartStore } from "@/store/useCartStore";
 import { useAuthStore } from "@/store/useAuthStore";
+import { useStoreHydration } from "@/store/useHydration";
 import { formatPrice } from "@/lib/utils";
 import { Button } from "@/components/ui/Button";
 import { Input } from "@/components/ui/Input";
@@ -19,6 +20,7 @@ interface CheckoutClientProps {
 }
 
 export default function CheckoutClient({ lang, dictionary }: CheckoutClientProps) {
+  useStoreHydration();
   const router = useRouter();
   const { items, getSummary, clearCart, discount } = useCartStore();
   const { user, isAuthenticated, addOrder } = useAuthStore();
