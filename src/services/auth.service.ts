@@ -30,7 +30,7 @@ class AuthService {
     lastName: string;
     email: string;
     password: string;
-  }): Promise<{ user: User }> {
+  }): Promise<{ user: User | null; needsConfirmation: boolean }> {
     const supabase = this.getSupabase();
 
     const { data: authData, error } = await supabase.auth.signUp({
@@ -48,23 +48,14 @@ class AuthService {
       throw new Error(error.message);
     }
 
-    // Create profile record in our DB
-    const response = await fetch(`${this.baseUrl}/auth/profile`, {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({
-        firstName: data.firstName,
-        lastName: data.lastName,
-      }),
-    });
-
-    if (!response.ok) {
-      const resData = await response.json();
-      throw new Error(resData.error || "Failed to create profile");
+    // If email confirmation is required, session won't exist yet
+    if (!authData.session) {
+      return { user: null, needsConfirmation: true };
     }
 
-    const profile = await response.json();
-    return { user: profile };
+    // Session exists (autoconfirm enabled) — create profile
+    const profile = await this.fetchProfile();
+    return { user: profile, needsConfirmation: false };
   }
 
   async loginWithGoogle(): Promise<void> {
