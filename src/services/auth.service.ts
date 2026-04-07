@@ -30,32 +30,33 @@ class AuthService {
     lastName: string;
     email: string;
     password: string;
-  }): Promise<{ user: User | null; needsConfirmation: boolean }> {
-    const supabase = this.getSupabase();
+  }): Promise<{ user: User }> {
+    // Step 1: Create user via server API (auto-confirms email)
+    const response = await fetch(`${this.baseUrl}/auth/register`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(data),
+    });
 
-    const { data: authData, error } = await supabase.auth.signUp({
+    const resData = await response.json();
+    if (!response.ok) {
+      throw new Error(resData.error || "Registration failed");
+    }
+
+    // Step 2: Sign in immediately
+    const supabase = this.getSupabase();
+    const { error } = await supabase.auth.signInWithPassword({
       email: data.email,
       password: data.password,
-      options: {
-        data: {
-          first_name: data.firstName,
-          last_name: data.lastName,
-        },
-      },
     });
 
     if (error) {
       throw new Error(error.message);
     }
 
-    // If email confirmation is required, session won't exist yet
-    if (!authData.session) {
-      return { user: null, needsConfirmation: true };
-    }
-
-    // Session exists (autoconfirm enabled) — create profile
+    // Step 3: Fetch profile
     const profile = await this.fetchProfile();
-    return { user: profile, needsConfirmation: false };
+    return { user: profile };
   }
 
   async loginWithGoogle(): Promise<void> {

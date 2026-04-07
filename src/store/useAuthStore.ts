@@ -8,8 +8,6 @@ interface AuthState {
   isAuthenticated: boolean;
   isLoading: boolean;
   error: string | null;
-  needsConfirmation: boolean;
-
   login: (credentials: { email: string; password: string }) => Promise<void>;
   register: (data: { firstName: string; lastName: string; email: string; password: string }) => Promise<void>;
   loginWithGoogle: () => Promise<void>;
@@ -32,8 +30,6 @@ export const useAuthStore = create<AuthState>()(
       isAuthenticated: false,
       isLoading: false,
       error: null,
-      needsConfirmation: false,
-
       login: async (credentials) => {
         set({ isLoading: true, error: null });
         try {
@@ -46,14 +42,10 @@ export const useAuthStore = create<AuthState>()(
       },
 
       register: async (data) => {
-        set({ isLoading: true, error: null, needsConfirmation: false });
+        set({ isLoading: true, error: null });
         try {
-          const { user, needsConfirmation } = await authService.register(data);
-          if (needsConfirmation) {
-            set({ isLoading: false, needsConfirmation: true });
-          } else {
-            set({ user, isAuthenticated: true, isLoading: false });
-          }
+          const { user } = await authService.register(data);
+          set({ user, isAuthenticated: true, isLoading: false });
         } catch (err) {
           const message = err instanceof Error ? err.message : 'Registration failed';
           set({ isLoading: false, error: message });
@@ -195,6 +187,10 @@ export const useAuthStore = create<AuthState>()(
     {
       name: 'tissu-auth-storage',
       skipHydration: true,
+      partialize: (state) => ({
+        user: state.user,
+        isAuthenticated: state.isAuthenticated,
+      }),
     }
   )
 );
