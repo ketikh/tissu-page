@@ -12,7 +12,6 @@ export async function POST(req: Request) {
 
     const supabase = await createServiceClient();
 
-    // Create user with admin API — auto-confirms email
     const { data: authData, error: authError } = await supabase.auth.admin.createUser({
       email,
       password,
@@ -24,16 +23,27 @@ export async function POST(req: Request) {
     });
 
     if (authError) {
-      // Handle duplicate user
-      if (authError.message?.includes("already been registered")) {
-        return NextResponse.json({ error: "User already exists with this email" }, { status: 400 });
+      const msg = authError.message?.toLowerCase() || "";
+      if (msg.includes("already") || msg.includes("exists") || msg.includes("registered")) {
+        return NextResponse.json(
+          { error: "ამ ემაილით უკვე დარეგისტრირდით. სცადეთ ავტორიზაცია." },
+          { status: 400 }
+        );
+      }
+      if (msg.includes("password")) {
+        return NextResponse.json(
+          { error: "პაროლი უნდა იყოს მინიმუმ 6 სიმბოლო" },
+          { status: 400 }
+        );
       }
       return NextResponse.json({ error: authError.message }, { status: 400 });
     }
 
-    // Create profile in our DB
-    await prisma.user.create({
-      data: {
+    // Upsert Prisma profile (create if not exists)
+    await prisma.user.upsert({
+      where: { id: authData.user.id },
+      update: { firstName, lastName, email },
+      create: {
         id: authData.user.id,
         email,
         firstName,

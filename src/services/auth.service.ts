@@ -11,16 +11,22 @@ class AuthService {
   async login(credentials: { email: string; password: string }): Promise<{ user: User }> {
     const supabase = this.getSupabase();
 
-    const { data, error } = await supabase.auth.signInWithPassword({
+    const { error } = await supabase.auth.signInWithPassword({
       email: credentials.email,
       password: credentials.password,
     });
 
     if (error) {
+      const msg = error.message?.toLowerCase() || "";
+      if (msg.includes("invalid") || msg.includes("credentials")) {
+        throw new Error("ემაილი ან პაროლი არასწორია");
+      }
+      if (msg.includes("email not confirmed")) {
+        throw new Error("ჯერ დაადასტურე ემაილი");
+      }
       throw new Error(error.message);
     }
 
-    // Fetch profile data from our API
     const profile = await this.fetchProfile();
     return { user: profile };
   }

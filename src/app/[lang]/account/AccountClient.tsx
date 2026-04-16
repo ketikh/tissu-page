@@ -36,17 +36,28 @@ type Tab = "overview" | "orders" | "addresses" | "wishlist" | "settings";
 export default function AccountClient({ dictionary, lang }: AccountClientProps) {
   const hydrated = useStoreHydration();
   const router = useRouter();
-  const { user, isAuthenticated, logout, updateProfile, addAddress, removeAddress, setAddressAsDefault, isLoading } = useAuthStore();
+  const { user, isAuthenticated, logout, updateProfile, addAddress, removeAddress, setAddressAsDefault, refreshProfile, isLoading } = useAuthStore();
   const [activeTab, setActiveTab] = useState<Tab>("overview");
   const [isEditingProfile, setIsEditingProfile] = useState(false);
+  const [profileChecked, setProfileChecked] = useState(false);
 
   useEffect(() => {
-    if (hydrated && !user) {
-      logout().then(() => {
-        router.push(`/${lang}/account/login`);
-      });
+    if (!hydrated) return;
+    if (user) {
+      setProfileChecked(true);
+      return;
     }
-  }, [hydrated, user, logout, router, lang]);
+    // No user in store — try to fetch from server (OAuth callback case)
+    refreshProfile().finally(() => {
+      setProfileChecked(true);
+    });
+  }, [hydrated, user, refreshProfile]);
+
+  useEffect(() => {
+    if (profileChecked && !useAuthStore.getState().user) {
+      router.push(`/${lang}/account/login`);
+    }
+  }, [profileChecked, router, lang]);
 
   if (!hydrated || !user) {
     return (
