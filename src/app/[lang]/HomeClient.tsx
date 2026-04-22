@@ -358,7 +358,7 @@ export default function HomeClient({ lang }: HomeProps) {
                 ? "ექვსი ახალი ფორმა, სამი ქსოვილი, ერთი დაპირება: ყველა ნაკერი ხელით შესრულებული ცოცხალი ადამიანის მიერ ჩვენს თბილისურ სტუდიაში."
                 : "Six new shapes, three fabrics, one promise: every stitch tied by a real human in our Tbilisi studio."}
             </p>
-          </motion.div>
+          </div>
 
           <div className="flex flex-wrap gap-2.5 mb-9">
             {filters.map((f) => (
@@ -379,12 +379,8 @@ export default function HomeClient({ lang }: HomeProps) {
 
           <div className="grid gap-7 grid-cols-1 sm:grid-cols-2 lg:grid-cols-3">
             {visibleProducts.map((p, idx) => (
-              <motion.div
+              <div
                 key={p.id}
-                initial={{ opacity: 0, y: 30 }}
-                whileInView={{ opacity: 1, y: 0 }}
-                viewport={{ once: true, margin: "-60px" }}
-                transition={{ duration: 0.5, delay: idx * 0.05 }}
                 className="group bg-[var(--tissu-white)] rounded-[28px] p-5 flex flex-col gap-4 relative overflow-hidden hover:-translate-y-1.5 transition-transform duration-300"
               >
                 <div className="relative aspect-square rounded-[20px] overflow-hidden">
@@ -447,7 +443,7 @@ export default function HomeClient({ lang }: HomeProps) {
                   <ShoppingBag className="w-4 h-4" />
                   {isKa ? "კალათაში დამატება" : "Add to basket"}
                 </button>
-              </motion.div>
+              </div>
             ))}
           </div>
         </div>
@@ -456,13 +452,7 @@ export default function HomeClient({ lang }: HomeProps) {
       {/* ================= STORY STRIP ================= */}
       <section id="story" className="py-10">
         <div className="container">
-          <motion.div
-            initial="hidden"
-            whileInView="visible"
-            viewport={{ once: true, margin: "-80px" }}
-            variants={reveal}
-            className="relative overflow-hidden rounded-[28px] md:rounded-[40px] bg-[var(--tissu-cobalt)] text-[var(--tissu-cream)] px-6 py-12 md:px-14 md:py-20"
-          >
+          <div className="relative overflow-hidden rounded-[28px] md:rounded-[40px] bg-[var(--tissu-cobalt)] text-[var(--tissu-cream)] px-6 py-12 md:px-14 md:py-20">
             <div
               aria-hidden="true"
               className="pointer-events-none absolute -top-10 -left-5 opacity-[0.08] font-serif text-[220px] md:text-[300px] leading-none whitespace-nowrap"
@@ -529,7 +519,7 @@ export default function HomeClient({ lang }: HomeProps) {
                 </div>
               </div>
             </div>
-          </motion.div>
+          </div>
         </div>
       </section>
 
@@ -557,7 +547,7 @@ export default function HomeClient({ lang }: HomeProps) {
                 ? "არანაირი ქარხანა, არანაირი გამარტივებული გზები. უბრალოდ ოთხი მშვიდი ნაბიჯი ქსოვილიდან შენს საყვარელ ჩანთამდე."
                 : "No factories, no shortcuts. Just four quiet steps between a bolt of cloth and a bag you'll love for years."}
             </p>
-          </motion.div>
+          </div>
 
           <div className="grid gap-5 grid-cols-1 sm:grid-cols-2 lg:grid-cols-4">
             {[
@@ -614,12 +604,8 @@ export default function HomeClient({ lang }: HomeProps) {
                 ),
               },
             ].map((step, idx) => (
-              <motion.div
+              <div
                 key={step.n}
-                initial={{ opacity: 0, y: 30 }}
-                whileInView={{ opacity: 1, y: 0 }}
-                viewport={{ once: true, margin: "-60px" }}
-                transition={{ duration: 0.5, delay: idx * 0.08 }}
                 className="relative rounded-[28px] bg-[var(--tissu-white)] border border-[#ead8bb] p-7 hover:-translate-y-1 hover:bg-[var(--tissu-mustard)] transition-[transform,background] duration-300"
               >
                 <div className="font-serif text-[60px] leading-[0.9] text-[var(--tissu-terracotta)]">
@@ -632,7 +618,7 @@ export default function HomeClient({ lang }: HomeProps) {
                   {step.title}
                 </h4>
                 <p className="text-[14px] leading-[1.5] text-[var(--tissu-ink-soft)]">{step.body}</p>
-              </motion.div>
+              </div>
             ))}
           </div>
         </div>
@@ -641,13 +627,7 @@ export default function HomeClient({ lang }: HomeProps) {
       {/* ================= PICK A COLOUR ================= */}
       <section className="pb-20 md:pb-28">
         <div className="container">
-          <motion.div
-            initial="hidden"
-            whileInView="visible"
-            viewport={{ once: true, margin: "-80px" }}
-            variants={reveal}
-            className="relative overflow-hidden rounded-[28px] md:rounded-[40px] bg-[var(--tissu-mustard)] px-6 py-12 md:px-14 md:py-16"
-          >
+          <div className="relative overflow-hidden rounded-[28px] md:rounded-[40px] bg-[var(--tissu-mustard)] px-6 py-12 md:px-14 md:py-16">
             <div className="grid gap-10 items-center md:grid-cols-2">
               <div>
                 <span className="inline-flex items-center gap-2.5 px-4 py-2 rounded-full bg-[rgba(42,29,20,0.08)] border border-[rgba(42,29,20,0.15)] text-[13px] font-bold uppercase tracking-[0.1em] text-[var(--tissu-ink)]">
@@ -716,7 +696,7 @@ export default function HomeClient({ lang }: HomeProps) {
                 </div>
               </div>
             </div>
-          </motion.div>
+          </div>
         </div>
       </section>
 
@@ -744,7 +724,7 @@ export default function HomeClient({ lang }: HomeProps) {
                 ? "2 400+ შეფასება და ვითვლით. აი, ცოტა იმისა, რასაც ჩვენი მყიდველები ამბობენ."
                 : "2,400+ reviews and counting. Here's a little scoop of what folks are saying."}
             </p>
-          </motion.div>
+          </div>
 
           <div className="grid gap-6 grid-cols-1 lg:grid-cols-3">
             {[
@@ -779,12 +759,8 @@ export default function HomeClient({ lang }: HomeProps) {
                 offset: "",
               },
             ].map((r, idx) => (
-              <motion.div
+              <div
                 key={r.name}
-                initial={{ opacity: 0, y: 30 }}
-                whileInView={{ opacity: 1, y: 0 }}
-                viewport={{ once: true, margin: "-60px" }}
-                transition={{ duration: 0.5, delay: idx * 0.08 }}
                 className={`relative rounded-[28px] border border-[#ead8bb] p-7 ${r.bg} ${r.offset}`}
               >
                 <div className="absolute top-4 right-5 font-serif text-[90px] leading-[0.7] text-[var(--tissu-terracotta)] opacity-25">
@@ -801,7 +777,7 @@ export default function HomeClient({ lang }: HomeProps) {
                     <small className="block text-[12px] text-[var(--tissu-ink-soft)]">{r.meta}</small>
                   </div>
                 </div>
-              </motion.div>
+              </div>
             ))}
           </div>
         </div>
@@ -810,13 +786,7 @@ export default function HomeClient({ lang }: HomeProps) {
       {/* ================= INSTAGRAM ================= */}
       <section id="journal" className="pb-20 md:pb-28">
         <div className="container">
-          <motion.div
-            initial="hidden"
-            whileInView="visible"
-            viewport={{ once: true, margin: "-80px" }}
-            variants={reveal}
-            className="flex flex-wrap items-end justify-between gap-10 mb-10"
-          >
+          <div className="flex flex-wrap items-end justify-between gap-10 mb-10">
             <h2 className="font-serif text-[40px] md:text-[56px] lg:text-[64px] leading-[1] tracking-[-0.02em] text-[var(--tissu-ink)] max-w-[720px]">
               {isKa ? (
                 <>
@@ -833,7 +803,7 @@ export default function HomeClient({ lang }: HomeProps) {
                 ? "მოჰყევი სტუდიის სურათებს, კულისებს და დროდადრო — ლიმონს."
                 : "Follow along for studio snaps, behind-the-scenes, and the occasional lemon."}
             </p>
-          </motion.div>
+          </div>
 
           <div className="grid gap-3.5 grid-cols-3 md:grid-cols-6">
             {[
@@ -877,13 +847,7 @@ export default function HomeClient({ lang }: HomeProps) {
       {/* ================= NEWSLETTER ================= */}
       <section className="pb-20 md:pb-24">
         <div className="container">
-          <motion.div
-            initial="hidden"
-            whileInView="visible"
-            viewport={{ once: true, margin: "-80px" }}
-            variants={reveal}
-            className="relative overflow-hidden rounded-[28px] md:rounded-[40px] bg-[var(--tissu-ink)] text-[var(--tissu-cream)] px-6 py-12 md:px-14 md:py-16 text-center"
-          >
+          <div className="relative overflow-hidden rounded-[28px] md:rounded-[40px] bg-[var(--tissu-ink)] text-[var(--tissu-cream)] px-6 py-12 md:px-14 md:py-16 text-center">
             <div
               aria-hidden="true"
               className="pointer-events-none absolute -top-5 -left-5 opacity-[0.1] font-serif text-[180px] md:text-[240px] leading-none whitespace-nowrap"
@@ -923,7 +887,7 @@ export default function HomeClient({ lang }: HomeProps) {
                 {isKa ? "გამომწერე" : "Sign me up"}
               </button>
             </form>
-          </motion.div>
+          </div>
         </div>
       </section>
     </div>
