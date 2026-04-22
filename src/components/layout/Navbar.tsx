@@ -3,15 +3,14 @@
 import { useState, useEffect } from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { ShoppingBag, Menu, User, Search, X, Mail, Globe, MessageCircle } from "lucide-react";
+import { Search, ShoppingBag, Menu, X, User } from "lucide-react";
+import { AnimatePresence, motion } from "framer-motion";
 import { useUIStore } from "@/store/useUIStore";
 import { useCartStore } from "@/store/useCartStore";
+import { useStoreHydration } from "@/store/useHydration";
 import { Locale } from "@/i18n/config";
 import { LanguageSwitcher } from "./LanguageSwitcher";
-import { motion, AnimatePresence } from "framer-motion";
 import { cn } from "@/lib/utils";
-import { useStoreHydration } from "@/store/useHydration";
-import { CustomStar } from "../ui/CustomStar";
 
 interface NavbarProps {
   lang: Locale;
@@ -21,65 +20,50 @@ interface NavbarProps {
 export function Navbar({ lang, dictionary }: NavbarProps) {
   const hydrated = useStoreHydration();
   const pathname = usePathname();
-  const [isScrolled, setIsScrolled] = useState(false);
-  const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
+  const [isMobileOpen, setIsMobileOpen] = useState(false);
 
   const openCart = useUIStore((state) => state.openCart);
-  const cartItemCount = hydrated ? useCartStore.getState().getSummary().itemsCount : 0;
+  const cartItemCount = hydrated
+    ? useCartStore.getState().getSummary().itemsCount
+    : 0;
 
   useEffect(() => {
-    const handleScroll = () => {
-      setIsScrolled(window.scrollY > 10);
-    };
-    window.addEventListener("scroll", handleScroll);
-    return () => window.removeEventListener("scroll", handleScroll);
-  }, []);
-
-  // Close mobile menu on route change
-  useEffect(() => {
-    setIsMobileMenuOpen(false);
+    setIsMobileOpen(false);
   }, [pathname]);
 
   const links = [
-    { name: dictionary.nav.collection, href: `/${lang}/shop` },
-    { name: dictionary.nav.bestsellers, href: `/${lang}/shop?sort=featured` },
-    { name: dictionary.nav.about, href: `/${lang}/about` },
+    { name: dictionary.nav.shop ?? dictionary.nav.collection, href: `/${lang}/shop` },
+    { name: lang === "ka" ? "ჩვენი ისტორია" : "Our story", href: `/${lang}/about` },
+    { name: lang === "ka" ? "როგორ ვკერავთ" : "How it's made", href: `/${lang}/about#process` },
+    { name: lang === "ka" ? "ჟურნალი" : "Journal", href: `/${lang}#journal` },
   ];
 
   return (
-    <header 
-      className={cn(
-        "fixed top-6 left-1/2 -translate-x-1/2 z-50 w-auto px-6 py-2 transition-all duration-500",
-        isScrolled 
-          ? "bg-white/90 backdrop-blur-xl border-4 border-white shadow-2xl scale-105" 
-          : "bg-white/60 backdrop-blur-md border-2 border-white/40 shadow-xl"
-      )}
-      style={{ borderRadius: "100px" }}
-    >
-      <div className="flex h-12 md:h-14 items-center gap-8 md:gap-12 px-2 whitespace-nowrap">
-        
-        {/* Left Side: Brand Logo */}
-        <Link 
-          href={`/${lang}`} 
-          className="group transition-transform active:scale-95 flex items-center gap-2"
-        >
-          <CustomStar size={20} className="text-brand-secondary" />
-          <img 
-            src="/static/logo.svg" 
-            alt="Tissu Logo" 
-            className="h-6 md:h-7 w-auto transition-transform group-hover:scale-105" 
+    <header className="sticky top-0 z-40 bg-[var(--tissu-cream)] border-b border-dashed border-[var(--border)]">
+      <div className="container flex items-center justify-between gap-6 py-5">
+        <Link href={`/${lang}`} className="flex items-center gap-2 group" aria-label="Tissu">
+          <span className="font-serif text-[32px] md:text-[36px] leading-none tracking-[0.04em] text-[var(--tissu-terracotta)]">
+            TISSU
+          </span>
+          <span
+            aria-hidden="true"
+            className="w-3.5 h-3.5 rounded-full bg-[var(--tissu-mustard)] -translate-y-3 transition-transform group-hover:-translate-y-4"
           />
         </Link>
 
-        {/* Center: Desktop Nav */}
-        <nav className="hidden md:flex items-center gap-8 text-[11px] font-black uppercase tracking-[0.1em] text-brand-dark/80">
+        <nav className="hidden md:flex items-center gap-1">
           {links.map((link) => {
             const isActive = pathname === link.href;
             return (
               <Link
                 key={link.href}
                 href={link.href}
-                className="relative group transition-colors hover:text-brand-primary"
+                className={cn(
+                  "px-4 py-2.5 rounded-full text-[15px] font-bold transition-colors",
+                  isActive
+                    ? "bg-[var(--tissu-ink)] text-[var(--tissu-cream)]"
+                    : "text-[var(--tissu-ink-soft)] hover:text-[var(--tissu-ink)] hover:bg-[var(--tissu-white)]"
+                )}
               >
                 {link.name}
               </Link>
@@ -87,149 +71,102 @@ export function Navbar({ lang, dictionary }: NavbarProps) {
           })}
         </nav>
 
-        {/* Right Side: Actions */}
-        <div className="flex items-center gap-2 sm:gap-4">
+        <div className="flex items-center gap-2.5">
           <div className="hidden lg:block">
             <LanguageSwitcher currentLang={lang} />
           </div>
-          
-          <button 
-            onClick={openCart} 
-            className="p-2 text-brand-dark/70 hover:text-brand-primary transition-all hover:scale-110 active:scale-95 focus:outline-none relative"
-            aria-label={dictionary.nav.cart}
+          <Link
+            href={`/${lang}/account`}
+            className="hidden md:inline-flex w-11 h-11 rounded-full border-[1.5px] border-[var(--tissu-ink)] items-center justify-center text-[var(--tissu-ink)] hover:bg-[var(--tissu-ink)] hover:text-[var(--tissu-cream)] transition-colors"
+            aria-label={dictionary.nav.account}
           >
-            <ShoppingBag className="w-[20px] h-[20px]" />
+            <User className="w-[18px] h-[18px]" />
+          </Link>
+          <button
+            type="button"
+            aria-label={lang === "ka" ? "ძებნა" : "Search"}
+            className="w-11 h-11 rounded-full border-[1.5px] border-[var(--tissu-ink)] inline-flex items-center justify-center text-[var(--tissu-ink)] hover:bg-[var(--tissu-ink)] hover:text-[var(--tissu-cream)] transition-colors"
+          >
+            <Search className="w-[18px] h-[18px]" />
+          </button>
+          <button
+            type="button"
+            onClick={openCart}
+            aria-label={dictionary.nav.cart}
+            className="relative w-11 h-11 rounded-full border-[1.5px] border-[var(--tissu-ink)] inline-flex items-center justify-center text-[var(--tissu-ink)] hover:bg-[var(--tissu-ink)] hover:text-[var(--tissu-cream)] transition-colors"
+          >
+            <ShoppingBag className="w-[18px] h-[18px]" />
             <AnimatePresence>
               {cartItemCount > 0 && (
-                <motion.span 
+                <motion.span
                   initial={{ scale: 0, opacity: 0 }}
                   animate={{ scale: 1, opacity: 1 }}
                   exit={{ scale: 0, opacity: 0 }}
-                  className="absolute -top-1 -right-1 flex h-4 w-4 items-center justify-center rounded-full bg-brand-secondary text-[9px] font-black text-white shadow-lg"
+                  className="absolute -top-1 -right-1 min-w-[22px] h-[22px] rounded-full bg-[var(--tissu-terracotta)] text-white text-[11px] font-extrabold inline-flex items-center justify-center px-1.5 border-2 border-[var(--tissu-cream)]"
                 >
                   {cartItemCount}
                 </motion.span>
               )}
             </AnimatePresence>
           </button>
-          
-          {/* Mobile Menu Trigger */}
-          <div className="md:hidden">
-            <button 
-              onClick={() => setIsMobileMenuOpen(true)}
-              className="p-2 text-brand-dark transition-all hover:text-brand-primary active:scale-95 focus:outline-none"
-              aria-label={dictionary.common.menu || "Open menu"}
-            >
-              <Menu className="w-6 h-6" />
-            </button>
-          </div>
+          <button
+            type="button"
+            onClick={() => setIsMobileOpen(true)}
+            className="md:hidden w-11 h-11 rounded-full border-[1.5px] border-[var(--tissu-ink)] inline-flex items-center justify-center text-[var(--tissu-ink)]"
+            aria-label={dictionary.common.menu || (lang === "ka" ? "მენიუ" : "Menu")}
+          >
+            <Menu className="w-5 h-5" />
+          </button>
         </div>
       </div>
 
-      {/* Mobile Menu Drawer */}
       <AnimatePresence>
-        {isMobileMenuOpen && (
+        {isMobileOpen && (
           <>
-            <motion.div 
+            <motion.div
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
               exit={{ opacity: 0 }}
-              onClick={() => setIsMobileMenuOpen(false)}
-              className="fixed inset-0 bg-brand-primary/20 backdrop-blur-xl z-[60]"
+              onClick={() => setIsMobileOpen(false)}
+              className="fixed inset-0 bg-[rgba(42,29,20,0.4)] backdrop-blur-[4px] z-50"
             />
-            <motion.div 
-              initial={{ x: "-100%" }}
+            <motion.div
+              initial={{ x: "100%" }}
               animate={{ x: 0 }}
-              exit={{ x: "-100%" }}
-              transition={{ type: "spring", damping: 25, stiffness: 200 }}
-              className="fixed left-0 top-0 h-full w-[85%] max-w-sm bg-[#fcfbf9] z-[70] shadow-2xl p-8 flex flex-col"
+              exit={{ x: "100%" }}
+              transition={{ type: "spring", damping: 28, stiffness: 220 }}
+              className="fixed top-0 right-0 bottom-0 w-[85%] max-w-[360px] bg-[var(--tissu-cream)] z-[60] shadow-2xl flex flex-col"
             >
-              <div className="flex justify-between items-center mb-12">
-                <div className="flex items-center gap-2">
-                  <CustomStar size={24} className="text-brand-primary" />
-                  <img src="/static/logo.svg" alt="Tissu Logo" className="h-7 w-auto" />
-                </div>
-                <button 
-                  onClick={() => setIsMobileMenuOpen(false)}
-                  className="p-3 rounded-2xl bg-brand-soft text-brand-dark hover:bg-brand-primary hover:text-white transition-all shadow-lg"
+              <div className="flex justify-between items-center px-7 py-6 border-b border-dashed border-[var(--border)]">
+                <span className="font-serif text-[28px] text-[var(--tissu-terracotta)]">TISSU</span>
+                <button
+                  onClick={() => setIsMobileOpen(false)}
+                  className="w-10 h-10 rounded-full border-[1.5px] border-[var(--tissu-ink)] inline-flex items-center justify-center"
                   aria-label={dictionary.common.close}
                 >
-                  <X className="w-5 h-5" />
+                  <X className="w-4 h-4" />
                 </button>
               </div>
-
-              <nav className="flex flex-col gap-6">
-                {links.map((link, i) => {
-                  const isActive = pathname === link.href;
-                  return (
-                    <motion.div
-                      key={link.href}
-                      initial={{ opacity: 0, x: -20 }}
-                      animate={{ opacity: 1, x: 0 }}
-                      transition={{ delay: 0.1 + i * 0.1 }}
-                    >
-                      <Link 
-                        href={link.href}
-                        className={cn(
-                          "text-3xl font-serif transition-colors flex items-center gap-4",
-                          isActive ? "text-brand-primary" : "text-brand-dark hover:text-brand-primary"
-                        )}
-                      >
-                        {link.name}
-                        {isActive && (
-                          <motion.div 
-                            layoutId="active-mobile"
-                            className="h-1.5 w-1.5 rounded-full bg-brand-primary"
-                          />
-                        )}
-                      </Link>
-                    </motion.div>
-                  );
-                })}
+              <nav className="flex flex-col gap-2 px-7 py-6">
+                {links.map((link) => (
+                  <Link
+                    key={link.href}
+                    href={link.href}
+                    className="font-serif text-[26px] text-[var(--tissu-ink)] hover:text-[var(--tissu-terracotta)] transition-colors"
+                  >
+                    {link.name}
+                  </Link>
+                ))}
               </nav>
-
-              <div className="mt-auto pt-8 border-t border-border/30 flex flex-col gap-8">
-                 <motion.div 
-                    initial={{ opacity: 0 }}
-                    animate={{ opacity: 1 }}
-                    transition={{ delay: 0.5 }}
-                    className="flex flex-col gap-4"
-                 >
-                    <div className="flex items-center justify-between">
-                       <span className="text-[10px] font-bold uppercase tracking-widest text-brand-dark/40">{dictionary.nav.language}</span>
-                       <LanguageSwitcher currentLang={lang} />
-                    </div>
-                    <Link 
-                       href={`/${lang}/account`}
-                       className="flex items-center gap-3 text-brand-dark font-bold text-sm hover:text-brand-primary transition-colors"
-                    >
-                       <User className="w-4 h-4" />
-                       {dictionary.nav.account}
-                    </Link>
-                 </motion.div>
-
-                 <motion.div 
-                    initial={{ opacity: 0, y: 10 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    transition={{ delay: 0.6 }}
-                    className="flex flex-col gap-4"
-                 >
-                    <span className="text-[10px] font-bold uppercase tracking-widest text-brand-dark/40">{dictionary.nav.socials}</span>
-                    <div className="flex gap-5">
-                       <a href="#" className="text-brand-dark hover:text-brand-primary transition-colors" aria-label="Instagram">
-                          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><rect x="2" y="2" width="20" height="20" rx="5" ry="5"></rect><path d="M16 11.37A4 4 0 1 1 12.63 8 4 4 0 0 1 16 11.37z"></path><line x1="17.5" y1="6.5" x2="17.51" y2="6.5"></line></svg>
-                       </a>
-                       <a href="#" className="text-brand-dark hover:text-brand-primary transition-colors" aria-label="Facebook">
-                          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M18 2h-3a5 5 0 0 0-5 5v3H7v4h3v8h4v-8h3l1-4h-4V7a1 1 0 0 1 1-1h3z"></path></svg>
-                       </a>
-                       <a href="mailto:hello@tissu.ge" className="text-brand-dark hover:text-brand-primary transition-colors" aria-label="Email">
-                          <Mail className="w-5 h-5" />
-                       </a>
-                    </div>
-                    <div className="text-[10px] text-brand-dark/50 leading-relaxed">
-                       {dictionary.footer.shop.tagline}
-                    </div>
-                 </motion.div>
+              <div className="mt-auto px-7 py-6 border-t border-dashed border-[var(--border)] flex items-center justify-between">
+                <LanguageSwitcher currentLang={lang} />
+                <Link
+                  href={`/${lang}/account`}
+                  className="flex items-center gap-2 text-sm font-bold text-[var(--tissu-ink)] hover:text-[var(--tissu-terracotta)] transition-colors"
+                >
+                  <User className="w-4 h-4" />
+                  {dictionary.nav.account}
+                </Link>
               </div>
             </motion.div>
           </>

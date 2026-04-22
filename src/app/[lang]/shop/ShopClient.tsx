@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useMemo, useEffect } from "react";
+import { useState, useMemo } from "react";
 import { useSearchParams, useRouter } from "next/navigation";
 import { mockProducts } from "@/lib/mock-data";
 import { ProductCard } from "@/components/product/ProductCard";
@@ -23,7 +23,6 @@ export default function ShopClient({ lang, dictionary }: ShopContentProps) {
   const categoryParam = searchParams.get("category") || "all";
   const sortParam = searchParams.get("sort") || "featured";
   const colorParam = searchParams.get("color");
-  const sizeParam = searchParams.get("size");
 
   const updateFilters = (key: string, value: string | null) => {
     const params = new URLSearchParams(searchParams.toString());
@@ -53,31 +52,25 @@ export default function ShopClient({ lang, dictionary }: ShopContentProps) {
       );
     }
 
-    if (sizeParam) {
-      result = result.filter((p) => 
-        p.variants.some(v => v.size.toLowerCase() === sizeParam.toLowerCase())
-      );
-    }
-
     // Sorting
     if (sortParam === "price-low") {
       result.sort((a, b) => a.price - b.price);
     } else if (sortParam === "price-high") {
       result.sort((a, b) => b.price - a.price);
     } else if (sortParam === "new") {
-      result.sort((a, b) => (a.badges.some(b => b.en === "New Collection") ? -1 : 1));
+      result.sort((a, b) => (a.badges.some(b => b.en === "NEW") ? -1 : 1));
     } else if (sortParam === "featured") {
       result.sort((a, b) => (b.featured ? 1 : -1));
     }
 
     return result;
-  }, [categoryParam, colorParam, sizeParam, sortParam, lang]);
+  }, [categoryParam, colorParam, sortParam, lang]);
 
-  // Derived Filter Options
   const categories = [
     { label: dictionary.shop.title, val: "all" },
     { label: dictionary.footer.shop.sleeves, val: "laptop-sleeves" },
-    { label: dictionary.footer.shop.accessories, val: "accessories" }
+    { label: dictionary.footer.shop.accessories, val: "accessories" },
+    { label: lang === "ka" ? "პატარა ჩანთები" : "Pouches", val: "pouches" }
   ];
 
   const availableColors = useMemo(() => {
@@ -88,34 +81,32 @@ export default function ShopClient({ lang, dictionary }: ShopContentProps) {
     return Array.from(colors.entries()).map(([name, code]) => ({ name, code }));
   }, [lang]);
 
-  const availableSizes = ["13-inch", "14-inch", "16-inch", "One Size", "Mini", "L"];
-
-  const activeFiltersCount = (categoryParam !== 'all' ? 1 : 0) + (colorParam ? 1 : 0) + (sizeParam ? 1 : 0);
+  const activeFiltersCount = (categoryParam !== 'all' ? 1 : 0) + (colorParam ? 1 : 0);
 
   return (
-    <div className="bg-[#fcfbf9] min-h-screen">
-      <div className="container px-4 py-8 md:py-16 max-w-7xl mx-auto">
+    <div className="bg-[var(--tissu-cream)] min-h-screen">
+      <div className="container px-6 py-12 md:py-24">
         
         {/* Header Section */}
-        <div className="flex flex-col mb-12">
-          <div className="flex flex-col md:flex-row justify-between items-start md:items-end gap-6">
-            <div className="animate-in fade-in slide-in-from-left-4 duration-700">
-              <h1 className="text-5xl md:text-7xl font-serif text-brand-dark tracking-tight mb-4">
+        <div className="flex flex-col mb-20">
+          <div className="flex flex-col md:flex-row justify-between items-start md:items-end gap-10">
+            <div className="max-w-2xl">
+              <h1 className="text-6xl md:text-8xl font-serif text-[var(--tissu-ink)] tracking-tight mb-8">
                 {categoryParam === 'all' ? dictionary.shop.title : categories.find(c => c.val === categoryParam)?.label}
               </h1>
-              <p className="text-muted-foreground text-lg max-w-xl leading-relaxed">
+              <p className="text-[var(--tissu-ink-soft)] text-xl font-medium leading-relaxed opacity-80">
                 {dictionary.shop.subtitle}
               </p>
             </div>
 
             {/* Desktop Sort */}
-            <div className="hidden md:flex items-center gap-3 bg-white px-5 py-2.5 rounded-2xl border border-border/50 shadow-sm">
-              <span className="text-xs font-bold uppercase tracking-widest text-brand-dark/40">
+            <div className="hidden md:flex items-center gap-4 bg-white/50 backdrop-blur-md px-6 py-3 rounded-full border border-[var(--border)] shadow-sm">
+              <span className="text-[10px] font-black uppercase tracking-[0.2em] text-[var(--tissu-ink)] opacity-40">
                 {dictionary.shop.filters.sortBy}
               </span>
               <div className="relative">
                 <select 
-                  className="bg-transparent border-none text-sm font-bold text-brand-dark focus:ring-0 cursor-pointer appearance-none pr-6"
+                  className="bg-transparent border-none text-sm font-bold text-[var(--tissu-ink)] focus:ring-0 cursor-pointer appearance-none pr-8"
                   value={sortParam}
                   onChange={(e) => updateFilters("sort", e.target.value)}
                 >
@@ -124,34 +115,30 @@ export default function ShopClient({ lang, dictionary }: ShopContentProps) {
                   <option value="price-low">{dictionary.shop.filters.sort.priceAsc}</option>
                   <option value="price-high">{dictionary.shop.filters.sort.priceDesc}</option>
                 </select>
-                <ChevronDown className="w-3.5 h-3.5 absolute right-0 top-1/2 -translate-y-1/2 pointer-events-none text-brand-primary" />
+                <ChevronDown className="w-4 h-4 absolute right-0 top-1/2 -translate-y-1/2 pointer-events-none text-[var(--tissu-terracotta)]" />
               </div>
             </div>
 
             {/* Mobile Filter Toggle */}
-            <Button 
-              variant="outline" 
-              className="md:hidden w-full h-14 rounded-2xl border-border bg-white flex items-center justify-between px-6"
+            <button 
+              className="md:hidden w-full h-16 rounded-[20px] bg-white border border-[var(--border)] flex items-center justify-between px-6"
               onClick={() => setIsMobileFilterOpen(true)}
             >
-              <span className="flex items-center gap-2 font-bold text-brand-dark">
-                <SlidersHorizontal className="w-5 h-5 text-brand-primary" />
+              <span className="flex items-center gap-3 font-bold text-[var(--tissu-ink)]">
+                <SlidersHorizontal className="w-5 h-5 text-[var(--tissu-terracotta)]" />
                 {dictionary.shop.filters.mobile}
               </span>
               {activeFiltersCount > 0 && (
-                <span className="bg-brand-primary text-white text-[10px] w-6 h-6 flex items-center justify-center rounded-full font-bold">
+                <span className="bg-[var(--tissu-terracotta)] text-white text-[11px] w-6 h-6 flex items-center justify-center rounded-full font-black">
                   {activeFiltersCount}
                 </span>
               )}
-            </Button>
+            </button>
           </div>
 
           {/* Active Filters Bar */}
           {activeFiltersCount > 0 && (
-            <div className="flex flex-wrap items-center gap-2 mt-8 animate-in fade-in slide-in-from-top-2">
-              <span className="text-[10px] font-bold uppercase tracking-widest text-brand-dark/40 mr-2">
-                {dictionary.shop.filters.active}:
-              </span>
+            <div className="flex flex-wrap items-center gap-3 mt-10">
               {categoryParam !== 'all' && (
                 <FilterChip 
                   label={categories.find(c => c.val === categoryParam)?.label} 
@@ -164,15 +151,9 @@ export default function ShopClient({ lang, dictionary }: ShopContentProps) {
                   onRemove={() => updateFilters('color', null)} 
                 />
               )}
-              {sizeParam && (
-                <FilterChip 
-                  label={sizeParam} 
-                  onRemove={() => updateFilters('size', null)} 
-                />
-              )}
               <button 
                 onClick={clearAllFilters}
-                className="text-[10px] font-bold text-brand-primary hover:underline ml-2"
+                className="text-xs font-black text-[var(--tissu-terracotta)] hover:underline ml-2 uppercase tracking-widest"
               >
                 {dictionary.shop.filters.clearAll}
               </button>
@@ -180,26 +161,26 @@ export default function ShopClient({ lang, dictionary }: ShopContentProps) {
           )}
         </div>
 
-        <div className="flex flex-col lg:grid lg:grid-cols-12 gap-12">
+        <div className="flex flex-col lg:grid lg:grid-cols-12 gap-16">
           
           {/* Desktop Sidebar Filters */}
-          <aside className="hidden lg:block lg:col-span-3 space-y-12 sticky top-24 h-fit">
+          <aside className="hidden lg:block lg:col-span-3 space-y-12 sticky top-32 h-fit">
             
             {/* Categories */}
-            <div className="space-y-5">
-              <h3 className="text-xs font-bold uppercase tracking-[0.2em] text-brand-dark/40">
+            <div className="space-y-6">
+              <h3 className="text-[10px] font-black uppercase tracking-[0.3em] text-[var(--tissu-ink)] opacity-40">
                 {dictionary.shop.filters.title}
               </h3>
-              <ul className="space-y-3">
+              <ul className="space-y-4">
                 {categories.map((cat) => (
                   <li key={cat.val}>
                     <button 
                       onClick={() => updateFilters('category', cat.val)}
-                      className={`group flex items-center gap-3 text-sm font-bold transition-all ${
-                        categoryParam === cat.val ? "text-brand-primary" : "text-brand-dark/60 hover:text-brand-dark"
+                      className={`group flex items-center gap-4 text-[15px] font-bold transition-all ${
+                        categoryParam === cat.val ? "text-[var(--tissu-terracotta)]" : "text-[var(--tissu-ink)] opacity-60 hover:opacity-100"
                       }`}
                     >
-                      <div className={`w-1.5 h-1.5 rounded-full transition-all ${categoryParam === cat.val ? "bg-brand-primary scale-100" : "bg-transparent scale-0 group-hover:bg-brand-dark/20 group-hover:scale-100"}`} />
+                      <div className={`w-2 h-2 rounded-full transition-all ${categoryParam === cat.val ? "bg-[var(--tissu-terracotta)] scale-125" : "bg-transparent scale-50 group-hover:bg-[var(--tissu-ink)]/20"}`} />
                       {cat.label}
                     </button>
                   </li>
@@ -207,48 +188,25 @@ export default function ShopClient({ lang, dictionary }: ShopContentProps) {
               </ul>
             </div>
 
+            <div className="h-px w-full border-t border-dashed border-[var(--border)]" />
+
             {/* Colors */}
-            <div className="space-y-6">
-              <h3 className="text-xs font-bold uppercase tracking-[0.2em] text-brand-dark/40">
+            <div className="space-y-8">
+              <h3 className="text-[10px] font-black uppercase tracking-[0.3em] text-[var(--tissu-ink)] opacity-40">
                 {dictionary.shop.filters.colors}
               </h3>
-              <div className="flex flex-wrap gap-4">
+              <div className="flex flex-wrap gap-5">
                 {availableColors.map((color) => {
                   const isSelected = colorParam === color.name;
                   return (
                     <button 
                       key={color.name}
                       onClick={() => updateFilters('color', isSelected ? null : color.name)}
-                      className={`group relative w-7 h-7 rounded-full border border-border shadow-sm transition-all hover:scale-110 flex items-center justify-center ${isSelected ? 'ring-2 ring-brand-primary ring-offset-4' : ''}`}
+                      className={`group relative w-9 h-9 rounded-full border border-black/10 shadow-sm transition-all hover:scale-110 flex items-center justify-center ${isSelected ? 'ring-2 ring-[var(--tissu-terracotta)] ring-offset-4 ring-offset-[var(--tissu-cream)]' : ''}`}
                       style={{ backgroundColor: color.code }}
                       title={color.name}
                     >
-                      {isSelected && <Check className="w-3.5 h-3.5 text-white mix-blend-difference" />}
-                    </button>
-                  );
-                })}
-              </div>
-            </div>
-
-            {/* Sizes */}
-            <div className="space-y-6">
-              <h3 className="text-xs font-bold uppercase tracking-[0.2em] text-brand-dark/40">
-                {dictionary.shop.filters.sizes}
-              </h3>
-              <div className="grid grid-cols-2 gap-3">
-                {availableSizes.map((size) => {
-                  const isSelected = sizeParam === size;
-                  return (
-                    <button 
-                      key={size}
-                      onClick={() => updateFilters('size', isSelected ? null : size)}
-                      className={`px-4 py-2.5 rounded-2xl text-[10px] font-bold uppercase tracking-widest border transition-all ${
-                        isSelected 
-                          ? 'bg-brand-dark text-white border-brand-dark shadow-lg shadow-brand-dark/20' 
-                          : 'bg-white text-brand-dark/60 border-border/60 hover:border-brand-primary/40 hover:text-brand-dark'
-                      }`}
-                    >
-                      {size}
+                      {isSelected && <Check className="w-4 h-4 text-white mix-blend-difference" />}
                     </button>
                   );
                 })}
@@ -259,17 +217,17 @@ export default function ShopClient({ lang, dictionary }: ShopContentProps) {
           {/* Product Grid Area */}
           <div className="lg:col-span-9">
             {filteredProducts.length === 0 ? (
-              <div className="py-32 flex flex-col items-center text-center animate-in fade-in zoom-in duration-500">
-                <div className="w-20 h-20 bg-brand-soft rounded-full flex items-center justify-center text-brand-primary/30 mb-6">
-                  <Filter className="w-8 h-8" />
+              <div className="py-32 flex flex-col items-center text-center">
+                <div className="w-24 h-24 bg-white rounded-full flex items-center justify-center text-[var(--tissu-ink)]/10 mb-8 border border-dashed border-[var(--border)]">
+                  <Filter className="w-10 h-10" />
                 </div>
-                <p className="text-lg font-serif text-brand-dark mb-4">{dictionary.shop.empty}</p>
-                <Button variant="outline" onClick={clearAllFilters} className="rounded-2xl h-12 px-8">
+                <p className="text-2xl font-serif text-[var(--tissu-ink)] mb-6">{dictionary.shop.empty}</p>
+                <Button variant="outline" onClick={clearAllFilters} className="rounded-full h-14 px-10 border-[var(--tissu-ink)] text-[var(--tissu-ink)]">
                   {dictionary.shop.clearFilters}
                 </Button>
               </div>
             ) : (
-              <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-x-8 gap-y-16">
+              <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-x-12 gap-y-20">
                 {filteredProducts.map((product) => (
                   <ProductCard key={product.id} product={product} lang={lang} dictionary={dictionary} />
                 ))}
@@ -288,39 +246,39 @@ export default function ShopClient({ lang, dictionary }: ShopContentProps) {
               animate={{ opacity: 1 }}
               exit={{ opacity: 0 }}
               onClick={() => setIsMobileFilterOpen(false)}
-              className="fixed inset-0 bg-black/40 backdrop-blur-sm z-[100]"
+              className="fixed inset-0 bg-[var(--tissu-ink)]/40 backdrop-blur-md z-[100]"
             />
             <motion.div 
               initial={{ x: "100%" }}
               animate={{ x: 0 }}
               exit={{ x: "100%" }}
-              transition={{ type: "spring", damping: 25, stiffness: 200 }}
-              className="fixed right-0 top-0 h-full w-[85%] max-w-md bg-[#fcfbf9] z-[101] shadow-2xl overflow-y-auto"
+              transition={{ type: "spring", damping: 28, stiffness: 220 }}
+              className="fixed right-0 top-0 h-full w-[90%] max-w-md bg-[var(--tissu-cream)] z-[101] shadow-2xl flex flex-col"
             >
-              <div className="p-8 pb-32">
-                <div className="flex justify-between items-center mb-10">
-                  <h2 className="text-2xl font-serif text-brand-dark">{dictionary.shop.filters.mobile}</h2>
+              <div className="p-8 flex-1 overflow-y-auto">
+                <div className="flex justify-between items-center mb-12">
+                  <h2 className="text-3xl font-serif text-[var(--tissu-ink)]">{dictionary.shop.filters.mobile}</h2>
                   <button 
                     onClick={() => setIsMobileFilterOpen(false)}
-                    className="p-3 bg-white rounded-2xl border border-border shadow-sm text-brand-dark/40 hover:text-brand-dark"
+                    className="w-12 h-12 bg-white rounded-full border border-[var(--border)] flex items-center justify-center text-[var(--tissu-ink)]"
                   >
                     <X className="w-5 h-5" />
                   </button>
                 </div>
 
-                <div className="space-y-12">
+                <div className="space-y-16">
                   {/* Category */}
                   <div className="space-y-6">
-                    <h3 className="text-[10px] font-bold uppercase tracking-[0.2em] text-brand-dark/40">{dictionary.shop.filters.title}</h3>
-                    <div className="flex flex-col gap-3">
+                    <h3 className="text-[10px] font-black uppercase tracking-[0.3em] text-[var(--tissu-ink)] opacity-40">{dictionary.shop.filters.title}</h3>
+                    <div className="flex flex-col gap-4">
                       {categories.map((cat) => (
                         <button 
                           key={cat.val}
                           onClick={() => updateFilters('category', cat.val)}
-                          className={`flex items-center justify-between p-5 rounded-2xl border transition-all ${categoryParam === cat.val ? 'bg-brand-primary/5 border-brand-primary text-brand-primary' : 'bg-white border-border/50 text-brand-dark'}`}
+                          className={`flex items-center justify-between p-6 rounded-[24px] border transition-all ${categoryParam === cat.val ? 'bg-white border-[var(--tissu-terracotta)] text-[var(--tissu-terracotta)] shadow-xl shadow-[var(--tissu-ink)]/5' : 'bg-white/50 border-[var(--border)] text-[var(--tissu-ink)]'}`}
                         >
-                          <span className="font-bold text-sm">{cat.label}</span>
-                          {categoryParam === cat.val && <Check className="w-4 h-4" />}
+                          <span className="font-bold text-lg">{cat.label}</span>
+                          {categoryParam === cat.val && <Check className="w-5 h-5" />}
                         </button>
                       ))}
                     </div>
@@ -328,44 +286,25 @@ export default function ShopClient({ lang, dictionary }: ShopContentProps) {
 
                   {/* Colors */}
                   <div className="space-y-6">
-                    <h3 className="text-[10px] font-bold uppercase tracking-[0.2em] text-brand-dark/40">{dictionary.shop.filters.colors}</h3>
-                    <div className="flex flex-wrap gap-4">
+                    <h3 className="text-[10px] font-black uppercase tracking-[0.3em] text-[var(--tissu-ink)] opacity-40">{dictionary.shop.filters.colors}</h3>
+                    <div className="flex flex-wrap gap-5">
                       {availableColors.map((color) => {
                         const isSelected = colorParam === color.name;
                         return (
                           <button 
                             key={color.name}
                             onClick={() => updateFilters('color', isSelected ? null : color.name)}
-                            className={`flex flex-col items-center gap-2 group`}
+                            className={`flex flex-col items-center gap-3`}
                           >
                             <div 
-                              className={`w-12 h-12 rounded-full border border-border transition-all flex items-center justify-center ${isSelected ? 'ring-2 ring-brand-primary ring-offset-4 scale-110 shadow-lg' : ''}`}
+                              className={`w-14 h-14 rounded-full border border-black/5 flex items-center justify-center transition-all ${isSelected ? 'ring-2 ring-[var(--tissu-terracotta)] ring-offset-4 ring-offset-[var(--tissu-cream)]' : ''}`}
                               style={{ backgroundColor: color.code }}
                             >
-                              {isSelected && <Check className="w-5 h-5 text-white mix-blend-difference" />}
+                              {isSelected && <Check className="w-6 h-6 text-white mix-blend-difference" />}
                             </div>
-                            <span className={`text-[10px] font-bold transition-colors ${isSelected ? 'text-brand-primary' : 'text-brand-dark/40'}`}>
+                            <span className={`text-[10px] font-black transition-colors uppercase tracking-widest ${isSelected ? 'text-[var(--tissu-terracotta)]' : 'text-[var(--tissu-ink)] opacity-40'}`}>
                               {color.name}
                             </span>
-                          </button>
-                        );
-                      })}
-                    </div>
-                  </div>
-
-                  {/* Sizes */}
-                  <div className="space-y-6">
-                    <h3 className="text-[10px] font-bold uppercase tracking-[0.2em] text-brand-dark/40">{dictionary.shop.filters.sizes}</h3>
-                    <div className="grid grid-cols-2 gap-3">
-                      {availableSizes.map((size) => {
-                        const isSelected = sizeParam === size;
-                        return (
-                          <button 
-                            key={size}
-                            onClick={() => updateFilters('size', isSelected ? null : size)}
-                            className={`flex items-center justify-center p-5 rounded-2xl border font-bold text-[10px] uppercase tracking-widest transition-all ${isSelected ? 'bg-brand-dark text-white border-brand-dark shadow-xl shadow-brand-dark/20' : 'bg-white border-border/50 text-brand-dark'}`}
-                          >
-                            {size}
                           </button>
                         );
                       })}
@@ -374,14 +313,13 @@ export default function ShopClient({ lang, dictionary }: ShopContentProps) {
                 </div>
               </div>
 
-              <div className="fixed bottom-0 right-0 w-full p-8 bg-gradient-to-t from-[#fcfbf9] via-[#fcfbf9] to-transparent pt-12">
-                <Button 
+              <div className="p-8 bg-white border-t border-dashed border-[var(--border)]">
+                <button 
                   onClick={() => setIsMobileFilterOpen(false)}
-                  variant="premium" 
-                  className="w-full h-16 rounded-[1.5rem] shadow-2xl shadow-brand-dark/10 text-lg"
+                  className="w-full h-16 bg-[var(--tissu-ink)] text-[var(--tissu-cream)] rounded-[20px] font-bold text-lg shadow-xl shadow-[var(--tissu-ink)]/10 active:scale-[0.98] transition-transform"
                 >
                   {dictionary.common.confirm} ({filteredProducts.length})
-                </Button>
+                </button>
               </div>
             </motion.div>
           </>
@@ -394,10 +332,10 @@ export default function ShopClient({ lang, dictionary }: ShopContentProps) {
 function FilterChip({ label, onRemove }: { label: string | undefined, onRemove: () => void }) {
   if (!label) return null;
   return (
-    <div className="flex items-center gap-2 bg-brand-primary/10 text-brand-primary px-4 py-1.5 rounded-full text-xs font-bold border border-brand-primary/10">
+    <div className="flex items-center gap-3 bg-[var(--tissu-terracotta)] text-white px-5 py-2 rounded-full text-[13px] font-bold shadow-lg shadow-[var(--tissu-terracotta)]/10">
       {label}
-      <button onClick={onRemove} className="hover:text-brand-dark transition-colors">
-        <X className="w-3.5 h-3.5" />
+      <button onClick={onRemove} className="opacity-60 hover:opacity-100 transition-opacity">
+        <X className="w-4 h-4" />
       </button>
     </div>
   );

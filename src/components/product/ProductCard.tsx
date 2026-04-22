@@ -4,22 +4,10 @@ import Link from "next/link";
 import Image from "next/image";
 import { Product } from "@/lib/types";
 import { formatPrice } from "@/lib/utils";
-import { Badge } from "../ui/Badge";
-import { ShoppingBag, Eye } from "lucide-react";
+import { ShoppingBag } from "lucide-react";
 import { useCartStore } from "@/store/useCartStore";
 import { useUIStore } from "@/store/useUIStore";
 import { Locale } from "@/i18n/config";
-import { motion } from "framer-motion";
-import { ShapeBlob } from "../ui/ShapeBlob";
-import { Sticker } from "../ui/Sticker";
-
-const blobColors = [
-  "var(--color-pink)",
-  "var(--color-mint)",
-  "var(--color-yellow)",
-  "var(--color-purple)",
-  "var(--color-sky)",
-];
 
 interface ProductCardProps {
   product: Product;
@@ -43,95 +31,68 @@ export function ProductCard({ product, lang = 'ka', dictionary }: ProductCardPro
   const name = product.name[lang] || product.name['ka'];
   const subtitle = product.subtitle[lang] || product.subtitle['ka'];
 
-  const blobColor = blobColors[parseInt(product.id.slice(-1)) % blobColors.length] || blobColors[0];
-
   return (
-    <Link href={`/${lang}/product/${product.id}`} className="group block focus-ring relative">
-      <div className="relative aspect-[4/5] overflow-visible mb-6 transition-all duration-500">
-        
-        {/* Background Blob */}
-        <div className="absolute inset-0 flex items-center justify-center -z-10 group-hover:scale-110 transition-transform duration-700">
-           <ShapeBlob 
-             color={blobColor} 
-             size="lg" 
-             variant={(parseInt(product.id.slice(-1)) % 4 + 1) as 1|2|3|4}
-             className="opacity-60 blur-3xl"
-           />
-        </div>
-
-        <div className="relative w-full h-full overflow-hidden rounded-[4rem] bg-white/40 backdrop-blur-sm border-2 border-white shadow-sm transition-all duration-500 group-hover:shadow-2xl group-hover:shadow-brand-dark/5 group-hover:-translate-y-2">
-            <Image
-              src={product.images[0] || "/placeholder.jpg"}
-              alt={name}
-              fill
-              className="object-contain p-8 transition-transform duration-1000 ease-out group-hover:scale-105"
-            />
-            
-            {/* Badges as Stickers */}
-            {product.badges && product.badges.length > 0 && (
-              <div className="absolute top-6 left-6 flex flex-col gap-3 z-10">
-                {product.badges.map((badge, idx) => (
-                  <Sticker 
-                    key={idx} 
-                    variant={idx % 2 === 0 ? "wavy" : "pill"} 
-                    color="white" 
-                    rotate={idx % 2 === 0 ? -5 : 3}
-                    className="text-[9px] px-4 py-2 border border-brand-dark/5"
-                  >
-                    {badge[lang] || badge['ka']}
-                  </Sticker>
-                ))}
-              </div>
-            )}
-
-            {/* Action Overlays */}
-            <div className="absolute inset-x-0 bottom-0 p-6 opacity-0 group-hover:opacity-100 transition-all duration-500 transform translate-y-4 group-hover:translate-y-0 z-20">
-              <button
-                onClick={handleQuickAdd}
-                disabled={!defaultVariant?.inStock}
-                className="w-full bg-brand-primary text-white flex items-center justify-center gap-3 py-5 rounded-full font-black text-xs uppercase tracking-widest shadow-2xl hover:scale-[1.02] transition-all active:scale-95 disabled:bg-gray-100 disabled:text-gray-400 disabled:cursor-not-allowed"
-              >
-                <ShoppingBag className="w-4 h-4" />
-                {defaultVariant?.inStock 
-                   ? (dictionary?.product?.quickAdd || (lang === 'ka' ? "დამატება" : "Quick Add"))
-                   : (lang === 'ka' ? "ამოიწურა" : "Out of Stock")
-                }
-              </button>
+    <Link href={`/${lang}/product/${product.id}`} className="group block focus-ring">
+      <div className="relative aspect-[4/5] mb-6 transition-all duration-500">
+        <div className="relative w-full h-full overflow-hidden rounded-[28px] bg-[var(--tissu-white)] border border-dashed border-[var(--border)] transition-all duration-500 group-hover:shadow-[0_20px_50px_-20px_rgba(42,29,20,0.1)] group-hover:-translate-y-2">
+          <div className="absolute inset-0 bg-gradient-to-br from-transparent to-[var(--tissu-cream)]/30" />
+          
+          <Image
+            src={product.images[0] || "/placeholder.jpg"}
+            alt={name}
+            fill
+            className="object-contain p-10 transition-transform duration-1000 ease-out group-hover:scale-110"
+          />
+          
+          {/* Badge */}
+          {product.badges && product.badges.length > 0 && (
+            <div className="absolute top-4 left-4 z-10">
+              <span className="bg-[var(--tissu-terracotta)] text-white text-[9px] font-black tracking-widest px-3 py-1.5 rounded-full uppercase shadow-lg">
+                {product.badges[0][lang] || product.badges[0]['ka']}
+              </span>
             </div>
+          )}
+
+          {/* Quick Add Overlay */}
+          <div className="absolute inset-x-0 bottom-0 p-4 translate-y-full group-hover:translate-y-0 transition-transform duration-500 z-20">
+            <button
+              onClick={handleQuickAdd}
+              disabled={!defaultVariant?.inStock}
+              className="w-full h-14 bg-[var(--tissu-ink)] text-[var(--tissu-cream)] rounded-[20px] font-bold text-xs uppercase tracking-widest flex items-center justify-center gap-2 hover:bg-[var(--tissu-terracotta)] transition-colors disabled:opacity-50"
+            >
+              <ShoppingBag className="w-4 h-4" />
+              {defaultVariant?.inStock ? (dictionary?.product?.addToCart || "ADD TO BAG") : (dictionary?.product?.soldOut || "SOLD OUT")}
+            </button>
+          </div>
         </div>
       </div>
 
-      <div className="space-y-3 px-2">
-        <div className="flex justify-between items-start gap-4">
-           <div className="space-y-1 flex-1">
-             <h3 className="font-serif text-2xl font-black text-brand-dark leading-tight group-hover:text-brand-primary transition-colors">{name}</h3>
-             <p className="text-xs font-bold uppercase tracking-widest text-brand-dark/40 line-clamp-1">{subtitle}</p>
-           </div>
-           <div className="flex flex-col items-end font-bold text-sm text-brand-dark">
-             {product.price && <span className={product.originalPrice ? "text-brand-primary" : ""}>{formatPrice(product.price)}</span>}
-             {product.originalPrice && (
-               <span className="text-[10px] text-brand-dark/30 line-through decoration-brand-dark/20 mt-0.5">
-                 {formatPrice(product.originalPrice)}
-               </span>
-             )}
-           </div>
+      <div className="space-y-2">
+        <div className="flex justify-between items-start">
+          <div className="space-y-0.5">
+            <h3 className="font-serif text-[22px] text-[var(--tissu-ink)] leading-none mb-1 group-hover:text-[var(--tissu-terracotta)] transition-colors">
+              {name}
+            </h3>
+            <p className="text-[13px] text-[var(--tissu-ink-soft)] font-medium italic opacity-70">
+              {subtitle}
+            </p>
+          </div>
+          <div className="font-bold text-lg text-[var(--tissu-ink)]">
+            {formatPrice(product.price)}
+          </div>
         </div>
         
-        {/* Colors available indicator - Premium refinement */}
-        <div className="flex gap-2 pt-1">
+        <div className="flex gap-2.5 pt-2">
           {product.variants.reduce((acc: string[], v) => {
              if (!acc.includes(v.colorCode)) acc.push(v.colorCode);
              return acc;
-          }, []).map((colorCode, idx) => (
+          }, []).map((color, idx) => (
             <div 
               key={idx} 
-              className="w-3.5 h-3.5 rounded-full border border-black/5 shadow-inner ring-1 ring-transparent group-hover:ring-brand-primary/20 transition-all"
-              style={{ backgroundColor: colorCode }}
+              className="w-3.5 h-3.5 rounded-full border border-black/10 shadow-sm"
+              style={{ backgroundColor: color }}
             />
           ))}
-          {product.variants.length > 3 && (
-             <span className="text-[10px] font-bold text-brand-dark/30 self-center">+{product.variants.length - 3}</span>
-          )}
         </div>
       </div>
     </Link>

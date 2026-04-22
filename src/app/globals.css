@@ -3,8 +3,9 @@
 @custom-variant dark (&:is(.dark *));
 
 @theme {
-  --font-sans: var(--font-outfit);
-  --font-serif: var(--font-fredoka);
+  --font-sans: var(--font-nunito);
+  --font-serif: var(--font-gloock);
+  --font-hand: var(--font-caveat);
   --font-noto-sans: var(--font-noto-sans);
   --font-noto-serif: var(--font-noto-serif);
 
@@ -41,131 +42,174 @@
   --color-brand-soft: var(--brand-soft);
   --color-brand-dark: var(--brand-dark);
 
+  --color-tissu-cream: var(--tissu-cream);
+  --color-tissu-cream-2: var(--tissu-cream-2);
+  --color-tissu-peach: var(--tissu-peach);
+  --color-tissu-peach-deep: var(--tissu-peach-deep);
+  --color-tissu-terracotta: var(--tissu-terracotta);
+  --color-tissu-mustard: var(--tissu-mustard);
+  --color-tissu-mustard-soft: var(--tissu-mustard-soft);
+  --color-tissu-lilac: var(--tissu-lilac);
+  --color-tissu-lilac-soft: var(--tissu-lilac-soft);
+  --color-tissu-cobalt: var(--tissu-cobalt);
+  --color-tissu-ink: var(--tissu-ink);
+  --color-tissu-ink-soft: var(--tissu-ink-soft);
+  --color-tissu-white: var(--tissu-white);
+
   --radius-lg: var(--radius);
   --radius-md: calc(var(--radius) - 2px);
   --radius-sm: calc(var(--radius) - 4px);
-
-  --animate-accordion-down: accordion-down 0.2s ease-out;
-  --animate-accordion-up: accordion-up 0.2s ease-out;
-
-  @keyframes accordion-down {
-    from { height: 0; }
-    to { height: var(--radix-accordion-content-height); }
-  }
-  @keyframes accordion-up {
-    from { height: var(--radix-accordion-content-height); }
-    to { height: 0; }
-  }
 }
 
 @utility container {
   margin-inline: auto;
-  padding-inline: 1.5rem;
-  max-width: 88rem;
+  padding-inline: 2.5rem;
+  max-width: 85rem;
 }
 
-/* Base styles for Tissu */
+:root {
+  /* Tissu handmade palette */
+  --tissu-cream: #f6ead7;
+  --tissu-cream-2: #fbf3e4;
+  --tissu-peach: #f3cdaa;
+  --tissu-peach-deep: #e9a574;
+  --tissu-terracotta: #f65c32;
+  --tissu-mustard: #e8b23a;
+  --tissu-mustard-soft: #f3c758;
+  --tissu-lilac: #b89bd9;
+  --tissu-lilac-soft: #d5c0ee;
+  --tissu-cobalt: #264ba0;
+  --tissu-ink: #2a1d14;
+  --tissu-ink-soft: #5a4635;
+  --tissu-white: #fffaf0;
+
+  /* Semantic tokens mapped to the Tissu palette */
+  --background: var(--tissu-cream);
+  --foreground: var(--tissu-ink);
+  --card: var(--tissu-white);
+  --card-foreground: var(--tissu-ink);
+  --popover: var(--tissu-white);
+  --popover-foreground: var(--tissu-ink);
+  --primary: var(--tissu-terracotta);
+  --primary-foreground: #ffffff;
+  --secondary: var(--tissu-cobalt);
+  --secondary-foreground: #ffffff;
+  --muted: #efe1c4;
+  --muted-foreground: var(--tissu-ink-soft);
+  --accent: var(--tissu-mustard);
+  --accent-foreground: var(--tissu-ink);
+  --destructive: #c0432b;
+  --destructive-foreground: #ffffff;
+  --border: #e0c9a6;
+  --input: #e0c9a6;
+  --ring: var(--tissu-terracotta);
+  --radius: 1.5rem;
+
+  /* Brand aliases point at the Tissu palette so existing pages inherit the look */
+  --brand-primary: var(--tissu-terracotta);
+  --brand-secondary: var(--tissu-cobalt);
+  --brand-accent: var(--tissu-mustard);
+  --brand-soft: var(--tissu-lilac-soft);
+  --brand-dark: var(--tissu-ink);
+}
+
 @layer base {
-    :root {
-    --background: #fffdfa; 
-    --foreground: #1c1917; 
-
-    --card: #ffffff;
-    --card-foreground: #1c1917;
-
-    --popover: #ffffff;
-    --popover-foreground: #1c1917;
-
-    --primary: #4CA8D1; /* Electric Sky Blue */
-    --primary-foreground: #ffffff;
-
-    --secondary: #FF85A1; /* Hot Pink */
-    --secondary-foreground: #ffffff;
-
-    --muted: #f4f3f1;
-    --muted-foreground: #78716c;
-
-    --accent: #FFD93D; /* Bright Yellow */
-    --accent-foreground: #1c1917;
-
-    --destructive: #ff4b2b;
-    --destructive-foreground: #ffffff;
-
-    --border: #e7e5e4;
-    --input: #e7e5e4;
-    --ring: #4CA8D1;
-
-    --radius: 2.5rem; /* Ultra rounded for puffy look */
-
-    /* Tissu Bubbly Palette */
-    --brand-primary: #4CA8D1;
-    --brand-secondary: #FF85A1;
-    --brand-accent: #FFD93D;
-    --brand-soft: #2EE59D;
-    --brand-dark: #2C3E50;
-
-    /* Extra Blobs */
-    --color-pink: #FF85A1;
-    --color-mint: #2EE59D;
-    --color-yellow: #FFD93D;
-    --color-purple: #A29BFE;
-    --color-sky: #4CA8D1;
-  }
 
   * {
     @apply border-border;
   }
 
   body {
-    @apply bg-background text-foreground tracking-wide font-sans antialiased overflow-x-hidden;
+    @apply bg-background text-foreground font-sans antialiased;
+    font-feature-settings: "ss01", "ss02";
+    -webkit-font-smoothing: antialiased;
+  }
+
+  a {
+    color: inherit;
+    text-decoration: none;
   }
 
   h1, h2, h3, h4, h5, h6 {
-    @apply font-serif tracking-tight font-medium;
+    @apply font-serif tracking-tight;
+    letter-spacing: -0.01em;
   }
 
-  html[lang="ka"] h1, 
-  html[lang="ka"] h2, 
-  html[lang="ka"] h3, 
-  html[lang="ka"] h4, 
-  html[lang="ka"] h5, 
+  html[lang="ka"] h1,
+  html[lang="ka"] h2,
+  html[lang="ka"] h3,
+  html[lang="ka"] h4,
+  html[lang="ka"] h5,
   html[lang="ka"] h6 {
     @apply font-noto-serif;
   }
 }
 
-/* Custom Utilities */
 @layer utilities {
   .text-balance {
     text-wrap: balance;
   }
   .focus-ring {
-    @apply focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring focus-visible:ring-offset-1;
-  }
-  .glass {
-    @apply bg-background/80 backdrop-blur-lg border-b border-border/50;
+    @apply focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2;
   }
 
-  .sticker-shadow {
-    filter: drop-shadow(0 4px 6px rgba(0,0,0,0.05)) drop-shadow(2px 8px 12px rgba(0,0,0,0.05));
+  /* Wavy underline used under "softly" in the hero */
+  .squiggle-under {
+    position: relative;
+    display: inline-block;
+  }
+  .squiggle-under::after {
+    content: "";
+    position: absolute;
+    left: 0;
+    right: 0;
+    bottom: -0.55rem;
+    height: 0.6rem;
+    background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 200 10'><path d='M0,5 Q25,0 50,5 T100,5 T150,5 T200,5' stroke='%23e8b23a' stroke-width='3' fill='none'/></svg>");
+    background-repeat: repeat-x;
+    background-size: 120px 10px;
   }
 
-  .blob-animate {
-    animation: blob-bounce 20s infinite ease-in-out;
+  .shape-blob-morph {
+    border-radius: 50% 46% 52% 48% / 48% 54% 46% 52%;
+    animation: blob-morph 12s ease-in-out infinite;
   }
-
-  @keyframes blob-bounce {
-    0%, 100% { transform: translate(0, 0) scale(1); }
-    33% { transform: translate(30px, -50px) scale(1.1); }
-    66% { transform: translate(-20px, 20px) scale(0.9); }
+  @keyframes blob-morph {
+    0%, 100% { border-radius: 50% 46% 52% 48% / 48% 54% 46% 52%; }
+    50%      { border-radius: 46% 52% 48% 54% / 54% 48% 52% 46%; }
   }
 
   .animate-spin-slow {
-    animation: spin-slow 12s linear infinite;
+    animation: spin-slow 20s linear infinite;
   }
-
+  .animate-spin-slower {
+    animation: spin-slow 40s linear infinite;
+  }
+  .animate-spin-slow-reverse {
+    animation: spin-slow 20s linear infinite reverse;
+  }
   @keyframes spin-slow {
     from { transform: rotate(0deg); }
-    to { transform: rotate(360deg); }
+    to   { transform: rotate(360deg); }
+  }
+
+  .animate-bob {
+    animation: bob 4s ease-in-out infinite;
+  }
+  @keyframes bob {
+    0%, 100% { transform: translateY(0); }
+    50%      { transform: translateY(-8px); }
+  }
+
+  .animate-marquee {
+    animation: marquee 40s linear infinite;
+  }
+  @keyframes marquee {
+    from { transform: translateX(0); }
+    to   { transform: translateX(-50%); }
+  }
+
+  .dashed-divider {
+    border-top: 1px dashed var(--border);
   }
 }
