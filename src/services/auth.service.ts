@@ -37,10 +37,11 @@ class AuthService {
     email: string;
     password: string;
   }): Promise<{ user: User }> {
-    // Step 1: Create user via server API (auto-confirms email)
+    // Server creates user AND signs in (sets session cookies)
     const response = await fetch(`${this.baseUrl}/auth/register`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
+      credentials: "same-origin",
       body: JSON.stringify(data),
     });
 
@@ -49,18 +50,13 @@ class AuthService {
       throw new Error(resData.error || "Registration failed");
     }
 
-    // Step 2: Sign in immediately
+    // Sync browser client with new session from cookies
     const supabase = this.getSupabase();
-    const { error } = await supabase.auth.signInWithPassword({
+    await supabase.auth.signInWithPassword({
       email: data.email,
       password: data.password,
     });
 
-    if (error) {
-      throw new Error(error.message);
-    }
-
-    // Step 3: Fetch profile
     const profile = await this.fetchProfile();
     return { user: profile };
   }
@@ -109,10 +105,13 @@ class AuthService {
   }
 
   async fetchProfile(): Promise<User> {
-    const response = await fetch(`${this.baseUrl}/auth/profile`);
+    const response = await fetch(`${this.baseUrl}/auth/profile`, {
+      credentials: "same-origin",
+      cache: "no-store",
+    });
 
     if (!response.ok) {
-      const data = await response.json();
+      const data = await response.json().catch(() => ({ error: "Failed to fetch profile" }));
       throw new Error(data.error || "Failed to fetch profile");
     }
 

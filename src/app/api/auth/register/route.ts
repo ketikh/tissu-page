@@ -1,6 +1,6 @@
 import { NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
-import { createServiceClient } from "@/lib/supabase/server";
+import { createServiceClient, createClient } from "@/lib/supabase/server";
 
 export async function POST(req: Request) {
   try {
@@ -10,9 +10,9 @@ export async function POST(req: Request) {
       return NextResponse.json({ error: "Missing required fields" }, { status: 400 });
     }
 
-    const supabase = await createServiceClient();
-
-    const { data: authData, error: authError } = await supabase.auth.admin.createUser({
+    // Create user via admin API (auto-confirms email)
+    const serviceClient = await createServiceClient();
+    const { data: authData, error: authError } = await serviceClient.auth.admin.createUser({
       email,
       password,
       email_confirm: true,
@@ -39,7 +39,7 @@ export async function POST(req: Request) {
       return NextResponse.json({ error: authError.message }, { status: 400 });
     }
 
-    // Upsert Prisma profile (create if not exists)
+    // Upsert Prisma profile
     await prisma.user.upsert({
       where: { id: authData.user.id },
       update: { firstName, lastName, email },
@@ -50,6 +50,13 @@ export async function POST(req: Request) {
         lastName,
       },
     });
+
+    // Sign in on the server — this sets session cookies via @supabase/ssr
+    const supabase = await createClient();
+    const { error: signInError } = await supabase.auth.signInWithPassword({ email, password });
+    if (signInError) {
+      return NextResponse.json({ error: signInError.message }, { status: 500 });
+    }
 
     return NextResponse.json({ success: true }, { status: 201 });
   } catch (error) {
