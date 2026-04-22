@@ -29,15 +29,17 @@ const caveat = Caveat({
   display: "swap",
 });
 
-const notoOld = Noto_Sans_Georgian({
+const notoSansGeorgian = Noto_Sans_Georgian({
   variable: "--font-noto-sans",
   subsets: ["georgian"],
+  weight: ["300", "400", "500", "600", "700"],
   display: "swap",
 });
 
-const notoSerif = Noto_Serif_Georgian({
+const notoSerifGeorgian = Noto_Serif_Georgian({
   variable: "--font-noto-serif",
   subsets: ["georgian"],
+  weight: ["400", "500"],
   display: "swap",
 });
 
@@ -69,7 +71,7 @@ export default async function RootLayout({
   return (
     <html
       lang={locale}
-      className={`${nunito.variable} ${gloock.variable} ${caveat.variable} ${notoOld.variable} ${notoSerif.variable} scroll-smooth`}
+      className={`${nunito.variable} ${gloock.variable} ${caveat.variable} ${notoSansGeorgian.variable} ${notoSerifGeorgian.variable} scroll-smooth`}
     >
       <body className={`min-h-screen flex flex-col antialiased bg-background text-foreground ${locale === "ka" ? "font-noto-sans" : "font-sans"}`}>
         <AnnouncementBar lang={locale} dictionary={dictionary} />
