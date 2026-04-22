@@ -182,33 +182,60 @@ function OverviewTab({ user, dictionary, lang, onEdit }: { user: any, dictionary
           <div className="flex justify-between items-center mb-6">
             <h3 className="text-xl font-serif text-brand-dark">{dictionary.account.recentOrder}</h3>
           </div>
-          
-          <div className="space-y-6">
-            <div className="flex justify-between items-start">
-              <div>
-                <p className="text-sm font-semibold text-brand-dark">Order #TS-8291</p>
-                <p className="text-xs text-muted-foreground mt-1">{dictionary.account.placed} Feb 12, 2024</p>
-              </div>
-              <span className="px-3 py-1 bg-brand-primary/10 text-brand-primary text-[10px] font-bold uppercase tracking-wider rounded-full">
-                {dictionary.account.processing}
-              </span>
-            </div>
-            
-            <div className="flex items-center gap-4 bg-brand-soft/30 p-4 rounded-2xl border border-brand-primary/5">
-              <div className="w-12 h-12 bg-white rounded-lg border border-border p-1 relative overflow-hidden">
-                <Image src="/sleeve1.jpg" alt="Product" fill className="object-cover opacity-80" />
-              </div>
-              <div className="flex-1">
-                <p className="text-sm font-medium text-brand-dark line-clamp-1">The Soft Wrap Sleeve</p>
-                <p className="text-xs text-muted-foreground">Oat / 14-inch</p>
-              </div>
-            </div>
 
-            <Button variant="outline" className="w-full rounded-xl gap-2 h-11 border-brand-primary/10 hover:bg-brand-soft">
-              <Clock className="w-4 h-4" />
-              {dictionary.account.track}
-            </Button>
-          </div>
+          {user.orders && user.orders.length > 0 ? (
+            (() => {
+              const recent = user.orders[0];
+              const firstItem = recent.items?.[0];
+              const productName = firstItem ? (typeof firstItem.productName === "string" ? JSON.parse(firstItem.productName) : firstItem.productName) : null;
+              const variantName = firstItem ? (typeof firstItem.variantName === "string" ? JSON.parse(firstItem.variantName) : firstItem.variantName) : null;
+              const orderDate = new Date(recent.date).toLocaleDateString(lang === "ka" ? "ka-GE" : "en-US", { year: "numeric", month: "short", day: "numeric" });
+              return (
+                <div className="space-y-6">
+                  <div className="flex justify-between items-start">
+                    <div>
+                      <p className="text-sm font-semibold text-brand-dark">Order #{recent.id.slice(0, 8).toUpperCase()}</p>
+                      <p className="text-xs text-muted-foreground mt-1">{dictionary.account.placed} {orderDate}</p>
+                    </div>
+                    <span className="px-3 py-1 bg-brand-primary/10 text-brand-primary text-[10px] font-bold uppercase tracking-wider rounded-full">
+                      {recent.status}
+                    </span>
+                  </div>
+
+                  {firstItem && (
+                    <div className="flex items-center gap-4 bg-brand-soft/30 p-4 rounded-2xl border border-brand-primary/5">
+                      <div className="w-12 h-12 bg-white rounded-lg border border-border p-1 relative overflow-hidden">
+                        <Image src={firstItem.image || "/static/placeholder.jpg"} alt="Product" fill className="object-cover opacity-80" />
+                      </div>
+                      <div className="flex-1">
+                        <p className="text-sm font-medium text-brand-dark line-clamp-1">{productName?.[lang] || productName?.en || "Product"}</p>
+                        <p className="text-xs text-muted-foreground">{variantName?.[lang] || variantName?.en || ""}</p>
+                      </div>
+                    </div>
+                  )}
+
+                  <Button variant="outline" className="w-full rounded-xl gap-2 h-11 border-brand-primary/10 hover:bg-brand-soft">
+                    <Clock className="w-4 h-4" />
+                    {dictionary.account.track}
+                  </Button>
+                </div>
+              );
+            })()
+          ) : (
+            <div className="py-8 text-center space-y-4">
+              <div className="w-14 h-14 bg-brand-soft/50 rounded-full flex items-center justify-center text-muted-foreground mx-auto">
+                <Package className="w-7 h-7" />
+              </div>
+              <p className="text-sm text-muted-foreground">
+                {lang === "ka" ? "შეკვეთები ჯერ არ გაქვს" : "No orders yet"}
+              </p>
+              <Button asChild variant="outline" size="sm" className="rounded-full">
+                <Link href={`/${lang}/shop`}>
+                  {lang === "ka" ? "მაღაზიაში გადასვლა" : "Browse shop"}
+                </Link>
+              </Button>
+            </div>
+          )}
         </div>
 
         {/* Default Address */}
