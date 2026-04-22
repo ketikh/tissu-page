@@ -11,6 +11,7 @@ import { LanguageSwitcher } from "./LanguageSwitcher";
 import { motion, AnimatePresence } from "framer-motion";
 import { cn } from "@/lib/utils";
 import { useStoreHydration } from "@/store/useHydration";
+import { CustomStar } from "../ui/CustomStar";
 
 interface NavbarProps {
   lang: Locale;
@@ -48,101 +49,80 @@ export function Navbar({ lang, dictionary }: NavbarProps) {
   return (
     <header 
       className={cn(
-        "fixed top-0 z-50 w-full transition-all duration-500",
+        "fixed top-6 left-1/2 -translate-x-1/2 z-50 w-auto px-6 py-2 transition-all duration-500",
         isScrolled 
-          ? "bg-white/80 backdrop-blur-md border-b border-border/10 py-2 shadow-sm" 
-          : "bg-transparent py-4"
+          ? "bg-white/90 backdrop-blur-xl border-4 border-white shadow-2xl scale-105" 
+          : "bg-white/60 backdrop-blur-md border-2 border-white/40 shadow-xl"
       )}
+      style={{ borderRadius: "100px" }}
     >
-      <div className="container relative flex h-14 md:h-16 items-center justify-between px-4 max-w-7xl mx-auto">
+      <div className="flex h-12 md:h-14 items-center gap-8 md:gap-12 px-2 whitespace-nowrap">
         
-        {/* Left Side: Desktop Nav */}
-        <nav className="hidden md:flex items-center gap-10 text-[11px] font-bold uppercase tracking-[0.2em] text-brand-dark/70">
+        {/* Left Side: Brand Logo */}
+        <Link 
+          href={`/${lang}`} 
+          className="group transition-transform active:scale-95 flex items-center gap-2"
+        >
+          <CustomStar size={20} className="text-brand-secondary" />
+          <img 
+            src="/static/logo.svg" 
+            alt="Tissu Logo" 
+            className="h-6 md:h-7 w-auto transition-transform group-hover:scale-105" 
+          />
+        </Link>
+
+        {/* Center: Desktop Nav */}
+        <nav className="hidden md:flex items-center gap-8 text-[11px] font-black uppercase tracking-[0.1em] text-brand-dark/80">
           {links.map((link) => {
             const isActive = pathname === link.href;
             return (
               <Link
                 key={link.href}
                 href={link.href}
-                className="relative group transition-colors hover:text-brand-dark"
+                className="relative group transition-colors hover:text-brand-primary"
               >
                 {link.name}
-                <motion.span 
-                  className={cn(
-                    "absolute -bottom-1.5 left-0 w-full h-[1.5px] bg-brand-primary origin-left",
-                    isActive ? "scale-x-100" : "scale-x-0 group-hover:scale-x-100"
-                  )}
-                  initial={false}
-                  transition={{ type: "spring", stiffness: 300, damping: 30 }}
-                />
               </Link>
             );
           })}
         </nav>
 
-        {/* Mobile Menu Trigger */}
-        <div className="md:hidden">
-          <button 
-            onClick={() => setIsMobileMenuOpen(true)}
-            className="p-2 -ml-2 text-brand-dark transition-all hover:text-brand-primary active:scale-95 focus-visible:ring-2 focus-visible:ring-brand-primary/50 focus-visible:outline-none rounded-sm"
-            aria-label={dictionary.common.menu || "Open menu"}
-          >
-            <Menu className="w-6 h-6" />
-          </button>
-        </div>
-
-        {/* Center: Logo */}
-        <Link 
-          href={`/${lang}`} 
-          className="absolute left-1/2 -translate-x-1/2 group transition-transform duration-500 active:scale-95"
-        >
-          <img 
-            src="/static/logo.svg" 
-            alt="Tissu Logo" 
-            className="h-7 md:h-9 w-auto transition-transform group-hover:scale-105" 
-          />
-        </Link>
-
         {/* Right Side: Actions */}
-        <div className="flex items-center gap-2 sm:gap-5">
+        <div className="flex items-center gap-2 sm:gap-4">
           <div className="hidden lg:block">
             <LanguageSwitcher currentLang={lang} />
           </div>
           
           <button 
-            className="p-2 text-brand-dark/70 hover:text-brand-primary transition-all hover:scale-110 active:scale-95 focus-visible:ring-2 focus-visible:ring-brand-primary/50 focus-visible:outline-none rounded-full hidden sm:block"
-            aria-label={dictionary.notfound.search || "Search"}
-          >
-            <Search className="w-[20px] h-[20px]" />
-          </button>
-          
-          <Link 
-            href={`/${lang}/account`} 
-            className="p-2 text-brand-dark/70 hover:text-brand-primary transition-all hover:scale-110 active:scale-95 focus-visible:ring-2 focus-visible:ring-brand-primary/50 focus-visible:outline-none rounded-full"
-            aria-label={dictionary.nav.account}
-          >
-            <User className="w-[20px] h-[20px]" />
-          </Link>
-
-          <button 
             onClick={openCart} 
-            className="p-2 text-brand-dark/70 hover:text-brand-primary transition-all hover:scale-110 active:scale-95 focus-visible:ring-2 focus-visible:ring-brand-primary/50 focus-visible:outline-none rounded-full relative"
+            className="p-2 text-brand-dark/70 hover:text-brand-primary transition-all hover:scale-110 active:scale-95 focus:outline-none relative"
             aria-label={dictionary.nav.cart}
           >
-            <ShoppingBag className="w-[22px] h-[22px]" />
+            <ShoppingBag className="w-[20px] h-[20px]" />
             <AnimatePresence>
               {cartItemCount > 0 && (
                 <motion.span 
                   initial={{ scale: 0, opacity: 0 }}
                   animate={{ scale: 1, opacity: 1 }}
                   exit={{ scale: 0, opacity: 0 }}
-                  className="absolute top-1.5 right-1 flex h-4 w-4 items-center justify-center rounded-full bg-brand-primary text-[9px] font-bold text-white shadow-lg shadow-brand-primary/20"
+                  className="absolute -top-1 -right-1 flex h-4 w-4 items-center justify-center rounded-full bg-brand-secondary text-[9px] font-black text-white shadow-lg"
                 >
                   {cartItemCount}
                 </motion.span>
               )}
             </AnimatePresence>
           </button>
+          
+          {/* Mobile Menu Trigger */}
+          <div className="md:hidden">
+            <button 
+              onClick={() => setIsMobileMenuOpen(true)}
+              className="p-2 text-brand-dark transition-all hover:text-brand-primary active:scale-95 focus:outline-none"
+              aria-label={dictionary.common.menu || "Open menu"}
+            >
+              <Menu className="w-6 h-6" />
+            </button>
+          </div>
         </div>
       </div>
 
@@ -155,7 +135,7 @@ export function Navbar({ lang, dictionary }: NavbarProps) {
               animate={{ opacity: 1 }}
               exit={{ opacity: 0 }}
               onClick={() => setIsMobileMenuOpen(false)}
-              className="fixed inset-0 bg-brand-dark/40 backdrop-blur-md z-[60]"
+              className="fixed inset-0 bg-brand-primary/20 backdrop-blur-xl z-[60]"
             />
             <motion.div 
               initial={{ x: "-100%" }}
@@ -165,10 +145,13 @@ export function Navbar({ lang, dictionary }: NavbarProps) {
               className="fixed left-0 top-0 h-full w-[85%] max-w-sm bg-[#fcfbf9] z-[70] shadow-2xl p-8 flex flex-col"
             >
               <div className="flex justify-between items-center mb-12">
-                <img src="/static/logo.svg" alt="Tissu Logo" className="h-7 w-auto" />
+                <div className="flex items-center gap-2">
+                  <CustomStar size={24} className="text-brand-primary" />
+                  <img src="/static/logo.svg" alt="Tissu Logo" className="h-7 w-auto" />
+                </div>
                 <button 
                   onClick={() => setIsMobileMenuOpen(false)}
-                  className="p-2 rounded-full bg-brand-soft border border-border/50 text-brand-dark hover:bg-brand-primary/10 transition-colors focus-visible:ring-2 focus-visible:ring-brand-primary/50 focus-visible:outline-none"
+                  className="p-3 rounded-2xl bg-brand-soft text-brand-dark hover:bg-brand-primary hover:text-white transition-all shadow-lg"
                   aria-label={dictionary.common.close}
                 >
                   <X className="w-5 h-5" />

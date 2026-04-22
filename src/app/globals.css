@@ -3,8 +3,8 @@
 @custom-variant dark (&:is(.dark *));
 
 @theme {
-  --font-sans: var(--font-inter);
-  --font-serif: var(--font-playfair);
+  --font-sans: var(--font-outfit);
+  --font-serif: var(--font-fredoka);
   --font-noto-sans: var(--font-noto-sans);
   --font-noto-serif: var(--font-noto-serif);
 
@@ -66,43 +66,50 @@
 
 /* Base styles for Tissu */
 @layer base {
-  :root {
-    --background: #faf9f7; /* Very soft warm beige/off-white */
-    --foreground: #2d2a26; /* Soft black/dark brown */
+    :root {
+    --background: #fffdfa; 
+    --foreground: #1c1917; 
 
     --card: #ffffff;
-    --card-foreground: #2d2a26;
+    --card-foreground: #1c1917;
 
     --popover: #ffffff;
-    --popover-foreground: #2d2a26;
+    --popover-foreground: #1c1917;
 
-    --primary: #2d2a26;
-    --primary-foreground: #faf9f7;
+    --primary: #4CA8D1; /* Electric Sky Blue */
+    --primary-foreground: #ffffff;
 
-    --secondary: #eee9e3;
-    --secondary-foreground: #2d2a26;
+    --secondary: #FF85A1; /* Hot Pink */
+    --secondary-foreground: #ffffff;
 
-    --muted: #f2efe9;
-    --muted-foreground: #6b6762;
+    --muted: #f4f3f1;
+    --muted-foreground: #78716c;
 
-    --accent: #eee9e3;
-    --accent-foreground: #2d2a26;
+    --accent: #FFD93D; /* Bright Yellow */
+    --accent-foreground: #1c1917;
 
-    --destructive: #d15656;
+    --destructive: #ff4b2b;
     --destructive-foreground: #ffffff;
 
-    --border: #e6e0d8;
-    --input: #e6e0d8;
-    --ring: #2d2a26;
+    --border: #e7e5e4;
+    --input: #e7e5e4;
+    --ring: #4CA8D1;
 
-    --radius: 0.75rem;
+    --radius: 2.5rem; /* Ultra rounded for puffy look */
 
-    /* Tissu Brand Palette */
-    --brand-primary: #8c7d6e; /* Soft taupe */
-    --brand-secondary: #d6cfc7; /* Lighter taupe/grey */
-    --brand-accent: #c4a991; /* Warm caramel */
-    --brand-soft: #f4f1ec; /* Softest neutral */
-    --brand-dark: #3a3632; /* Deep charcoal/brown */
+    /* Tissu Bubbly Palette */
+    --brand-primary: #4CA8D1;
+    --brand-secondary: #FF85A1;
+    --brand-accent: #FFD93D;
+    --brand-soft: #2EE59D;
+    --brand-dark: #2C3E50;
+
+    /* Extra Blobs */
+    --color-pink: #FF85A1;
+    --color-mint: #2EE59D;
+    --color-yellow: #FFD93D;
+    --color-purple: #A29BFE;
+    --color-sky: #4CA8D1;
   }
 
   * {
@@ -137,5 +144,28 @@
   }
   .glass {
     @apply bg-background/80 backdrop-blur-lg border-b border-border/50;
+  }
+
+  .sticker-shadow {
+    filter: drop-shadow(0 4px 6px rgba(0,0,0,0.05)) drop-shadow(2px 8px 12px rgba(0,0,0,0.05));
+  }
+
+  .blob-animate {
+    animation: blob-bounce 20s infinite ease-in-out;
+  }
+
+  @keyframes blob-bounce {
+    0%, 100% { transform: translate(0, 0) scale(1); }
+    33% { transform: translate(30px, -50px) scale(1.1); }
+    66% { transform: translate(-20px, 20px) scale(0.9); }
+  }
+
+  .animate-spin-slow {
+    animation: spin-slow 12s linear infinite;
+  }
+
+  @keyframes spin-slow {
+    from { transform: rotate(0deg); }
+    to { transform: rotate(360deg); }
   }
 }

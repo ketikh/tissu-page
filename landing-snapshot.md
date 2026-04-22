@@ -1,0 +1,358 @@
+- generic [active] [ref=e1]:
+  - generic [ref=e4]:
+    - text: handmade with love
+    - text: free shipping over 150₾
+    - text: 100% cotton
+    - text: made in tbilisi
+    - text: new spring drop is here
+    - text: handmade with love
+    - text: free shipping over 150₾
+    - text: 100% cotton
+    - text: made in tbilisi
+    - text: new spring drop is here
+  - navigation [ref=e15]:
+    - generic [ref=e16]:
+      - link "TISSU" [ref=e17] [cursor=pointer]:
+        - /url: "#"
+        - text: TISSU
+      - generic [ref=e19]:
+        - link "Shop" [ref=e20] [cursor=pointer]:
+          - /url: "#shop"
+        - link "Our story" [ref=e21] [cursor=pointer]:
+          - /url: "#story"
+        - link "How it's made" [ref=e22] [cursor=pointer]:
+          - /url: "#process"
+        - link "Journal" [ref=e23] [cursor=pointer]:
+          - /url: "#journal"
+      - generic [ref=e24]:
+        - button "Search" [ref=e25] [cursor=pointer]:
+          - img [ref=e26]
+        - button "Open cart" [ref=e29] [cursor=pointer]:
+          - img [ref=e30]
+  - generic [ref=e34]:
+    - generic [ref=e35]:
+      - generic [ref=e36]: Spring / summer '26 drop
+      - heading "Carry your little joys, softly ." [level=1] [ref=e38]:
+        - text: Carry your little
+        - text: joys,
+        - generic [ref=e39]: softly
+        - text: .
+      - paragraph [ref=e40]: Handmade quilted pouches, laptop sleeves and pocket bags — cut, stitched and tied by hand in a sunlit studio in Tbilisi. Cotton only. Made to last for all your everyday hauls.
+      - generic [ref=e41]:
+        - button "Shop the drop" [ref=e42] [cursor=pointer]:
+          - text: Shop the drop
+          - img [ref=e44]
+        - button "Our story" [ref=e46] [cursor=pointer]
+      - generic [ref=e52]:
+        - generic [ref=e53]: ★★★★★ 4.9
+        - generic [ref=e54]: 2,400+ happy humans · verified reviews
+    - generic [ref=e55]:
+      - img "Cobalt blue quilted pouch" [ref=e58]
+      - img "Mustard yellow quilted pouch" [ref=e60]
+      - generic [ref=e61]:
+        - img [ref=e62]:
+          - generic [ref=e63]: · made by hand · made in tbilisi · made with love ·
+        - generic [ref=e64]:
+          - text: TISSU
+          - generic [ref=e65]: EST. 2023
+      - generic [ref=e66]:
+        - img [ref=e68]
+        - text: 100% cotton
+      - generic [ref=e71]:
+        - img [ref=e73]
+        - text: Made with love
+  - generic [ref=e76]:
+    - generic [ref=e77]:
+      - heading "The everyday little-things edit." [level=2] [ref=e78]:
+        - text: The everyday
+        - text: little-things edit.
+      - paragraph [ref=e79]: "Six new shapes, three fabrics, one promise: every stitch tied by a real human in our Tbilisi studio."
+    - generic [ref=e80]:
+      - button "All · 12" [ref=e81] [cursor=pointer]
+      - button "Pouches" [ref=e82] [cursor=pointer]
+      - button "Laptop sleeves" [ref=e83] [cursor=pointer]
+      - button "Tote bags" [ref=e84] [cursor=pointer]
+      - button "New arrivals" [ref=e85] [cursor=pointer]
+    - generic [ref=e86]:
+      - generic [ref=e87]:
+        - generic [ref=e88]:
+          - generic [ref=e89]: NEW
+          - button "Favourite" [ref=e90] [cursor=pointer]:
+            - img [ref=e91]
+          - img "Blueberry quilted pouch" [ref=e93]
+        - generic [ref=e94]:
+          - heading "Blueberry quilted pouch" [level=3] [ref=e95]
+          - generic [ref=e96]: Small · cotton
+        - generic [ref=e102]: 85₾
+        - button "Add to basket" [ref=e103] [cursor=pointer]:
+          - img [ref=e104]
+          - text: Add to basket
+      - generic [ref=e107]:
+        - generic [ref=e108]:
+          - generic [ref=e109]: BESTSELLER
+          - button "Favourite" [ref=e110] [cursor=pointer]:
+            - img [ref=e111]
+          - img "Lemon quilted pouch" [ref=e113]
+        - generic [ref=e114]:
+          - heading "Lemon quilted pouch" [level=3] [ref=e115]
+          - generic [ref=e116]: Small · cotton
+        - generic [ref=e122]: 85₾
+        - button "Add to basket" [ref=e123] [cursor=pointer]:
+          - img [ref=e124]
+          - text: Add to basket
+      - generic [ref=e127]:
+        - generic [ref=e128]:
+          - button "Favourite" [ref=e129] [cursor=pointer]:
+            - img [ref=e130]
+          - img "Stripe laptop sleeve" [ref=e132]
+        - generic [ref=e133]:
+          - heading "Stripe laptop sleeve" [level=3] [ref=e134]
+          - generic [ref=e135]: 13" · padded
+        - generic [ref=e141]: 140₾
+        - button "Add to basket" [ref=e142] [cursor=pointer]:
+          - img [ref=e143]
+          - text: Add to basket
+      - generic [ref=e146]:
+        - generic [ref=e147]:
+          - button "Favourite" [ref=e148] [cursor=pointer]:
+            - img [ref=e149]
+          - img "Mustard mini tote" [ref=e151]
+        - generic [ref=e152]:
+          - heading "Mustard mini tote" [level=3] [ref=e153]
+          - generic [ref=e154]: Medium · cotton canvas
+        - generic [ref=e159]: 120₾
+        - button "Add to basket" [ref=e160] [cursor=pointer]:
+          - img [ref=e161]
+          - text: Add to basket
+      - generic [ref=e164]:
+        - generic [ref=e165]:
+          - generic [ref=e166]: NEW
+          - button "Favourite" [ref=e167] [cursor=pointer]:
+            - img [ref=e168]
+          - img "Cobalt crossbody" [ref=e170]
+        - generic [ref=e171]:
+          - heading "Cobalt crossbody" [level=3] [ref=e172]
+          - generic [ref=e173]: Adjustable strap
+        - generic [ref=e179]: 165₾
+        - button "Add to basket" [ref=e180] [cursor=pointer]:
+          - img [ref=e181]
+          - text: Add to basket
+      - generic [ref=e184]:
+        - generic [ref=e185]:
+          - generic [ref=e186]: LIMITED
+          - button "Favourite" [ref=e187] [cursor=pointer]:
+            - img [ref=e188]
+          - img "Sunday stripe pouch" [ref=e190]
+        - generic [ref=e191]:
+          - heading "Sunday stripe pouch" [level=3] [ref=e192]
+          - generic [ref=e193]: Tablet size
+        - generic [ref=e199]: 95₾
+        - button "Add to basket" [ref=e200] [cursor=pointer]:
+          - img [ref=e201]
+          - text: Add to basket
+  - generic [ref=e206]:
+    - generic: TISSU · TISSU · TISSU
+    - generic [ref=e207]:
+      - generic [ref=e208]:
+        - generic [ref=e209]: Our story
+        - heading "Cut from leftover cotton, stitched with care." [level=2] [ref=e211]
+        - paragraph [ref=e212]: Tissu started as Sunday-afternoon sewing in a sunny Tbilisi kitchen — leftover cotton, a vintage machine, and the idea that a pouch should feel like a small hug. Today we're still tiny, still handmade, and still a little obsessed with getting the tie-ribbons just right.
+        - generic [ref=e213]:
+          - generic [ref=e214]:
+            - generic [ref=e215]: 100%
+            - generic [ref=e216]: Cotton fabric
+          - generic [ref=e217]:
+            - generic [ref=e218]: "3"
+            - generic [ref=e219]: Hands per bag
+          - generic [ref=e220]:
+            - generic [ref=e221]: "0"
+            - generic [ref=e222]: Waste fabric
+      - generic [ref=e223]:
+        - img "Striped laptop sleeve" [ref=e225]
+        - generic [ref=e226]:
+          - text: Since
+          - text: "'23"
+          - generic [ref=e228]: TBILISI
+  - generic [ref=e230]:
+    - generic [ref=e231]:
+      - heading "From cotton roll to your doorstep." [level=2] [ref=e232]:
+        - text: From cotton roll
+        - text: to your doorstep.
+      - paragraph [ref=e233]: No factories, no shortcuts. Just four quiet steps between a bolt of cloth and a bag you'll love for years.
+    - generic [ref=e234]:
+      - generic [ref=e235]:
+        - generic [ref=e236]: "01"
+        - img [ref=e238]
+        - heading "Source" [level=4] [ref=e240]
+        - paragraph [ref=e241]: We pick cotton rolls from local mills. Colours chosen by season, texture chosen by hand.
+      - generic [ref=e242]:
+        - generic [ref=e243]: "02"
+        - img [ref=e245]
+        - heading "Pattern" [level=4] [ref=e248]
+        - paragraph [ref=e249]: Each shape is cut from paper templates we've refined for two years running.
+      - generic [ref=e250]:
+        - generic [ref=e251]: "03"
+        - img [ref=e253]
+        - heading "Quilt & stitch" [level=4] [ref=e256]
+        - paragraph [ref=e257]: Diamond-quilted by hand — the little criss-cross that makes a Tissu a Tissu.
+      - generic [ref=e258]:
+        - generic [ref=e259]: "04"
+        - img [ref=e261]
+        - heading "Wrap & send" [level=4] [ref=e264]
+        - paragraph [ref=e265]: Tied with ribbon, slipped into a linen pouch, off on a Tbilisi post truck to you.
+  - generic [ref=e269]:
+    - generic [ref=e270]:
+      - generic [ref=e271]: Build your own
+      - heading "Pick a shade that feels like you." [level=2] [ref=e273]
+      - paragraph [ref=e274]: Every Tissu is made to order. Choose your fabric, we'll stitch it in the next 5 days and ship it warm.
+      - generic [ref=e275]:
+        - button [ref=e276] [cursor=pointer]
+        - button [ref=e277] [cursor=pointer]
+        - button [ref=e278] [cursor=pointer]
+        - button [ref=e279] [cursor=pointer]
+        - button [ref=e280] [cursor=pointer]
+        - button [ref=e281] [cursor=pointer]
+      - generic [ref=e282]:
+        - button "Start this one — 85₾" [ref=e283] [cursor=pointer]:
+          - text: Start this one — 85₾
+          - img [ref=e285]
+        - generic [ref=e287]: ← ships in 5 days
+    - img "Selected colour preview" [ref=e291]
+  - generic [ref=e293]:
+    - generic [ref=e294]:
+      - heading "Loved by real humans." [level=2] [ref=e295]:
+        - text: Loved by real
+        - text: humans.
+      - paragraph [ref=e296]: 2,400+ reviews and counting. Here's a little scoop of what folks are saying.
+    - generic [ref=e297]:
+      - generic [ref=e298]:
+        - generic [ref=e299]: "\""
+        - generic [ref=e300]: ★★★★★
+        - blockquote [ref=e301]: The colour is exactly like the photo and the stitching is so neat I almost don't want to put anything in it.
+        - generic [ref=e304]:
+          - strong [ref=e305]: Mariam K.
+          - generic [ref=e306]: Blueberry pouch · Tbilisi
+      - generic [ref=e307]:
+        - generic [ref=e308]: "\""
+        - generic [ref=e309]: ★★★★★
+        - blockquote [ref=e310]: It arrived wrapped in a linen ribbon. The packaging alone made my week — the bag made my whole year.
+        - generic [ref=e313]:
+          - strong [ref=e314]: Sofia R.
+          - generic [ref=e315]: Lemon laptop sleeve · Lisbon
+      - generic [ref=e316]:
+        - generic [ref=e317]: "\""
+        - generic [ref=e318]: ★★★★★
+        - blockquote [ref=e319]: Finally a laptop bag that looks like it belongs at brunch. The quilting is buttery and the ties are the sweetest detail.
+        - generic [ref=e322]:
+          - strong [ref=e323]: Elene D.
+          - generic [ref=e324]: Stripe sleeve · Berlin
+  - generic [ref=e326]:
+    - generic [ref=e327]:
+      - heading "From @thetissushop" [level=2] [ref=e328]
+      - paragraph [ref=e329]: Follow along for studio snaps, behind-the-scenes, and the occasional lemon.
+    - generic [ref=e330]:
+      - generic [ref=e332] [cursor=pointer]: ❤ 1.2k
+      - generic [ref=e334] [cursor=pointer]: ❤ 984
+      - generic [ref=e336] [cursor=pointer]: ❤ 2.1k
+      - generic [ref=e338] [cursor=pointer]:
+        - text: studio
+        - text: snap
+      - generic [ref=e340] [cursor=pointer]:
+        - text: BTS
+        - text: reel
+      - generic [ref=e342] [cursor=pointer]:
+        - text: lemons
+        - text: "& love"
+  - generic [ref=e345]:
+    - generic: ♡ ♡ ♡ ♡ ♡ ♡ ♡ ♡
+    - heading "Get first dibs on new drops." [level=2] [ref=e346]
+    - paragraph [ref=e347]: Two emails a month, tops. New colours, studio peeks, and a 10% code on us.
+    - generic [ref=e348]:
+      - textbox "you@lovely.com" [ref=e349]
+      - button "Sign me up" [ref=e350] [cursor=pointer]
+  - contentinfo [ref=e351]:
+    - generic [ref=e352]:
+      - generic [ref=e353]:
+        - generic [ref=e354]:
+          - generic [ref=e355]: TISSU
+          - paragraph [ref=e357]: Handmade quilted bags from Tbilisi. Cut, stitched, and tied by hand — since 2023.
+        - generic [ref=e358]:
+          - heading "Shop" [level=5] [ref=e359]
+          - list [ref=e360]:
+            - listitem [ref=e361]:
+              - link "Pouches" [ref=e362] [cursor=pointer]:
+                - /url: "#"
+            - listitem [ref=e363]:
+              - link "Laptop sleeves" [ref=e364] [cursor=pointer]:
+                - /url: "#"
+            - listitem [ref=e365]:
+              - link "Totes" [ref=e366] [cursor=pointer]:
+                - /url: "#"
+            - listitem [ref=e367]:
+              - link "Gift cards" [ref=e368] [cursor=pointer]:
+                - /url: "#"
+        - generic [ref=e369]:
+          - heading "Care" [level=5] [ref=e370]
+          - list [ref=e371]:
+            - listitem [ref=e372]:
+              - link "Shipping" [ref=e373] [cursor=pointer]:
+                - /url: "#"
+            - listitem [ref=e374]:
+              - link "Returns" [ref=e375] [cursor=pointer]:
+                - /url: "#"
+            - listitem [ref=e376]:
+              - link "Wash guide" [ref=e377] [cursor=pointer]:
+                - /url: "#"
+            - listitem [ref=e378]:
+              - link "FAQ" [ref=e379] [cursor=pointer]:
+                - /url: "#"
+        - generic [ref=e380]:
+          - heading "Studio" [level=5] [ref=e381]
+          - list [ref=e382]:
+            - listitem [ref=e383]:
+              - link "Our story" [ref=e384] [cursor=pointer]:
+                - /url: "#"
+            - listitem [ref=e385]:
+              - link "Journal" [ref=e386] [cursor=pointer]:
+                - /url: "#"
+            - listitem [ref=e387]:
+              - link "Wholesale" [ref=e388] [cursor=pointer]:
+                - /url: "#"
+            - listitem [ref=e389]:
+              - link "Contact" [ref=e390] [cursor=pointer]:
+                - /url: "#"
+      - generic [ref=e391]:
+        - generic [ref=e392]: © 2026 Tissu Shop · made with love in tbilisi
+        - generic [ref=e393]:
+          - link "Instagram" [ref=e394] [cursor=pointer]:
+            - /url: https://instagram.com/thetissushop
+            - img [ref=e395]
+          - link "TikTok" [ref=e399] [cursor=pointer]:
+            - /url: "#"
+            - img [ref=e400]
+          - link "Pinterest" [ref=e402] [cursor=pointer]:
+            - /url: "#"
+            - img [ref=e403]
+  - complementary "Shopping cart" [ref=e406]:
+    - generic [ref=e407]:
+      - heading "Your basket ♡" [level=3] [ref=e408]
+      - button "Close" [ref=e409] [cursor=pointer]:
+        - img [ref=e410]
+    - generic [ref=e413]:
+      - generic [ref=e414]: it's empty in here
+      - text: Time to find a little friend to carry your things.
+    - generic [ref=e415]:
+      - generic [ref=e416]:
+        - generic [ref=e417]: Subtotal
+        - generic [ref=e418]: 0₾
+      - generic [ref=e419]:
+        - generic [ref=e420]: Shipping
+        - generic [ref=e421]: Free over 150₾
+      - generic [ref=e422]:
+        - generic [ref=e423]: Total
+        - generic [ref=e424]: 0₾
+      - button "Checkout" [ref=e425] [cursor=pointer]:
+        - text: Checkout
+        - img [ref=e426]
+  - generic:
+    - generic: added to basket

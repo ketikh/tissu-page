@@ -1,5 +1,5 @@
 import type { Metadata } from "next";
-import { Inter, Playfair_Display, Noto_Sans_Georgian, Noto_Serif_Georgian } from "next/font/google";
+import { Outfit, Fredoka, Noto_Sans_Georgian, Noto_Serif_Georgian } from "next/font/google";
 import "../globals.css";
 import { i18n, Locale } from "@/i18n/config";
 import { AnnouncementBar } from "@/components/layout/AnnouncementBar";
@@ -10,16 +10,17 @@ import { getDictionary } from "@/i18n/getDictionary";
 
 
 
-const inter = Inter({
-  variable: "--font-inter",
+const outfit = Outfit({
+  variable: "--font-outfit",
   subsets: ["latin"],
   display: "swap",
 });
 
-const playfair = Playfair_Display({
-  variable: "--font-playfair",
+const fredoka = Fredoka({
+  variable: "--font-fredoka",
   subsets: ["latin"],
   display: "swap",
+  weight: ["400", "500", "600", "700"],
 });
 
 const notoOld = Noto_Sans_Georgian({
@@ -62,7 +63,7 @@ export default async function RootLayout({
   return (
     <html 
       lang={locale} 
-      className={`${inter.variable} ${playfair.variable} ${notoOld.variable} ${notoSerif.variable} scroll-smooth`}
+      className={`${outfit.variable} ${fredoka.variable} ${notoOld.variable} ${notoSerif.variable} scroll-smooth`}
     >
       <body className={`min-h-screen flex flex-col antialiased bg-background text-foreground ${locale === 'ka' ? 'font-noto-sans' : 'font-sans'}`}>
           <AnnouncementBar lang={locale} dictionary={dictionary} />
