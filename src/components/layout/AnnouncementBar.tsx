@@ -1,6 +1,7 @@
 "use client";
 
 import { Locale } from "@/i18n/config";
+import { getLandingCopy } from "@/app/[lang]/landingCopy";
 
 interface AnnouncementBarProps {
   lang: Locale;
@@ -8,25 +9,8 @@ interface AnnouncementBarProps {
 }
 
 export function AnnouncementBar({ lang }: AnnouncementBarProps) {
-  const phrases =
-    lang === "ka"
-      ? [
-          "ხელით ნაკერი სიყვარულით",
-          "უფასო მიწოდება 150₾-ზე მეტ შეკვეთაზე",
-          "100% ბამბა",
-          "დამზადებულია თბილისში",
-          "საგაზაფხულო კოლექცია უკვე გამოვიდა",
-        ]
-      : [
-          "handmade with love",
-          "free shipping over 150₾",
-          "100% cotton",
-          "made in tbilisi",
-          "new spring drop is here",
-        ];
-
-  // Repeat the track twice so the translateX(-50%) loop reads seamless.
-  const track = [...phrases, ...phrases];
+  const { marquee } = getLandingCopy(lang);
+  const track = [...marquee, ...marquee];
 
   return (
     <div className="w-full overflow-hidden bg-[var(--tissu-terracotta)] text-[var(--tissu-cream)]">

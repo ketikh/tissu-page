@@ -11,6 +11,7 @@ import { useStoreHydration } from "@/store/useHydration";
 import { Locale } from "@/i18n/config";
 import { LanguageSwitcher } from "./LanguageSwitcher";
 import { cn } from "@/lib/utils";
+import { getLandingCopy } from "@/app/[lang]/landingCopy";
 
 interface NavbarProps {
   lang: Locale;
@@ -31,11 +32,12 @@ export function Navbar({ lang, dictionary }: NavbarProps) {
     setIsMobileOpen(false);
   }, [pathname]);
 
+  const copy = getLandingCopy(lang);
   const links = [
-    { name: dictionary.nav.shop ?? dictionary.nav.collection, href: `/${lang}/shop` },
-    { name: lang === "ka" ? "ჩვენი ისტორია" : "Our story", href: `/${lang}/about` },
-    { name: lang === "ka" ? "როგორ ვკერავთ" : "How it's made", href: `/${lang}/about#process` },
-    { name: lang === "ka" ? "ჟურნალი" : "Journal", href: `/${lang}#journal` },
+    { name: copy.nav.shop, href: `/${lang}/shop` },
+    { name: copy.nav.story, href: `/${lang}/about` },
+    { name: copy.nav.process, href: `/${lang}/about#process` },
+    { name: copy.nav.journal, href: `/${lang}#journal` },
   ];
 
   return (

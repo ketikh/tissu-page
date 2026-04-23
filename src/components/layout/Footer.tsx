@@ -2,35 +2,35 @@
 
 import Link from "next/link";
 import { useParams } from "next/navigation";
+import type { Locale } from "@/i18n/config";
+import { getLandingCopy } from "@/app/[lang]/landingCopy";
 
 interface FooterProps {
   dictionary: any;
 }
 
-export function Footer({ dictionary }: FooterProps) {
+export function Footer({}: FooterProps) {
   const params = useParams();
-  const lang = (params?.lang as string) || "en";
-  const isKa = lang === "ka";
+  const lang = ((params?.lang as string) || "en") as Locale;
+  const copy = getLandingCopy(lang);
 
-  const shopLinks = [
-    { label: isKa ? "ჩანთები" : "Pouches", href: `/${lang}/shop?category=pouches` },
-    { label: isKa ? "ლეპტოპის ქერქები" : "Laptop sleeves", href: `/${lang}/shop?category=laptop-sleeves` },
-    { label: isKa ? "თოუთ ჩანთები" : "Totes", href: `/${lang}/shop?category=totes` },
-    { label: isKa ? "საჩუქრის ბარათები" : "Gift cards", href: `/${lang}/shop?category=gift` },
+  const shopHrefs = [
+    `/${lang}/shop?category=pouches`,
+    `/${lang}/shop?category=laptop-sleeves`,
+    `/${lang}/shop?category=totes`,
+    `/${lang}/shop?category=gift`,
   ];
-
-  const careLinks = [
-    { label: isKa ? "მიწოდება" : "Shipping", href: `/${lang}/faq#shipping` },
-    { label: isKa ? "დაბრუნება" : "Returns", href: `/${lang}/faq#returns` },
-    { label: isKa ? "მოვლის წესები" : "Wash guide", href: `/${lang}/faq#wash` },
-    { label: "FAQ", href: `/${lang}/faq` },
+  const careHrefs = [
+    `/${lang}/faq#shipping`,
+    `/${lang}/faq#returns`,
+    `/${lang}/faq#wash`,
+    `/${lang}/faq`,
   ];
-
-  const studioLinks = [
-    { label: isKa ? "ჩვენი ისტორია" : "Our story", href: `/${lang}/about` },
-    { label: isKa ? "ჟურნალი" : "Journal", href: `/${lang}#journal` },
-    { label: isKa ? "საბითუმო" : "Wholesale", href: `/${lang}/contact?topic=wholesale` },
-    { label: isKa ? "კონტაქტი" : "Contact", href: `/${lang}/contact` },
+  const studioHrefs = [
+    `/${lang}/about`,
+    `/${lang}#journal`,
+    `/${lang}/contact?topic=wholesale`,
+    `/${lang}/contact`,
   ];
 
   return (
@@ -42,24 +42,26 @@ export function Footer({ dictionary }: FooterProps) {
               <span className="font-serif text-[32px] leading-none text-[var(--tissu-terracotta)] tracking-[0.04em]">
                 TISSU
               </span>
-              <span className="w-3.5 h-3.5 rounded-full bg-[var(--tissu-mustard)] -translate-y-3" aria-hidden="true" />
+              <span
+                className="w-3.5 h-3.5 rounded-full bg-[var(--tissu-mustard)] -translate-y-3"
+                aria-hidden="true"
+              />
             </Link>
-            <p className="max-w-[320px] text-sm leading-relaxed">
-              {isKa
-                ? "ხელით ნაკერი ქვილტინგ ჩანთები თბილისიდან. ჭრილი, ნაკერი და ლენტით შეკრული — 2023 წლიდან."
-                : "Handmade quilted bags from Tbilisi. Cut, stitched, and tied by hand — since 2023."}
-            </p>
+            <p className="max-w-[340px] text-sm leading-relaxed">{copy.footer.tagline}</p>
           </div>
 
           <div>
             <h5 className="font-serif text-[18px] text-[var(--tissu-ink)] mb-4">
-              {isKa ? "მაღაზია" : "Shop"}
+              {copy.footer.cols.shop}
             </h5>
             <ul className="space-y-2.5">
-              {shopLinks.map((link) => (
-                <li key={link.href}>
-                  <Link href={link.href} className="text-sm hover:text-[var(--tissu-terracotta)] transition-colors">
-                    {link.label}
+              {copy.footer.shopLinks.map((label, i) => (
+                <li key={label}>
+                  <Link
+                    href={shopHrefs[i]}
+                    className="text-sm hover:text-[var(--tissu-terracotta)] transition-colors"
+                  >
+                    {label}
                   </Link>
                 </li>
               ))}
@@ -68,13 +70,16 @@ export function Footer({ dictionary }: FooterProps) {
 
           <div>
             <h5 className="font-serif text-[18px] text-[var(--tissu-ink)] mb-4">
-              {isKa ? "მოვლა" : "Care"}
+              {copy.footer.cols.care}
             </h5>
             <ul className="space-y-2.5">
-              {careLinks.map((link) => (
-                <li key={link.href}>
-                  <Link href={link.href} className="text-sm hover:text-[var(--tissu-terracotta)] transition-colors">
-                    {link.label}
+              {copy.footer.careLinks.map((label, i) => (
+                <li key={label}>
+                  <Link
+                    href={careHrefs[i]}
+                    className="text-sm hover:text-[var(--tissu-terracotta)] transition-colors"
+                  >
+                    {label}
                   </Link>
                 </li>
               ))}
@@ -83,13 +88,16 @@ export function Footer({ dictionary }: FooterProps) {
 
           <div>
             <h5 className="font-serif text-[18px] text-[var(--tissu-ink)] mb-4">
-              {isKa ? "სტუდია" : "Studio"}
+              {copy.footer.cols.studio}
             </h5>
             <ul className="space-y-2.5">
-              {studioLinks.map((link) => (
-                <li key={link.href}>
-                  <Link href={link.href} className="text-sm hover:text-[var(--tissu-terracotta)] transition-colors">
-                    {link.label}
+              {copy.footer.studioLinks.map((label, i) => (
+                <li key={label}>
+                  <Link
+                    href={studioHrefs[i]}
+                    className="text-sm hover:text-[var(--tissu-terracotta)] transition-colors"
+                  >
+                    {label}
                   </Link>
                 </li>
               ))}
@@ -99,8 +107,7 @@ export function Footer({ dictionary }: FooterProps) {
 
         <div className="pt-5 border-t border-dashed border-[var(--border)] flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 text-[13px]">
           <span>
-            © {new Date().getFullYear()} Tissu Shop ·{" "}
-            {isKa ? "ხელითაა ნაკერი თბილისში" : "made with love in tbilisi"}
+            © {new Date().getFullYear()} Tissu Shop · {copy.footer.copyrightSuffix}
           </span>
           <div className="flex items-center gap-2.5">
             <a

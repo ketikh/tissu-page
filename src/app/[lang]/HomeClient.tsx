@@ -4,10 +4,11 @@ import Image from "next/image";
 import Link from "next/link";
 import { useMemo, useState } from "react";
 import { motion } from "framer-motion";
-import { ArrowRight, Heart, ShoppingBag, Sun } from "lucide-react";
+import { ArrowRight, Heart, ShoppingBag, Droplets, RotateCw } from "lucide-react";
 import { Locale } from "@/i18n/config";
 import { useCartStore } from "@/store/useCartStore";
 import { useUIStore } from "@/store/useUIStore";
+import { getLandingCopy } from "./landingCopy";
 
 interface HomeProps {
   lang: Locale;
@@ -18,93 +19,38 @@ type ProductTag = "pouch" | "laptop" | "bag" | "new";
 
 interface LandingProduct {
   id: number;
-  name: { en: string; ka: string };
   price: number;
   img: string;
   tags: ProductTag[];
-  badge?: { label: { en: string; ka: string }; tone: "ink" | "mustard" | "cobalt" };
+  badge?: { key: "new" | "bestseller" | "limited"; tone: "ink" | "mustard" | "cobalt" };
   colors: string[];
-  sub: { en: string; ka: string };
 }
 
 const IMG_BLUE = "/static/landing-bag-blue.jpg";
 const IMG_YELLOW = "/static/landing-bag-yellow.jpg";
 const IMG_STRIPED = "/static/landing-bag-striped.png";
 
-const products: LandingProduct[] = [
-  {
-    id: 1,
-    name: { en: "Blueberry quilted pouch", ka: "მოცვისფერი ქვილტინგ ჩანთა" },
-    price: 85,
-    img: IMG_BLUE,
-    tags: ["pouch", "new"],
-    badge: { label: { en: "NEW", ka: "ახალი" }, tone: "cobalt" },
-    colors: ["#264ba0", "#e8b23a", "#b89bd9"],
-    sub: { en: "Small · cotton", ka: "პატარა · ბამბა" },
-  },
-  {
-    id: 2,
-    name: { en: "Lemon quilted pouch", ka: "ლიმონისფერი ქვილტინგ ჩანთა" },
-    price: 85,
-    img: IMG_YELLOW,
-    tags: ["pouch"],
-    badge: { label: { en: "BESTSELLER", ka: "ბესტსელერი" }, tone: "mustard" },
-    colors: ["#e8b23a", "#f65c32", "#264ba0"],
-    sub: { en: "Small · cotton", ka: "პატარა · ბამბა" },
-  },
-  {
-    id: 3,
-    name: { en: "Stripe laptop sleeve", ka: "ზოლიანი ლეპტოპის ქერქი" },
-    price: 140,
-    img: IMG_STRIPED,
-    tags: ["laptop"],
-    colors: ["#e8b23a", "#264ba0", "#b89bd9"],
-    sub: { en: '13" · padded', ka: '13" · რბილი შიგთავსი' },
-  },
-  {
-    id: 4,
-    name: { en: "Mustard mini tote", ka: "ხახვისფერი მინი თოუთი" },
-    price: 120,
-    img: IMG_YELLOW,
-    tags: ["bag"],
-    colors: ["#e8b23a", "#264ba0"],
-    sub: { en: "Medium · cotton canvas", ka: "საშუალო · ბამბის კანვა" },
-  },
-  {
-    id: 5,
-    name: { en: "Cobalt crossbody", ka: "კობალტის კროსბოდი" },
-    price: 165,
-    img: IMG_BLUE,
-    tags: ["bag", "new"],
-    badge: { label: { en: "NEW", ka: "ახალი" }, tone: "cobalt" },
-    colors: ["#264ba0", "#2a1d14", "#e8b23a"],
-    sub: { en: "Adjustable strap", ka: "რეგულირებადი სამაჯური" },
-  },
-  {
-    id: 6,
-    name: { en: "Sunday stripe pouch", ka: "კვირის ზოლიანი ჩანთა" },
-    price: 95,
-    img: IMG_STRIPED,
-    tags: ["pouch", "new"],
-    badge: { label: { en: "LIMITED", ka: "შეზღუდული" }, tone: "ink" },
-    colors: ["#e8b23a", "#b89bd9", "#f65c32"],
-    sub: { en: "Tablet size", ka: "ტაბლეტის ზომა" },
-  },
+const productsMeta: LandingProduct[] = [
+  { id: 1, price: 85, img: IMG_BLUE, tags: ["pouch", "new"], badge: { key: "new", tone: "cobalt" }, colors: ["#264ba0", "#e8b23a", "#b89bd9"] },
+  { id: 2, price: 85, img: IMG_YELLOW, tags: ["pouch"], badge: { key: "bestseller", tone: "mustard" }, colors: ["#e8b23a", "#f65c32", "#264ba0"] },
+  { id: 3, price: 140, img: IMG_STRIPED, tags: ["laptop"], colors: ["#e8b23a", "#264ba0", "#b89bd9"] },
+  { id: 4, price: 120, img: IMG_YELLOW, tags: ["bag"], colors: ["#e8b23a", "#264ba0"] },
+  { id: 5, price: 165, img: IMG_BLUE, tags: ["bag", "new"], badge: { key: "new", tone: "cobalt" }, colors: ["#264ba0", "#2a1d14", "#e8b23a"] },
+  { id: 6, price: 95, img: IMG_STRIPED, tags: ["pouch", "new"], badge: { key: "limited", tone: "ink" }, colors: ["#e8b23a", "#b89bd9", "#f65c32"] },
 ];
 
-type Swatch = { key: string; hex: string; img: string; background: string };
+type Swatch = { key: string; img: string; background: string };
 const swatches: Swatch[] = [
-  { key: "cobalt", hex: "#264ba0", img: IMG_BLUE, background: "#264ba0" },
-  { key: "mustard", hex: "#e8b23a", img: IMG_YELLOW, background: "#e8b23a" },
+  { key: "cobalt", img: IMG_BLUE, background: "#264ba0" },
+  { key: "mustard", img: IMG_YELLOW, background: "#e8b23a" },
   {
     key: "stripe",
-    hex: "#f3c758",
     img: IMG_STRIPED,
     background: "repeating-linear-gradient(90deg,#f3c758 0 10px,#fbf3e4 10px 20px)",
   },
-  { key: "lilac", hex: "#b89bd9", img: IMG_BLUE, background: "#b89bd9" },
-  { key: "terracotta", hex: "#f65c32", img: IMG_YELLOW, background: "#f65c32" },
-  { key: "cream", hex: "#f6ead7", img: IMG_STRIPED, background: "#f6ead7" },
+  { key: "lilac", img: IMG_BLUE, background: "#b89bd9" },
+  { key: "terracotta", img: IMG_YELLOW, background: "#f65c32" },
+  { key: "cream", img: IMG_STRIPED, background: "#f6ead7" },
 ];
 
 const reveal = {
@@ -117,37 +63,37 @@ const reveal = {
 };
 
 export default function HomeClient({ lang }: HomeProps) {
-  const isKa = lang === "ka";
+  const copy = getLandingCopy(lang);
   const openCart = useUIStore((state) => state.openCart);
   const cartPush = useCartStore((state) => state.addItem);
 
   const [filter, setFilter] = useState<"all" | ProductTag>("all");
   const [selectedSwatch, setSelectedSwatch] = useState<Swatch>(swatches[0]);
 
-  const filters = useMemo(
-    () => [
-      { key: "all" as const, label: isKa ? "ყველა · 12" : "All · 12" },
-      { key: "pouch" as const, label: isKa ? "ჩანთები" : "Pouches" },
-      { key: "laptop" as const, label: isKa ? "ლეპტოპის ქერქები" : "Laptop sleeves" },
-      { key: "bag" as const, label: isKa ? "თოუთ ჩანთები" : "Tote bags" },
-      { key: "new" as const, label: isKa ? "ახალი" : "New arrivals" },
-    ],
-    [isKa]
+  const filterButtons = useMemo(
+    () =>
+      [
+        { key: "all" as const, label: copy.shop.filters.all },
+        { key: "pouch" as const, label: copy.shop.filters.pouch },
+        { key: "laptop" as const, label: copy.shop.filters.laptop },
+        { key: "bag" as const, label: copy.shop.filters.bag },
+        { key: "new" as const, label: copy.shop.filters.new },
+      ],
+    [copy]
   );
 
   const visibleProducts =
-    filter === "all" ? products : products.filter((p) => p.tags.includes(filter));
+    filter === "all" ? productsMeta : productsMeta.filter((p) => p.tags.includes(filter));
 
-  const handleQuickAdd = (p: LandingProduct) => {
-    // Minimal ephemeral cart line — we'd need a full Product type for the store,
-    // but the drawer can render the addition and the user can continue to /shop.
+  const handleQuickAdd = (p: LandingProduct, idx: number) => {
+    const productCopy = copy.products[idx];
     try {
       cartPush(
         {
           id: `landing-${p.id}`,
           slug: `landing-${p.id}`,
-          name: { en: p.name.en, ka: p.name.ka },
-          subtitle: { en: p.sub.en, ka: p.sub.ka },
+          name: { en: productCopy.name, ka: productCopy.name },
+          subtitle: { en: productCopy.sub, ka: productCopy.sub },
           description: { en: "", ka: "" },
           price: p.price,
           images: [p.img],
@@ -187,29 +133,21 @@ export default function HomeClient({ lang }: HomeProps) {
           <motion.div initial="hidden" animate="visible" variants={reveal}>
             <span className="inline-flex items-center gap-2.5 px-4 py-2 rounded-full bg-[var(--tissu-white)] border border-[#eadcc3] text-[13px] font-bold uppercase tracking-[0.1em] text-[var(--tissu-ink-soft)]">
               <span className="w-2 h-2 rounded-full bg-[var(--tissu-mustard)]" />
-              {isKa ? "გაზაფხული / ზაფხული '26" : "Spring / summer '26 drop"}
+              {copy.hero.eyebrow}
             </span>
 
-            <h1 className="font-serif text-[54px] sm:text-[76px] md:text-[96px] lg:text-[118px] leading-[0.95] tracking-[-0.02em] mt-6 mb-6 text-[var(--tissu-ink)]">
-              {isKa ? (
-                <>
-                  ატარე შენი <em className="not-italic italic text-[var(--tissu-terracotta)]">პატარა</em>
-                  <br />
-                  სიხარულები, <span className="squiggle-under">ნაზად</span>.
-                </>
-              ) : (
-                <>
-                  Carry your <em className="not-italic italic text-[var(--tissu-terracotta)]">little</em>
-                  <br />
-                  joys, <span className="squiggle-under">softly</span>.
-                </>
-              )}
+            <h1 className="font-serif text-[44px] sm:text-[60px] md:text-[78px] lg:text-[96px] leading-[0.98] tracking-[-0.02em] mt-6 mb-6 text-[var(--tissu-ink)]">
+              {copy.hero.titlePart1}{" "}
+              <em className="not-italic italic text-[var(--tissu-terracotta)]">
+                {copy.hero.titleItalic}
+              </em>
+              <br />
+              {copy.hero.titlePart2}{" "}
+              <span className="squiggle-under">{copy.hero.titleSquiggle}</span>.
             </h1>
 
-            <p className="text-[18px] leading-[1.55] text-[var(--tissu-ink-soft)] max-w-[500px] mb-8">
-              {isKa
-                ? "ხელით ნაკერი ქვილტინგ ჩანთები, ლეპტოპის ქერქები და ჯიბის ჩანთები — ჭრილი, ნაკერი და ლენტით შეკრული მზიან თბილისურ სტუდიაში. მხოლოდ ბამბა. შექმნილია იმისთვის, რომ დიდხანს მოგემსახუროს."
-                : "Handmade quilted pouches, laptop sleeves and pocket bags — cut, stitched and tied by hand in a sunlit studio in Tbilisi. Cotton only. Made to last for all your everyday hauls."}
+            <p className="text-[17px] leading-[1.55] text-[var(--tissu-ink-soft)] max-w-[520px] mb-8">
+              {copy.hero.lead}
             </p>
 
             <div className="flex flex-wrap items-center gap-3.5">
@@ -217,7 +155,7 @@ export default function HomeClient({ lang }: HomeProps) {
                 href={`/${lang}/shop`}
                 className="inline-flex items-center gap-3 bg-[var(--tissu-ink)] text-[var(--tissu-cream)] px-7 py-4 rounded-full font-extrabold text-[15px] tracking-[0.02em] shadow-[0_6px_0_var(--tissu-terracotta)] hover:translate-y-[3px] hover:shadow-[0_3px_0_var(--tissu-terracotta)] transition-[transform,box-shadow] duration-200"
               >
-                {isKa ? "იყიდე ახალი კოლექცია" : "Shop the drop"}
+                {copy.hero.ctaPrimary}
                 <span className="w-7 h-7 rounded-full bg-[var(--tissu-terracotta)] inline-flex items-center justify-center text-white">
                   <ArrowRight className="w-3.5 h-3.5" />
                 </span>
@@ -226,7 +164,7 @@ export default function HomeClient({ lang }: HomeProps) {
                 href={`/${lang}/about`}
                 className="inline-flex items-center px-7 py-4 rounded-full font-bold text-[15px] text-[var(--tissu-ink)] border-[1.5px] border-[var(--tissu-ink)] hover:bg-[var(--tissu-ink)] hover:text-[var(--tissu-cream)] transition-colors"
               >
-                {isKa ? "ჩვენი ისტორია" : "Our story"}
+                {copy.hero.ctaSecondary}
               </Link>
             </div>
 
@@ -241,9 +179,7 @@ export default function HomeClient({ lang }: HomeProps) {
                   ★★★★★ <span className="text-[var(--tissu-ink)] font-extrabold">4.9</span>
                 </div>
                 <small className="block text-[13px] text-[var(--tissu-ink-soft)]">
-                  {isKa
-                    ? "2 400+ ბედნიერი მყიდველი · დადასტურებული შეფასებები"
-                    : "2,400+ happy humans · verified reviews"}
+                  {copy.hero.socialProof}
                 </small>
               </div>
             </div>
@@ -261,7 +197,7 @@ export default function HomeClient({ lang }: HomeProps) {
             >
               <Image
                 src={IMG_BLUE}
-                alt={isKa ? "კობალტის ქვილტინგ ჩანთა" : "Cobalt blue quilted pouch"}
+                alt={copy.hero.imageAltBlue}
                 fill
                 className="object-cover"
                 priority
@@ -276,7 +212,7 @@ export default function HomeClient({ lang }: HomeProps) {
             >
               <Image
                 src={IMG_YELLOW}
-                alt={isKa ? "ხახვისფერი ქვილტინგ ჩანთა" : "Mustard yellow quilted pouch"}
+                alt={copy.hero.imageAltYellow}
                 fill
                 className="object-cover"
                 priority
@@ -319,16 +255,16 @@ export default function HomeClient({ lang }: HomeProps) {
             {/* Floating tags */}
             <div className="absolute top-[8%] left-[-4%] z-[5] bg-[var(--tissu-cobalt)] text-[var(--tissu-cream)] rounded-[20px] px-4 py-3 flex items-center gap-2.5 text-[13px] font-bold shadow-[0_8px_20px_rgba(42,29,20,0.18)] animate-bob [animation-delay:-2s]">
               <span className="w-7 h-7 rounded-full bg-[var(--tissu-mustard-soft)] inline-flex items-center justify-center">
-                <Sun className="w-4 h-4 text-[var(--tissu-ink)]" strokeWidth={2.4} />
+                <Droplets className="w-4 h-4 text-[var(--tissu-ink)]" strokeWidth={2.4} />
               </span>
-              {isKa ? "100% ბამბა" : "100% cotton"}
+              {copy.hero.tagCanvas}
             </div>
 
             <div className="absolute bottom-[10%] left-0 z-[5] bg-[var(--tissu-white)] rounded-[20px] px-4 py-3 flex items-center gap-2.5 text-[13px] font-bold shadow-[0_8px_20px_rgba(42,29,20,0.12)] animate-bob">
               <span className="w-7 h-7 rounded-full bg-[var(--tissu-mustard)] inline-flex items-center justify-center">
-                <Heart className="w-4 h-4 text-[var(--tissu-ink)]" strokeWidth={2.4} />
+                <RotateCw className="w-4 h-4 text-[var(--tissu-ink)]" strokeWidth={2.4} />
               </span>
-              {isKa ? "ნაკერი სიყვარულით" : "Made with love"}
+              {copy.hero.tagReversible}
             </div>
           </div>
         </div>
@@ -338,30 +274,21 @@ export default function HomeClient({ lang }: HomeProps) {
       <section id="shop" className="py-20 md:py-28">
         <div className="container">
           <div className="flex flex-wrap items-end justify-between gap-10 mb-14">
-            <h2 className="font-serif text-[40px] md:text-[56px] lg:text-[72px] leading-[1] tracking-[-0.02em] text-[var(--tissu-ink)] max-w-[720px]">
-              {isKa ? (
-                <>
-                  ყოველდღიური <em className="not-italic italic text-[var(--tissu-terracotta)]">პატარა</em>
-                  <br />
-                  რამეების კოლექცია.
-                </>
-              ) : (
-                <>
-                  The <em className="not-italic italic text-[var(--tissu-terracotta)]">everyday</em>
-                  <br />
-                  little-things edit.
-                </>
-              )}
+            <h2 className="font-serif text-[36px] md:text-[48px] lg:text-[60px] leading-[1.05] tracking-[-0.02em] text-[var(--tissu-ink)] max-w-[720px]">
+              {copy.shop.titlePart1}{" "}
+              <em className="not-italic italic text-[var(--tissu-terracotta)]">
+                {copy.shop.titleItalic}
+              </em>
+              <br />
+              {copy.shop.titlePart2}
             </h2>
-            <p className="text-[17px] leading-[1.5] text-[var(--tissu-ink-soft)] max-w-[380px]">
-              {isKa
-                ? "ექვსი ახალი ფორმა, სამი ქსოვილი, ერთი დაპირება: ყველა ნაკერი ხელით შესრულებული ცოცხალი ადამიანის მიერ ჩვენს თბილისურ სტუდიაში."
-                : "Six new shapes, three fabrics, one promise: every stitch tied by a real human in our Tbilisi studio."}
+            <p className="text-[17px] leading-[1.5] text-[var(--tissu-ink-soft)] max-w-[420px]">
+              {copy.shop.sub}
             </p>
           </div>
 
           <div className="flex flex-wrap gap-2.5 mb-9">
-            {filters.map((f) => (
+            {filterButtons.map((f) => (
               <button
                 key={f.key}
                 type="button"
@@ -378,73 +305,75 @@ export default function HomeClient({ lang }: HomeProps) {
           </div>
 
           <div className="grid gap-7 grid-cols-1 sm:grid-cols-2 lg:grid-cols-3">
-            {visibleProducts.map((p, idx) => (
-              <div
-                key={p.id}
-                className="group bg-[var(--tissu-white)] rounded-[28px] p-5 flex flex-col gap-4 relative overflow-hidden hover:-translate-y-1.5 transition-transform duration-300"
-              >
-                <div className="relative aspect-square rounded-[20px] overflow-hidden">
-                  {p.badge && (
-                    <span
-                      className={`absolute top-3.5 left-3.5 z-[2] px-3 py-1.5 rounded-full text-[11px] font-extrabold uppercase tracking-[0.1em] ${
-                        p.badge.tone === "cobalt"
-                          ? "bg-[var(--tissu-cobalt)] text-white"
-                          : p.badge.tone === "mustard"
-                          ? "bg-[var(--tissu-mustard)] text-[var(--tissu-ink)]"
-                          : "bg-[var(--tissu-ink)] text-[var(--tissu-cream)]"
-                      }`}
+            {visibleProducts.map((p) => {
+              const idx = productsMeta.indexOf(p);
+              const pc = copy.products[idx];
+              return (
+                <div
+                  key={p.id}
+                  className="group bg-[var(--tissu-white)] rounded-[28px] p-5 flex flex-col gap-4 relative overflow-hidden hover:-translate-y-1.5 transition-transform duration-300"
+                >
+                  <div className="relative aspect-square rounded-[20px] overflow-hidden">
+                    {p.badge && (
+                      <span
+                        className={`absolute top-3.5 left-3.5 z-[2] px-3 py-1.5 rounded-full text-[11px] font-extrabold uppercase tracking-[0.1em] ${
+                          p.badge.tone === "cobalt"
+                            ? "bg-[var(--tissu-cobalt)] text-white"
+                            : p.badge.tone === "mustard"
+                            ? "bg-[var(--tissu-mustard)] text-[var(--tissu-ink)]"
+                            : "bg-[var(--tissu-ink)] text-[var(--tissu-cream)]"
+                        }`}
+                      >
+                        {copy.shop.badges[p.badge.key]}
+                      </span>
+                    )}
+                    <button
+                      type="button"
+                      aria-label={copy.shop.card.favourite}
+                      className="absolute top-3.5 right-3.5 z-[2] w-10 h-10 rounded-full bg-[rgba(255,250,240,0.9)] backdrop-blur text-[var(--tissu-ink)] inline-flex items-center justify-center hover:bg-[var(--tissu-terracotta)] hover:text-white transition-colors"
                     >
-                      {p.badge.label[lang] || p.badge.label.en}
+                      <Heart className="w-4 h-4" />
+                    </button>
+                    <Image
+                      src={p.img}
+                      alt={pc.name}
+                      fill
+                      className="object-cover transition-transform duration-700 group-hover:scale-105"
+                    />
+                  </div>
+                  <div>
+                    <h3 className="font-serif text-[22px] text-[var(--tissu-ink)] leading-tight">
+                      {pc.name}
+                    </h3>
+                    <div className="text-[13px] text-[var(--tissu-ink-soft)] mt-1">{pc.sub}</div>
+                  </div>
+                  <div className="flex items-center justify-between gap-2.5">
+                    <div className="flex gap-1.5">
+                      {p.colors.map((c, i) => (
+                        <span
+                          key={i}
+                          className={`w-4 h-4 rounded-full border ${
+                            i === 0 ? "ring-2 ring-offset-2 ring-[var(--tissu-ink)]" : ""
+                          }`}
+                          style={{ background: c, borderColor: "rgba(0,0,0,0.1)" }}
+                        />
+                      ))}
+                    </div>
+                    <span className="font-serif text-[22px] text-[var(--tissu-terracotta)]">
+                      {p.price}₾
                     </span>
-                  )}
+                  </div>
                   <button
                     type="button"
-                    aria-label={isKa ? "რჩეულებში დამატება" : "Favourite"}
-                    className="absolute top-3.5 right-3.5 z-[2] w-10 h-10 rounded-full bg-[rgba(255,250,240,0.9)] backdrop-blur text-[var(--tissu-ink)] inline-flex items-center justify-center hover:bg-[var(--tissu-terracotta)] hover:text-white transition-colors"
+                    onClick={() => handleQuickAdd(p, idx)}
+                    className="inline-flex items-center gap-2 px-4 py-3 rounded-full bg-[var(--tissu-ink)] text-[var(--tissu-cream)] text-[13px] font-bold hover:bg-[var(--tissu-terracotta)] transition-colors self-start"
                   >
-                    <Heart className="w-4 h-4" />
+                    <ShoppingBag className="w-4 h-4" />
+                    {copy.shop.card.addToBasket}
                   </button>
-                  <Image
-                    src={p.img}
-                    alt={p.name[lang] || p.name.en}
-                    fill
-                    className="object-cover transition-transform duration-700 group-hover:scale-105"
-                  />
                 </div>
-                <div>
-                  <h3 className="font-serif text-[22px] text-[var(--tissu-ink)] leading-tight">
-                    {p.name[lang] || p.name.en}
-                  </h3>
-                  <div className="text-[13px] text-[var(--tissu-ink-soft)] mt-1">
-                    {p.sub[lang] || p.sub.en}
-                  </div>
-                </div>
-                <div className="flex items-center justify-between gap-2.5">
-                  <div className="flex gap-1.5">
-                    {p.colors.map((c, i) => (
-                      <span
-                        key={i}
-                        className={`w-4 h-4 rounded-full border ${
-                          i === 0 ? "ring-2 ring-offset-2 ring-[var(--tissu-ink)]" : ""
-                        }`}
-                        style={{ background: c, borderColor: "rgba(0,0,0,0.1)" }}
-                      />
-                    ))}
-                  </div>
-                  <span className="font-serif text-[22px] text-[var(--tissu-terracotta)]">
-                    {p.price}₾
-                  </span>
-                </div>
-                <button
-                  type="button"
-                  onClick={() => handleQuickAdd(p)}
-                  className="inline-flex items-center gap-2 px-4 py-3 rounded-full bg-[var(--tissu-ink)] text-[var(--tissu-cream)] text-[13px] font-bold hover:bg-[var(--tissu-terracotta)] transition-colors self-start"
-                >
-                  <ShoppingBag className="w-4 h-4" />
-                  {isKa ? "კალათაში დამატება" : "Add to basket"}
-                </button>
-              </div>
-            ))}
+              );
+            })}
           </div>
         </div>
       </section>
@@ -463,37 +392,25 @@ export default function HomeClient({ lang }: HomeProps) {
               <div>
                 <span className="inline-flex items-center gap-2.5 px-4 py-2 rounded-full bg-[rgba(255,250,240,0.15)] border border-[rgba(255,250,240,0.25)] text-[13px] font-bold uppercase tracking-[0.1em]">
                   <span className="w-2 h-2 rounded-full bg-[var(--tissu-mustard)]" />
-                  {isKa ? "ჩვენი ისტორია" : "Our story"}
+                  {copy.story.eyebrow}
                 </span>
-                <h2 className="font-serif text-[36px] md:text-[52px] leading-[1.02] mt-5 mb-5">
-                  {isKa ? (
-                    <>
-                      ნაჭრილი <em className="not-italic italic text-[var(--tissu-mustard)]">ნარჩენი</em> ბამბიდან,
-                      <br />
-                      ზრუნვით ნაკერი.
-                    </>
-                  ) : (
-                    <>
-                      Cut from <em className="not-italic italic text-[var(--tissu-mustard)]">leftover</em> cotton, stitched with care.
-                    </>
-                  )}
+                <h2 className="font-serif text-[32px] md:text-[44px] leading-[1.05] mt-5 mb-5">
+                  {copy.story.titlePart1}{" "}
+                  <em className="not-italic italic text-[var(--tissu-mustard)]">
+                    {copy.story.titleItalic}
+                  </em>{" "}
+                  {copy.story.titlePart2}
                 </h2>
-                <p className="text-[17px] leading-[1.6] max-w-[460px] opacity-90">
-                  {isKa
-                    ? "Tissu დაიწყო კვირა საღამოობით კერვით მზიან თბილისურ სამზარეულოში — ნარჩენი ბამბა, ძველი მანქანა და აზრი, რომ ჩანთა პატარა ჩახუტების ანალოგი უნდა იყოს. დღეს ჯერ კიდევ პატარა ვართ, ჯერ კიდევ ხელით ვქმნით და ჯერ კიდევ ცოტათი შეპყრობილი ვართ ლენტის კვანძის სრულყოფით."
-                    : "Tissu started as Sunday-afternoon sewing in a sunny Tbilisi kitchen — leftover cotton, a vintage machine, and the idea that a pouch should feel like a small hug. Today we're still tiny, still handmade, and still a little obsessed with getting the tie-ribbons just right."}
+                <p className="text-[17px] leading-[1.6] max-w-[500px] opacity-90">
+                  {copy.story.body}
                 </p>
                 <div className="flex flex-wrap gap-8 mt-9">
-                  {[
-                    { num: "100%", lbl: isKa ? "ბამბის ქსოვილი" : "Cotton fabric" },
-                    { num: "3", lbl: isKa ? "ხელი თითო ჩანთაზე" : "Hands per bag" },
-                    { num: "0", lbl: isKa ? "ნარჩენი ქსოვილი" : "Waste fabric" },
-                  ].map((stat) => (
-                    <div key={stat.lbl}>
-                      <div className="font-serif text-[48px] leading-none text-[var(--tissu-mustard)]">
+                  {copy.story.stats.map((stat) => (
+                    <div key={stat.label}>
+                      <div className="font-serif text-[40px] md:text-[48px] leading-none text-[var(--tissu-mustard)]">
                         {stat.num}
                       </div>
-                      <div className="text-[13px] opacity-80 mt-1.5">{stat.lbl}</div>
+                      <div className="text-[13px] opacity-80 mt-1.5 max-w-[160px]">{stat.label}</div>
                     </div>
                   ))}
                 </div>
@@ -504,15 +421,15 @@ export default function HomeClient({ lang }: HomeProps) {
                 <div className="absolute inset-0 m-auto w-[260px] h-[260px] md:w-[300px] md:h-[300px] rounded-full overflow-hidden border-[8px] border-[var(--tissu-cream)]">
                   <Image
                     src={IMG_STRIPED}
-                    alt={isKa ? "ზოლიანი ლეპტოპის ქერქი" : "Striped laptop sleeve"}
+                    alt={copy.hero.imageAltStriped}
                     fill
                     className="object-cover"
                   />
                 </div>
                 <div className="absolute top-4 right-4 md:top-5 md:right-5 w-[110px] h-[110px] rounded-full bg-[var(--tissu-cream)] text-[var(--tissu-ink)] font-serif text-[15px] text-center leading-[1.05] flex flex-col items-center justify-center -rotate-[10deg] shadow-[0_10px_20px_rgba(0,0,0,0.2)] p-4">
-                  {isKa ? "2023" : "Since"}
-                  {isKa ? null : <br />}
-                  {isKa ? "წლიდან" : <>&apos;23</>}
+                  {copy.story.sinceLine1}
+                  <br />
+                  {copy.story.sinceLine2}
                   <small className="block mt-1.5 text-[10px] font-sans font-bold tracking-[0.2em] text-[var(--tissu-terracotta)]">
                     TBILISI
                   </small>
@@ -527,92 +444,27 @@ export default function HomeClient({ lang }: HomeProps) {
       <section id="process" className="py-20 md:py-28">
         <div className="container">
           <div className="flex flex-wrap items-end justify-between gap-10 mb-14">
-            <h2 className="font-serif text-[40px] md:text-[56px] lg:text-[72px] leading-[1] tracking-[-0.02em] text-[var(--tissu-ink)] max-w-[720px]">
-              {isKa ? (
-                <>
-                  ბამბის რულონიდან
-                  <br />
-                  შენს <em className="not-italic italic text-[var(--tissu-terracotta)]">კართან</em>.
-                </>
-              ) : (
-                <>
-                  From <em className="not-italic italic text-[var(--tissu-terracotta)]">cotton roll</em>
-                  <br />
-                  to your doorstep.
-                </>
-              )}
+            <h2 className="font-serif text-[36px] md:text-[48px] lg:text-[60px] leading-[1.05] tracking-[-0.02em] text-[var(--tissu-ink)] max-w-[720px]">
+              {copy.process.titlePart1}{" "}
+              <em className="not-italic italic text-[var(--tissu-terracotta)]">
+                {copy.process.titleItalic}
+              </em>
+              <br />
+              {copy.process.titlePart2}
             </h2>
-            <p className="text-[17px] leading-[1.5] text-[var(--tissu-ink-soft)] max-w-[380px]">
-              {isKa
-                ? "არანაირი ქარხანა, არანაირი გამარტივებული გზები. უბრალოდ ოთხი მშვიდი ნაბიჯი ქსოვილიდან შენს საყვარელ ჩანთამდე."
-                : "No factories, no shortcuts. Just four quiet steps between a bolt of cloth and a bag you'll love for years."}
+            <p className="text-[17px] leading-[1.5] text-[var(--tissu-ink-soft)] max-w-[420px]">
+              {copy.process.sub}
             </p>
           </div>
 
           <div className="grid gap-5 grid-cols-1 sm:grid-cols-2 lg:grid-cols-4">
-            {[
-              {
-                n: "01",
-                title: isKa ? "მოპოვება" : "Source",
-                body: isKa
-                  ? "ბამბის რულონებს ავირჩევთ ადგილობრივი ფაბრიკებიდან. ფერები სეზონის მიხედვით, ფაქტურა ხელით."
-                  : "We pick cotton rolls from local mills. Colours chosen by season, texture chosen by hand.",
-                icon: (
-                  <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-                    <path d="M4 4h16v5H4zM4 9v11h16V9" />
-                    <path d="M8 13h8" />
-                  </svg>
-                ),
-              },
-              {
-                n: "02",
-                title: isKa ? "ჭრილი" : "Pattern",
-                body: isKa
-                  ? "თითოეული ფორმა იჭრება ქაღალდის შაბლონებიდან, რომელიც ორი წელია ვსრულყოფთ."
-                  : "Each shape is cut from paper templates we've refined for two years running.",
-                icon: (
-                  <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-                    <path d="M12 2v20M2 12h20" />
-                    <circle cx="12" cy="12" r="9" />
-                  </svg>
-                ),
-              },
-              {
-                n: "03",
-                title: isKa ? "ქვილტინგი და კერვა" : "Quilt & stitch",
-                body: isKa
-                  ? "რომბისებრი ქვილტინგი ხელით — ის პატარა კრის-კროსი, რაც Tissu-ს Tissu-დ აქცევს."
-                  : "Diamond-quilted by hand — the little criss-cross that makes a Tissu a Tissu.",
-                icon: (
-                  <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-                    <path d="M3 12c3-6 15-6 18 0-3 6-15 6-18 0z" />
-                    <circle cx="12" cy="12" r="2" />
-                  </svg>
-                ),
-              },
-              {
-                n: "04",
-                title: isKa ? "შეფუთვა და გაგზავნა" : "Wrap & send",
-                body: isKa
-                  ? "ლენტით შეკრული, თეთრეულის ჩანთაში გახვეული, თბილისური ფოსტით შენთან."
-                  : "Tied with ribbon, slipped into a linen pouch, off on a Tbilisi post truck to you.",
-                icon: (
-                  <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-                    <path d="M3 7h18l-1 12H4z" />
-                    <path d="M8 7V5a4 4 0 0 1 8 0v2" />
-                  </svg>
-                ),
-              },
-            ].map((step, idx) => (
+            {copy.process.steps.map((step, i) => (
               <div
-                key={step.n}
+                key={step.title}
                 className="relative rounded-[28px] bg-[var(--tissu-white)] border border-[#ead8bb] p-7 hover:-translate-y-1 hover:bg-[var(--tissu-mustard)] transition-[transform,background] duration-300"
               >
                 <div className="font-serif text-[60px] leading-[0.9] text-[var(--tissu-terracotta)]">
-                  {step.n}
-                </div>
-                <div className="absolute top-7 right-7 w-11 h-11 rounded-full bg-[var(--tissu-cream)] text-[var(--tissu-ink)] inline-flex items-center justify-center">
-                  {step.icon}
+                  {String(i + 1).padStart(2, "0")}
                 </div>
                 <h4 className="font-serif text-[22px] text-[var(--tissu-ink)] mt-4 mb-2.5">
                   {step.title}
@@ -632,23 +484,15 @@ export default function HomeClient({ lang }: HomeProps) {
               <div>
                 <span className="inline-flex items-center gap-2.5 px-4 py-2 rounded-full bg-[rgba(42,29,20,0.08)] border border-[rgba(42,29,20,0.15)] text-[13px] font-bold uppercase tracking-[0.1em] text-[var(--tissu-ink)]">
                   <span className="w-2 h-2 rounded-full bg-[var(--tissu-terracotta)]" />
-                  {isKa ? "ააწყვე შენი" : "Build your own"}
+                  {copy.picker.eyebrow}
                 </span>
-                <h2 className="font-serif text-[36px] md:text-[50px] leading-[1.02] mt-5 mb-4 text-[var(--tissu-ink)]">
-                  {isKa ? (
-                    <>
-                      აირჩიე <em className="not-italic italic">ფერი</em>, რომელიც შენზეა.
-                    </>
-                  ) : (
-                    <>
-                      Pick a <em className="not-italic italic">shade</em> that feels like you.
-                    </>
-                  )}
+                <h2 className="font-serif text-[32px] md:text-[44px] leading-[1.05] mt-5 mb-4 text-[var(--tissu-ink)]">
+                  {copy.picker.titlePart1}{" "}
+                  <em className="not-italic italic">{copy.picker.titleItalic}</em>{" "}
+                  {copy.picker.titlePart2}
                 </h2>
-                <p className="text-[17px] leading-[1.55] max-w-[440px] text-[var(--tissu-ink-soft)]">
-                  {isKa
-                    ? "თითოეული Tissu დამზადებულია შეკვეთისამებრ. აირჩიე ქსოვილი, ჩვენ 5 დღეში შეგიკერავთ და თბილად გამოგიგზავნით."
-                    : "Every Tissu is made to order. Choose your fabric, we'll stitch it in the next 5 days and ship it warm."}
+                <p className="text-[17px] leading-[1.55] max-w-[480px] text-[var(--tissu-ink-soft)]">
+                  {copy.picker.body}
                 </p>
                 <div className="flex flex-wrap gap-3.5 mt-7">
                   {swatches.map((s) => (
@@ -658,7 +502,9 @@ export default function HomeClient({ lang }: HomeProps) {
                       onClick={() => setSelectedSwatch(s)}
                       aria-label={s.key}
                       className={`w-[60px] h-[60px] rounded-full border-[3px] border-[var(--tissu-cream)] transition-transform hover:scale-110 ${
-                        selectedSwatch.key === s.key ? "ring-[3px] ring-offset-[3px] ring-[var(--tissu-ink)]" : ""
+                        selectedSwatch.key === s.key
+                          ? "ring-[3px] ring-offset-[3px] ring-[var(--tissu-ink)]"
+                          : ""
                       }`}
                       style={{ background: s.background }}
                     />
@@ -669,13 +515,13 @@ export default function HomeClient({ lang }: HomeProps) {
                     href={`/${lang}/shop`}
                     className="inline-flex items-center gap-3 bg-[var(--tissu-ink)] text-[var(--tissu-cream)] px-7 py-4 rounded-full font-extrabold text-[15px] shadow-[0_6px_0_var(--tissu-terracotta)] hover:translate-y-[3px] hover:shadow-[0_3px_0_var(--tissu-terracotta)] transition-[transform,box-shadow] duration-200"
                   >
-                    {isKa ? "დაიწყე — 85₾" : "Start this one — 85₾"}
+                    {copy.picker.cta}
                     <span className="w-7 h-7 rounded-full bg-[var(--tissu-terracotta)] inline-flex items-center justify-center text-white">
                       <ArrowRight className="w-3.5 h-3.5" />
                     </span>
                   </Link>
                   <span className="font-hand text-[22px] text-[var(--tissu-ink-soft)]">
-                    ← {isKa ? "იგზავნება 5 დღეში" : "ships in 5 days"}
+                    ← {copy.picker.shipsNote}
                   </span>
                 </div>
               </div>
@@ -689,7 +535,7 @@ export default function HomeClient({ lang }: HomeProps) {
                 <div className="absolute inset-0 m-auto w-[240px] h-[240px] md:w-[300px] md:h-[300px] rounded-[28px] overflow-hidden shadow-[0_20px_40px_rgba(0,0,0,0.2)]">
                   <Image
                     src={selectedSwatch.img}
-                    alt={isKa ? "არჩეული ფერის ვერსია" : "Selected colour preview"}
+                    alt={copy.picker.altPreview}
                     fill
                     className="object-cover transition-all duration-500"
                   />
@@ -704,81 +550,57 @@ export default function HomeClient({ lang }: HomeProps) {
       <section className="pb-20 md:pb-28">
         <div className="container">
           <div className="flex flex-wrap items-end justify-between gap-10 mb-14">
-            <h2 className="font-serif text-[40px] md:text-[56px] lg:text-[72px] leading-[1] tracking-[-0.02em] text-[var(--tissu-ink)] max-w-[720px]">
-              {isKa ? (
-                <>
-                  შეყვარებული <em className="not-italic italic text-[var(--tissu-terracotta)]">ცოცხალი</em>
-                  <br />
-                  ადამიანების მიერ.
-                </>
-              ) : (
-                <>
-                  Loved by <em className="not-italic italic text-[var(--tissu-terracotta)]">real</em>
-                  <br />
-                  humans.
-                </>
-              )}
+            <h2 className="font-serif text-[36px] md:text-[48px] lg:text-[60px] leading-[1.05] tracking-[-0.02em] text-[var(--tissu-ink)] max-w-[820px]">
+              {copy.reviews.titlePart1}{" "}
+              <em className="not-italic italic text-[var(--tissu-terracotta)]">
+                {copy.reviews.titleItalic}
+              </em>{" "}
+              {copy.reviews.titlePart2}
             </h2>
-            <p className="text-[17px] leading-[1.5] text-[var(--tissu-ink-soft)] max-w-[380px]">
-              {isKa
-                ? "2 400+ შეფასება და ვითვლით. აი, ცოტა იმისა, რასაც ჩვენი მყიდველები ამბობენ."
-                : "2,400+ reviews and counting. Here's a little scoop of what folks are saying."}
+            <p className="text-[17px] leading-[1.5] text-[var(--tissu-ink-soft)] max-w-[420px]">
+              {copy.reviews.sub}
             </p>
           </div>
 
           <div className="grid gap-6 grid-cols-1 lg:grid-cols-3">
-            {[
-              {
-                text: isKa
-                  ? "ფერი ზუსტად ისეთია, როგორც ფოტოზე, და ნაკერი იმდენად ჩინებულია, რომ თითქმის არ მინდა რამე ჩავდო შიგნით."
-                  : "The colour is exactly like the photo and the stitching is so neat I almost don't want to put anything in it.",
-                name: "Mariam K.",
-                meta: isKa ? "Blueberry ჩანთა · თბილისი" : "Blueberry pouch · Tbilisi",
-                bg: "bg-[var(--tissu-white)]",
-                av: "bg-[var(--tissu-lilac)]",
-                offset: "",
-              },
-              {
-                text: isKa
-                  ? "თეთრეულის ლენტით იყო გახვეული. მხოლოდ შეფუთვამ კვირა გამიხარა — ჩანთამ კი მთელი წელი."
-                  : "It arrived wrapped in a linen ribbon. The packaging alone made my week — the bag made my whole year.",
-                name: "Sofia R.",
-                meta: isKa ? "Lemon ლეპტოპის ქერქი · ლისაბონი" : "Lemon laptop sleeve · Lisbon",
-                bg: "bg-[var(--tissu-lilac-soft)]",
-                av: "bg-[var(--tissu-mustard)]",
-                offset: "lg:-translate-y-3",
-              },
-              {
-                text: isKa
-                  ? "ბოლოსდაბოლოს, ლეპტოპის ჩანთა, რომელიც ბრანჩზე ზის. ქვილტინგი რბილია, ლენტები კი საუკეთესო დეტალია."
-                  : "Finally a laptop bag that looks like it belongs at brunch. The quilting is buttery and the ties are the sweetest detail.",
-                name: "Elene D.",
-                meta: isKa ? "Stripe ქერქი · ბერლინი" : "Stripe sleeve · Berlin",
-                bg: "bg-[var(--tissu-peach)]",
-                av: "bg-[var(--tissu-cobalt)]",
-                offset: "",
-              },
-            ].map((r, idx) => (
-              <div
-                key={r.name}
-                className={`relative rounded-[28px] border border-[#ead8bb] p-7 ${r.bg} ${r.offset}`}
-              >
-                <div className="absolute top-4 right-5 font-serif text-[90px] leading-[0.7] text-[var(--tissu-terracotta)] opacity-25">
-                  &quot;
-                </div>
-                <div className="text-[var(--tissu-mustard)] text-[18px] mb-3">★★★★★</div>
-                <blockquote className="font-serif text-[20px] md:text-[22px] leading-[1.3] text-[var(--tissu-ink)] mb-5">
-                  {r.text}
-                </blockquote>
-                <div className="flex items-center gap-3">
-                  <span className={`w-11 h-11 rounded-full ${r.av}`} />
-                  <div>
-                    <strong className="block text-[14px] text-[var(--tissu-ink)]">{r.name}</strong>
-                    <small className="block text-[12px] text-[var(--tissu-ink-soft)]">{r.meta}</small>
+            {copy.reviews.items.map((r, i) => {
+              const bg =
+                i === 0
+                  ? "bg-[var(--tissu-white)]"
+                  : i === 1
+                  ? "bg-[var(--tissu-lilac-soft)]"
+                  : "bg-[var(--tissu-peach)]";
+              const av =
+                i === 0
+                  ? "bg-[var(--tissu-lilac)]"
+                  : i === 1
+                  ? "bg-[var(--tissu-mustard)]"
+                  : "bg-[var(--tissu-cobalt)]";
+              const offset = i === 1 ? "lg:-translate-y-3" : "";
+              return (
+                <div
+                  key={r.name}
+                  className={`relative rounded-[28px] border border-[#ead8bb] p-7 ${bg} ${offset}`}
+                >
+                  <div className="absolute top-4 right-5 font-serif text-[90px] leading-[0.7] text-[var(--tissu-terracotta)] opacity-25">
+                    &quot;
+                  </div>
+                  <div className="text-[var(--tissu-mustard)] text-[18px] mb-3">★★★★★</div>
+                  <blockquote className="font-serif text-[19px] md:text-[21px] leading-[1.35] text-[var(--tissu-ink)] mb-5">
+                    {r.text}
+                  </blockquote>
+                  <div className="flex items-center gap-3">
+                    <span className={`w-11 h-11 rounded-full ${av}`} />
+                    <div>
+                      <strong className="block text-[14px] text-[var(--tissu-ink)]">{r.name}</strong>
+                      <small className="block text-[12px] text-[var(--tissu-ink-soft)]">
+                        {r.meta}
+                      </small>
+                    </div>
                   </div>
                 </div>
-              </div>
-            ))}
+              );
+            })}
           </div>
         </div>
       </section>
@@ -787,32 +609,25 @@ export default function HomeClient({ lang }: HomeProps) {
       <section id="journal" className="pb-20 md:pb-28">
         <div className="container">
           <div className="flex flex-wrap items-end justify-between gap-10 mb-10">
-            <h2 className="font-serif text-[40px] md:text-[56px] lg:text-[64px] leading-[1] tracking-[-0.02em] text-[var(--tissu-ink)] max-w-[720px]">
-              {isKa ? (
-                <>
-                  <em className="not-italic italic text-[var(--tissu-terracotta)]">@thetissushop</em>-ისგან
-                </>
-              ) : (
-                <>
-                  From <em className="not-italic italic text-[var(--tissu-terracotta)]">@thetissushop</em>
-                </>
-              )}
+            <h2 className="font-serif text-[36px] md:text-[48px] lg:text-[56px] leading-[1.05] tracking-[-0.02em] text-[var(--tissu-ink)] max-w-[820px]">
+              {copy.ig.titlePart1}{" "}
+              <em className="not-italic italic text-[var(--tissu-terracotta)]">
+                {copy.ig.titleItalic}
+              </em>
             </h2>
-            <p className="text-[17px] leading-[1.5] text-[var(--tissu-ink-soft)] max-w-[380px]">
-              {isKa
-                ? "მოჰყევი სტუდიის სურათებს, კულისებს და დროდადრო — ლიმონს."
-                : "Follow along for studio snaps, behind-the-scenes, and the occasional lemon."}
+            <p className="text-[17px] leading-[1.5] text-[var(--tissu-ink-soft)] max-w-[420px]">
+              {copy.ig.sub}
             </p>
           </div>
 
           <div className="grid gap-3.5 grid-cols-3 md:grid-cols-6">
             {[
-              { type: "img" as const, src: IMG_BLUE, overlay: "❤ 1.2k", alt: "" },
-              { type: "img" as const, src: IMG_YELLOW, overlay: "❤ 984", alt: "" },
-              { type: "img" as const, src: IMG_STRIPED, overlay: "❤ 2.1k", alt: "" },
-              { type: "text" as const, label: isKa ? "სტუდიის\nფოტო" : "studio\nsnap", bg: "bg-[var(--tissu-lilac-soft)]" },
-              { type: "text" as const, label: isKa ? "კულისების\nვიდეო" : "BTS\nreel", bg: "bg-[var(--tissu-mustard)]" },
-              { type: "text" as const, label: isKa ? "ლიმონები &\nსიყვარული" : "lemons\n& love", bg: "bg-[var(--tissu-peach)]" },
+              { type: "img" as const, src: IMG_BLUE, overlay: copy.ig.tiles[0].likes!, alt: "" },
+              { type: "img" as const, src: IMG_YELLOW, overlay: copy.ig.tiles[1].likes!, alt: "" },
+              { type: "img" as const, src: IMG_STRIPED, overlay: copy.ig.tiles[2].likes!, alt: "" },
+              { type: "text" as const, l1: copy.ig.tiles[0].line1, l2: copy.ig.tiles[0].line2, bg: "bg-[var(--tissu-lilac-soft)]" },
+              { type: "text" as const, l1: copy.ig.tiles[1].line1, l2: copy.ig.tiles[1].line2, bg: "bg-[var(--tissu-mustard)]" },
+              { type: "text" as const, l1: copy.ig.tiles[2].line1, l2: copy.ig.tiles[2].line2, bg: "bg-[var(--tissu-peach)]" },
             ].map((tile, i) => (
               <div
                 key={i}
@@ -833,9 +648,10 @@ export default function HomeClient({ lang }: HomeProps) {
                   </>
                 ) : (
                   <div
-                    className={`w-full h-full flex items-center justify-center font-serif text-center text-[var(--tissu-ink)] text-[18px] whitespace-pre-line leading-tight p-4 ${tile.bg}`}
+                    className={`w-full h-full flex flex-col items-center justify-center font-serif text-center text-[var(--tissu-ink)] text-[17px] leading-tight p-4 ${tile.bg}`}
                   >
-                    {tile.label}
+                    <span>{tile.l1}</span>
+                    <span>{tile.l2}</span>
                   </div>
                 )}
               </div>
@@ -854,21 +670,15 @@ export default function HomeClient({ lang }: HomeProps) {
             >
               ♡ ♡ ♡ ♡ ♡ ♡ ♡ ♡
             </div>
-            <h2 className="relative font-serif text-[36px] md:text-[52px] lg:text-[60px] leading-[1.02] mb-4">
-              {isKa ? (
-                <>
-                  მიიღე <em className="not-italic italic text-[var(--tissu-mustard)]">პირველ რიგში</em> ახალი კოლექციები.
-                </>
-              ) : (
-                <>
-                  Get <em className="not-italic italic text-[var(--tissu-mustard)]">first dibs</em> on new drops.
-                </>
-              )}
+            <h2 className="relative font-serif text-[32px] md:text-[44px] lg:text-[52px] leading-[1.05] mb-4">
+              {copy.newsletter.titlePart1}{" "}
+              <em className="not-italic italic text-[var(--tissu-mustard)]">
+                {copy.newsletter.titleItalic}
+              </em>{" "}
+              {copy.newsletter.titlePart2}
             </h2>
-            <p className="relative opacity-80 max-w-[480px] mx-auto mb-8">
-              {isKa
-                ? "ორი ელფოსტა თვეში, მეტი არა. ახალი ფერები, სტუდიის კულისები და 10%-იანი კოდი შენთვის."
-                : "Two emails a month, tops. New colours, studio peeks, and a 10% code on us."}
+            <p className="relative opacity-80 max-w-[520px] mx-auto mb-8">
+              {copy.newsletter.body}
             </p>
             <form
               onSubmit={(e) => e.preventDefault()}
@@ -877,14 +687,14 @@ export default function HomeClient({ lang }: HomeProps) {
               <input
                 type="email"
                 required
-                placeholder="you@lovely.com"
+                placeholder={copy.newsletter.placeholder}
                 className="flex-1 bg-transparent px-5 py-3.5 text-[15px] text-[var(--tissu-ink)] outline-none placeholder:text-[var(--tissu-ink-soft)]"
               />
               <button
                 type="submit"
                 className="rounded-full bg-[var(--tissu-terracotta)] text-white px-7 py-3.5 font-extrabold text-[14px] tracking-[0.04em] hover:bg-[var(--tissu-mustard)] hover:text-[var(--tissu-ink)] transition-colors"
               >
-                {isKa ? "გამომწერე" : "Sign me up"}
+                {copy.newsletter.cta}
               </button>
             </form>
           </div>
