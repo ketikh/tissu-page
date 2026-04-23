@@ -18,6 +18,9 @@ export function Footer({}: FooterProps) {
     `/${lang}/shop?category=pouches`,
     `/${lang}/shop?category=laptop-sleeves`,
     `/${lang}/shop?category=totes`,
+    `/${lang}/shop?category=kids-backpacks`,
+    `/${lang}/shop?category=aprons`,
+    `/${lang}/shop?category=necklaces`,
     `/${lang}/shop?category=gift`,
   ];
   const careHrefs = [

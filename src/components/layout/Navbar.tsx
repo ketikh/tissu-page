@@ -3,7 +3,7 @@
 import { useState, useEffect } from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { Search, ShoppingBag, Menu, X, User } from "lucide-react";
+import { ShoppingBag, Menu, X, User } from "lucide-react";
 import { AnimatePresence, motion } from "framer-motion";
 import { useUIStore } from "@/store/useUIStore";
 import { useCartStore } from "@/store/useCartStore";
@@ -84,13 +84,6 @@ export function Navbar({ lang, dictionary }: NavbarProps) {
           >
             <User className="w-[18px] h-[18px]" />
           </Link>
-          <button
-            type="button"
-            aria-label={lang === "ka" ? "ძებნა" : "Search"}
-            className="w-11 h-11 rounded-full border-[1.5px] border-[var(--tissu-ink)] inline-flex items-center justify-center text-[var(--tissu-ink)] hover:bg-[var(--tissu-ink)] hover:text-[var(--tissu-cream)] transition-colors"
-          >
-            <Search className="w-[18px] h-[18px]" />
-          </button>
           <button
             type="button"
             onClick={openCart}

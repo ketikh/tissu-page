@@ -28,7 +28,16 @@ export interface LandingCopy {
     titleItalic: string;
     titlePart2: string;
     sub: string;
-    filters: { all: string; pouch: string; laptop: string; bag: string; new: string };
+    filters: {
+      all: string;
+      pouch: string;
+      laptop: string;
+      bag: string;
+      kidsbackpack: string;
+      apron: string;
+      necklace: string;
+      new: string;
+    };
     card: { favourite: string; addToBasket: string };
     badges: { new: string; bestseller: string; limited: string };
   };
@@ -121,7 +130,16 @@ const en: LandingCopy = {
     titleItalic: "everyday",
     titlePart2: "little-things edit.",
     sub: "Six new shapes, three fabrics, one promise: every stitch tied by a real human in our Tbilisi studio. Every bag reversible.",
-    filters: { all: "All · 12", pouch: "Pouches", laptop: "Laptop sleeves", bag: "Tote bags", new: "New arrivals" },
+    filters: {
+      all: "All",
+      pouch: "Pouches",
+      laptop: "Laptop sleeves",
+      bag: "Tote bags",
+      kidsbackpack: "Kids' backpacks",
+      apron: "Aprons",
+      necklace: "Necklaces",
+      new: "New arrivals",
+    },
     card: { favourite: "Favourite", addToBasket: "Add to basket" },
     badges: { new: "NEW", bestseller: "BESTSELLER", limited: "LIMITED" },
   },
@@ -132,6 +150,12 @@ const en: LandingCopy = {
     { name: "Mustard mini tote", sub: "Medium · canvas · reversible" },
     { name: "Cobalt crossbody", sub: "Adjustable strap · reversible" },
     { name: "Sunday stripe pouch", sub: "Tablet size · reversible" },
+    { name: "Little explorer backpack", sub: "Kids' size · canvas" },
+    { name: "Starry sky backpack", sub: "Kids' size · canvas" },
+    { name: "Sous-chef apron — kids", sub: "Adjustable · canvas" },
+    { name: "Sunday kitchen apron — mum", sub: "Long cut · canvas" },
+    { name: "Linen cord necklace", sub: "Fabric-knotted" },
+    { name: "Seaside shell necklace", sub: "Fabric + shells" },
   ],
   story: {
     eyebrow: "Our story",
@@ -156,18 +180,18 @@ const en: LandingCopy = {
       { title: "Source", body: "We pick water-resistant canvas from local mills. Colours chosen by season, texture chosen by hand." },
       { title: "Pattern", body: "Each shape is cut from paper templates we've refined for two years running — with two prints in mind." },
       { title: "Stitch & line", body: "Two layers, one seam. Flip it and the bag becomes a whole new friend." },
-      { title: "Wrap & send", body: "Tied with ribbon, slipped into a linen pouch, off on a Tbilisi post truck to you." },
+      { title: "Wrap & send", body: "Wrapped in colourful paper, stickered, and sent off in a kraft-paper bag." },
     ],
   },
   picker: {
-    eyebrow: "Build your own",
+    eyebrow: "Build your own · necklaces only",
     titlePart1: "Pick a",
-    titleItalic: "shade",
-    titlePart2: "that feels like you.",
-    body: "Every Tissu is made to order and reversible — choose the canvas for the outside, we'll pair it with a surprise inside. Ready in 5 days.",
-    cta: "Start this one — 85₾",
-    shipsNote: "ships in 5 days",
-    altPreview: "Selected colour preview",
+    titleItalic: "fabric,",
+    titlePart2: "we'll braid your necklace.",
+    body: "Necklaces are made to order. Choose the canvas and the shells — we'll braid a one-of-a-kind piece for you in about 7 days. Bags on this site are ready-to-ship, not custom.",
+    cta: "Start a necklace — from 45₾",
+    shipsNote: "ready in ~7 days",
+    altPreview: "Selected fabric preview",
   },
   reviews: {
     titlePart1: "Loved by",
@@ -213,7 +237,7 @@ const en: LandingCopy = {
   footer: {
     tagline: "Handmade reversible bags from Tbilisi in water-resistant canvas. Cut, stitched, and tied by hand — since 2023.",
     cols: { shop: "Shop", care: "Care", studio: "Studio" },
-    shopLinks: ["Pouches", "Laptop sleeves", "Totes", "Gift cards"],
+    shopLinks: ["Pouches", "Laptop sleeves", "Totes", "Kids' backpacks", "Aprons", "Necklaces", "Gift cards"],
     careLinks: ["Shipping", "Returns", "Wash guide", "FAQ"],
     studioLinks: ["Our story", "Journal", "Wholesale", "Contact"],
     copyrightSuffix: "made with love in tbilisi",
@@ -250,7 +274,16 @@ const ka: LandingCopy = {
     titleItalic: "ყოველდღიური",
     titlePart2: "წვრილმანებისთვის.",
     sub: "ახალი ფორმები და ფერები, ერთი პირობით: თითოეული ნაკერი ჩვენს თბილისურ სტუდიაში, ცოცხალი ადამიანის ხელითაა გაკეთებული. და რა თქმა უნდა, ყველა ჩანთა ორმხრივია.",
-    filters: { all: "ყველა · 12", pouch: "ქისები", laptop: "ლეპტოპის გარსები", bag: "ტომრები", new: "სიახლეები" },
+    filters: {
+      all: "ყველა",
+      pouch: "ქისები",
+      laptop: "ლეპტოპის გარსები",
+      bag: "ტომრები",
+      kidsbackpack: "საბავშვო ზურგჩანთები",
+      apron: "წინსაფრები",
+      necklace: "ყელსაბამები",
+      new: "სიახლეები",
+    },
     card: { favourite: "რჩეულებში დამატება", addToBasket: "კალათაში დამატება" },
     badges: { new: "ახალი", bestseller: "ბესტსელერი", limited: "ლიმიტირებული" },
   },
@@ -261,6 +294,12 @@ const ka: LandingCopy = {
     { name: "მდოგვისფერი მინი ტომარა", sub: "საშუალო · ტილო · ორმხრივი" },
     { name: "კობალტისფერი მხარზე გადასაკიდი", sub: "რეგულირებადი თასმა · ორმხრივი" },
     { name: "კვირის ზოლიანი ქისა", sub: "პლანშეტის ზომა · ორმხრივი" },
+    { name: "პატარა მოგზაურის ზურგჩანთა", sub: "საბავშვო ზომა · ტილო" },
+    { name: "ვარსკვლავიანი ზურგჩანთა", sub: "საბავშვო ზომა · ტილო" },
+    { name: "პატარა სამზარეულოს წინსაფარი", sub: "რეგულირებადი · ტილო" },
+    { name: "დედის სამზარეულოს წინსაფარი", sub: "გრძელი · ტილო" },
+    { name: "სელის ძაფის ყელსაბამი", sub: "ნაჭრის კვანძები" },
+    { name: "ზღვის ნიჟარების ყელსაბამი", sub: "ნაჭერი + ნიჟარები" },
   ],
   story: {
     eyebrow: "ჩვენი ამბავი",
@@ -285,18 +324,18 @@ const ka: LandingCopy = {
       { title: "ვარჩევთ", body: "წყალგაუმტარ ტილოს ადგილობრივი მომწოდებლებისგან ვარჩევთ. ფერებს — სეზონის მიხედვით, ფაქტურას კი — ხელით." },
       { title: "ვჭრით", body: "თითოეულ ფორმას ქაღალდის თარგებით ვჭრით, რომლებსაც უკვე ორი წელია ვხვეწთ — ყოველთვის ორი პრინტის გათვალისწინებით." },
       { title: "ვკერავთ", body: "ორი ფენა, ერთი ნაკერი. გადმოაბრუნებ და ჩანთა შენი ახალი მეგობარი ხდება." },
-      { title: "ვფუთავთ და ვაგზავნით", body: "ლენტით შეკრულს, ტილოს ქისაში ვდებთ და თბილისის ფოსტის მანქანით შენთან ვაგზავნით." },
+      { title: "ვფუთავთ და ვაგზავნით", body: "ფერად ქაღალდში ვახვევთ, სტიკერს ვაკრავთ და კრაფტის ჩანთით გიგზავნით." },
     ],
   },
   picker: {
-    eyebrow: "ააწყვე შენი",
+    eyebrow: "ააწყვე შენი ყელსაბამი",
     titlePart1: "აირჩიე",
-    titleItalic: "ფერი,",
-    titlePart2: "რომელიც შენ გგავს.",
-    body: "ყველა Tissu შეკვეთით მზადდება და ორმხრივია — შეარჩიე ტილო გარე პირისთვის, ჩვენ კი შიდა მხარეს სიურპრიზად დაგახვედრებთ. მზად იქნება 5 დღეში.",
-    cta: "ამით დავიწყოთ — 85₾",
-    shipsNote: "გამოიგზავნება 5 დღეში",
-    altPreview: "არჩეული ფერის ვერსია",
+    titleItalic: "ნაჭერი,",
+    titlePart2: "ჩვენ შეგიკრავთ ყელსაბამს.",
+    body: "ყელსაბამები შეკვეთით იქმნება — აირჩიე ნაჭერი, ნიჟარები და 7 დღის შემდეგ გიგზავნით ხელით ნაკრავ უნიკალურ ნივთს. ჩანთები ამ საიტზე მზა მოდელებია და არა შეკვეთით მზადდება.",
+    cta: "დავიწყოთ ყელსაბამი — 45₾-დან",
+    shipsNote: "მზადდება 7 დღეში",
+    altPreview: "არჩეული ნაჭრის ვერსია",
   },
   reviews: {
     titlePart1: "ჩვენი ჩანთები უყვართ",
@@ -342,7 +381,7 @@ const ka: LandingCopy = {
   footer: {
     tagline: "ხელით ნაკერი ორმხრივი ჩანთები თბილისიდან, წყალგაუმტარი ტილოსგან. ხელით გამოჭრილი, შეკერილი და შეკრული — 2023 წლიდან.",
     cols: { shop: "მაღაზია", care: "მოვლა", studio: "სტუდია" },
-    shopLinks: ["ქისები", "ლეპტოპის გარსები", "ტომრები", "სასაჩუქრე ბარათები"],
+    shopLinks: ["ქისები", "ლეპტოპის გარსები", "ტომრები", "საბავშვო ზურგჩანთები", "წინსაფრები", "ყელსაბამები", "სასაჩუქრე ბარათები"],
     careLinks: ["მიწოდება", "დაბრუნება", "გარეცხვის წესები", "ხშირად დასმული კითხვები"],
     studioLinks: ["ჩვენი ამბავი", "ბლოგი", "საბითუმო", "კონტაქტი"],
     copyrightSuffix: "სიყვარულით შექმნილი თბილისში",

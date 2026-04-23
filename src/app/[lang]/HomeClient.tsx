@@ -15,7 +15,7 @@ interface HomeProps {
   dictionary: any;
 }
 
-type ProductTag = "pouch" | "laptop" | "bag" | "new";
+type ProductTag = "pouch" | "laptop" | "bag" | "kidsbackpack" | "apron" | "necklace" | "new";
 
 interface LandingProduct {
   id: number;
@@ -30,6 +30,7 @@ const IMG_BLUE = "/static/landing-bag-blue.jpg";
 const IMG_YELLOW = "/static/landing-bag-yellow.jpg";
 const IMG_STRIPED = "/static/landing-bag-striped.png";
 
+// NOTE: Product imagery is a placeholder — real photos will replace these once the user uploads them.
 const productsMeta: LandingProduct[] = [
   { id: 1, price: 85, img: IMG_BLUE, tags: ["pouch", "new"], badge: { key: "new", tone: "cobalt" }, colors: ["#264ba0", "#e8b23a", "#b89bd9"] },
   { id: 2, price: 85, img: IMG_YELLOW, tags: ["pouch"], badge: { key: "bestseller", tone: "mustard" }, colors: ["#e8b23a", "#f65c32", "#264ba0"] },
@@ -37,6 +38,12 @@ const productsMeta: LandingProduct[] = [
   { id: 4, price: 120, img: IMG_YELLOW, tags: ["bag"], colors: ["#e8b23a", "#264ba0"] },
   { id: 5, price: 165, img: IMG_BLUE, tags: ["bag", "new"], badge: { key: "new", tone: "cobalt" }, colors: ["#264ba0", "#2a1d14", "#e8b23a"] },
   { id: 6, price: 95, img: IMG_STRIPED, tags: ["pouch", "new"], badge: { key: "limited", tone: "ink" }, colors: ["#e8b23a", "#b89bd9", "#f65c32"] },
+  { id: 7, price: 110, img: IMG_BLUE, tags: ["kidsbackpack", "new"], badge: { key: "new", tone: "cobalt" }, colors: ["#264ba0", "#f65c32", "#e8b23a"] },
+  { id: 8, price: 125, img: IMG_STRIPED, tags: ["kidsbackpack"], colors: ["#b89bd9", "#e8b23a", "#264ba0"] },
+  { id: 9, price: 65, img: IMG_YELLOW, tags: ["apron"], colors: ["#e8b23a", "#f65c32", "#b89bd9"] },
+  { id: 10, price: 85, img: IMG_STRIPED, tags: ["apron"], colors: ["#264ba0", "#e8b23a", "#2a1d14"] },
+  { id: 11, price: 45, img: IMG_YELLOW, tags: ["necklace", "new"], badge: { key: "new", tone: "mustard" }, colors: ["#e8b23a", "#b89bd9", "#f65c32"] },
+  { id: 12, price: 55, img: IMG_BLUE, tags: ["necklace"], colors: ["#264ba0", "#f3cdaa", "#b89bd9"] },
 ];
 
 type Swatch = { key: string; img: string; background: string };
@@ -73,10 +80,13 @@ export default function HomeClient({ lang }: HomeProps) {
   const filterButtons = useMemo(
     () =>
       [
-        { key: "all" as const, label: copy.shop.filters.all },
+        { key: "all" as const, label: `${copy.shop.filters.all} · ${productsMeta.length}` },
         { key: "pouch" as const, label: copy.shop.filters.pouch },
         { key: "laptop" as const, label: copy.shop.filters.laptop },
         { key: "bag" as const, label: copy.shop.filters.bag },
+        { key: "kidsbackpack" as const, label: copy.shop.filters.kidsbackpack },
+        { key: "apron" as const, label: copy.shop.filters.apron },
+        { key: "necklace" as const, label: copy.shop.filters.necklace },
         { key: "new" as const, label: copy.shop.filters.new },
       ],
     [copy]
@@ -404,16 +414,6 @@ export default function HomeClient({ lang }: HomeProps) {
                 <p className="text-[17px] leading-[1.6] max-w-[500px] opacity-90">
                   {copy.story.body}
                 </p>
-                <div className="flex flex-wrap gap-8 mt-9">
-                  {copy.story.stats.map((stat) => (
-                    <div key={stat.label}>
-                      <div className="font-serif text-[40px] md:text-[48px] leading-none text-[var(--tissu-mustard)]">
-                        {stat.num}
-                      </div>
-                      <div className="text-[13px] opacity-80 mt-1.5 max-w-[160px]">{stat.label}</div>
-                    </div>
-                  ))}
-                </div>
               </div>
 
               <div className="relative h-[320px] md:h-[380px]">
