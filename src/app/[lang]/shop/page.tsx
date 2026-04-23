@@ -1,3 +1,4 @@
+import { Suspense } from "react";
 import { getDictionary } from "@/i18n/getDictionary";
 import { Locale } from "@/i18n/config";
 import ShopClient from "./ShopClient";
@@ -9,5 +10,9 @@ export default async function ShopPage({ params }: { params: Promise<{ lang: str
   const dictionary = await getDictionary(locale);
   const products = await fetchStorefrontProducts();
 
-  return <ShopClient lang={locale} dictionary={dictionary} products={products} />;
+  return (
+    <Suspense fallback={<div className="min-h-[60vh] container py-24 text-[var(--tissu-ink-soft)]">Loading…</div>}>
+      <ShopClient lang={locale} dictionary={dictionary} products={products} />
+    </Suspense>
+  );
 }
