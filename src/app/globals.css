@@ -156,10 +156,10 @@ html[lang="ka"] h6 {
   letter-spacing: -0.025em !important;
   line-height: 1.12 !important;
 }
-html[lang="ka"] h1 { font-size: clamp(34px, 5.2vw, 76px) !important; }
-html[lang="ka"] h2 { font-size: clamp(28px, 3.8vw, 52px) !important; }
-html[lang="ka"] h3 { font-size: 18px !important; }
-html[lang="ka"] h4 { font-size: 18px !important; }
+html[lang="ka"] h1 { font-size: clamp(30px, 4vw, 58px) !important; }
+html[lang="ka"] h2 { font-size: clamp(24px, 3vw, 44px) !important; }
+html[lang="ka"] h3 { font-size: 17px !important; }
+html[lang="ka"] h4 { font-size: 17px !important; }
 html[lang="ka"] em {
   font-style: normal !important;
   font-weight: 600 !important;
