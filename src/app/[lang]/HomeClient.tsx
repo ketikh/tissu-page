@@ -9,42 +9,34 @@ import { Locale } from "@/i18n/config";
 import { useCartStore } from "@/store/useCartStore";
 import { useUIStore } from "@/store/useUIStore";
 import { getLandingCopy } from "./landingCopy";
+import type { StorefrontProduct, StorefrontCategory } from "@/lib/admin-api";
 
 interface HomeProps {
   lang: Locale;
   dictionary: any;
+  products: StorefrontProduct[];
 }
 
-type ProductTag = "pouch" | "laptop" | "bag" | "kidsbackpack" | "apron" | "necklace" | "new";
+type FilterKey = "all" | StorefrontCategory | "new";
 
-interface LandingProduct {
-  id: number;
+// Display-side product with localized name and derived UI bits.
+interface DisplayProduct {
+  id: string;
   price: number;
+  currency: string;
   img: string;
-  tags: ProductTag[];
-  badge?: { key: "new" | "bestseller" | "limited"; tone: "ink" | "mustard" | "cobalt" };
+  imgBack: string | null;
+  category: StorefrontCategory;
+  isNew: boolean;
+  badge: { key: "new" | "bestseller" | "limited"; tone: "ink" | "mustard" | "cobalt" } | null;
+  name: string;
+  sub: string;
   colors: string[];
 }
 
 const IMG_BLUE = "/static/landing-bag-blue.jpg";
 const IMG_YELLOW = "/static/landing-bag-yellow.jpg";
 const IMG_STRIPED = "/static/landing-bag-striped.png";
-
-// NOTE: Product imagery is a placeholder — real photos will replace these once the user uploads them.
-const productsMeta: LandingProduct[] = [
-  { id: 1, price: 85, img: IMG_BLUE, tags: ["pouch", "new"], badge: { key: "new", tone: "cobalt" }, colors: ["#264ba0", "#e8b23a", "#b89bd9"] },
-  { id: 2, price: 85, img: IMG_YELLOW, tags: ["pouch"], badge: { key: "bestseller", tone: "mustard" }, colors: ["#e8b23a", "#f65c32", "#264ba0"] },
-  { id: 3, price: 140, img: IMG_STRIPED, tags: ["laptop"], colors: ["#e8b23a", "#264ba0", "#b89bd9"] },
-  { id: 4, price: 120, img: IMG_YELLOW, tags: ["bag"], colors: ["#e8b23a", "#264ba0"] },
-  { id: 5, price: 165, img: IMG_BLUE, tags: ["bag", "new"], badge: { key: "new", tone: "cobalt" }, colors: ["#264ba0", "#2a1d14", "#e8b23a"] },
-  { id: 6, price: 95, img: IMG_STRIPED, tags: ["pouch", "new"], badge: { key: "limited", tone: "ink" }, colors: ["#e8b23a", "#b89bd9", "#f65c32"] },
-  { id: 7, price: 110, img: IMG_BLUE, tags: ["kidsbackpack", "new"], badge: { key: "new", tone: "cobalt" }, colors: ["#264ba0", "#f65c32", "#e8b23a"] },
-  { id: 8, price: 125, img: IMG_STRIPED, tags: ["kidsbackpack"], colors: ["#b89bd9", "#e8b23a", "#264ba0"] },
-  { id: 9, price: 65, img: IMG_YELLOW, tags: ["apron"], colors: ["#e8b23a", "#f65c32", "#b89bd9"] },
-  { id: 10, price: 85, img: IMG_STRIPED, tags: ["apron"], colors: ["#264ba0", "#e8b23a", "#2a1d14"] },
-  { id: 11, price: 45, img: IMG_YELLOW, tags: ["necklace", "new"], badge: { key: "new", tone: "mustard" }, colors: ["#e8b23a", "#b89bd9", "#f65c32"] },
-  { id: 12, price: 55, img: IMG_BLUE, tags: ["necklace"], colors: ["#264ba0", "#f3cdaa", "#b89bd9"] },
-];
 
 type Swatch = { key: string; img: string; background: string };
 const swatches: Swatch[] = [
@@ -69,41 +61,98 @@ const reveal = {
   },
 };
 
-export default function HomeClient({ lang }: HomeProps) {
+const FALLBACK_COLORS: Record<StorefrontCategory, string[]> = {
+  pouch: ["#264ba0", "#e8b23a", "#b89bd9"],
+  laptop: ["#e8b23a", "#264ba0", "#b89bd9"],
+  tote: ["#e8b23a", "#264ba0"],
+  kidsbackpack: ["#264ba0", "#f65c32", "#e8b23a"],
+  apron: ["#e8b23a", "#f65c32", "#b89bd9"],
+  necklace: ["#e8b23a", "#b89bd9", "#f3cdaa"],
+};
+
+function toDisplay(
+  p: StorefrontProduct,
+  idx: number,
+  lang: Locale,
+  localized: { name: string; sub: string } | null
+): DisplayProduct {
+  const isFallback = p.id.startsWith("fallback-");
+  const isNew = p.tags.includes("new");
+  const badge = p.tags.includes("bestseller")
+    ? ({ key: "bestseller" as const, tone: "mustard" as const })
+    : p.tags.includes("limited")
+    ? ({ key: "limited" as const, tone: "ink" as const })
+    : isNew
+    ? ({ key: "new" as const, tone: "cobalt" as const })
+    : null;
+
+  // Prefer the admin-provided name/size; if we're using the placeholder fallback
+  // set, fall back to the landingCopy entry so Georgian shows up in Georgian.
+  const name = isFallback && localized ? localized.name : p.name || localized?.name || `#${idx + 1}`;
+  const subParts = [p.size, p.color].filter(Boolean);
+  const sub = isFallback && localized ? localized.sub : subParts.join(" · ") || localized?.sub || "";
+
+  return {
+    id: p.id,
+    price: p.price,
+    currency: p.currency || "GEL",
+    img: p.image_front,
+    imgBack: p.image_back,
+    category: p.category,
+    isNew,
+    badge,
+    name,
+    sub,
+    colors: FALLBACK_COLORS[p.category] ?? ["#264ba0", "#e8b23a"],
+  };
+}
+
+export default function HomeClient({ lang, products: rawProducts }: HomeProps) {
   const copy = getLandingCopy(lang);
   const openCart = useUIStore((state) => state.openCart);
   const cartPush = useCartStore((state) => state.addItem);
 
-  const [filter, setFilter] = useState<"all" | ProductTag>("all");
+  const [filter, setFilter] = useState<FilterKey>("all");
   const [selectedSwatch, setSelectedSwatch] = useState<Swatch>(swatches[0]);
+
+  const products = useMemo<DisplayProduct[]>(
+    () =>
+      rawProducts.map((p, i) => {
+        const localized = copy.products[i] ?? null;
+        return toDisplay(p, i, lang, localized);
+      }),
+    [rawProducts, copy.products, lang]
+  );
 
   const filterButtons = useMemo(
     () =>
       [
-        { key: "all" as const, label: `${copy.shop.filters.all} · ${productsMeta.length}` },
+        { key: "all" as const, label: `${copy.shop.filters.all} · ${products.length}` },
         { key: "pouch" as const, label: copy.shop.filters.pouch },
         { key: "laptop" as const, label: copy.shop.filters.laptop },
-        { key: "bag" as const, label: copy.shop.filters.bag },
+        { key: "tote" as const, label: copy.shop.filters.bag },
         { key: "kidsbackpack" as const, label: copy.shop.filters.kidsbackpack },
         { key: "apron" as const, label: copy.shop.filters.apron },
         { key: "necklace" as const, label: copy.shop.filters.necklace },
         { key: "new" as const, label: copy.shop.filters.new },
       ],
-    [copy]
+    [copy, products.length]
   );
 
-  const visibleProducts =
-    filter === "all" ? productsMeta : productsMeta.filter((p) => p.tags.includes(filter));
+  const visibleProducts = useMemo(() => {
+    if (filter === "all") return products;
+    if (filter === "new") return products.filter((p) => p.isNew);
+    return products.filter((p) => p.category === filter);
+  }, [products, filter]);
 
-  const handleQuickAdd = (p: LandingProduct, idx: number) => {
-    const productCopy = copy.products[idx];
+  const handleQuickAdd = (p: DisplayProduct) => {
     try {
       cartPush(
         {
           id: `landing-${p.id}`,
           slug: `landing-${p.id}`,
-          name: { en: productCopy.name, ka: productCopy.name },
-          subtitle: { en: productCopy.sub, ka: productCopy.sub },
+          name: { en: p.name, ka: p.name },
+          subtitle: { en: p.sub, ka: p.sub },
           description: { en: "", ka: "" },
           price: p.price,
           images: [p.img],
@@ -116,7 +165,7 @@ export default function HomeClient({ lang }: HomeProps) {
               inStock: true,
             },
           ],
-          category: p.tags[0] as any,
+          category: p.category as any,
           featured: true,
           badges: [],
         } as any,
@@ -316,8 +365,6 @@ export default function HomeClient({ lang }: HomeProps) {
 
           <div className="grid gap-7 grid-cols-1 sm:grid-cols-2 lg:grid-cols-3">
             {visibleProducts.map((p) => {
-              const idx = productsMeta.indexOf(p);
-              const pc = copy.products[idx];
               return (
                 <div
                   key={p.id}
@@ -346,16 +393,16 @@ export default function HomeClient({ lang }: HomeProps) {
                     </button>
                     <Image
                       src={p.img}
-                      alt={pc.name}
+                      alt={p.name}
                       fill
                       className="object-cover transition-transform duration-700 group-hover:scale-105"
                     />
                   </div>
                   <div>
                     <h3 className="font-serif text-[22px] text-[var(--tissu-ink)] leading-tight">
-                      {pc.name}
+                      {p.name}
                     </h3>
-                    <div className="text-[13px] text-[var(--tissu-ink-soft)] mt-1">{pc.sub}</div>
+                    <div className="text-[13px] text-[var(--tissu-ink-soft)] mt-1">{p.sub}</div>
                   </div>
                   <div className="flex items-center justify-between gap-2.5">
                     <div className="flex gap-1.5">
@@ -375,7 +422,7 @@ export default function HomeClient({ lang }: HomeProps) {
                   </div>
                   <button
                     type="button"
-                    onClick={() => handleQuickAdd(p, idx)}
+                    onClick={() => handleQuickAdd(p)}
                     className="inline-flex items-center gap-2 px-4 py-3 rounded-full bg-[var(--tissu-ink)] text-[var(--tissu-cream)] text-[13px] font-bold hover:bg-[var(--tissu-terracotta)] transition-colors self-start"
                   >
                     <ShoppingBag className="w-4 h-4" />
