@@ -146,7 +146,7 @@ export default function HomeClient({ lang }: HomeProps) {
               {copy.hero.eyebrow}
             </span>
 
-            <h1 className="font-serif text-[44px] sm:text-[60px] md:text-[78px] lg:text-[96px] leading-[0.98] tracking-[-0.02em] mt-6 mb-6 text-[var(--tissu-ink)]">
+            <h1 className="ka-display-xl font-serif text-[44px] sm:text-[60px] md:text-[78px] lg:text-[96px] leading-[0.98] tracking-[-0.02em] mt-6 mb-6 text-[var(--tissu-ink)]">
               {copy.hero.titlePart1}{" "}
               <em className="not-italic italic text-[var(--tissu-terracotta)]">
                 {copy.hero.titleItalic}
@@ -284,7 +284,7 @@ export default function HomeClient({ lang }: HomeProps) {
       <section id="shop" className="py-20 md:py-28">
         <div className="container">
           <div className="flex flex-wrap items-end justify-between gap-10 mb-14">
-            <h2 className="font-serif text-[36px] md:text-[48px] lg:text-[60px] leading-[1.05] tracking-[-0.02em] text-[var(--tissu-ink)] max-w-[720px]">
+            <h2 className="ka-display-lg font-serif text-[36px] md:text-[48px] lg:text-[60px] leading-[1.05] tracking-[-0.02em] text-[var(--tissu-ink)] max-w-[720px]">
               {copy.shop.titlePart1}{" "}
               <em className="not-italic italic text-[var(--tissu-terracotta)]">
                 {copy.shop.titleItalic}
@@ -404,7 +404,7 @@ export default function HomeClient({ lang }: HomeProps) {
                   <span className="w-2 h-2 rounded-full bg-[var(--tissu-mustard)]" />
                   {copy.story.eyebrow}
                 </span>
-                <h2 className="font-serif text-[32px] md:text-[44px] leading-[1.05] mt-5 mb-5">
+                <h2 className="ka-display-lg font-serif text-[32px] md:text-[44px] leading-[1.05] mt-5 mb-5">
                   {copy.story.titlePart1}{" "}
                   <em className="not-italic italic text-[var(--tissu-mustard)]">
                     {copy.story.titleItalic}
@@ -444,7 +444,7 @@ export default function HomeClient({ lang }: HomeProps) {
       <section id="process" className="py-20 md:py-28">
         <div className="container">
           <div className="flex flex-wrap items-end justify-between gap-10 mb-14">
-            <h2 className="font-serif text-[36px] md:text-[48px] lg:text-[60px] leading-[1.05] tracking-[-0.02em] text-[var(--tissu-ink)] max-w-[720px]">
+            <h2 className="ka-display-lg font-serif text-[36px] md:text-[48px] lg:text-[60px] leading-[1.05] tracking-[-0.02em] text-[var(--tissu-ink)] max-w-[720px]">
               {copy.process.titlePart1}{" "}
               <em className="not-italic italic text-[var(--tissu-terracotta)]">
                 {copy.process.titleItalic}
@@ -486,7 +486,7 @@ export default function HomeClient({ lang }: HomeProps) {
                   <span className="w-2 h-2 rounded-full bg-[var(--tissu-terracotta)]" />
                   {copy.picker.eyebrow}
                 </span>
-                <h2 className="font-serif text-[32px] md:text-[44px] leading-[1.05] mt-5 mb-4 text-[var(--tissu-ink)]">
+                <h2 className="ka-display-lg font-serif text-[32px] md:text-[44px] leading-[1.05] mt-5 mb-4 text-[var(--tissu-ink)]">
                   {copy.picker.titlePart1}{" "}
                   <em className="not-italic italic">{copy.picker.titleItalic}</em>{" "}
                   {copy.picker.titlePart2}
@@ -550,7 +550,7 @@ export default function HomeClient({ lang }: HomeProps) {
       <section className="pb-20 md:pb-28">
         <div className="container">
           <div className="flex flex-wrap items-end justify-between gap-10 mb-14">
-            <h2 className="font-serif text-[36px] md:text-[48px] lg:text-[60px] leading-[1.05] tracking-[-0.02em] text-[var(--tissu-ink)] max-w-[820px]">
+            <h2 className="ka-display-lg font-serif text-[36px] md:text-[48px] lg:text-[60px] leading-[1.05] tracking-[-0.02em] text-[var(--tissu-ink)] max-w-[820px]">
               {copy.reviews.titlePart1}{" "}
               <em className="not-italic italic text-[var(--tissu-terracotta)]">
                 {copy.reviews.titleItalic}
@@ -609,7 +609,7 @@ export default function HomeClient({ lang }: HomeProps) {
       <section id="journal" className="pb-20 md:pb-28">
         <div className="container">
           <div className="flex flex-wrap items-end justify-between gap-10 mb-10">
-            <h2 className="font-serif text-[36px] md:text-[48px] lg:text-[56px] leading-[1.05] tracking-[-0.02em] text-[var(--tissu-ink)] max-w-[820px]">
+            <h2 className="ka-display-lg font-serif text-[36px] md:text-[48px] lg:text-[56px] leading-[1.05] tracking-[-0.02em] text-[var(--tissu-ink)] max-w-[820px]">
               {copy.ig.titlePart1}{" "}
               <em className="not-italic italic text-[var(--tissu-terracotta)]">
                 {copy.ig.titleItalic}
@@ -670,7 +670,7 @@ export default function HomeClient({ lang }: HomeProps) {
             >
               ♡ ♡ ♡ ♡ ♡ ♡ ♡ ♡
             </div>
-            <h2 className="relative font-serif text-[32px] md:text-[44px] lg:text-[52px] leading-[1.05] mb-4">
+            <h2 className="relative ka-display-lg font-serif text-[32px] md:text-[44px] lg:text-[52px] leading-[1.05] mb-4">
               {copy.newsletter.titlePart1}{" "}
               <em className="not-italic italic text-[var(--tissu-mustard)]">
                 {copy.newsletter.titleItalic}
