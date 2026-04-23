@@ -45,7 +45,7 @@ export default function CartClient({ dictionary, lang }: CartClientProps) {
     return (
       <div className="container min-h-[70vh] py-16 px-4 flex flex-col items-center">
         <div className="max-w-2xl w-full text-center mb-16">
-          <h1 className="text-4xl md:text-6xl font-serif text-brand-dark mb-6 tracking-tight">
+          <h1 className="ka-display-lg text-4xl md:text-6xl font-serif text-brand-dark mb-6 tracking-tight">
             {dictionary.cartDrawer.empty}
           </h1>
           <p className="text-muted-foreground mb-10 text-lg">
@@ -102,7 +102,7 @@ export default function CartClient({ dictionary, lang }: CartClientProps) {
           </Link>
         </div>
 
-        <h1 className="text-4xl lg:text-6xl font-serif text-brand-dark mb-12 tracking-tight">
+        <h1 className="ka-display-lg text-4xl lg:text-6xl font-serif text-brand-dark mb-12 tracking-tight">
           {dictionary.cartDrawer.title}
         </h1>
 

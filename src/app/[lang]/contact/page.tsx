@@ -1,127 +1,171 @@
-import { getDictionary } from "@/i18n/getDictionary";
+"use client";
+
+import { use } from "react";
 import { Locale } from "@/i18n/config";
-import { Mail, MapPin, Phone, MessageSquare } from "lucide-react";
-import { Button } from "@/components/ui/Button";
-import { Input } from "@/components/ui/Input";
-import { Textarea } from "@/components/ui/Textarea";
+import { Mail, Phone, MapPin, Send } from "lucide-react";
 
-export default async function ContactPage({ params }: { params: Promise<{ lang: string }> }) {
-  const { lang } = await params;
+export default function ContactPage({ params }: { params: Promise<{ lang: string }> }) {
+  const { lang } = use(params);
   const locale = lang as Locale;
-  const dictionary = await getDictionary(locale);
-
-  const contactDetails = [
-    {
-      icon: Mail,
-      title: dictionary.contact.details.email.title,
-      value: "hello@tissu.ge",
-      tagline: dictionary.contact.details.email.tagline,
-    },
-    {
-      icon: MapPin,
-      title: dictionary.contact.details.office.title,
-      value: dictionary.contact.details.office.address,
-      tagline: dictionary.contact.details.office.tagline,
-    },
-    {
-      icon: Phone,
-      title: dictionary.contact.details.phone.title,
-      value: "+995 5XX XXX XXX",
-      tagline: dictionary.contact.details.phone.tagline,
-    },
-  ];
+  const isKa = locale === "ka";
 
   return (
-    <div className="bg-brand-soft/20 min-h-screen">
-      <div className="container px-4 py-20 md:py-32">
-        <div className="max-w-5xl mx-auto">
-          <div className="grid md:grid-cols-2 gap-20 items-start">
-            {/* Contact Info */}
-            <div className="space-y-12">
-              <div className="space-y-6">
-                <h1 className="text-4xl md:text-5xl font-serif text-brand-dark leading-tight">
-                  {dictionary.contact.title}
-                </h1>
-                <p className="text-lg text-muted-foreground leading-relaxed">
-                  {dictionary.contact.subtitle}
-                </p>
-              </div>
-
-              <div className="space-y-8">
-                {contactDetails.map((detail, index) => (
-                  <div key={index} className="flex gap-6">
-                    <div className="w-12 h-12 bg-white rounded-2xl shadow-sm border border-border flex items-center justify-center shrink-0">
-                      <detail.icon className="w-5 h-5 text-brand-primary" />
-                    </div>
-                    <div className="space-y-1">
-                      <h3 className="font-serif text-lg text-brand-dark">{detail.title}</h3>
-                      <p className="text-brand-primary font-medium">{detail.value}</p>
-                      <p className="text-xs text-muted-foreground">{detail.tagline}</p>
-                    </div>
-                  </div>
-                ))}
-              </div>
-
-              <div className="pt-12 border-t border-brand-primary/20">
-                <h3 className="font-serif text-xl text-brand-dark mb-4">{dictionary.contact.social.title}</h3>
-                <p className="text-sm text-muted-foreground mb-6">
-                  {dictionary.contact.social.subtitle}
-                </p>
-                <div className="flex gap-4">
-                  {["Instagram", "Facebook", "Pinterest"].map((social) => (
-                    <Button key={social} variant="outline" size="sm" className="rounded-full px-6 bg-white border-brand-primary/10 hover:bg-brand-primary/5">
-                      {social}
-                    </Button>
-                  ))}
-                </div>
-              </div>
+    <div className="bg-[var(--tissu-cream)]">
+      <div className="container py-16 md:py-24">
+        <div className="grid lg:grid-cols-[1fr_1fr] gap-12 lg:gap-20 items-start">
+          {/* Info Side */}
+          <div className="space-y-10">
+            <div>
+              <span className="inline-flex items-center gap-2.5 px-4 py-2 rounded-full bg-[var(--tissu-white)] border border-[var(--border)] text-[13px] font-bold uppercase tracking-[0.1em] text-[var(--tissu-ink-soft)]">
+                <span className="w-2 h-2 rounded-full bg-[var(--tissu-mustard)]" />
+                {isKa ? "მოგვწერე" : "Get in touch"}
+              </span>
+              <h1 className="ka-display-xl font-serif text-[44px] sm:text-[60px] md:text-[74px] leading-[1] tracking-[-0.02em] mt-6 mb-5 text-[var(--tissu-ink)]">
+                {isKa ? (
+                  <>
+                    გვიამბე {""}
+                    <em className="not-italic italic text-[var(--tissu-terracotta)]">შენი</em>{" "}
+                    ამბავი.
+                  </>
+                ) : (
+                  <>
+                    Tell us {""}
+                    <em className="not-italic italic text-[var(--tissu-terracotta)]">your</em>{" "}
+                    story.
+                  </>
+                )}
+              </h1>
+              <p className="text-[17px] leading-[1.6] text-[var(--tissu-ink-soft)] max-w-[540px]">
+                {isKa
+                  ? "შეკითხვა გაქვს, სურვილი, თუ უბრალოდ მოსალმება — მოგვწერე. ჩვენ ხელით ვპასუხობთ, ყველა მეილს 1-2 დღეში."
+                  : "A question, a wish, or just a hello — drop us a line. We reply to every note by hand, usually within a day or two."}
+              </p>
             </div>
 
-            {/* Contact Form */}
-            <div className="bg-white rounded-[2.5rem] p-8 md:p-12 shadow-xl shadow-brand-dark/5 border border-border relative overflow-hidden">
-               {/* Aesthetic Decoration */}
-               <div className="absolute top-0 right-0 w-32 h-32 bg-brand-primary/5 rounded-full -mr-16 -mt-16 blur-3xl" />
-               
-               <div className="relative z-10 space-y-8">
-                  <div className="flex items-center gap-3 mb-2">
-                    <MessageSquare className="w-5 h-5 text-brand-primary" />
-                    <h2 className="text-2xl font-serif text-brand-dark">{dictionary.contact.form.title}</h2>
-                  </div>
+            <div className="space-y-4">
+              <ContactRow
+                icon={<Mail className="w-5 h-5" />}
+                label={isKa ? "ელფოსტა" : "Email"}
+                value="hello@tissu.ge"
+                href="mailto:hello@tissu.ge"
+              />
+              <ContactRow
+                icon={<Phone className="w-5 h-5" />}
+                label={isKa ? "ტელეფონი" : "Phone"}
+                value="+995 555 12 34 56"
+                href="tel:+995555123456"
+              />
+              <ContactRow
+                icon={<MapPin className="w-5 h-5" />}
+                label={isKa ? "სტუდია" : "Studio"}
+                value={isKa ? "თბილისი, საქართველო" : "Tbilisi, Georgia"}
+              />
+            </div>
 
-                  <form className="space-y-6">
-                    <div className="grid grid-cols-2 gap-4">
-                      <div className="space-y-2">
-                        <label className="text-sm font-semibold text-brand-dark">{dictionary.contact.form.firstName}</label>
-                        <Input placeholder={dictionary.contact.form.placeholder.firstName} className="h-12 bg-brand-soft/10 border-transparent focus:bg-white focus:border-brand-primary/30 transition-all" />
-                      </div>
-                      <div className="space-y-2">
-                        <label className="text-sm font-semibold text-brand-dark">{dictionary.contact.form.lastName}</label>
-                        <Input placeholder={dictionary.contact.form.placeholder.lastName} className="h-12 bg-brand-soft/10 border-transparent focus:bg-white focus:border-brand-primary/30 transition-all" />
-                      </div>
-                    </div>
-
-                    <div className="space-y-2">
-                      <label className="text-sm font-semibold text-brand-dark">{dictionary.contact.form.email}</label>
-                      <Input type="email" placeholder="anna.smith@example.com" className="h-12 bg-brand-soft/10 border-transparent focus:bg-white focus:border-brand-primary/30 transition-all" />
-                    </div>
-
-                    <div className="space-y-2">
-                      <label className="text-sm font-semibold text-brand-dark">{dictionary.contact.form.message}</label>
-                      <Textarea 
-                        placeholder={dictionary.contact.form.placeholder.message} 
-                        className="min-h-[150px] bg-brand-soft/10 border-transparent focus:bg-white focus:border-brand-primary/30 transition-all" 
-                      />
-                    </div>
-
-                    <Button type="submit" variant="premium" className="w-full h-14 text-base shadow-lg shadow-brand-primary/20">
-                      {dictionary.contact.form.send}
-                    </Button>
-                  </form>
-               </div>
+            <div className="rounded-[28px] bg-[var(--tissu-cobalt)] text-[var(--tissu-cream)] p-6 md:p-8">
+              <div className="font-serif text-[22px] mb-2">
+                {isKa ? "საბითუმო ან თანამშრომლობა?" : "Wholesale or a collab?"}
+              </div>
+              <p className="text-[14px] leading-[1.6] opacity-90">
+                {isKa
+                  ? "მოგვწერე ელფოსტაზე პროექტის აღწერით, ვუპასუხებთ რამდენიმე დღეში."
+                  : "Email us with a short brief and we'll get back to you in a few days."}
+              </p>
             </div>
           </div>
+
+          {/* Form Side */}
+          <form
+            className="rounded-[28px] bg-[var(--tissu-white)] border border-[var(--border)] p-6 md:p-10 space-y-5"
+            onSubmit={(e) => e.preventDefault()}
+          >
+            <div className="flex flex-col gap-2">
+              <label className="text-[12px] font-bold uppercase tracking-[0.15em] text-[var(--tissu-ink-soft)]">
+                {isKa ? "სახელი" : "Name"}
+              </label>
+              <input
+                type="text"
+                required
+                placeholder={isKa ? "შენი სახელი" : "Your name"}
+                className="px-5 py-3.5 rounded-full bg-[var(--tissu-cream)] border border-[var(--border)] text-[15px] text-[var(--tissu-ink)] outline-none focus:border-[var(--tissu-ink)] placeholder:text-[var(--tissu-ink-soft)]"
+              />
+            </div>
+            <div className="flex flex-col gap-2">
+              <label className="text-[12px] font-bold uppercase tracking-[0.15em] text-[var(--tissu-ink-soft)]">
+                {isKa ? "ელფოსტა" : "Email"}
+              </label>
+              <input
+                type="email"
+                required
+                placeholder="you@lovely.com"
+                className="px-5 py-3.5 rounded-full bg-[var(--tissu-cream)] border border-[var(--border)] text-[15px] text-[var(--tissu-ink)] outline-none focus:border-[var(--tissu-ink)] placeholder:text-[var(--tissu-ink-soft)]"
+              />
+            </div>
+            <div className="flex flex-col gap-2">
+              <label className="text-[12px] font-bold uppercase tracking-[0.15em] text-[var(--tissu-ink-soft)]">
+                {isKa ? "თემა" : "Topic"}
+              </label>
+              <select className="px-5 py-3.5 rounded-full bg-[var(--tissu-cream)] border border-[var(--border)] text-[15px] text-[var(--tissu-ink)] outline-none focus:border-[var(--tissu-ink)]">
+                <option>{isKa ? "შეკითხვა" : "A question"}</option>
+                <option>{isKa ? "შეკვეთა / ყელსაბამი" : "Custom necklace order"}</option>
+                <option>{isKa ? "საბითუმო" : "Wholesale"}</option>
+                <option>{isKa ? "თანამშრომლობა" : "Collaboration"}</option>
+                <option>{isKa ? "სხვა" : "Something else"}</option>
+              </select>
+            </div>
+            <div className="flex flex-col gap-2">
+              <label className="text-[12px] font-bold uppercase tracking-[0.15em] text-[var(--tissu-ink-soft)]">
+                {isKa ? "წერილი" : "Message"}
+              </label>
+              <textarea
+                required
+                rows={6}
+                placeholder={isKa ? "მოგვიყევი..." : "Tell us everything..."}
+                className="px-5 py-4 rounded-[22px] bg-[var(--tissu-cream)] border border-[var(--border)] text-[15px] text-[var(--tissu-ink)] outline-none focus:border-[var(--tissu-ink)] placeholder:text-[var(--tissu-ink-soft)] resize-none"
+              />
+            </div>
+            <button
+              type="submit"
+              className="inline-flex items-center justify-center gap-2.5 bg-[var(--tissu-ink)] text-[var(--tissu-cream)] px-7 py-4 rounded-full font-extrabold text-[15px] tracking-[0.02em] shadow-[0_6px_0_var(--tissu-terracotta)] hover:translate-y-[3px] hover:shadow-[0_3px_0_var(--tissu-terracotta)] transition-[transform,box-shadow] duration-200"
+            >
+              {isKa ? "გაგზავნა" : "Send message"}
+              <Send className="w-4 h-4" />
+            </button>
+            <p className="text-[12px] text-[var(--tissu-ink-soft)] leading-relaxed">
+              {isKa
+                ? "მეილში ვპასუხობთ ხელით — 1-2 დღე."
+                : "We reply to every note by hand — usually within 1-2 days."}
+            </p>
+          </form>
         </div>
       </div>
     </div>
   );
+}
+
+function ContactRow({
+  icon,
+  label,
+  value,
+  href,
+}: {
+  icon: React.ReactNode;
+  label: string;
+  value: string;
+  href?: string;
+}) {
+  const content = (
+    <div className="flex items-center gap-4 rounded-[20px] bg-[var(--tissu-white)] border border-[var(--border)] px-5 py-4 hover:border-[var(--tissu-ink)] transition-colors">
+      <div className="w-11 h-11 rounded-full bg-[var(--tissu-cream)] text-[var(--tissu-terracotta)] inline-flex items-center justify-center">
+        {icon}
+      </div>
+      <div>
+        <div className="text-[11px] font-bold uppercase tracking-[0.15em] text-[var(--tissu-ink-soft)]">
+          {label}
+        </div>
+        <div className="font-serif text-[20px] text-[var(--tissu-ink)] leading-tight">{value}</div>
+      </div>
+    </div>
+  );
+  return href ? <a href={href}>{content}</a> : content;
 }
