@@ -109,9 +109,20 @@ export function Footer({}: FooterProps) {
         </div>
 
         <div className="pt-5 border-t border-dashed border-[var(--border)] flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 text-[13px]">
-          <span>
-            © {new Date().getFullYear()} Tissu Shop · {copy.footer.copyrightSuffix}
-          </span>
+          <div className="flex flex-col sm:flex-row sm:items-center gap-3 sm:gap-5">
+            <span>
+              © {new Date().getFullYear()} Tissu Shop · {copy.footer.copyrightSuffix}
+            </span>
+            <div className="flex items-center gap-4 text-[12px]">
+              <Link href={`/${lang}/privacy`} className="hover:text-[var(--tissu-terracotta)] transition-colors">
+                {lang === "ka" ? "პერსონალური მონაცემები" : "Privacy"}
+              </Link>
+              <span className="opacity-40">·</span>
+              <Link href={`/${lang}/terms`} className="hover:text-[var(--tissu-terracotta)] transition-colors">
+                {lang === "ka" ? "წესები" : "Terms"}
+              </Link>
+            </div>
+          </div>
           <div className="flex items-center gap-2.5">
             <a
               href="https://instagram.com/thetissushop"
