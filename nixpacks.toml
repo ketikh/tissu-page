@@ -1,0 +1,15 @@
+# Explicit Node toolchain for Railway's Nixpacks builder.
+# Pin Node 22 so Next 16's >=20.9 requirement is always satisfied,
+# regardless of Nixpacks' default fallback.
+
+[phases.setup]
+nixPkgs = ["nodejs_22", "npm-10_x", "openssl"]
+
+[phases.install]
+cmds = ["npm ci"]
+
+[phases.build]
+cmds = ["npm run build"]
+
+[start]
+cmd = "npm run start -- -p ${PORT:-3000} -H 0.0.0.0"
