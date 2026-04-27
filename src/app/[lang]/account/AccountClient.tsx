@@ -81,10 +81,18 @@ export default function AccountClient({ dictionary, lang }: AccountClientProps) 
   };
 
   return (
-    <div className="bg-brand-soft/20 min-h-screen py-12">
-      <div className="container px-4 max-w-6xl">
+    <div className="bg-[var(--tissu-cream)] min-h-screen py-12 md:py-16">
+      <div className="container max-w-6xl">
         <div className="flex flex-col md:flex-row justify-between items-start md:items-center mb-10 gap-4">
-          <h1 className="text-3xl md:text-4xl font-serif text-brand-dark">{dictionary.account.title}</h1>
+          <div>
+            <span className="inline-flex items-center gap-2.5 px-4 py-2 rounded-full bg-[var(--tissu-white)] border border-[var(--border)] text-[12px] font-bold uppercase tracking-[0.1em] text-[var(--tissu-ink-soft)] mb-4">
+              <span className="w-2 h-2 rounded-full bg-[var(--tissu-mustard)]" />
+              {lang === "ka" ? "ჩემი სივრცე" : "Your space"}
+            </span>
+            <h1 className="ka-display-lg font-serif text-[36px] md:text-[48px] text-[var(--tissu-ink)] leading-[1.05] tracking-[-0.02em]">
+              {dictionary.account.title}
+            </h1>
+          </div>
           <div className="text-sm text-muted-foreground flex items-center gap-2">
             <span className="w-2 h-2 bg-success rounded-full" />
             {lang === 'ka' ? "ონლაინ" : "Online"}
