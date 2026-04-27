@@ -1,5 +1,5 @@
 import type { Metadata } from "next";
-import { Nunito, Gloock, Caveat, Noto_Sans_Georgian, Noto_Serif_Georgian } from "next/font/google";
+import { Nunito, Gloock, Caveat, Fraunces, Pacifico, Noto_Sans_Georgian, Noto_Serif_Georgian } from "next/font/google";
 import "../globals.css";
 import { i18n, Locale } from "@/i18n/config";
 import { AnnouncementBar } from "@/components/layout/AnnouncementBar";
@@ -26,6 +26,22 @@ const caveat = Caveat({
   variable: "--font-caveat",
   subsets: ["latin", "latin-ext"],
   weight: ["400", "500", "600", "700"],
+  display: "swap",
+});
+
+// Retro display fonts (used by /preview-retro and any retro-styled section).
+const fraunces = Fraunces({
+  variable: "--font-fraunces",
+  subsets: ["latin", "latin-ext"],
+  weight: ["400", "600", "700", "900"],
+  style: ["normal", "italic"],
+  display: "swap",
+});
+
+const pacifico = Pacifico({
+  variable: "--font-pacifico",
+  subsets: ["latin"],
+  weight: ["400"],
   display: "swap",
 });
 
@@ -71,7 +87,7 @@ export default async function RootLayout({
   return (
     <html
       lang={locale}
-      className={`${nunito.variable} ${gloock.variable} ${caveat.variable} ${notoSansGeorgian.variable} ${notoSerifGeorgian.variable} scroll-smooth`}
+      className={`${nunito.variable} ${gloock.variable} ${caveat.variable} ${fraunces.variable} ${pacifico.variable} ${notoSansGeorgian.variable} ${notoSerifGeorgian.variable} scroll-smooth`}
     >
       <body className={`min-h-screen flex flex-col antialiased bg-background text-foreground ${locale === "ka" ? "font-noto-sans" : "font-sans"}`}>
         <AnnouncementBar lang={locale} dictionary={dictionary} />
