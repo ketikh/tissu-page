@@ -59,5 +59,8 @@ export async function middleware(request: NextRequest) {
 }
 
 export const config = {
-  matcher: ['/((?!api|_next/static|_next/image|favicon.ico|static).*)'],
+  // Skip API routes, Next internals, and any path that ends in a file extension
+  // (.png, .jpg, .svg, .ico, .webp, .xml, .txt, .css, .js, etc.) so static assets
+  // in /public are served directly without going through the locale redirect.
+  matcher: ['/((?!api|_next/static|_next/image|static|.*\\..*).*)'],
 }
