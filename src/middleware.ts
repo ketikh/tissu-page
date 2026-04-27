@@ -7,8 +7,16 @@ const PROTECTED_PATHS = ["/account", "/checkout"];
 const AUTH_ROUTES = ["/account/login", "/account/register", "/account/forgot-password", "/account/reset-password"];
 const LOGIN_PATH = "/account/login";
 
+// Locale redirect must skip these — they live at the site root, not under /en or /ka.
+const LOCALE_EXEMPT_PATHS = ["/sitemap.xml", "/robots.txt", "/manifest.webmanifest"];
+
 export async function middleware(request: NextRequest) {
   const pathname = request.nextUrl.pathname;
+
+  // Bypass locale redirect for SEO files and any path explicitly exempt.
+  if (LOCALE_EXEMPT_PATHS.includes(pathname)) {
+    return NextResponse.next();
+  }
 
   // 1. Handle Locale Redirection
   const pathnameIsMissingLocale = i18n.locales.every(
