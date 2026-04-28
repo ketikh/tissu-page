@@ -3,7 +3,7 @@
 import Image from "next/image";
 import Link from "next/link";
 import { motion } from "framer-motion";
-import { useState } from "react";
+import { useMemo, useState } from "react";
 import { RotateCw } from "lucide-react";
 import type { StorefrontProduct } from "@/lib/admin-api";
 
@@ -31,64 +31,110 @@ const C = {
 };
 
 /**
- * Vintage-mirror frame variants. Each has its own organic border-radius
- * (creating the curvy, hand-cut shape) and a frame colour that paints a
- * slightly larger same-shape backdrop behind the photo, so it reads like
- * a colourful matte around a mirror.
+ * Builds a closed scalloped/flower SVG path centred at (cx, cy) with
+ * `bumps` outward Q-curves around a base radius.
  *
- * border-radius syntax with `/` lets the corners curve asymmetrically
- * — first set is horizontal radii, second is vertical.
+ * - bumps    — how many petals/scallops around the perimeter (more = curlier)
+ * - baseR    — radius of the inner valley (where the bumps "start")
+ * - bumpH    — how far each bump pokes out past baseR
+ * - jitter   — 0..1: when > 0, alternates bump heights for an asymmetric, hand-cut feel
+ */
+function flowerPath(
+  bumps: number,
+  baseR: number,
+  bumpH: number,
+  cx = 200,
+  cy = 250,
+  jitter = 0
+): string {
+  const step = (Math.PI * 2) / bumps;
+  let d = "";
+  for (let i = 0; i <= bumps; i++) {
+    const a = i * step;
+    const x = cx + baseR * Math.cos(a);
+    const y = cy + baseR * Math.sin(a);
+    if (i === 0) {
+      d += `M ${x.toFixed(1)} ${y.toFixed(1)} `;
+    } else {
+      const midA = a - step / 2;
+      // Sin-based wobble so neighbouring bumps differ slightly when jitter > 0
+      const h = bumpH * (1 + (jitter ? Math.sin(i * 7.3) * jitter : 0));
+      const mx = cx + (baseR + h) * Math.cos(midA);
+      const my = cy + (baseR + h) * Math.sin(midA);
+      d += `Q ${mx.toFixed(1)} ${my.toFixed(1)} ${x.toFixed(1)} ${y.toFixed(1)} `;
+    }
+  }
+  return d + "Z";
+}
+
+/**
+ * Each frame defines:
+ *   - path config that drives the scalloped matte behind the photo
+ *   - colour of that matte
+ *   - the "inner shape" of the photo itself (kept simple so the bag stays clear)
  */
 const FRAMES = [
-  // 1. Cathedral arch — rounded top, gentle bottom corners (looks like a vintage hallway mirror)
   {
-    name: "arch",
-    radius: "55% 55% 18% 18% / 38% 38% 14% 14%",
-    aspectRatio: "4 / 5",
+    name: "daisy",
     color: C.green,
+    bumps: 14,
+    baseR: 175,
+    bumpH: 16,
+    jitter: 0,
     rotate: -2,
+    photoShape: "ellipse(46% 56% at 50% 50%)", // tall oval
   },
-  // 2. Soft oval — vertical capsule, classic vanity mirror
   {
-    name: "oval",
-    radius: "50%",
-    aspectRatio: "4 / 5",
+    name: "mushroom",
     color: C.mustard,
+    bumps: 9,
+    baseR: 175,
+    bumpH: 24,
+    jitter: 0,
     rotate: 2,
+    photoShape: "ellipse(48% 56% at 50% 50%)",
   },
-  // 3. Asymmetric blob — wonky organic outline (like blown glass)
   {
-    name: "blob",
-    radius: "62% 38% 55% 45% / 48% 60% 40% 52%",
-    aspectRatio: "1 / 1",
+    name: "tight-scallop",
     color: C.peach,
+    bumps: 22,
+    baseR: 180,
+    bumpH: 9,
+    jitter: 0,
     rotate: -1.5,
+    photoShape: "circle(46% at 50% 50%)",
   },
-  // 4. Squircle / cushion — rounded square with soft sides
   {
-    name: "cushion",
-    radius: "32% / 28%",
-    aspectRatio: "1 / 1",
+    name: "wonky",
     color: C.lilac,
+    bumps: 11,
+    baseR: 175,
+    bumpH: 22,
+    jitter: 0.25,
     rotate: 2.5,
+    photoShape: "ellipse(48% 50% at 50% 50%)",
   },
-  // 5. (extra) Wide oval lying on its side
   {
-    name: "horizontalOval",
-    radius: "45% 55% 50% 50% / 60% 60% 50% 50%",
-    aspectRatio: "5 / 4",
+    name: "wavy",
     color: C.cobalt,
+    bumps: 16,
+    baseR: 178,
+    bumpH: 14,
+    jitter: 0.15,
     rotate: -2,
+    photoShape: "ellipse(46% 54% at 50% 50%)",
   },
-  // 6. (extra) Wavy bottom mirror
   {
-    name: "wave",
-    radius: "30% 30% 50% 50% / 25% 25% 60% 60%",
-    aspectRatio: "4 / 5",
+    name: "sunflower",
     color: C.burnt,
+    bumps: 18,
+    baseR: 175,
+    bumpH: 18,
+    jitter: 0,
     rotate: 1.5,
+    photoShape: "circle(46% at 50% 50%)",
   },
-];
+] as const;
 
 export default function RetroProducts({
   isKa = false,
@@ -116,7 +162,7 @@ export default function RetroProducts({
       />
 
       <div className="container relative">
-        <div className="text-center mb-16 md:mb-20">
+        <div className="text-center mb-16 md:mb-24">
           <motion.span
             initial={{ opacity: 0, y: 6 }}
             animate={{ opacity: 1, y: 0 }}
@@ -161,9 +207,7 @@ export default function RetroProducts({
           </motion.p>
         </div>
 
-        {/* 4 mirrors — each in its own organic frame.  Generous gap so the
-            colourful frames have room to breathe. */}
-        <div className="grid grid-cols-1 sm:grid-cols-2 gap-x-12 gap-y-20 md:gap-y-28 max-w-3xl mx-auto">
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-x-12 gap-y-24 md:gap-y-28 max-w-3xl mx-auto">
           {showcase.map((p, i) => (
             <MirrorCard
               key={p.id}
@@ -222,6 +266,25 @@ function MirrorCard({
   const hasBack = Boolean(product.image_back);
   const isNew = product.tags.includes("new");
 
+  // Outer scalloped matte path. Inner ring = same path one bump shorter for a
+  // double-frame look (like an enamel inset on a vintage mirror).
+  const outerPath = useMemo(
+    () => flowerPath(frame.bumps, frame.baseR, frame.bumpH, 200, 250, frame.jitter),
+    [frame]
+  );
+  const innerPath = useMemo(
+    () =>
+      flowerPath(
+        frame.bumps,
+        frame.baseR - frame.bumpH * 0.7,
+        frame.bumpH * 0.55,
+        200,
+        250,
+        frame.jitter
+      ),
+    [frame]
+  );
+
   return (
     <motion.div
       initial={{ opacity: 0, y: 30 }}
@@ -237,55 +300,61 @@ function MirrorCard({
       onMouseLeave={() => setHover(false)}
       onTouchStart={() => setHover((v) => !v)}
     >
-      {/* Frame stack: outer coloured matte + inner photo, both shaped */}
+      {/* Card stack: scalloped SVG matte → centred photo cutout */}
       <div
-        className="relative w-full max-w-[300px] cursor-pointer"
+        className="relative w-full max-w-80 cursor-pointer"
         style={{
-          aspectRatio: frame.aspectRatio,
+          aspectRatio: "4 / 5",
           transform: `rotate(${frame.rotate}deg)`,
           transition: "transform 0.6s cubic-bezier(0.215, 0.61, 0.355, 1)",
         }}
       >
-        {/* Coloured matte / frame, slightly larger than photo */}
-        <div
-          aria-hidden="true"
-          className="absolute -inset-3 sm:-inset-3.5"
+        {/* Scalloped matte — fills the card. The two paths form a double-ring
+            "frame" so the inside rim reads as a separate enamel detail. */}
+        <svg
+          className="absolute inset-0 w-full h-full"
+          viewBox="0 0 400 500"
+          preserveAspectRatio="xMidYMid meet"
           style={{
-            background: frame.color,
-            borderRadius: frame.radius,
-            boxShadow: "0 18px 28px rgba(42,29,20,0.25), inset 0 0 0 4px rgba(254,240,214,0.55)",
+            filter: "drop-shadow(0 18px 22px rgba(42,29,20,0.25))",
           }}
-        />
-
-        {/* Photo, same shape, sits on top of the matte */}
-        <div
-          className="relative w-full h-full overflow-hidden"
-          style={{ borderRadius: frame.radius }}
+          aria-hidden="true"
         >
-          {/* FRONT */}
+          <path d={outerPath} fill={frame.color} />
+          <path d={innerPath} fill="none" stroke={C.cream} strokeWidth={4} opacity={0.55} />
+        </svg>
+
+        {/* Photo — small, centered, with a SIMPLE shape so the bag itself
+            stays clearly visible. The scallops are the matte's job, not the
+            photo's. */}
+        <div
+          className="absolute inset-[18%] overflow-hidden"
+          style={{
+            clipPath: frame.photoShape,
+            WebkitClipPath: frame.photoShape,
+          }}
+        >
           <Image
             src={product.image_front}
             alt={product.name || product.code}
             fill
-            sizes="(max-width: 640px) 100vw, 300px"
+            sizes="(max-width: 640px) 240px, 280px"
             className="object-cover"
             style={{
-              filter: "saturate(0.95) sepia(0.04)",
+              filter: "saturate(0.96) sepia(0.04)",
               opacity: hover && hasBack ? 0 : 1,
               transition: "opacity 0.6s ease",
             }}
           />
-
-          {/* BACK — fades in on hover */}
           {hasBack && (
             <Image
               src={product.image_back!}
               alt={`${product.name || product.code} — back`}
               fill
-              sizes="(max-width: 640px) 100vw, 300px"
+              sizes="(max-width: 640px) 240px, 280px"
               className="object-cover"
               style={{
-                filter: "saturate(0.95) sepia(0.04)",
+                filter: "saturate(0.96) sepia(0.04)",
                 opacity: hover ? 1 : 0,
                 transition: "opacity 0.6s ease",
               }}
@@ -293,10 +362,10 @@ function MirrorCard({
           )}
         </div>
 
-        {/* New badge — sticks above the frame */}
+        {/* New badge */}
         {isNew && (
           <span
-            className="absolute -top-3 left-3 px-3 py-1 text-[9px] font-extrabold uppercase tracking-[0.22em] z-10"
+            className="absolute -top-3 left-2 px-3 py-1 text-[9px] font-extrabold uppercase tracking-[0.22em] z-10"
             style={{
               background: C.mustard,
               color: C.ink,
@@ -310,10 +379,10 @@ function MirrorCard({
           </span>
         )}
 
-        {/* Flip indicator on hover */}
+        {/* Hover hint */}
         {hasBack && (
           <div
-            className="absolute -bottom-3 right-3 inline-flex items-center gap-1.5 px-3 py-1.5 text-[10px] font-extrabold uppercase tracking-[0.2em] rounded-full z-10"
+            className="absolute -bottom-3 right-2 inline-flex items-center gap-1.5 px-3 py-1.5 text-[10px] font-extrabold uppercase tracking-[0.2em] rounded-full z-10"
             style={{
               background: hover ? C.mustard : C.cream,
               color: C.ink,
@@ -329,8 +398,8 @@ function MirrorCard({
         )}
       </div>
 
-      {/* Caption — small mustard line + italic name + script price */}
-      <div className="mt-8 text-center max-w-[260px]">
+      {/* Caption */}
+      <div className="mt-8 text-center max-w-65">
         <div
           className="text-[10px] uppercase tracking-[0.3em] mb-1"
           style={{ color: C.mustard, fontFamily: FRAUNCES, fontWeight: 700 }}
