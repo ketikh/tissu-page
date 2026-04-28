@@ -72,66 +72,69 @@ function flowerPath(
  *   - colour of that matte
  *   - the "inner shape" of the photo itself (kept simple so the bag stays clear)
  */
+// Each frame is intentionally a *different kind* of curly silhouette so the
+// four product cards don't read as the same shape four times. Distinct silhouette
+// is driven mostly by `bumps` (count) and `bumpH` (depth).
 const FRAMES = [
   {
-    name: "daisy",
+    // Big chunky daisy petals — 8 fat lobes, very flower-like.
+    name: "petal",
     color: C.green,
-    bumps: 14,
-    baseR: 175,
-    bumpH: 16,
+    bumps: 8,
+    baseR: 158,
+    bumpH: 32,
+    jitter: 0,
+    rotate: -3,
+  },
+  {
+    // Soft, evenly scalloped — like a vintage bottle cap edge.
+    name: "scallop",
+    color: C.mustard,
+    bumps: 16,
+    baseR: 172,
+    bumpH: 14,
+    jitter: 0,
+    rotate: 4,
+  },
+  {
+    // Fine frill / doily edge — many tiny crinkles.
+    name: "frill",
+    color: C.peach,
+    bumps: 30,
+    baseR: 178,
+    bumpH: 7,
     jitter: 0,
     rotate: -2,
-    photoShape: "ellipse(46% 56% at 50% 50%)", // tall oval
   },
   {
-    name: "mushroom",
-    color: C.mustard,
-    bumps: 9,
-    baseR: 175,
-    bumpH: 24,
-    jitter: 0,
-    rotate: 2,
-    photoShape: "ellipse(48% 56% at 50% 50%)",
-  },
-  {
-    name: "tight-scallop",
-    color: C.peach,
-    bumps: 22,
-    baseR: 180,
-    bumpH: 9,
-    jitter: 0,
-    rotate: -1.5,
-    photoShape: "circle(46% at 50% 50%)",
-  },
-  {
+    // Hand-cut wonky — irregular asymmetric bumps.
     name: "wonky",
     color: C.lilac,
-    bumps: 11,
-    baseR: 175,
-    bumpH: 22,
-    jitter: 0.25,
-    rotate: 2.5,
-    photoShape: "ellipse(48% 50% at 50% 50%)",
+    bumps: 10,
+    baseR: 168,
+    bumpH: 24,
+    jitter: 0.45,
+    rotate: 5,
   },
   {
-    name: "wavy",
+    // Wide gentle waves — fewer, broader undulations.
+    name: "wave",
     color: C.cobalt,
-    bumps: 16,
-    baseR: 178,
-    bumpH: 14,
-    jitter: 0.15,
+    bumps: 6,
+    baseR: 165,
+    bumpH: 22,
+    jitter: 0.1,
     rotate: -2,
-    photoShape: "ellipse(46% 54% at 50% 50%)",
   },
   {
+    // Sunflower — many medium petals.
     name: "sunflower",
     color: C.burnt,
-    bumps: 18,
-    baseR: 175,
+    bumps: 22,
+    baseR: 170,
     bumpH: 18,
     jitter: 0,
     rotate: 1.5,
-    photoShape: "circle(46% at 50% 50%)",
   },
 ] as const;
 
@@ -343,7 +346,7 @@ function MirrorCard({
             y="0"
             width="400"
             height="500"
-            preserveAspectRatio="xMidYMid slice"
+            preserveAspectRatio="xMidYMid meet"
             clipPath={`url(#${clipId})`}
             style={{
               filter: "saturate(0.96) sepia(0.04)",
@@ -360,7 +363,7 @@ function MirrorCard({
               y="0"
               width="400"
               height="500"
-              preserveAspectRatio="xMidYMid slice"
+              preserveAspectRatio="xMidYMid meet"
               clipPath={`url(#${clipId})`}
               style={{
                 filter: "saturate(0.96) sepia(0.04)",
