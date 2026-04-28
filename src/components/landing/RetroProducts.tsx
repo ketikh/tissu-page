@@ -1,6 +1,5 @@
 "use client";
 
-import Image from "next/image";
 import Link from "next/link";
 import { motion } from "framer-motion";
 import { useMemo, useState } from "react";
@@ -207,7 +206,7 @@ export default function RetroProducts({
           </motion.p>
         </div>
 
-        <div className="grid grid-cols-1 sm:grid-cols-2 gap-x-12 gap-y-24 md:gap-y-28 max-w-3xl mx-auto">
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-x-12 gap-y-10 md:gap-y-14 max-w-3xl mx-auto">
           {showcase.map((p, i) => (
             <MirrorCard
               key={p.id}
@@ -262,28 +261,36 @@ function MirrorCard({
   isKa: boolean;
 }) {
   const [hover, setHover] = useState(false);
-  const offsetY = index % 2 === 0 ? 0 : 36;
+  // Lighter alternating offset so cards no longer feel half a screen apart.
+  const offsetY = index % 2 === 0 ? 0 : 14;
   const hasBack = Boolean(product.image_back);
   const isNew = product.tags.includes("new");
 
-  // Outer scalloped matte path. Inner ring = same path one bump shorter for a
-  // double-frame look (like an enamel inset on a vintage mirror).
+  // Outer scalloped path = the curly silhouette of the whole frame.
   const outerPath = useMemo(
     () => flowerPath(frame.bumps, frame.baseR, frame.bumpH, 200, 250, frame.jitter),
     [frame]
   );
+
+  // Inner scalloped path = a slightly smaller version of the same silhouette,
+  // used as a clipPath on the photo. The photo's rectangular corners get
+  // hidden where they fall outside this curly shape — exactly what the user
+  // asked for: scallop on top, photo corners tucked inside via overflow.
   const innerPath = useMemo(
     () =>
       flowerPath(
         frame.bumps,
-        frame.baseR - frame.bumpH * 0.7,
-        frame.bumpH * 0.55,
+        frame.baseR - 12,
+        Math.max(frame.bumpH - 3, 4),
         200,
         250,
         frame.jitter
       ),
     [frame]
   );
+
+  // Stable, unique id for the SVG clipPath element.
+  const clipId = `scallop-${frame.name}-${index}`;
 
   return (
     <motion.div
@@ -300,7 +307,6 @@ function MirrorCard({
       onMouseLeave={() => setHover(false)}
       onTouchStart={() => setHover((v) => !v)}
     >
-      {/* Card stack: scalloped SVG matte → centred photo cutout */}
       <div
         className="relative w-full max-w-80 cursor-pointer"
         style={{
@@ -309,50 +315,53 @@ function MirrorCard({
           transition: "transform 0.6s cubic-bezier(0.215, 0.61, 0.355, 1)",
         }}
       >
-        {/* Scalloped matte — fills the card. The two paths form a double-ring
-            "frame" so the inside rim reads as a separate enamel detail. */}
+        {/* The whole frame is one SVG: the colourful curly matte sits underneath
+            and the product photo is rendered as <image> on top, clipped to the
+            same scallop shape (slightly smaller). The corners of a rectangular
+            photo never show — they're tucked inside the scallop's curves. */}
         <svg
-          className="absolute inset-0 w-full h-full"
           viewBox="0 0 400 500"
           preserveAspectRatio="xMidYMid meet"
-          style={{
-            filter: "drop-shadow(0 18px 22px rgba(42,29,20,0.25))",
-          }}
           aria-hidden="true"
+          className="absolute inset-0 w-full h-full"
+          style={{ filter: "drop-shadow(0 18px 22px rgba(42,29,20,0.25))" }}
         >
-          <path d={outerPath} fill={frame.color} />
-          <path d={innerPath} fill="none" stroke={C.cream} strokeWidth={4} opacity={0.55} />
-        </svg>
+          <defs>
+            <clipPath id={clipId}>
+              <path d={innerPath} />
+            </clipPath>
+          </defs>
 
-        {/* Photo — small, centered, with a SIMPLE shape so the bag itself
-            stays clearly visible. The scallops are the matte's job, not the
-            photo's. */}
-        <div
-          className="absolute inset-[18%] overflow-hidden"
-          style={{
-            clipPath: frame.photoShape,
-            WebkitClipPath: frame.photoShape,
-          }}
-        >
-          <Image
-            src={product.image_front}
-            alt={product.name || product.code}
-            fill
-            sizes="(max-width: 640px) 240px, 280px"
-            className="object-cover"
+          {/* Outer matte — the visible curly colour ring */}
+          <path d={outerPath} fill={frame.color} />
+
+          {/* Front photo, clipped to the inner scallop. Rectangular source,
+              curly visible shape — corners hidden by the clip. */}
+          <image
+            href={product.image_front}
+            x="0"
+            y="0"
+            width="400"
+            height="500"
+            preserveAspectRatio="xMidYMid slice"
+            clipPath={`url(#${clipId})`}
             style={{
               filter: "saturate(0.96) sepia(0.04)",
               opacity: hover && hasBack ? 0 : 1,
               transition: "opacity 0.6s ease",
             }}
           />
+
+          {/* Back photo (revealed on hover) */}
           {hasBack && (
-            <Image
-              src={product.image_back!}
-              alt={`${product.name || product.code} — back`}
-              fill
-              sizes="(max-width: 640px) 240px, 280px"
-              className="object-cover"
+            <image
+              href={product.image_back!}
+              x="0"
+              y="0"
+              width="400"
+              height="500"
+              preserveAspectRatio="xMidYMid slice"
+              clipPath={`url(#${clipId})`}
               style={{
                 filter: "saturate(0.96) sepia(0.04)",
                 opacity: hover ? 1 : 0,
@@ -360,7 +369,7 @@ function MirrorCard({
               }}
             />
           )}
-        </div>
+        </svg>
 
         {/* New badge */}
         {isNew && (

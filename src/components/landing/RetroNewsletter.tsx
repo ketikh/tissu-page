@@ -1,5 +1,6 @@
 "use client";
 
+import Image from "next/image";
 import { motion } from "framer-motion";
 
 interface RetroNewsletterProps {
@@ -122,18 +123,17 @@ export default function RetroNewsletter({ isKa = false }: RetroNewsletterProps) 
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
           transition={{ duration: 0.6, delay: 0.7 }}
-          className="mt-12"
+          className="mt-12 flex flex-col items-center"
         >
-          <span
-            style={{
-              fontFamily: PACIFICO,
-              fontSize: 28,
-              color: C.mustard,
-            }}
-          >
-            Tissu &amp; Co.
-          </span>
-          <div className="mt-2 text-[10px] uppercase tracking-[0.3em] opacity-70">
+          <Image
+            src="/static/logo.png"
+            alt="Tissu"
+            width={150}
+            height={48}
+            className="h-9 w-auto"
+            style={{ filter: "drop-shadow(0 2px 10px rgba(0,0,0,0.3))" }}
+          />
+          <div className="mt-3 text-[10px] uppercase tracking-[0.3em] opacity-70">
             {isKa ? "სიყვარულით თბილისიდან" : "Made with love in Tbilisi"}
           </div>
         </motion.div>

@@ -102,24 +102,23 @@ export default function RetroHero({
         }}
       />
 
-      {/* Brand wordmark — top centred, retro script in mustard */}
+      {/* Brand logo — top centred, the actual TISSU mark */}
       <motion.div
         initial={{ opacity: 0, y: -10 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.8, delay: 0.2, ease: [0.215, 0.61, 0.355, 1] }}
         className="relative z-30 pt-7 md:pt-9 flex justify-center px-4"
       >
-        <Link
-          href="/"
-          className="inline-block leading-none"
-          style={{
-            fontFamily: PACIFICO,
-            color: C.mustard,
-            fontSize: "clamp(22px, 3vw, 30px)",
-            textShadow: "0 2px 14px rgba(0,0,0,0.35)",
-          }}
-        >
-          {brand}
+        <Link href="/" className="inline-block" aria-label={brand}>
+          <Image
+            src="/static/logo.png"
+            alt={brand}
+            width={170}
+            height={54}
+            priority
+            className="h-10 md:h-12 w-auto"
+            style={{ filter: "drop-shadow(0 2px 14px rgba(0,0,0,0.35))" }}
+          />
         </Link>
       </motion.div>
 
