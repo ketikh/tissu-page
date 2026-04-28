@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { useParams } from "next/navigation";
+import { useParams, usePathname } from "next/navigation";
 import type { Locale } from "@/i18n/config";
 import { getLandingCopy } from "@/app/[lang]/landingCopy";
 
@@ -9,9 +9,15 @@ interface FooterProps {
   dictionary: any;
 }
 
+const HIDE_ON_ROUTES = ["/preview-retro", "/preview-hero"];
+
 export function Footer({}: FooterProps) {
   const params = useParams();
+  const pathname = usePathname();
   const lang = ((params?.lang as string) || "en") as Locale;
+
+  if (HIDE_ON_ROUTES.some((p) => pathname?.includes(p))) return null;
+
   const copy = getLandingCopy(lang);
 
   const shopHrefs = [

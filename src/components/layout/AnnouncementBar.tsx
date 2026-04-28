@@ -1,5 +1,6 @@
 "use client";
 
+import { usePathname } from "next/navigation";
 import { Locale } from "@/i18n/config";
 import { getLandingCopy } from "@/app/[lang]/landingCopy";
 
@@ -8,7 +9,12 @@ interface AnnouncementBarProps {
   dictionary: any;
 }
 
+const HIDE_ON_ROUTES = ["/preview-retro", "/preview-hero"];
+
 export function AnnouncementBar({ lang }: AnnouncementBarProps) {
+  const pathname = usePathname();
+  if (HIDE_ON_ROUTES.some((p) => pathname?.includes(p))) return null;
+
   const { marquee } = getLandingCopy(lang);
   const track = [...marquee, ...marquee];
 

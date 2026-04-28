@@ -18,10 +18,16 @@ interface NavbarProps {
   dictionary: any;
 }
 
+// Routes that render their own immersive header and should not show the
+// site-wide nav chrome (e.g. retro preview hero).
+const HIDE_ON_ROUTES = ["/preview-retro", "/preview-hero"];
+
 export function Navbar({ lang, dictionary }: NavbarProps) {
   const hydrated = useStoreHydration();
   const pathname = usePathname();
   const [isMobileOpen, setIsMobileOpen] = useState(false);
+
+  if (HIDE_ON_ROUTES.some((p) => pathname?.includes(p))) return null;
 
   const openCart = useUIStore((state) => state.openCart);
   const cartItemCount = hydrated

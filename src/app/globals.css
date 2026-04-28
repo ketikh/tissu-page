@@ -173,6 +173,24 @@ html[lang="ka"] .ka-display-xl { font-size: clamp(30px, 4vw, 58px) !important; l
 html[lang="ka"] .ka-display-lg { font-size: clamp(26px, 3.2vw, 46px) !important; line-height: 1.15 !important; }
 html[lang="ka"] .ka-display-md { font-size: clamp(22px, 2.6vw, 36px) !important; line-height: 1.2 !important; }
 
+/* Retro display surfaces (only on /preview-retro and any future retro section).
+   Forces ALK Life on Georgian text, ignoring the global Noto Sans Georgian
+   override so the 70s vibe carries across both locales. ALK Life also has
+   Latin glyphs, but we let Latin keep using Fraunces via inline style. */
+.font-retro-display {
+  font-family: var(--font-alk-life), var(--font-fraunces), Georgia, serif;
+  font-weight: 400;
+  font-style: italic;
+  letter-spacing: 0;
+}
+html[lang="ka"] .font-retro-display {
+  font-family: var(--font-alk-life), serif !important;
+  font-weight: 400 !important;
+  font-style: normal !important;
+  letter-spacing: 0 !important;
+  line-height: 1.05 !important;
+}
+
 @layer utilities {
   .text-balance {
     text-wrap: balance;

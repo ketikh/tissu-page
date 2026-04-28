@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import { Nunito, Gloock, Caveat, Fraunces, Pacifico, Noto_Sans_Georgian, Noto_Serif_Georgian } from "next/font/google";
+import localFont from "next/font/local";
 import "../globals.css";
 import { i18n, Locale } from "@/i18n/config";
 import { AnnouncementBar } from "@/components/layout/AnnouncementBar";
@@ -45,6 +46,15 @@ const pacifico = Pacifico({
   display: "swap",
 });
 
+// ALK Life — retro Georgian display font (covers Latin too).
+// Self-hosted from /public/fonts/alk-life.otf so we don't pay for an extra
+// Google Fonts request and so it works offline.
+const alkLife = localFont({
+  src: "../../../public/fonts/alk-life.otf",
+  variable: "--font-alk-life",
+  display: "swap",
+});
+
 const notoSansGeorgian = Noto_Sans_Georgian({
   variable: "--font-noto-sans",
   subsets: ["georgian"],
@@ -87,7 +97,7 @@ export default async function RootLayout({
   return (
     <html
       lang={locale}
-      className={`${nunito.variable} ${gloock.variable} ${caveat.variable} ${fraunces.variable} ${pacifico.variable} ${notoSansGeorgian.variable} ${notoSerifGeorgian.variable} scroll-smooth`}
+      className={`${nunito.variable} ${gloock.variable} ${caveat.variable} ${fraunces.variable} ${pacifico.variable} ${alkLife.variable} ${notoSansGeorgian.variable} ${notoSerifGeorgian.variable} scroll-smooth`}
     >
       <body className={`min-h-screen flex flex-col antialiased bg-background text-foreground ${locale === "ka" ? "font-noto-sans" : "font-sans"}`}>
         <AnnouncementBar lang={locale} dictionary={dictionary} />

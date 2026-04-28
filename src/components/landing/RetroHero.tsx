@@ -161,7 +161,7 @@ export default function RetroHero({
 
         {/* Letter-by-letter reveal — two stacked lines */}
         <h1
-          className="select-none"
+          className="font-retro-display select-none"
           style={{
             fontFamily: FRAUNCES,
             fontWeight: 900,
