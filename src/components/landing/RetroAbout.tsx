@@ -45,8 +45,7 @@ export default function RetroAbout({
         {/* Side photo card — left, rotated */}
         <motion.div
           initial={{ opacity: 0, x: -30, rotate: -12 }}
-          whileInView={{ opacity: 1, x: 0, rotate: -8 }}
-          viewport={{ once: true, margin: "-80px" }}
+          animate={{ opacity: 1, x: 0, rotate: -8 }}
           transition={{ duration: 0.9, ease: [0.215, 0.61, 0.355, 1] }}
           className="absolute left-0 top-1/3 hidden md:block z-10"
         >
@@ -56,8 +55,7 @@ export default function RetroAbout({
         {/* Side photo card — right, rotated */}
         <motion.div
           initial={{ opacity: 0, x: 30, rotate: 12 }}
-          whileInView={{ opacity: 1, x: 0, rotate: 7 }}
-          viewport={{ once: true, margin: "-80px" }}
+          animate={{ opacity: 1, x: 0, rotate: 7 }}
           transition={{ duration: 0.9, delay: 0.15, ease: [0.215, 0.61, 0.355, 1] }}
           className="absolute right-0 top-1/4 hidden md:block z-10"
         >
@@ -68,8 +66,7 @@ export default function RetroAbout({
         <div className="relative z-20 mx-auto max-w-2xl text-center px-4">
           <motion.span
             initial={{ opacity: 0, y: 8 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            viewport={{ once: true }}
+            animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.6 }}
             className="inline-block text-[11px] font-extrabold uppercase tracking-[0.3em]"
             style={{ color: C.green }}
@@ -79,8 +76,7 @@ export default function RetroAbout({
 
           <motion.h2
             initial={{ opacity: 0, y: 16 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            viewport={{ once: true }}
+            animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.85, delay: 0.1, ease: [0.215, 0.61, 0.355, 1] }}
             className="font-retro-display mt-6 leading-[0.9]"
             style={{
@@ -104,8 +100,7 @@ export default function RetroAbout({
 
           <motion.p
             initial={{ opacity: 0, y: 12 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            viewport={{ once: true }}
+            animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.7, delay: 0.3 }}
             className="mt-5 italic"
             style={{
@@ -123,8 +118,7 @@ export default function RetroAbout({
 
           <motion.div
             initial={{ opacity: 0, y: 8, scale: 0.9 }}
-            whileInView={{ opacity: 1, y: 0, scale: 1 }}
-            viewport={{ once: true }}
+            animate={{ opacity: 1, y: 0, scale: 1 }}
             transition={{ duration: 0.8, delay: 0.5, type: "spring", stiffness: 200, damping: 16 }}
             className="mt-8"
           >
@@ -184,8 +178,7 @@ function DaisyFloating({
   return (
     <motion.div
       initial={{ opacity: 0, scale: 0.4, rotate: 0 }}
-      whileInView={{ opacity: 1, scale: 1, rotate }}
-      viewport={{ once: true }}
+      animate={{ opacity: 1, scale: 1, rotate }}
       transition={{ duration: 0.9, delay, ease: [0.215, 0.61, 0.355, 1] }}
       className={`absolute pointer-events-none ${className}`}
       style={{ width: 70, height: 70 }}

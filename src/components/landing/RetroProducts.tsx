@@ -11,7 +11,7 @@ interface RetroProductsProps {
   isKa?: boolean;
   shopHref?: string;
   products: StorefrontProduct[];
-  /** How many products to spotlight on the landing — keep this small. */
+  /** Spotlight only a few; max 6. */
   limit?: number;
 }
 
@@ -23,8 +23,72 @@ const C = {
   beige: "#f5e3c2",
   mustard: "#f3b62b",
   burnt: "#d56826",
+  green: "#3f6f56",
+  peach: "#e9a574",
+  lilac: "#b89bd9",
+  cobalt: "#264ba0",
   ink: "#2a1d14",
 };
+
+/**
+ * Vintage-mirror frame variants. Each has its own organic border-radius
+ * (creating the curvy, hand-cut shape) and a frame colour that paints a
+ * slightly larger same-shape backdrop behind the photo, so it reads like
+ * a colourful matte around a mirror.
+ *
+ * border-radius syntax with `/` lets the corners curve asymmetrically
+ * — first set is horizontal radii, second is vertical.
+ */
+const FRAMES = [
+  // 1. Cathedral arch — rounded top, gentle bottom corners (looks like a vintage hallway mirror)
+  {
+    name: "arch",
+    radius: "55% 55% 18% 18% / 38% 38% 14% 14%",
+    aspectRatio: "4 / 5",
+    color: C.green,
+    rotate: -2,
+  },
+  // 2. Soft oval — vertical capsule, classic vanity mirror
+  {
+    name: "oval",
+    radius: "50%",
+    aspectRatio: "4 / 5",
+    color: C.mustard,
+    rotate: 2,
+  },
+  // 3. Asymmetric blob — wonky organic outline (like blown glass)
+  {
+    name: "blob",
+    radius: "62% 38% 55% 45% / 48% 60% 40% 52%",
+    aspectRatio: "1 / 1",
+    color: C.peach,
+    rotate: -1.5,
+  },
+  // 4. Squircle / cushion — rounded square with soft sides
+  {
+    name: "cushion",
+    radius: "32% / 28%",
+    aspectRatio: "1 / 1",
+    color: C.lilac,
+    rotate: 2.5,
+  },
+  // 5. (extra) Wide oval lying on its side
+  {
+    name: "horizontalOval",
+    radius: "45% 55% 50% 50% / 60% 60% 50% 50%",
+    aspectRatio: "5 / 4",
+    color: C.cobalt,
+    rotate: -2,
+  },
+  // 6. (extra) Wavy bottom mirror
+  {
+    name: "wave",
+    radius: "30% 30% 50% 50% / 25% 25% 60% 60%",
+    aspectRatio: "4 / 5",
+    color: C.burnt,
+    rotate: 1.5,
+  },
+];
 
 export default function RetroProducts({
   isKa = false,
@@ -32,10 +96,9 @@ export default function RetroProducts({
   products,
   limit = 4,
 }: RetroProductsProps) {
-  // Pick a small editorial selection — featured-ish picks rather than the whole grid.
   const showcase = products
     .filter((p) => Boolean(p.image_front))
-    .slice(0, Math.min(limit, 6));
+    .slice(0, Math.min(limit, FRAMES.length));
 
   return (
     <section
@@ -56,9 +119,8 @@ export default function RetroProducts({
         <div className="text-center mb-16 md:mb-20">
           <motion.span
             initial={{ opacity: 0, y: 6 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            viewport={{ once: true }}
-            transition={{ duration: 0.6 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.6, delay: 0.1 }}
             className="inline-block text-[11px] font-extrabold uppercase tracking-[0.3em]"
             style={{ color: C.mustard }}
           >
@@ -67,9 +129,8 @@ export default function RetroProducts({
 
           <motion.h2
             initial={{ opacity: 0, y: 14 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            viewport={{ once: true }}
-            transition={{ duration: 0.85, delay: 0.1, ease: [0.215, 0.61, 0.355, 1] }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.85, delay: 0.2, ease: [0.215, 0.61, 0.355, 1] }}
             className="font-retro-display mt-4 leading-[0.95]"
             style={{
               fontFamily: FRAUNCES,
@@ -84,9 +145,8 @@ export default function RetroProducts({
 
           <motion.p
             initial={{ opacity: 0 }}
-            whileInView={{ opacity: 1 }}
-            viewport={{ once: true }}
-            transition={{ duration: 0.7, delay: 0.3 }}
+            animate={{ opacity: 1 }}
+            transition={{ duration: 0.7, delay: 0.4 }}
             className="mt-3 max-w-md mx-auto"
             style={{
               fontFamily: FRAUNCES,
@@ -96,25 +156,26 @@ export default function RetroProducts({
             }}
           >
             {isKa
-              ? "გადმოიტანე კურსორი — და ჩანთა შენთვის უცებ სხვა ხდება."
-              : "Hover the photo — the bag turns into a whole other thing."}
+              ? "გადმოატარე კურსორი — ჩანთა მეორე მხარეზე გადადის."
+              : "Hover the photo — the bag turns to its other side."}
           </motion.p>
         </div>
 
-        {/* Editorial 2-column flow.  Each row offsets vertically for that
-            magazine-spread feel. */}
-        <div className="grid grid-cols-1 sm:grid-cols-2 gap-x-10 gap-y-16 md:gap-y-24 max-w-4xl mx-auto">
+        {/* 4 mirrors — each in its own organic frame.  Generous gap so the
+            colourful frames have room to breathe. */}
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-x-12 gap-y-20 md:gap-y-28 max-w-3xl mx-auto">
           {showcase.map((p, i) => (
-            <EditorialCard
+            <MirrorCard
               key={p.id}
               product={p}
+              frame={FRAMES[i % FRAMES.length]}
               index={i}
               isKa={isKa}
             />
           ))}
         </div>
 
-        <div className="mt-16 flex justify-center">
+        <div className="mt-20 flex justify-center">
           <Link
             href={shopHref}
             className="inline-flex items-center gap-2.5 px-7 py-3 rounded-full font-extrabold text-[12px] uppercase tracking-[0.2em] transition-transform hover:-translate-y-0.5 active:translate-y-0.5"
@@ -145,113 +206,141 @@ export default function RetroProducts({
   );
 }
 
-/* Editorial-style card.
- * - No box, no border, no shadow on the card itself — just the photo and text.
- * - Slight rotation per index gives that "scrapbook / magazine cutout" feel.
- * - Hover cross-fades to image_back if it exists. */
-function EditorialCard({
+function MirrorCard({
   product,
+  frame,
   index,
   isKa,
 }: {
   product: StorefrontProduct;
+  frame: (typeof FRAMES)[number];
   index: number;
   isKa: boolean;
 }) {
   const [hover, setHover] = useState(false);
-  const tilt = [-2, 2, -1.5, 2.5][index % 4] ?? 0;
-  const offsetY = index % 2 === 0 ? 0 : 32; // every other card sits a bit lower
-
+  const offsetY = index % 2 === 0 ? 0 : 36;
   const hasBack = Boolean(product.image_back);
   const isNew = product.tags.includes("new");
 
   return (
     <motion.div
       initial={{ opacity: 0, y: 30 }}
-      whileInView={{ opacity: 1, y: 0 }}
-      viewport={{ once: true, margin: "-60px" }}
-      transition={{ duration: 0.85, delay: index * 0.08, ease: [0.215, 0.61, 0.355, 1] }}
+      animate={{ opacity: 1, y: 0 }}
+      transition={{
+        duration: 0.85,
+        delay: 0.2 + index * 0.1,
+        ease: [0.215, 0.61, 0.355, 1],
+      }}
       style={{ marginTop: offsetY }}
-      className="group"
+      className="group flex flex-col items-center"
       onMouseEnter={() => setHover(true)}
       onMouseLeave={() => setHover(false)}
       onTouchStart={() => setHover((v) => !v)}
     >
+      {/* Frame stack: outer coloured matte + inner photo, both shaped */}
       <div
-        className="relative aspect-[4/5] overflow-hidden cursor-pointer"
+        className="relative w-full max-w-[300px] cursor-pointer"
         style={{
-          transform: `rotate(${tilt}deg)`,
-          transition: "transform 0.6s ease",
+          aspectRatio: frame.aspectRatio,
+          transform: `rotate(${frame.rotate}deg)`,
+          transition: "transform 0.6s cubic-bezier(0.215, 0.61, 0.355, 1)",
         }}
       >
-        {/* FRONT */}
-        <Image
-          src={product.image_front}
-          alt={product.name || product.code}
-          fill
-          sizes="(max-width: 640px) 100vw, 50vw"
-          className="object-cover"
+        {/* Coloured matte / frame, slightly larger than photo */}
+        <div
+          aria-hidden="true"
+          className="absolute -inset-3 sm:-inset-3.5"
           style={{
-            filter: "saturate(0.95) sepia(0.04)",
-            opacity: hover && hasBack ? 0 : 1,
-            transition: "opacity 0.6s ease",
+            background: frame.color,
+            borderRadius: frame.radius,
+            boxShadow: "0 18px 28px rgba(42,29,20,0.25), inset 0 0 0 4px rgba(254,240,214,0.55)",
           }}
         />
 
-        {/* BACK — fades in on hover */}
-        {hasBack && (
+        {/* Photo, same shape, sits on top of the matte */}
+        <div
+          className="relative w-full h-full overflow-hidden"
+          style={{ borderRadius: frame.radius }}
+        >
+          {/* FRONT */}
           <Image
-            src={product.image_back!}
-            alt={`${product.name || product.code} — back`}
+            src={product.image_front}
+            alt={product.name || product.code}
             fill
-            sizes="(max-width: 640px) 100vw, 50vw"
+            sizes="(max-width: 640px) 100vw, 300px"
             className="object-cover"
             style={{
               filter: "saturate(0.95) sepia(0.04)",
-              opacity: hover ? 1 : 0,
+              opacity: hover && hasBack ? 0 : 1,
               transition: "opacity 0.6s ease",
             }}
           />
-        )}
 
-        {/* New badge */}
+          {/* BACK — fades in on hover */}
+          {hasBack && (
+            <Image
+              src={product.image_back!}
+              alt={`${product.name || product.code} — back`}
+              fill
+              sizes="(max-width: 640px) 100vw, 300px"
+              className="object-cover"
+              style={{
+                filter: "saturate(0.95) sepia(0.04)",
+                opacity: hover ? 1 : 0,
+                transition: "opacity 0.6s ease",
+              }}
+            />
+          )}
+        </div>
+
+        {/* New badge — sticks above the frame */}
         {isNew && (
           <span
-            className="absolute top-4 left-4 px-3 py-1 text-[9px] font-extrabold uppercase tracking-[0.22em]"
+            className="absolute -top-3 left-3 px-3 py-1 text-[9px] font-extrabold uppercase tracking-[0.22em] z-10"
             style={{
               background: C.mustard,
               color: C.ink,
               fontFamily: FRAUNCES,
-              transform: "rotate(-4deg)",
+              transform: "rotate(-6deg)",
               boxShadow: "0 3px 0 #d99820",
+              borderRadius: 999,
             }}
           >
             {isKa ? "ახალი" : "New"}
           </span>
         )}
 
-        {/* Flip hint — fades when hovered (or out when no back) */}
+        {/* Flip indicator on hover */}
         {hasBack && (
           <div
-            className="absolute bottom-4 right-4 inline-flex items-center gap-1.5 px-3 py-1.5 text-[10px] font-extrabold uppercase tracking-[0.2em] rounded-full"
+            className="absolute -bottom-3 right-3 inline-flex items-center gap-1.5 px-3 py-1.5 text-[10px] font-extrabold uppercase tracking-[0.2em] rounded-full z-10"
             style={{
-              background: hover ? C.mustard : "rgba(254,240,214,0.92)",
+              background: hover ? C.mustard : C.cream,
               color: C.ink,
               fontFamily: FRAUNCES,
-              transition: "background 0.3s ease",
+              transition: "background 0.3s ease, transform 0.3s ease",
+              transform: hover ? "rotate(0deg)" : "rotate(-4deg)",
+              boxShadow: "0 4px 8px rgba(42,29,20,0.18)",
             }}
           >
             <RotateCw className="w-3 h-3" />
-            {hover ? (isKa ? "უკანა მხარე" : "back side") : (isKa ? "დააჭირე" : "hover")}
+            {hover ? (isKa ? "უკანა მხარე" : "back side") : (isKa ? "გადმოატარე" : "hover")}
           </div>
         )}
       </div>
 
-      {/* Caption strip — just italic name + script price, no box */}
-      <div className="mt-5 flex items-baseline justify-between gap-4 px-1">
+      {/* Caption — small mustard line + italic name + script price */}
+      <div className="mt-8 text-center max-w-[260px]">
+        <div
+          className="text-[10px] uppercase tracking-[0.3em] mb-1"
+          style={{ color: C.mustard, fontFamily: FRAUNCES, fontWeight: 700 }}
+        >
+          {[product.size, product.color].filter(Boolean).join(" · ") ||
+            (isKa ? "ხელით ნაკერი" : "Handmade")}
+        </div>
         <Link
           href={`#product-${product.id}`}
-          className="leading-tight hover:underline underline-offset-4 decoration-[1px]"
+          className="leading-tight hover:underline underline-offset-4 decoration-1"
           style={{
             fontFamily: FRAUNCES,
             fontStyle: "italic",
@@ -262,7 +351,8 @@ function EditorialCard({
         >
           {product.name || product.code}
         </Link>
-        <span
+        <div
+          className="mt-1"
           style={{
             fontFamily: PACIFICO,
             fontSize: 26,
@@ -271,16 +361,7 @@ function EditorialCard({
         >
           {product.price}
           {product.currency === "GEL" ? "₾" : ` ${product.currency}`}
-        </span>
-      </div>
-
-      {/* Sub-caption */}
-      <div
-        className="mt-1 px-1 text-[11px] uppercase tracking-[0.18em]"
-        style={{ color: C.cream, opacity: 0.75, fontFamily: FRAUNCES, fontWeight: 700 }}
-      >
-        {[product.size, product.color].filter(Boolean).join(" · ") ||
-          (isKa ? "ხელით ნაკერი · ორმხრივი" : "Handmade · reversible")}
+        </div>
       </div>
     </motion.div>
   );

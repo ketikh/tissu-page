@@ -50,8 +50,7 @@ export default function RetroNewsletter({ isKa = false }: RetroNewsletterProps) 
       <div className="container relative text-center">
         <motion.span
           initial={{ opacity: 0, y: 6 }}
-          whileInView={{ opacity: 1, y: 0 }}
-          viewport={{ once: true }}
+          animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.6 }}
           className="inline-block text-[11px] font-extrabold uppercase tracking-[0.3em]"
           style={{ color: C.mustard }}
@@ -61,8 +60,7 @@ export default function RetroNewsletter({ isKa = false }: RetroNewsletterProps) 
 
         <motion.h2
           initial={{ opacity: 0, y: 14 }}
-          whileInView={{ opacity: 1, y: 0 }}
-          viewport={{ once: true }}
+          animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.85, delay: 0.1 }}
           className="font-retro-display mt-4 leading-[0.95]"
           style={{
@@ -76,8 +74,7 @@ export default function RetroNewsletter({ isKa = false }: RetroNewsletterProps) 
 
         <motion.p
           initial={{ opacity: 0 }}
-          whileInView={{ opacity: 1 }}
-          viewport={{ once: true }}
+          animate={{ opacity: 1 }}
           transition={{ duration: 0.7, delay: 0.3 }}
           className="mt-3 max-w-md mx-auto"
           style={{ fontFamily: FRAUNCES, fontStyle: "italic", fontSize: 16, opacity: 0.85 }}
@@ -89,8 +86,7 @@ export default function RetroNewsletter({ isKa = false }: RetroNewsletterProps) 
 
         <motion.form
           initial={{ opacity: 0, y: 12 }}
-          whileInView={{ opacity: 1, y: 0 }}
-          viewport={{ once: true }}
+          animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.8, delay: 0.5 }}
           onSubmit={(e) => e.preventDefault()}
           className="mt-8 mx-auto flex flex-col sm:flex-row max-w-lg gap-2"
@@ -124,8 +120,7 @@ export default function RetroNewsletter({ isKa = false }: RetroNewsletterProps) 
 
         <motion.div
           initial={{ opacity: 0 }}
-          whileInView={{ opacity: 1 }}
-          viewport={{ once: true }}
+          animate={{ opacity: 1 }}
           transition={{ duration: 0.6, delay: 0.7 }}
           className="mt-12"
         >
