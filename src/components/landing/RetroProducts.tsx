@@ -30,38 +30,52 @@ const C = {
 };
 
 /**
- * Builds a closed scalloped/flower SVG path centred at (cx, cy) with
- * `bumps` outward Q-curves around a base radius.
+ * Smooth organic blob path. Drops `points` evenly around an ellipse of
+ * radii (rx, ry) and pushes each point in/out by a deterministic amount
+ * driven by `seed`. The points are then connected by quadratic curves that
+ * pass through midpoints, which keeps the silhouette buttery-smooth — no
+ * sharp scallops, just soft pebble / wave / drop deformations.
  *
- * - bumps    — how many petals/scallops around the perimeter (more = curlier)
- * - baseR    — radius of the inner valley (where the bumps "start")
- * - bumpH    — how far each bump pokes out past baseR
- * - jitter   — 0..1: when > 0, alternates bump heights for an asymmetric, hand-cut feel
+ * - points    — anchor points around the perimeter (more = subtler shape)
+ * - rx, ry    — ellipse radii. Equal = round blob. rx<ry = tall (drop-like).
+ *               rx>ry = wide (wave-like).
+ * - variance  — 0..1. How much each point may push in/out from the base ellipse.
+ * - seed      — distinct number per frame so each blob has its own silhouette.
  */
-function flowerPath(
-  bumps: number,
-  baseR: number,
-  bumpH: number,
+function blobPath(
+  points: number,
+  rx: number,
+  ry: number,
+  variance: number,
   cx = 200,
   cy = 250,
-  jitter = 0
+  seed = 0
 ): string {
-  const step = (Math.PI * 2) / bumps;
-  let d = "";
-  for (let i = 0; i <= bumps; i++) {
-    const a = i * step;
-    const x = cx + baseR * Math.cos(a);
-    const y = cy + baseR * Math.sin(a);
-    if (i === 0) {
-      d += `M ${x.toFixed(1)} ${y.toFixed(1)} `;
-    } else {
-      const midA = a - step / 2;
-      // Sin-based wobble so neighbouring bumps differ slightly when jitter > 0
-      const h = bumpH * (1 + (jitter ? Math.sin(i * 7.3) * jitter : 0));
-      const mx = cx + (baseR + h) * Math.cos(midA);
-      const my = cy + (baseR + h) * Math.sin(midA);
-      d += `Q ${mx.toFixed(1)} ${my.toFixed(1)} ${x.toFixed(1)} ${y.toFixed(1)} `;
-    }
+  // Deterministic 0..1 noise from a sine hash — same seed always gives the
+  // same shape, so server-rendered HTML matches the client exactly.
+  const noise = (i: number) => {
+    const n = Math.sin((i + 1) * 12.9898 + seed * 78.233) * 43758.5453;
+    return n - Math.floor(n);
+  };
+
+  const pts: Array<[number, number]> = [];
+  for (let i = 0; i < points; i++) {
+    const a = (i / points) * Math.PI * 2;
+    const mult = 1 + (noise(i) * 2 - 1) * variance;
+    pts.push([cx + mult * rx * Math.cos(a), cy + mult * ry * Math.sin(a)]);
+  }
+
+  const mid = (i: number, j: number): [number, number] => [
+    (pts[i][0] + pts[j][0]) / 2,
+    (pts[i][1] + pts[j][1]) / 2,
+  ];
+
+  const start = mid(points - 1, 0);
+  let d = `M ${start[0].toFixed(1)} ${start[1].toFixed(1)} `;
+  for (let i = 0; i < points; i++) {
+    const next = (i + 1) % points;
+    const m = mid(i, next);
+    d += `Q ${pts[i][0].toFixed(1)} ${pts[i][1].toFixed(1)} ${m[0].toFixed(1)} ${m[1].toFixed(1)} `;
   }
   return d + "Z";
 }
@@ -72,69 +86,76 @@ function flowerPath(
  *   - colour of that matte
  *   - the "inner shape" of the photo itself (kept simple so the bag stays clear)
  */
-// Each frame is intentionally a *different kind* of curly silhouette so the
-// four product cards don't read as the same shape four times. Distinct silhouette
-// is driven mostly by `bumps` (count) and `bumpH` (depth).
+// Each frame is a different organic silhouette in the same hand-drawn family —
+// pebbles, drops, waves, stones. Variety comes from (a) ellipse aspect via
+// rx/ry and (b) per-frame `seed` which seeds the deterministic noise that
+// pushes each point in or out.
 const FRAMES = [
   {
-    // Big chunky daisy petals — 8 fat lobes, very flower-like.
-    name: "petal",
+    // Round pebble — gentle wobbles, mostly circular.
+    name: "pebble",
     color: C.green,
-    bumps: 8,
-    baseR: 158,
-    bumpH: 32,
-    jitter: 0,
+    points: 7,
+    rx: 168,
+    ry: 168,
+    variance: 0.11,
+    seed: 3,
     rotate: -3,
   },
   {
-    // Soft, evenly scalloped — like a vintage bottle cap edge.
-    name: "scallop",
+    // Drop — taller than wide, soft asymmetric deformations.
+    name: "drop",
     color: C.mustard,
-    bumps: 16,
-    baseR: 172,
-    bumpH: 14,
-    jitter: 0,
+    points: 7,
+    rx: 152,
+    ry: 188,
+    variance: 0.1,
+    seed: 11,
     rotate: 4,
   },
   {
-    // Fine frill / doily edge — many tiny crinkles.
-    name: "frill",
+    // Wave — wider than tall, undulating side bumps.
+    name: "wave",
     color: C.peach,
-    bumps: 30,
-    baseR: 178,
-    bumpH: 7,
-    jitter: 0,
+    points: 8,
+    rx: 192,
+    ry: 152,
+    variance: 0.13,
+    seed: 19,
     rotate: -2,
   },
   {
-    // Hand-cut wonky — irregular asymmetric bumps.
-    name: "wonky",
+    // Stone — irregular round, more chaotic noise.
+    name: "stone",
     color: C.lilac,
-    bumps: 10,
-    baseR: 168,
-    bumpH: 24,
-    jitter: 0.45,
+    points: 8,
+    rx: 170,
+    ry: 165,
+    variance: 0.18,
+    seed: 31,
     rotate: 5,
   },
   {
-    // Wide gentle waves — fewer, broader undulations.
-    name: "wave",
+    // Lozenge — tall + chunky, fewer points = smoother lobes.
+    name: "lozenge",
     color: C.cobalt,
-    bumps: 6,
-    baseR: 165,
-    bumpH: 22,
-    jitter: 0.1,
-    rotate: -2,
+    points: 6,
+    rx: 158,
+    ry: 182,
+    variance: 0.14,
+    seed: 47,
+    rotate: -1.5,
   },
   {
-    // Sunflower — many medium petals.
-    name: "sunflower",
+    // Puddle — wide, low, organic spread.
+    name: "puddle",
     color: C.burnt,
-    bumps: 22,
-    baseR: 170,
-    bumpH: 18,
-    jitter: 0,
-    rotate: 1.5,
+    points: 7,
+    rx: 188,
+    ry: 158,
+    variance: 0.16,
+    seed: 59,
+    rotate: 2,
   },
 ] as const;
 
@@ -269,25 +290,34 @@ function MirrorCard({
   const hasBack = Boolean(product.image_back);
   const isNew = product.tags.includes("new");
 
-  // Outer scalloped path = the curly silhouette of the whole frame.
+  // Outer organic blob path — the visible silhouette of the whole frame.
   const outerPath = useMemo(
-    () => flowerPath(frame.bumps, frame.baseR, frame.bumpH, 200, 250, frame.jitter),
+    () =>
+      blobPath(
+        frame.points,
+        frame.rx,
+        frame.ry,
+        frame.variance,
+        200,
+        250,
+        frame.seed
+      ),
     [frame]
   );
 
-  // Inner scalloped path = a slightly smaller version of the same silhouette,
-  // used as a clipPath on the photo. The photo's rectangular corners get
-  // hidden where they fall outside this curly shape — exactly what the user
-  // asked for: scallop on top, photo corners tucked inside via overflow.
+  // Inner blob — same shape with a tighter ellipse so a coloured ring is
+  // visible around the photo. Clipped on the <image> below so the photo's
+  // rectangular corners disappear inside the blob's curves.
   const innerPath = useMemo(
     () =>
-      flowerPath(
-        frame.bumps,
-        frame.baseR - 12,
-        Math.max(frame.bumpH - 3, 4),
+      blobPath(
+        frame.points,
+        frame.rx - 14,
+        frame.ry - 14,
+        frame.variance,
         200,
         250,
-        frame.jitter
+        frame.seed
       ),
     [frame]
   );
