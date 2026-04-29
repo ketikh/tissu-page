@@ -111,7 +111,7 @@ export default function RetroHero({
       >
         <Link href="/" className="inline-block" aria-label={brand}>
           <Image
-            src="/static/logo.png"
+            src="/static/logo.svg"
             alt={brand}
             width={170}
             height={54}
