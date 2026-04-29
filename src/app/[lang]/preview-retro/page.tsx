@@ -22,12 +22,7 @@ export default async function PreviewRetro({ params }: { params: Promise<{ lang:
         headlineLine2={isKa ? "ორი განწყობა." : "Styled For Your Home"}
         ctaLabel={isKa ? "მაღაზია" : "Shop the drop"}
         ctaHref={`/${lang}/shop`}
-        navLinks={[
-          { label: isKa ? "მაღაზია" : "Shop", href: `/${lang}/shop` },
-          { label: isKa ? "ჩვენი ამბავი" : "Story", href: `/${lang}/about` },
-          { label: isKa ? "ბლოგი" : "Journal", href: `/${lang}#journal` },
-          { label: isKa ? "კონტაქტი" : "Contact", href: `/${lang}/contact` },
-        ]}
+        lang={lang as Locale}
       />
 
       <RetroAbout isKa={isKa} shopHref={`/${lang}/shop`} />

@@ -5,13 +5,13 @@ import { useParams, usePathname } from "next/navigation";
 import type { Locale } from "@/i18n/config";
 import { getLandingCopy } from "@/app/[lang]/landingCopy";
 
-interface FooterProps {
-  dictionary: any;
-}
-
 const HIDE_ON_ROUTES = ["/preview-retro", "/preview-hero"];
+const FRAUNCES = "var(--font-fraunces), 'Fraunces', Georgia, serif";
 
-export function Footer({}: FooterProps) {
+const STRIPE =
+  "repeating-linear-gradient(90deg, #f3b62b 0 18px, #2a1d14 18px 36px)";
+
+export function Footer({}: { dictionary?: any }) {
   const params = useParams();
   const pathname = usePathname();
   const lang = ((params?.lang as string) || "en") as Locale;
@@ -19,152 +19,167 @@ export function Footer({}: FooterProps) {
   if (HIDE_ON_ROUTES.some((p) => pathname?.includes(p))) return null;
 
   const copy = getLandingCopy(lang);
+  const isKa = lang === "ka";
 
-  const shopHrefs = [
-    `/${lang}/shop?category=pouches`,
-    `/${lang}/shop?category=laptop-sleeves`,
-    `/${lang}/shop?category=totes`,
-    `/${lang}/shop?category=kids-backpacks`,
-    `/${lang}/shop?category=aprons`,
-    `/${lang}/shop?category=necklaces`,
-    `/${lang}/shop?category=gift`,
+  const exploreLinks = [
+    { label: isKa ? "მაღაზია" : "Shop", href: `/${lang}/shop` },
+    { label: copy.nav.story, href: `/${lang}/about` },
+    { label: isKa ? "კონტაქტი" : "Contact", href: `/${lang}/contact` },
+    { label: isKa ? "FAQ" : "FAQ", href: `/${lang}/faq` },
   ];
-  const careHrefs = [
-    `/${lang}/faq#shipping`,
-    `/${lang}/faq#returns`,
-    `/${lang}/faq#wash`,
-    `/${lang}/faq`,
-  ];
-  const studioHrefs = [
-    `/${lang}/about`,
-    `/${lang}#journal`,
-    `/${lang}/contact?topic=wholesale`,
-    `/${lang}/contact`,
+
+  const legalLinks = [
+    { label: isKa ? "პოლიტიკა" : "Privacy", href: `/${lang}/privacy` },
+    { label: isKa ? "წესები" : "Terms", href: `/${lang}/terms` },
+    { label: isKa ? "მიწოდება" : "Shipping", href: `/${lang}/faq#shipping` },
+    { label: isKa ? "დაბრუნება" : "Returns", href: `/${lang}/faq#returns` },
   ];
 
   return (
-    <footer className="bg-[var(--tissu-cream)] text-[var(--tissu-ink-soft)] pt-16 pb-8">
-      <div className="container">
-        <div className="grid gap-10 md:grid-cols-[2fr_1fr_1fr_1fr] mb-10">
-          <div className="space-y-4">
-            <Link href={`/${lang}`} className="flex items-center gap-2">
-              <span className="font-serif text-[32px] leading-none text-[var(--tissu-terracotta)] tracking-[0.04em]">
-                TISSU
-              </span>
-              <span
-                className="w-3.5 h-3.5 rounded-full bg-[var(--tissu-mustard)] -translate-y-3"
+    <footer style={{ background: "#2a1d14", color: "#fef0d6" }}>
+      {/* Top stripe */}
+      <div className="h-2" style={{ background: STRIPE }} aria-hidden="true" />
+
+      <div className="container pt-14 pb-10">
+        <div className="grid grid-cols-1 md:grid-cols-[2fr_1fr_1fr] gap-10 md:gap-16 mb-12">
+
+          {/* Brand column */}
+          <div className="flex flex-col gap-5">
+            <Link href={`/${lang}`} aria-label="Tissu">
+              <svg
+                viewBox="0 0 1282.8 410"
+                xmlns="http://www.w3.org/2000/svg"
+                className="h-10 w-auto"
+                style={{ display: "block" }}
                 aria-hidden="true"
-              />
+              >
+                <g fill="#f65c32">
+                  <path d="M223.3,341.6c-17.2,0-29.8-4.6-37.7-13.7-8-9.1-11.9-22.4-11.9-39.8s.4-17.9,1.3-25.2c.9-7.3,1.8-14.4,2.7-21.4.9-6.9,1.8-14.1,2.7-21.4.9-7.3,1.3-15.7,1.3-25.2s0-7.2-.2-11c-.1-3.7-.5-7.1-1.2-10.2-.6-3.1-1.7-5.6-3.3-7.7-1.5-2.1-3.7-3.1-6.5-3.1-4.4,0-8.2,0-11.4.2-3.2.1-6.4.3-9.4.4-3.1.1-6.5.3-10.2.4-3.7.1-8.3.2-13.7.2s-6.7-2.2-9.4-6.5c-2.7-4.4-4.9-9.4-6.7-15.2-1.8-5.8-3.1-11.4-4-16.9-.9-5.5-1.3-9.6-1.3-12.1s0-3.1-.2-4.8c-.1-1.7,0-3.3.6-4.8,1.5-7.7,5.6-14.1,12.3-19.1,6.7-5,15.2-8.9,25.6-11.5,10.4-2.7,22.3-4.6,35.6-5.6,13.3-1,27.5-1.5,42.3-1.5s29.4.5,43.5,1.5c14.1,1,26.6,3.3,37.5,6.9,10.9,3.6,19.7,8.7,26.4,15.2,6.7,6.5,10,15.5,10,26.8s-.2,9.9-.6,15.8c-.4,5.9-1.3,11.5-2.7,16.9-1.4,5.4-3.3,9.9-5.8,13.5-2.4,3.6-5.6,5.4-9.4,5.4s-11.2-.8-18.3-2.3c-7.1-1.5-14.6-2.3-22.5-2.3s-7.3.5-9.6,1.5c-2.3,1-4,2.5-5,4.4-1,1.9-1.6,4.2-1.7,6.9-.1,2.7-.2,5.6-.2,8.7,0,10.3.6,19.8,1.9,28.5,1.3,8.7,2.7,17.3,4.2,25.8,1.5,8.5,2.9,17.3,4.2,26.4,1.3,9.1,1.9,19.3,1.9,30.6s-1.4,14.4-4.2,20.2c-2.8,5.8-6.6,10.5-11.4,14.2-4.8,3.7-10.2,6.5-16.4,8.3-6.2,1.8-12.6,2.7-19.2,2.7Z"/>
+                  <path d="M405.8,334.7c-17.2,0-30.2-4.8-39.1-14.4-8.9-9.6-14.3-23-16.4-40.2-3.6-31.6-4.9-62.8-4-93.5.9-30.8,3.5-61.7,7.9-92.8.8-5.4,3-9.9,6.7-13.7,3.7-3.7,8.1-6.6,13.1-8.7,5-2.1,10.1-3.5,15.4-4.4,5.3-.9,9.9-1.3,14.1-1.3,9.8,0,18.5,2.3,26.4,6.9,7.8,4.6,12.8,13,14.8,25,2.3,13.3,4.2,28.6,5.8,45.6,1.5,17.1,2.9,34.5,4,52.4,1.2,17.8,2,35.4,2.5,52.7.5,17.3.8,32.9.8,46.8s-1.7,12.9-5,17.9c-3.3,5-7.5,9.1-12.5,12.3-5,3.2-10.6,5.6-16.7,7.1-6.2,1.5-12.1,2.3-17.7,2.3Z"/>
+                  <path d="M572.9,340.1c-18,0-33.5-1-46.6-3.1-13.1-2.1-23.7-5.5-32-10.4-8.2-4.9-14.3-11.2-18.3-19.1-4-7.8-6-17.6-6-29.5s3.7-28.1,11.2-36.6c7.4-8.5,15.9-12.7,25.4-12.7s8.5,1.2,12.5,3.7c4,2.4,8.3,5.1,12.9,7.9,4.6,2.8,9.8,5.5,15.6,7.9,5.8,2.4,12.5,3.7,20.2,3.7s4.7-.3,8.1-1c3.3-.6,5-2.5,5-5.6s-1.9-6.7-5.6-10c-3.7-3.3-6.9-5.9-9.4-7.7-6.4-4.6-13-8.5-19.8-11.5-6.8-3.1-13.3-6-19.6-8.9-6.3-2.8-12.3-5.8-18.1-9-5.8-3.2-10.8-7.2-15-12.1-4.2-4.9-7.6-10.9-10-18.1-2.4-7.2-3.7-16-3.7-26.6s2.6-25.5,7.9-35.6c5.3-10.1,12.3-18.6,21.2-25.4,8.9-6.8,19.1-11.9,30.6-15.4,11.5-3.5,23.6-5.2,36.2-5.2,38.2,0,67.2,4.8,86.8,14.4,19.6,9.6,29.5,24.6,29.5,44.9s-1,8-3.1,13.1c-2.1,5.1-4.7,10-7.9,14.6-3.2,4.6-6.9,8.6-11,11.9-4.1,3.3-8.2,5-12.3,5s-6.5-1-9.6-2.9c-3.1-1.9-6.6-4-10.6-6.4-4-2.3-8.7-4.4-14.2-6.4-5.5-1.9-12.5-2.9-21-2.9s-2.4,0-4.2.2c-1.8.1-3.5.5-5,1-1.5.5-2.9,1.2-4,2.1-1.2.9-1.7,2.2-1.7,4,0,3.8,1.9,7.3,5.6,10.2,3.7,3,8.2,5.6,13.5,7.9,5.3,2.3,10.6,4.4,16,6.2,5.4,1.8,9.6,3.3,12.7,4.6,8,3.3,15.7,6.4,23.3,9.2,7.6,2.8,14.3,6.5,20.2,11,5.9,4.5,10.6,10.3,14.2,17.5,3.6,7.2,5.4,16.6,5.4,28.1,0,32.3-10.1,55.9-30.4,70.6-20.3,14.8-51.8,22.1-94.7,22.1Z"/>
+                  <path d="M810.4,340.1c-18,0-33.5-1-46.6-3.1-13.1-2.1-23.7-5.5-32-10.4-8.2-4.9-14.3-11.2-18.3-19.1-4-7.8-6-17.6-6-29.5s3.7-28.1,11.2-36.6c7.4-8.5,15.9-12.7,25.4-12.7s8.5,1.2,12.5,3.7c4,2.4,8.3,5.1,12.9,7.9,4.6,2.8,9.8,5.5,15.6,7.9,5.8,2.4,12.5,3.7,20.2,3.7s4.7-.3,8.1-1c3.3-.6,5-2.5,5-5.6s-1.9-6.7-5.6-10c-3.7-3.3-6.9-5.9-9.4-7.7-6.4-4.6-13-8.5-19.8-11.5-6.8-3.1-13.3-6-19.6-8.9-6.3-2.8-12.3-5.8-18.1-9-5.8-3.2-10.8-7.2-15-12.1-4.2-4.9-7.6-10.9-10-18.1-2.4-7.2-3.7-16-3.7-26.6s2.6-25.5,7.9-35.6c5.3-10.1,12.3-18.6,21.2-25.4,8.9-6.8,19.1-11.9,30.6-15.4,11.5-3.5,23.6-5.2,36.2-5.2,38.2,0,67.2,4.8,86.8,14.4,19.6,9.6,29.5,24.6,29.5,44.9s-1,8-3.1,13.1c-2.1,5.1-4.7,10-7.9,14.6-3.2,4.6-6.9,8.6-11,11.9-4.1,3.3-8.2,5-12.3,5s-6.5-1-9.6-2.9c-3.1-1.9-6.6-4-10.6-6.4-4-2.3-8.7-4.4-14.2-6.4-5.5-1.9-12.5-2.9-21-2.9s-2.4,0-4.2.2c-1.8.1-3.5.5-5,1-1.5.5-2.9,1.2-4,2.1-1.2.9-1.7,2.2-1.7,4,0,3.8,1.9,7.3,5.6,10.2,3.7,3,8.2,5.6,13.5,7.9,5.3,2.3,10.6,4.4,16,6.2,5.4,1.8,9.6,3.3,12.7,4.6,8,3.3,15.7,6.4,23.3,9.2,7.6,2.8,14.3,6.5,20.2,11,5.9,4.5,10.6,10.3,14.2,17.5,3.6,7.2,5.4,16.6,5.4,28.1,0,32.3-10.1,55.9-30.4,70.6-20.3,14.8-51.8,22.1-94.7,22.1Z"/>
+                  <path d="M1020.8,341c-11.1-4.3-21.6-10.1-31.3-16.9-18.9-13.3-24.4-27.9-30.9-49.6-3.3-11.2-5.9-22.5-7.7-34.1-1.8-11.5-3-22.8-3.5-33.9-.5-11-.8-20.7-.8-28.9,0-13.6.3-27.5,1-41.6.6-14.1,2.1-27.8,4.4-41.2,1-5.4,3.3-9.9,6.7-13.7,3.5-3.7,7.6-6.7,12.3-9,4.7-2.3,9.8-4,15.2-5,5.4-1,10.5-1.5,15.4-1.5s10.5.6,16,1.7c5.5,1.2,10.7,3,15.6,5.4,4.9,2.4,8.9,5.8,11.9,10,3.1,4.2,4.6,9.4,4.6,15.6s-.3,8.7-1,12.9c-.6,4.2-1.2,8.5-1.7,12.9-1.3,8.2-2.1,16.3-2.5,24.3-.4,8-.6,16-.6,24.3s0,6.5.2,11.9c.1,5.4.4,11.4,1,18.1.5,6.7,1.2,13.5,2.1,20.6.9,7.1,2.2,13.5,3.8,19.4,1.7,5.9,3.7,10.7,6,14.4,2.3,3.7,5.1,5.6,8.5,5.6s6.5-2.2,8.9-6.7c2.3-4.5,4.2-10.1,5.6-16.9,1.4-6.8,2.5-14.4,3.3-22.9.8-8.5,1.3-16.6,1.7-24.4.4-7.8.6-14.9.6-21.4v-13.9c0-11.3-1.3-21.2-4-29.8-2.7-8.6-4-17-4-25.2s1.3-11.4,3.8-15.8c2.6-4.4,6-8,10.2-10.8,4.2-2.8,8.9-4.9,14.1-6.2,5.1-1.3,10.4-1.9,15.8-1.9,9.2,0,17.1,2.2,23.5,6.5,6.4,4.4,11.7,10.1,16,17.3,4.2,7.2,7.5,15.3,9.8,24.4,2.3,9.1,4,18.3,5.2,27.5,1.2,9.2,1.9,18.3,2.1,27.1.3,8.9.4,16.5.4,22.9,0,45.7,5.1,93.2-31.7,127.6-24.5,22.9-59.6,33-92.9,29.1-11.3-1.3-22.4-4.2-33.1-8.3Z"/>
+                </g>
+              </svg>
             </Link>
-            <p className="max-w-[340px] text-sm leading-relaxed">{copy.footer.tagline}</p>
-          </div>
 
-          <div>
-            <h5 className="font-serif text-[18px] text-[var(--tissu-ink)] mb-4">
-              {copy.footer.cols.shop}
-            </h5>
-            <ul className="space-y-2.5">
-              {copy.footer.shopLinks.map((label, i) => (
-                <li key={label}>
-                  <Link
-                    href={shopHrefs[i]}
-                    className="text-sm hover:text-[var(--tissu-terracotta)] transition-colors"
-                  >
-                    {label}
-                  </Link>
-                </li>
-              ))}
-            </ul>
-          </div>
+            <p
+              className="max-w-xs text-[14px] leading-relaxed"
+              style={{ color: "rgba(254,240,214,0.7)", fontFamily: FRAUNCES, fontStyle: "italic" }}
+            >
+              {copy.footer.tagline}
+            </p>
 
-          <div>
-            <h5 className="font-serif text-[18px] text-[var(--tissu-ink)] mb-4">
-              {copy.footer.cols.care}
-            </h5>
-            <ul className="space-y-2.5">
-              {copy.footer.careLinks.map((label, i) => (
-                <li key={label}>
-                  <Link
-                    href={careHrefs[i]}
-                    className="text-sm hover:text-[var(--tissu-terracotta)] transition-colors"
-                  >
-                    {label}
-                  </Link>
-                </li>
-              ))}
-            </ul>
-          </div>
+            {/* Social icons */}
+            <div className="flex items-center gap-3 mt-2">
+              <a
+                href="https://instagram.com/thetissushop"
+                target="_blank"
+                rel="noopener noreferrer"
+                aria-label="Instagram"
+                className="w-11 h-11 rounded-full inline-flex items-center justify-center transition-colors"
+                style={{ border: "2px solid rgba(254,240,214,0.3)", color: "#fef0d6" }}
+                onMouseEnter={(e) => { (e.currentTarget as HTMLElement).style.background = "#d56826"; (e.currentTarget as HTMLElement).style.borderColor = "#d56826"; }}
+                onMouseLeave={(e) => { (e.currentTarget as HTMLElement).style.background = "transparent"; (e.currentTarget as HTMLElement).style.borderColor = "rgba(254,240,214,0.3)"; }}
+              >
+                <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" aria-hidden="true">
+                  <rect x="3" y="3" width="18" height="18" rx="5" />
+                  <circle cx="12" cy="12" r="4" />
+                  <circle cx="17.5" cy="6.5" r="1" fill="currentColor" />
+                </svg>
+              </a>
 
-          <div>
-            <h5 className="font-serif text-[18px] text-[var(--tissu-ink)] mb-4">
-              {copy.footer.cols.studio}
-            </h5>
-            <ul className="space-y-2.5">
-              {copy.footer.studioLinks.map((label, i) => (
-                <li key={label}>
-                  <Link
-                    href={studioHrefs[i]}
-                    className="text-sm hover:text-[var(--tissu-terracotta)] transition-colors"
-                  >
-                    {label}
-                  </Link>
-                </li>
-              ))}
-            </ul>
-          </div>
-        </div>
+              <a
+                href="https://tiktok.com/@thetissushop"
+                target="_blank"
+                rel="noopener noreferrer"
+                aria-label="TikTok"
+                className="w-11 h-11 rounded-full inline-flex items-center justify-center transition-colors"
+                style={{ border: "2px solid rgba(254,240,214,0.3)", color: "#fef0d6" }}
+                onMouseEnter={(e) => { (e.currentTarget as HTMLElement).style.background = "#d56826"; (e.currentTarget as HTMLElement).style.borderColor = "#d56826"; }}
+                onMouseLeave={(e) => { (e.currentTarget as HTMLElement).style.background = "transparent"; (e.currentTarget as HTMLElement).style.borderColor = "rgba(254,240,214,0.3)"; }}
+              >
+                <svg width="17" height="17" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
+                  <path d="M16.6 5.8a4.8 4.8 0 0 1-2.8-1.8v9.4a4.2 4.2 0 1 1-4.2-4.2v2.2a2 2 0 1 0 2 2V2h2a4.8 4.8 0 0 0 3 3v2.8z" />
+                </svg>
+              </a>
 
-        <div className="pt-5 border-t border-dashed border-[var(--border)] flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 text-[13px]">
-          <div className="flex flex-col sm:flex-row sm:items-center gap-3 sm:gap-5">
-            <span>
-              © {new Date().getFullYear()} Tissu Shop · {copy.footer.copyrightSuffix}
-            </span>
-            <div className="flex items-center gap-4 text-[12px]">
-              <Link href={`/${lang}/privacy`} className="hover:text-[var(--tissu-terracotta)] transition-colors">
-                {lang === "ka" ? "პერსონალური მონაცემები" : "Privacy"}
-              </Link>
-              <span className="opacity-40">·</span>
-              <Link href={`/${lang}/terms`} className="hover:text-[var(--tissu-terracotta)] transition-colors">
-                {lang === "ka" ? "წესები" : "Terms"}
-              </Link>
+              <a
+                href="https://pinterest.com/thetissushop"
+                target="_blank"
+                rel="noopener noreferrer"
+                aria-label="Pinterest"
+                className="w-11 h-11 rounded-full inline-flex items-center justify-center transition-colors"
+                style={{ border: "2px solid rgba(254,240,214,0.3)", color: "#fef0d6" }}
+                onMouseEnter={(e) => { (e.currentTarget as HTMLElement).style.background = "#d56826"; (e.currentTarget as HTMLElement).style.borderColor = "#d56826"; }}
+                onMouseLeave={(e) => { (e.currentTarget as HTMLElement).style.background = "transparent"; (e.currentTarget as HTMLElement).style.borderColor = "rgba(254,240,214,0.3)"; }}
+              >
+                <svg width="17" height="17" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
+                  <path d="M12 2C6.48 2 2 6.48 2 12c0 4.24 2.65 7.86 6.39 9.29-.09-.78-.17-1.98.04-2.83.18-.77 1.23-5.22 1.23-5.22s-.31-.63-.31-1.56c0-1.46.85-2.56 1.9-2.56.9 0 1.33.67 1.33 1.48 0 .9-.58 2.26-.87 3.51-.25 1.05.52 1.9 1.55 1.9 1.86 0 3.12-2.4 3.12-5.23 0-2.16-1.46-3.67-3.55-3.67-2.42 0-3.84 1.81-3.84 3.69 0 .73.28 1.51.63 1.94.07.09.08.16.06.25-.06.26-.2.84-.23.96-.04.16-.13.19-.3.11-1.12-.52-1.82-2.17-1.82-3.49 0-2.84 2.06-5.44 5.94-5.44 3.12 0 5.55 2.22 5.55 5.19 0 3.1-1.95 5.59-4.65 5.59-.91 0-1.76-.47-2.05-1.03l-.56 2.08c-.2.78-.75 1.75-1.12 2.35.85.26 1.74.4 2.67.4 5.52 0 10-4.48 10-10S17.52 2 12 2z"/>
+                </svg>
+              </a>
             </div>
           </div>
-          <div className="flex items-center gap-2.5">
-            <a
-              href="https://instagram.com/thetissushop"
-              target="_blank"
-              rel="noopener noreferrer"
-              aria-label="Instagram"
-              className="w-10 h-10 rounded-full border-[1.5px] border-[var(--tissu-ink)] inline-flex items-center justify-center text-[var(--tissu-ink)] hover:bg-[var(--tissu-ink)] hover:text-[var(--tissu-cream)] transition-colors"
+
+          {/* Explore links */}
+          <div>
+            <h5
+              className="text-[11px] font-extrabold uppercase tracking-[0.3em] mb-5"
+              style={{ color: "#f3b62b", fontFamily: FRAUNCES }}
             >
-              <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" aria-hidden="true">
-                <rect x="3" y="3" width="18" height="18" rx="5" />
-                <circle cx="12" cy="12" r="4" />
-                <circle cx="17.5" cy="6.5" r="1" fill="currentColor" />
-              </svg>
-            </a>
-            <a
-              href="#"
-              aria-label="TikTok"
-              className="w-10 h-10 rounded-full border-[1.5px] border-[var(--tissu-ink)] inline-flex items-center justify-center text-[var(--tissu-ink)] hover:bg-[var(--tissu-ink)] hover:text-[var(--tissu-cream)] transition-colors"
+              {isKa ? "გამოიკვლიე" : "Explore"}
+            </h5>
+            <ul className="flex flex-col gap-3">
+              {exploreLinks.map((l) => (
+                <li key={l.href}>
+                  <Link
+                    href={l.href}
+                    className="text-[14px] font-bold transition-colors hover:text-[#f3b62b]"
+                    style={{ color: "rgba(254,240,214,0.8)", fontFamily: FRAUNCES }}
+                  >
+                    {l.label}
+                  </Link>
+                </li>
+              ))}
+            </ul>
+          </div>
+
+          {/* Info links */}
+          <div>
+            <h5
+              className="text-[11px] font-extrabold uppercase tracking-[0.3em] mb-5"
+              style={{ color: "#f3b62b", fontFamily: FRAUNCES }}
             >
-              <svg width="15" height="15" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
-                <path d="M16.6 5.8a4.8 4.8 0 0 1-2.8-1.8v9.4a4.2 4.2 0 1 1-4.2-4.2v2.2a2 2 0 1 0 2 2V2h2a4.8 4.8 0 0 0 3 3v2.8z" />
-              </svg>
-            </a>
-            <a
-              href="#"
-              aria-label="Pinterest"
-              className="w-10 h-10 rounded-full border-[1.5px] border-[var(--tissu-ink)] inline-flex items-center justify-center text-[var(--tissu-ink)] hover:bg-[var(--tissu-ink)] hover:text-[var(--tissu-cream)] transition-colors"
-            >
-              <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" aria-hidden="true">
-                <circle cx="12" cy="12" r="9" />
-                <path d="M12 7v9M9 14l3-3 3 3" />
-              </svg>
-            </a>
+              {isKa ? "ინფო" : "Info"}
+            </h5>
+            <ul className="flex flex-col gap-3">
+              {legalLinks.map((l) => (
+                <li key={l.href}>
+                  <Link
+                    href={l.href}
+                    className="text-[14px] font-bold transition-colors hover:text-[#f3b62b]"
+                    style={{ color: "rgba(254,240,214,0.8)", fontFamily: FRAUNCES }}
+                  >
+                    {l.label}
+                  </Link>
+                </li>
+              ))}
+            </ul>
           </div>
         </div>
+
+        {/* Bottom bar */}
+        <div
+          className="pt-6 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 text-[12px]"
+          style={{ borderTop: "1px solid rgba(254,240,214,0.12)", color: "rgba(254,240,214,0.45)", fontFamily: FRAUNCES }}
+        >
+          <span>© {new Date().getFullYear()} Tissu Shop · {isKa ? "ყველა უფლება დაცულია" : "All rights reserved"}</span>
+          <span>{isKa ? "დამზადებულია სიყვარულით თბილისში" : "Made with love in Tbilisi"}</span>
+        </div>
       </div>
+
+      {/* Bottom stripe */}
+      <div className="h-2" style={{ background: STRIPE }} aria-hidden="true" />
     </footer>
   );
 }
