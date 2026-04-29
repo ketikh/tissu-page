@@ -22,7 +22,6 @@ interface RetroHeroProps {
 }
 
 const FRAUNCES = "var(--font-fraunces), 'Fraunces', Georgia, serif";
-const PACIFICO = "var(--font-pacifico), 'Pacifico', cursive";
 
 /* ---------- Palette (scoped to this component) ---------- */
 const C = {
@@ -118,10 +117,15 @@ export default function RetroHero({
             aria-hidden="true"
           >
             <defs>
-              <filter id="tissu-halo" x="-5%" y="-18%" width="110%" height="136%">
-                <feMorphology in="SourceAlpha" operator="dilate" radius="24" result="dilated"/>
+              <filter id="tissu-halo" x="-6%" y="-25%" width="112%" height="150%">
+                {/* dilate merges all letters into one unified mass, blur smooths jagged edges, threshold snaps to a clean hard contour */}
+                <feMorphology in="SourceAlpha" operator="dilate" radius="42" result="dilated"/>
+                <feGaussianBlur in="dilated" stdDeviation="5" result="blurred"/>
+                <feComponentTransfer in="blurred" result="hard">
+                  <feFuncA type="discrete" tableValues="0 1"/>
+                </feComponentTransfer>
                 <feFlood floodColor="#ffd9e7" result="pink"/>
-                <feComposite in="pink" in2="dilated" operator="in" result="pinkHalo"/>
+                <feComposite in="pink" in2="hard" operator="in" result="pinkHalo"/>
                 <feMerge>
                   <feMergeNode in="pinkHalo"/>
                   <feMergeNode in="SourceGraphic"/>
