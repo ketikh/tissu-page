@@ -20,7 +20,6 @@ interface NavbarProps {
 const HIDE_ON_ROUTES = ["/preview-retro", "/preview-hero"];
 const FRAUNCES = "var(--font-fraunces), 'Fraunces', Georgia, serif";
 
-/* ── Retro palette ── */
 const C = {
   cream: "#fef0d6",
   ink: "#2a1d14",
@@ -29,6 +28,24 @@ const C = {
   mustardDeep: "#d99820",
   border: "rgba(42,29,20,0.18)",
 };
+
+const TISSU_PATHS = [
+  "M223.3,341.6c-17.2,0-29.8-4.6-37.7-13.7-8-9.1-11.9-22.4-11.9-39.8s.4-17.9,1.3-25.2c.9-7.3,1.8-14.4,2.7-21.4.9-6.9,1.8-14.1,2.7-21.4.9-7.3,1.3-15.7,1.3-25.2s0-7.2-.2-11c-.1-3.7-.5-7.1-1.2-10.2-.6-3.1-1.7-5.6-3.3-7.7-1.5-2.1-3.7-3.1-6.5-3.1-4.4,0-8.2,0-11.4.2-3.2.1-6.4.3-9.4.4-3.1.1-6.5.3-10.2.4-3.7.1-8.3.2-13.7.2s-6.7-2.2-9.4-6.5c-2.7-4.4-4.9-9.4-6.7-15.2-1.8-5.8-3.1-11.4-4-16.9-.9-5.5-1.3-9.6-1.3-12.1s0-3.1-.2-4.8c-.1-1.7,0-3.3.6-4.8,1.5-7.7,5.6-14.1,12.3-19.1,6.7-5,15.2-8.9,25.6-11.5,10.4-2.7,22.3-4.6,35.6-5.6,13.3-1,27.5-1.5,42.3-1.5s29.4.5,43.5,1.5c14.1,1,26.6,3.3,37.5,6.9,10.9,3.6,19.7,8.7,26.4,15.2,6.7,6.5,10,15.5,10,26.8s-.2,9.9-.6,15.8c-.4,5.9-1.3,11.5-2.7,16.9-1.4,5.4-3.3,9.9-5.8,13.5-2.4,3.6-5.6,5.4-9.4,5.4s-11.2-.8-18.3-2.3c-7.1-1.5-14.6-2.3-22.5-2.3s-7.3.5-9.6,1.5c-2.3,1-4,2.5-5,4.4-1,1.9-1.6,4.2-1.7,6.9-.1,2.7-.2,5.6-.2,8.7,0,10.3.6,19.8,1.9,28.5,1.3,8.7,2.7,17.3,4.2,25.8,1.5,8.5,2.9,17.3,4.2,26.4,1.3,9.1,1.9,19.3,1.9,30.6s-1.4,14.4-4.2,20.2c-2.8,5.8-6.6,10.5-11.4,14.2-4.8,3.7-10.2,6.5-16.4,8.3-6.2,1.8-12.6,2.7-19.2,2.7Z",
+  "M405.8,334.7c-17.2,0-30.2-4.8-39.1-14.4-8.9-9.6-14.3-23-16.4-40.2-3.6-31.6-4.9-62.8-4-93.5.9-30.8,3.5-61.7,7.9-92.8.8-5.4,3-9.9,6.7-13.7,3.7-3.7,8.1-6.6,13.1-8.7,5-2.1,10.1-3.5,15.4-4.4,5.3-.9,9.9-1.3,14.1-1.3,9.8,0,18.5,2.3,26.4,6.9,7.8,4.6,12.8,13,14.8,25,2.3,13.3,4.2,28.6,5.8,45.6,1.5,17.1,2.9,34.5,4,52.4,1.2,17.8,2,35.4,2.5,52.7.5,17.3.8,32.9.8,46.8s-1.7,12.9-5,17.9c-3.3,5-7.5,9.1-12.5,12.3-5,3.2-10.6,5.6-16.7,7.1-6.2,1.5-12.1,2.3-17.7,2.3Z",
+  "M572.9,340.1c-18,0-33.5-1-46.6-3.1-13.1-2.1-23.7-5.5-32-10.4-8.2-4.9-14.3-11.2-18.3-19.1-4-7.8-6-17.6-6-29.5s3.7-28.1,11.2-36.6c7.4-8.5,15.9-12.7,25.4-12.7s8.5,1.2,12.5,3.7c4,2.4,8.3,5.1,12.9,7.9,4.6,2.8,9.8,5.5,15.6,7.9,5.8,2.4,12.5,3.7,20.2,3.7s4.7-.3,8.1-1c3.3-.6,5-2.5,5-5.6s-1.9-6.7-5.6-10c-3.7-3.3-6.9-5.9-9.4-7.7-6.4-4.6-13-8.5-19.8-11.5-6.8-3.1-13.3-6-19.6-8.9-6.3-2.8-12.3-5.8-18.1-9-5.8-3.2-10.8-7.2-15-12.1-4.2-4.9-7.6-10.9-10-18.1-2.4-7.2-3.7-16-3.7-26.6s2.6-25.5,7.9-35.6c5.3-10.1,12.3-18.6,21.2-25.4,8.9-6.8,19.1-11.9,30.6-15.4,11.5-3.5,23.6-5.2,36.2-5.2,38.2,0,67.2,4.8,86.8,14.4,19.6,9.6,29.5,24.6,29.5,44.9s-1,8-3.1,13.1c-2.1,5.1-4.7,10-7.9,14.6-3.2,4.6-6.9,8.6-11,11.9-4.1,3.3-8.2,5-12.3,5s-6.5-1-9.6-2.9c-3.1-1.9-6.6-4-10.6-6.4-4-2.3-8.7-4.4-14.2-6.4-5.5-1.9-12.5-2.9-21-2.9s-2.4,0-4.2.2c-1.8.1-3.5.5-5,1-1.5.5-2.9,1.2-4,2.1-1.2.9-1.7,2.2-1.7,4,0,3.8,1.9,7.3,5.6,10.2,3.7,3,8.2,5.6,13.5,7.9,5.3,2.3,10.6,4.4,16,6.2,5.4,1.8,9.6,3.3,12.7,4.6,8,3.3,15.7,6.4,23.3,9.2,7.6,2.8,14.3,6.5,20.2,11,5.9,4.5,10.6,10.3,14.2,17.5,3.6,7.2,5.4,16.6,5.4,28.1,0,32.3-10.1,55.9-30.4,70.6-20.3,14.8-51.8,22.1-94.7,22.1Z",
+  "M810.4,340.1c-18,0-33.5-1-46.6-3.1-13.1-2.1-23.7-5.5-32-10.4-8.2-4.9-14.3-11.2-18.3-19.1-4-7.8-6-17.6-6-29.5s3.7-28.1,11.2-36.6c7.4-8.5,15.9-12.7,25.4-12.7s8.5,1.2,12.5,3.7c4,2.4,8.3,5.1,12.9,7.9,4.6,2.8,9.8,5.5,15.6,7.9,5.8,2.4,12.5,3.7,20.2,3.7s4.7-.3,8.1-1c3.3-.6,5-2.5,5-5.6s-1.9-6.7-5.6-10c-3.7-3.3-6.9-5.9-9.4-7.7-6.4-4.6-13-8.5-19.8-11.5-6.8-3.1-13.3-6-19.6-8.9-6.3-2.8-12.3-5.8-18.1-9-5.8-3.2-10.8-7.2-15-12.1-4.2-4.9-7.6-10.9-10-18.1-2.4-7.2-3.7-16-3.7-26.6s2.6-25.5,7.9-35.6c5.3-10.1,12.3-18.6,21.2-25.4,8.9-6.8,19.1-11.9,30.6-15.4,11.5-3.5,23.6-5.2,36.2-5.2,38.2,0,67.2,4.8,86.8,14.4,19.6,9.6,29.5,24.6,29.5,44.9s-1,8-3.1,13.1c-2.1,5.1-4.7,10-7.9,14.6-3.2,4.6-6.9,8.6-11,11.9-4.1,3.3-8.2,5-12.3,5s-6.5-1-9.6-2.9c-3.1-1.9-6.6-4-10.6-6.4-4-2.3-8.7-4.4-14.2-6.4-5.5-1.9-12.5-2.9-21-2.9s-2.4,0-4.2.2c-1.8.1-3.5.5-5,1-1.5.5-2.9,1.2-4,2.1-1.2.9-1.7,2.2-1.7,4,0,3.8,1.9,7.3,5.6,10.2,3.7,3,8.2,5.6,13.5,7.9,5.3,2.3,10.6,4.4,16,6.2,5.4,1.8,9.6,3.3,12.7,4.6,8,3.3,15.7,6.4,23.3,9.2,7.6,2.8,14.3,6.5,20.2,11,5.9,4.5,10.6,10.3,14.2,17.5,3.6,7.2,5.4,16.6,5.4,28.1,0,32.3-10.1,55.9-30.4,70.6-20.3,14.8-51.8,22.1-94.7,22.1Z",
+  "M1020.8,341c-11.1-4.3-21.6-10.1-31.3-16.9-18.9-13.3-24.4-27.9-30.9-49.6-3.3-11.2-5.9-22.5-7.7-34.1-1.8-11.5-3-22.8-3.5-33.9-.5-11-.8-20.7-.8-28.9,0-13.6.3-27.5,1-41.6.6-14.1,2.1-27.8,4.4-41.2,1-5.4,3.3-9.9,6.7-13.7,3.5-3.7,7.6-6.7,12.3-9,4.7-2.3,9.8-4,15.2-5,5.4-1,10.5-1.5,15.4-1.5s10.5.6,16,1.7c5.5,1.2,10.7,3,15.6,5.4,4.9,2.4,8.9,5.8,11.9,10,3.1,4.2,4.6,9.4,4.6,15.6s-.3,8.7-1,12.9c-.6,4.2-1.2,8.5-1.7,12.9-1.3,8.2-2.1,16.3-2.5,24.3-.4,8-.6,16-.6,24.3s0,6.5.2,11.9c.1,5.4.4,11.4,1,18.1.5,6.7,1.2,13.5,2.1,20.6.9,7.1,2.2,13.5,3.8,19.4,1.7,5.9,3.7,10.7,6,14.4,2.3,3.7,5.1,5.6,8.5,5.6s6.5-2.2,8.9-6.7c2.3-4.5,4.2-10.1,5.6-16.9,1.4-6.8,2.5-14.4,3.3-22.9.8-8.5,1.3-16.6,1.7-24.4.4-7.8.6-14.9.6-21.4v-13.9c0-11.3-1.3-21.2-4-29.8-2.7-8.6-4-17-4-25.2s1.3-11.4,3.8-15.8c2.6-4.4,6-8,10.2-10.8,4.2-2.8,8.9-4.9,14.1-6.2,5.1-1.3,10.4-1.9,15.8-1.9,9.2,0,17.1,2.2,23.5,6.5,6.4,4.4,11.7,10.1,16,17.3,4.2,7.2,7.5,15.3,9.8,24.4,2.3,9.1,4,18.3,5.2,27.5,1.2,9.2,1.9,18.3,2.1,27.1.3,8.9.4,16.5.4,22.9,0,45.7,5.1,93.2-31.7,127.6-24.5,22.9-59.6,33-92.9,29.1-11.3-1.3-22.4-4.2-33.1-8.3Z",
+];
+
+function TissuLogo({ fill = C.burnt, className = "" }: { fill?: string; className?: string }) {
+  return (
+    <svg viewBox="0 0 1282.8 410" xmlns="http://www.w3.org/2000/svg" className={className} style={{ display: "block" }} aria-hidden="true">
+      <g fill={fill}>
+        {TISSU_PATHS.map((d, i) => <path key={i} d={d} />)}
+      </g>
+    </svg>
+  );
+}
 
 export function Navbar({ lang, dictionary }: NavbarProps) {
   const hydrated = useStoreHydration();
@@ -39,34 +56,25 @@ export function Navbar({ lang, dictionary }: NavbarProps) {
   const shopRef = useRef<HTMLDivElement>(null);
   const openCart = useUIStore((state) => state.openCart);
   const cartItemCount = hydrated ? useCartStore.getState().getSummary().itemsCount : 0;
-
   const copy = getLandingCopy(lang);
 
-  /* Hide on home page (RetroHero provides its own header there) */
   const isHome = pathname === `/${lang}` || pathname === `/${lang}/`;
   const isHidden = isHome || HIDE_ON_ROUTES.some((p) => pathname?.includes(p));
 
-  /* Close shop dropdown on outside click */
   useEffect(() => {
     function handler(e: MouseEvent) {
-      if (shopRef.current && !shopRef.current.contains(e.target as Node)) {
-        setShopOpen(false);
-      }
+      if (shopRef.current && !shopRef.current.contains(e.target as Node)) setShopOpen(false);
     }
     document.addEventListener("mousedown", handler);
     return () => document.removeEventListener("mousedown", handler);
   }, []);
 
-  /* Close mobile on route change */
-  useEffect(() => {
-    setIsMobileOpen(false);
-    setShopOpen(false);
-  }, [pathname]);
+  useEffect(() => { setIsMobileOpen(false); setShopOpen(false); }, [pathname]);
 
   if (isHidden) return null;
 
   const categories = [
-    { label: lang === "ka" ? "ყველა" : "All products", href: `/${lang}/shop` },
+    { label: lang === "ka" ? "ყველა პროდუქტი" : "All products", href: `/${lang}/shop` },
     { label: copy.shop.filters.bag, href: `/${lang}/shop?category=tote` },
     { label: copy.shop.filters.pouch, href: `/${lang}/shop?category=pouch` },
     { label: copy.shop.filters.laptop, href: `/${lang}/shop?category=laptop` },
@@ -75,58 +83,33 @@ export function Navbar({ lang, dictionary }: NavbarProps) {
     { label: copy.shop.filters.necklace, href: `/${lang}/shop?category=necklace` },
   ];
 
-  const extraLinks = [
+  const rightLinks = [
     { name: copy.nav.story, href: `/${lang}/about` },
+    { name: lang === "ka" ? "FAQ" : "FAQ", href: `/${lang}/faq` },
     { name: lang === "ka" ? "კონტაქტი" : "Contact", href: `/${lang}/contact` },
   ];
 
   return (
     <header
       className="sticky top-0 z-40"
-      style={{
-        background: C.cream,
-        borderBottom: `3px solid ${C.ink}`,
-        boxShadow: `0 3px 0 ${C.mustardDeep}`,
-      }}
+      style={{ background: C.cream, borderBottom: `3px solid ${C.ink}`, boxShadow: `0 3px 0 ${C.mustardDeep}` }}
     >
-      <div className="container flex items-center justify-between gap-4 py-3.5">
+      {/* ── Desktop: 3-column centred-logo layout ── */}
+      <div className="hidden md:grid grid-cols-3 items-center px-6 py-3">
 
-        {/* Logo */}
-        <Link href={`/${lang}`} className="shrink-0" aria-label="Tissu">
-          <svg
-            viewBox="0 0 1282.8 410"
-            xmlns="http://www.w3.org/2000/svg"
-            className="h-7 md:h-8 w-auto"
-            style={{ display: "block" }}
-            aria-hidden="true"
-          >
-            <g fill="#d56826">
-              <path d="M223.3,341.6c-17.2,0-29.8-4.6-37.7-13.7-8-9.1-11.9-22.4-11.9-39.8s.4-17.9,1.3-25.2c.9-7.3,1.8-14.4,2.7-21.4.9-6.9,1.8-14.1,2.7-21.4.9-7.3,1.3-15.7,1.3-25.2s0-7.2-.2-11c-.1-3.7-.5-7.1-1.2-10.2-.6-3.1-1.7-5.6-3.3-7.7-1.5-2.1-3.7-3.1-6.5-3.1-4.4,0-8.2,0-11.4.2-3.2.1-6.4.3-9.4.4-3.1.1-6.5.3-10.2.4-3.7.1-8.3.2-13.7.2s-6.7-2.2-9.4-6.5c-2.7-4.4-4.9-9.4-6.7-15.2-1.8-5.8-3.1-11.4-4-16.9-.9-5.5-1.3-9.6-1.3-12.1s0-3.1-.2-4.8c-.1-1.7,0-3.3.6-4.8,1.5-7.7,5.6-14.1,12.3-19.1,6.7-5,15.2-8.9,25.6-11.5,10.4-2.7,22.3-4.6,35.6-5.6,13.3-1,27.5-1.5,42.3-1.5s29.4.5,43.5,1.5c14.1,1,26.6,3.3,37.5,6.9,10.9,3.6,19.7,8.7,26.4,15.2,6.7,6.5,10,15.5,10,26.8s-.2,9.9-.6,15.8c-.4,5.9-1.3,11.5-2.7,16.9-1.4,5.4-3.3,9.9-5.8,13.5-2.4,3.6-5.6,5.4-9.4,5.4s-11.2-.8-18.3-2.3c-7.1-1.5-14.6-2.3-22.5-2.3s-7.3.5-9.6,1.5c-2.3,1-4,2.5-5,4.4-1,1.9-1.6,4.2-1.7,6.9-.1,2.7-.2,5.6-.2,8.7,0,10.3.6,19.8,1.9,28.5,1.3,8.7,2.7,17.3,4.2,25.8,1.5,8.5,2.9,17.3,4.2,26.4,1.3,9.1,1.9,19.3,1.9,30.6s-1.4,14.4-4.2,20.2c-2.8,5.8-6.6,10.5-11.4,14.2-4.8,3.7-10.2,6.5-16.4,8.3-6.2,1.8-12.6,2.7-19.2,2.7Z"/>
-              <path d="M405.8,334.7c-17.2,0-30.2-4.8-39.1-14.4-8.9-9.6-14.3-23-16.4-40.2-3.6-31.6-4.9-62.8-4-93.5.9-30.8,3.5-61.7,7.9-92.8.8-5.4,3-9.9,6.7-13.7,3.7-3.7,8.1-6.6,13.1-8.7,5-2.1,10.1-3.5,15.4-4.4,5.3-.9,9.9-1.3,14.1-1.3,9.8,0,18.5,2.3,26.4,6.9,7.8,4.6,12.8,13,14.8,25,2.3,13.3,4.2,28.6,5.8,45.6,1.5,17.1,2.9,34.5,4,52.4,1.2,17.8,2,35.4,2.5,52.7.5,17.3.8,32.9.8,46.8s-1.7,12.9-5,17.9c-3.3,5-7.5,9.1-12.5,12.3-5,3.2-10.6,5.6-16.7,7.1-6.2,1.5-12.1,2.3-17.7,2.3Z"/>
-              <path d="M572.9,340.1c-18,0-33.5-1-46.6-3.1-13.1-2.1-23.7-5.5-32-10.4-8.2-4.9-14.3-11.2-18.3-19.1-4-7.8-6-17.6-6-29.5s3.7-28.1,11.2-36.6c7.4-8.5,15.9-12.7,25.4-12.7s8.5,1.2,12.5,3.7c4,2.4,8.3,5.1,12.9,7.9,4.6,2.8,9.8,5.5,15.6,7.9,5.8,2.4,12.5,3.7,20.2,3.7s4.7-.3,8.1-1c3.3-.6,5-2.5,5-5.6s-1.9-6.7-5.6-10c-3.7-3.3-6.9-5.9-9.4-7.7-6.4-4.6-13-8.5-19.8-11.5-6.8-3.1-13.3-6-19.6-8.9-6.3-2.8-12.3-5.8-18.1-9-5.8-3.2-10.8-7.2-15-12.1-4.2-4.9-7.6-10.9-10-18.1-2.4-7.2-3.7-16-3.7-26.6s2.6-25.5,7.9-35.6c5.3-10.1,12.3-18.6,21.2-25.4,8.9-6.8,19.1-11.9,30.6-15.4,11.5-3.5,23.6-5.2,36.2-5.2,38.2,0,67.2,4.8,86.8,14.4,19.6,9.6,29.5,24.6,29.5,44.9s-1,8-3.1,13.1c-2.1,5.1-4.7,10-7.9,14.6-3.2,4.6-6.9,8.6-11,11.9-4.1,3.3-8.2,5-12.3,5s-6.5-1-9.6-2.9c-3.1-1.9-6.6-4-10.6-6.4-4-2.3-8.7-4.4-14.2-6.4-5.5-1.9-12.5-2.9-21-2.9s-2.4,0-4.2.2c-1.8.1-3.5.5-5,1-1.5.5-2.9,1.2-4,2.1-1.2.9-1.7,2.2-1.7,4,0,3.8,1.9,7.3,5.6,10.2,3.7,3,8.2,5.6,13.5,7.9,5.3,2.3,10.6,4.4,16,6.2,5.4,1.8,9.6,3.3,12.7,4.6,8,3.3,15.7,6.4,23.3,9.2,7.6,2.8,14.3,6.5,20.2,11,5.9,4.5,10.6,10.3,14.2,17.5,3.6,7.2,5.4,16.6,5.4,28.1,0,32.3-10.1,55.9-30.4,70.6-20.3,14.8-51.8,22.1-94.7,22.1Z"/>
-              <path d="M810.4,340.1c-18,0-33.5-1-46.6-3.1-13.1-2.1-23.7-5.5-32-10.4-8.2-4.9-14.3-11.2-18.3-19.1-4-7.8-6-17.6-6-29.5s3.7-28.1,11.2-36.6c7.4-8.5,15.9-12.7,25.4-12.7s8.5,1.2,12.5,3.7c4,2.4,8.3,5.1,12.9,7.9,4.6,2.8,9.8,5.5,15.6,7.9,5.8,2.4,12.5,3.7,20.2,3.7s4.7-.3,8.1-1c3.3-.6,5-2.5,5-5.6s-1.9-6.7-5.6-10c-3.7-3.3-6.9-5.9-9.4-7.7-6.4-4.6-13-8.5-19.8-11.5-6.8-3.1-13.3-6-19.6-8.9-6.3-2.8-12.3-5.8-18.1-9-5.8-3.2-10.8-7.2-15-12.1-4.2-4.9-7.6-10.9-10-18.1-2.4-7.2-3.7-16-3.7-26.6s2.6-25.5,7.9-35.6c5.3-10.1,12.3-18.6,21.2-25.4,8.9-6.8,19.1-11.9,30.6-15.4,11.5-3.5,23.6-5.2,36.2-5.2,38.2,0,67.2,4.8,86.8,14.4,19.6,9.6,29.5,24.6,29.5,44.9s-1,8-3.1,13.1c-2.1,5.1-4.7,10-7.9,14.6-3.2,4.6-6.9,8.6-11,11.9-4.1,3.3-8.2,5-12.3,5s-6.5-1-9.6-2.9c-3.1-1.9-6.6-4-10.6-6.4-4-2.3-8.7-4.4-14.2-6.4-5.5-1.9-12.5-2.9-21-2.9s-2.4,0-4.2.2c-1.8.1-3.5.5-5,1-1.5.5-2.9,1.2-4,2.1-1.2.9-1.7,2.2-1.7,4,0,3.8,1.9,7.3,5.6,10.2,3.7,3,8.2,5.6,13.5,7.9,5.3,2.3,10.6,4.4,16,6.2,5.4,1.8,9.6,3.3,12.7,4.6,8,3.3,15.7,6.4,23.3,9.2,7.6,2.8,14.3,6.5,20.2,11,5.9,4.5,10.6,10.3,14.2,17.5,3.6,7.2,5.4,16.6,5.4,28.1,0,32.3-10.1,55.9-30.4,70.6-20.3,14.8-51.8,22.1-94.7,22.1Z"/>
-              <path d="M1020.8,341c-11.1-4.3-21.6-10.1-31.3-16.9-18.9-13.3-24.4-27.9-30.9-49.6-3.3-11.2-5.9-22.5-7.7-34.1-1.8-11.5-3-22.8-3.5-33.9-.5-11-.8-20.7-.8-28.9,0-13.6.3-27.5,1-41.6.6-14.1,2.1-27.8,4.4-41.2,1-5.4,3.3-9.9,6.7-13.7,3.5-3.7,7.6-6.7,12.3-9,4.7-2.3,9.8-4,15.2-5,5.4-1,10.5-1.5,15.4-1.5s10.5.6,16,1.7c5.5,1.2,10.7,3,15.6,5.4,4.9,2.4,8.9,5.8,11.9,10,3.1,4.2,4.6,9.4,4.6,15.6s-.3,8.7-1,12.9c-.6,4.2-1.2,8.5-1.7,12.9-1.3,8.2-2.1,16.3-2.5,24.3-.4,8-.6,16-.6,24.3s0,6.5.2,11.9c.1,5.4.4,11.4,1,18.1.5,6.7,1.2,13.5,2.1,20.6.9,7.1,2.2,13.5,3.8,19.4,1.7,5.9,3.7,10.7,6,14.4,2.3,3.7,5.1,5.6,8.5,5.6s6.5-2.2,8.9-6.7c2.3-4.5,4.2-10.1,5.6-16.9,1.4-6.8,2.5-14.4,3.3-22.9.8-8.5,1.3-16.6,1.7-24.4.4-7.8.6-14.9.6-21.4v-13.9c0-11.3-1.3-21.2-4-29.8-2.7-8.6-4-17-4-25.2s1.3-11.4,3.8-15.8c2.6-4.4,6-8,10.2-10.8,4.2-2.8,8.9-4.9,14.1-6.2,5.1-1.3,10.4-1.9,15.8-1.9,9.2,0,17.1,2.2,23.5,6.5,6.4,4.4,11.7,10.1,16,17.3,4.2,7.2,7.5,15.3,9.8,24.4,2.3,9.1,4,18.3,5.2,27.5,1.2,9.2,1.9,18.3,2.1,27.1.3,8.9.4,16.5.4,22.9,0,45.7,5.1,93.2-31.7,127.6-24.5,22.9-59.6,33-92.9,29.1-11.3-1.3-22.4-4.2-33.1-8.3Z"/>
-            </g>
-          </svg>
-        </Link>
-
-        {/* Desktop nav */}
-        <nav className="hidden md:flex items-center gap-1">
+        {/* LEFT — Shop dropdown + extra links */}
+        <div className="flex items-center gap-1">
           {/* Shop with dropdown */}
           <div className="relative" ref={shopRef}>
             <button
               type="button"
               onClick={() => setShopOpen((v) => !v)}
-              className="flex items-center gap-1 px-4 py-2 text-[13px] font-extrabold uppercase tracking-[0.14em] rounded-full transition-colors"
-              style={{
-                fontFamily: FRAUNCES,
-                color: shopOpen ? C.burnt : C.ink,
-                background: shopOpen ? `rgba(213,104,38,0.08)` : "transparent",
-              }}
+              className="flex items-center gap-1 px-3 py-2 text-[12px] font-extrabold uppercase tracking-[0.14em] rounded-full transition-colors"
+              style={{ fontFamily: FRAUNCES, color: shopOpen ? C.burnt : C.ink, background: shopOpen ? "rgba(213,104,38,0.08)" : "transparent" }}
             >
               {copy.nav.shop}
-              <motion.span animate={{ rotate: shopOpen ? 180 : 0 }} transition={{ duration: 0.25 }}>
-                <ChevronDown className="w-3.5 h-3.5" />
+              <motion.span animate={{ rotate: shopOpen ? 180 : 0 }} transition={{ duration: 0.22 }}>
+                <ChevronDown className="w-3 h-3" />
               </motion.span>
             </button>
 
@@ -136,20 +119,16 @@ export function Navbar({ lang, dictionary }: NavbarProps) {
                   initial={{ opacity: 0, y: 6, scale: 0.97 }}
                   animate={{ opacity: 1, y: 0, scale: 1 }}
                   exit={{ opacity: 0, y: 4, scale: 0.97 }}
-                  transition={{ duration: 0.18 }}
+                  transition={{ duration: 0.16 }}
                   className="absolute left-0 top-full mt-2 min-w-[200px] z-50"
-                  style={{
-                    background: C.cream,
-                    border: `2px solid ${C.ink}`,
-                    boxShadow: `4px 4px 0 ${C.ink}`,
-                  }}
+                  style={{ background: C.cream, border: `2px solid ${C.ink}`, boxShadow: `4px 4px 0 ${C.ink}` }}
                 >
                   {categories.map((cat) => (
                     <Link
                       key={cat.href}
                       href={cat.href}
                       onClick={() => setShopOpen(false)}
-                      className="block px-5 py-2.5 text-[13px] font-bold uppercase tracking-[0.1em] transition-colors hover:bg-[#d56826] hover:text-[#fef0d6]"
+                      className="block px-5 py-2.5 text-[12px] font-bold uppercase tracking-[0.1em] transition-colors hover:bg-[#d56826] hover:text-[#fef0d6]"
                       style={{ fontFamily: FRAUNCES, color: C.ink, borderBottom: `1px solid ${C.border}` }}
                     >
                       {cat.label}
@@ -160,30 +139,33 @@ export function Navbar({ lang, dictionary }: NavbarProps) {
             </AnimatePresence>
           </div>
 
-          {extraLinks.map((link) => (
+          {rightLinks.map((link) => (
             <Link
               key={link.href}
               href={link.href}
-              className="px-4 py-2 text-[13px] font-extrabold uppercase tracking-[0.14em] rounded-full transition-colors hover:text-[#d56826]"
-              style={{
-                fontFamily: FRAUNCES,
-                color: pathname === link.href ? C.burnt : C.ink,
-              }}
+              className="px-3 py-2 text-[12px] font-extrabold uppercase tracking-[0.14em] rounded-full transition-colors hover:text-[#d56826]"
+              style={{ fontFamily: FRAUNCES, color: pathname === link.href ? C.burnt : C.ink }}
             >
               {link.name}
             </Link>
           ))}
-        </nav>
+        </div>
 
-        {/* Right icons */}
-        <div className="flex items-center gap-2">
-          <div className="hidden lg:block">
-            <LanguageSwitcher currentLang={lang} />
-          </div>
+        {/* CENTER — TISSU logo */}
+        <div className="flex justify-center">
+          <Link href={`/${lang}`} aria-label="Tissu">
+            {/* eslint-disable-next-line @next/next/no-img-element */}
+            <img src="/static/logo.svg" alt="Tissu" className="h-8 w-auto" />
+          </Link>
+        </div>
+
+        {/* RIGHT — Language + Account + Cart */}
+        <div className="flex items-center justify-end gap-2">
+          <LanguageSwitcher currentLang={lang} />
 
           <Link
             href={`/${lang}/account`}
-            className="hidden md:inline-flex w-10 h-10 rounded-full border-2 border-[#2a1d14] items-center justify-center text-[#2a1d14] hover:bg-[#2a1d14] hover:text-[#fef0d6] transition-colors"
+            className="w-10 h-10 rounded-full border-2 border-[#2a1d14] inline-flex items-center justify-center text-[#2a1d14] hover:bg-[#2a1d14] hover:text-[#fef0d6] transition-colors"
             aria-label={dictionary.nav.account}
           >
             <User className="w-[17px] h-[17px]" />
@@ -209,16 +191,45 @@ export function Navbar({ lang, dictionary }: NavbarProps) {
               )}
             </AnimatePresence>
           </button>
-
-          <button
-            type="button"
-            onClick={() => setIsMobileOpen(true)}
-            className="md:hidden w-10 h-10 rounded-full border-2 border-[#2a1d14] inline-flex items-center justify-center text-[#2a1d14]"
-            aria-label="Menu"
-          >
-            <Menu className="w-5 h-5" />
-          </button>
         </div>
+      </div>
+
+      {/* ── Mobile: hamburger · TISSU · cart ── */}
+      <div className="md:hidden flex items-center justify-between px-4 py-3">
+        <button
+          type="button"
+          onClick={() => setIsMobileOpen(true)}
+          className="w-10 h-10 rounded-full border-2 border-[#2a1d14] inline-flex items-center justify-center text-[#2a1d14]"
+          aria-label="Menu"
+        >
+          <Menu className="w-5 h-5" />
+        </button>
+
+        <Link href={`/${lang}`} aria-label="Tissu">
+          {/* eslint-disable-next-line @next/next/no-img-element */}
+          <img src="/static/logo.svg" alt="Tissu" className="h-7 w-auto" />
+        </Link>
+
+        <button
+          type="button"
+          onClick={openCart}
+          aria-label={dictionary.nav.cart}
+          className="relative w-10 h-10 rounded-full border-2 border-[#2a1d14] inline-flex items-center justify-center text-[#2a1d14]"
+        >
+          <ShoppingBag className="w-[17px] h-[17px]" />
+          <AnimatePresence>
+            {cartItemCount > 0 && (
+              <motion.span
+                initial={{ scale: 0, opacity: 0 }}
+                animate={{ scale: 1, opacity: 1 }}
+                exit={{ scale: 0, opacity: 0 }}
+                className="absolute -top-1 -right-1 min-w-[20px] h-[20px] rounded-full bg-[#d56826] text-white text-[10px] font-extrabold inline-flex items-center justify-center px-1 border-2 border-[#fef0d6]"
+              >
+                {cartItemCount}
+              </motion.span>
+            )}
+          </AnimatePresence>
+        </button>
       </div>
 
       {/* ── Mobile slide panel ── */}
@@ -241,61 +252,34 @@ export function Navbar({ lang, dictionary }: NavbarProps) {
               style={{ background: C.cream, borderLeft: `3px solid ${C.ink}` }}
             >
               {/* Panel header */}
-              <div
-                className="flex justify-between items-center px-6 py-5"
-                style={{ borderBottom: `2px solid ${C.ink}` }}
-              >
-                <svg viewBox="0 0 1282.8 410" xmlns="http://www.w3.org/2000/svg" className="h-7 w-auto" aria-hidden="true">
-                  <g fill="#d56826">
-                    <path d="M223.3,341.6c-17.2,0-29.8-4.6-37.7-13.7-8-9.1-11.9-22.4-11.9-39.8s.4-17.9,1.3-25.2c.9-7.3,1.8-14.4,2.7-21.4.9-6.9,1.8-14.1,2.7-21.4.9-7.3,1.3-15.7,1.3-25.2s0-7.2-.2-11c-.1-3.7-.5-7.1-1.2-10.2-.6-3.1-1.7-5.6-3.3-7.7-1.5-2.1-3.7-3.1-6.5-3.1-4.4,0-8.2,0-11.4.2-3.2.1-6.4.3-9.4.4-3.1.1-6.5.3-10.2.4-3.7.1-8.3.2-13.7.2s-6.7-2.2-9.4-6.5c-2.7-4.4-4.9-9.4-6.7-15.2-1.8-5.8-3.1-11.4-4-16.9-.9-5.5-1.3-9.6-1.3-12.1s0-3.1-.2-4.8c-.1-1.7,0-3.3.6-4.8,1.5-7.7,5.6-14.1,12.3-19.1,6.7-5,15.2-8.9,25.6-11.5,10.4-2.7,22.3-4.6,35.6-5.6,13.3-1,27.5-1.5,42.3-1.5s29.4.5,43.5,1.5c14.1,1,26.6,3.3,37.5,6.9,10.9,3.6,19.7,8.7,26.4,15.2,6.7,6.5,10,15.5,10,26.8s-.2,9.9-.6,15.8c-.4,5.9-1.3,11.5-2.7,16.9-1.4,5.4-3.3,9.9-5.8,13.5-2.4,3.6-5.6,5.4-9.4,5.4s-11.2-.8-18.3-2.3c-7.1-1.5-14.6-2.3-22.5-2.3s-7.3.5-9.6,1.5c-2.3,1-4,2.5-5,4.4-1,1.9-1.6,4.2-1.7,6.9-.1,2.7-.2,5.6-.2,8.7,0,10.3.6,19.8,1.9,28.5,1.3,8.7,2.7,17.3,4.2,25.8,1.5,8.5,2.9,17.3,4.2,26.4,1.3,9.1,1.9,19.3,1.9,30.6s-1.4,14.4-4.2,20.2c-2.8,5.8-6.6,10.5-11.4,14.2-4.8,3.7-10.2,6.5-16.4,8.3-6.2,1.8-12.6,2.7-19.2,2.7Z"/>
-                    <path d="M405.8,334.7c-17.2,0-30.2-4.8-39.1-14.4-8.9-9.6-14.3-23-16.4-40.2-3.6-31.6-4.9-62.8-4-93.5.9-30.8,3.5-61.7,7.9-92.8.8-5.4,3-9.9,6.7-13.7,3.7-3.7,8.1-6.6,13.1-8.7,5-2.1,10.1-3.5,15.4-4.4,5.3-.9,9.9-1.3,14.1-1.3,9.8,0,18.5,2.3,26.4,6.9,7.8,4.6,12.8,13,14.8,25,2.3,13.3,4.2,28.6,5.8,45.6,1.5,17.1,2.9,34.5,4,52.4,1.2,17.8,2,35.4,2.5,52.7.5,17.3.8,32.9.8,46.8s-1.7,12.9-5,17.9c-3.3,5-7.5,9.1-12.5,12.3-5,3.2-10.6,5.6-16.7,7.1-6.2,1.5-12.1,2.3-17.7,2.3Z"/>
-                    <path d="M572.9,340.1c-18,0-33.5-1-46.6-3.1-13.1-2.1-23.7-5.5-32-10.4-8.2-4.9-14.3-11.2-18.3-19.1-4-7.8-6-17.6-6-29.5s3.7-28.1,11.2-36.6c7.4-8.5,15.9-12.7,25.4-12.7s8.5,1.2,12.5,3.7c4,2.4,8.3,5.1,12.9,7.9,4.6,2.8,9.8,5.5,15.6,7.9,5.8,2.4,12.5,3.7,20.2,3.7s4.7-.3,8.1-1c3.3-.6,5-2.5,5-5.6s-1.9-6.7-5.6-10c-3.7-3.3-6.9-5.9-9.4-7.7-6.4-4.6-13-8.5-19.8-11.5-6.8-3.1-13.3-6-19.6-8.9-6.3-2.8-12.3-5.8-18.1-9-5.8-3.2-10.8-7.2-15-12.1-4.2-4.9-7.6-10.9-10-18.1-2.4-7.2-3.7-16-3.7-26.6s2.6-25.5,7.9-35.6c5.3-10.1,12.3-18.6,21.2-25.4,8.9-6.8,19.1-11.9,30.6-15.4,11.5-3.5,23.6-5.2,36.2-5.2,38.2,0,67.2,4.8,86.8,14.4,19.6,9.6,29.5,24.6,29.5,44.9s-1,8-3.1,13.1c-2.1,5.1-4.7,10-7.9,14.6-3.2,4.6-6.9,8.6-11,11.9-4.1,3.3-8.2,5-12.3,5s-6.5-1-9.6-2.9c-3.1-1.9-6.6-4-10.6-6.4-4-2.3-8.7-4.4-14.2-6.4-5.5-1.9-12.5-2.9-21-2.9s-2.4,0-4.2.2c-1.8.1-3.5.5-5,1-1.5.5-2.9,1.2-4,2.1-1.2.9-1.7,2.2-1.7,4,0,3.8,1.9,7.3,5.6,10.2,3.7,3,8.2,5.6,13.5,7.9,5.3,2.3,10.6,4.4,16,6.2,5.4,1.8,9.6,3.3,12.7,4.6,8,3.3,15.7,6.4,23.3,9.2,7.6,2.8,14.3,6.5,20.2,11,5.9,4.5,10.6,10.3,14.2,17.5,3.6,7.2,5.4,16.6,5.4,28.1,0,32.3-10.1,55.9-30.4,70.6-20.3,14.8-51.8,22.1-94.7,22.1Z"/>
-                    <path d="M810.4,340.1c-18,0-33.5-1-46.6-3.1-13.1-2.1-23.7-5.5-32-10.4-8.2-4.9-14.3-11.2-18.3-19.1-4-7.8-6-17.6-6-29.5s3.7-28.1,11.2-36.6c7.4-8.5,15.9-12.7,25.4-12.7s8.5,1.2,12.5,3.7c4,2.4,8.3,5.1,12.9,7.9,4.6,2.8,9.8,5.5,15.6,7.9,5.8,2.4,12.5,3.7,20.2,3.7s4.7-.3,8.1-1c3.3-.6,5-2.5,5-5.6s-1.9-6.7-5.6-10c-3.7-3.3-6.9-5.9-9.4-7.7-6.4-4.6-13-8.5-19.8-11.5-6.8-3.1-13.3-6-19.6-8.9-6.3-2.8-12.3-5.8-18.1-9-5.8-3.2-10.8-7.2-15-12.1-4.2-4.9-7.6-10.9-10-18.1-2.4-7.2-3.7-16-3.7-26.6s2.6-25.5,7.9-35.6c5.3-10.1,12.3-18.6,21.2-25.4,8.9-6.8,19.1-11.9,30.6-15.4,11.5-3.5,23.6-5.2,36.2-5.2,38.2,0,67.2,4.8,86.8,14.4,19.6,9.6,29.5,24.6,29.5,44.9s-1,8-3.1,13.1c-2.1,5.1-4.7,10-7.9,14.6-3.2,4.6-6.9,8.6-11,11.9-4.1,3.3-8.2,5-12.3,5s-6.5-1-9.6-2.9c-3.1-1.9-6.6-4-10.6-6.4-4-2.3-8.7-4.4-14.2-6.4-5.5-1.9-12.5-2.9-21-2.9s-2.4,0-4.2.2c-1.8.1-3.5.5-5,1-1.5.5-2.9,1.2-4,2.1-1.2.9-1.7,2.2-1.7,4,0,3.8,1.9,7.3,5.6,10.2,3.7,3,8.2,5.6,13.5,7.9,5.3,2.3,10.6,4.4,16,6.2,5.4,1.8,9.6,3.3,12.7,4.6,8,3.3,15.7,6.4,23.3,9.2,7.6,2.8,14.3,6.5,20.2,11,5.9,4.5,10.6,10.3,14.2,17.5,3.6,7.2,5.4,16.6,5.4,28.1,0,32.3-10.1,55.9-30.4,70.6-20.3,14.8-51.8,22.1-94.7,22.1Z"/>
-                    <path d="M1020.8,341c-11.1-4.3-21.6-10.1-31.3-16.9-18.9-13.3-24.4-27.9-30.9-49.6-3.3-11.2-5.9-22.5-7.7-34.1-1.8-11.5-3-22.8-3.5-33.9-.5-11-.8-20.7-.8-28.9,0-13.6.3-27.5,1-41.6.6-14.1,2.1-27.8,4.4-41.2,1-5.4,3.3-9.9,6.7-13.7,3.5-3.7,7.6-6.7,12.3-9,4.7-2.3,9.8-4,15.2-5,5.4-1,10.5-1.5,15.4-1.5s10.5.6,16,1.7c5.5,1.2,10.7,3,15.6,5.4,4.9,2.4,8.9,5.8,11.9,10,3.1,4.2,4.6,9.4,4.6,15.6s-.3,8.7-1,12.9c-.6,4.2-1.2,8.5-1.7,12.9-1.3,8.2-2.1,16.3-2.5,24.3-.4,8-.6,16-.6,24.3s0,6.5.2,11.9c.1,5.4.4,11.4,1,18.1.5,6.7,1.2,13.5,2.1,20.6.9,7.1,2.2,13.5,3.8,19.4,1.7,5.9,3.7,10.7,6,14.4,2.3,3.7,5.1,5.6,8.5,5.6s6.5-2.2,8.9-6.7c2.3-4.5,4.2-10.1,5.6-16.9,1.4-6.8,2.5-14.4,3.3-22.9.8-8.5,1.3-16.6,1.7-24.4.4-7.8.6-14.9.6-21.4v-13.9c0-11.3-1.3-21.2-4-29.8-2.7-8.6-4-17-4-25.2s1.3-11.4,3.8-15.8c2.6-4.4,6-8,10.2-10.8,4.2-2.8,8.9-4.9,14.1-6.2,5.1-1.3,10.4-1.9,15.8-1.9,9.2,0,17.1,2.2,23.5,6.5,6.4,4.4,11.7,10.1,16,17.3,4.2,7.2,7.5,15.3,9.8,24.4,2.3,9.1,4,18.3,5.2,27.5,1.2,9.2,1.9,18.3,2.1,27.1.3,8.9.4,16.5.4,22.9,0,45.7,5.1,93.2-31.7,127.6-24.5,22.9-59.6,33-92.9,29.1-11.3-1.3-22.4-4.2-33.1-8.3Z"/>
-                  </g>
-                </svg>
-                <button
-                  onClick={() => setIsMobileOpen(false)}
-                  className="w-9 h-9 rounded-full border-2 border-[#2a1d14] inline-flex items-center justify-center"
-                  aria-label="Close"
-                >
+              <div className="flex justify-between items-center px-6 py-5" style={{ borderBottom: `2px solid ${C.ink}` }}>
+                <TissuLogo fill={C.burnt} className="h-7 w-auto" />
+                <button onClick={() => setIsMobileOpen(false)} className="w-9 h-9 rounded-full border-2 border-[#2a1d14] inline-flex items-center justify-center" aria-label="Close">
                   <X className="w-4 h-4" />
                 </button>
               </div>
 
               {/* Panel nav */}
               <nav className="flex flex-col px-6 py-5 gap-1 flex-1">
-                {/* Shop (expandable) */}
+                {/* Shop expandable */}
                 <button
                   type="button"
                   onClick={() => setMobileShopOpen((v) => !v)}
-                  className="flex items-center justify-between w-full py-3 text-left"
-                  style={{ fontFamily: FRAUNCES, fontStyle: "italic", fontWeight: 700, fontSize: 24, color: C.ink, borderBottom: `1px solid ${C.border}` }}
+                  className="flex items-center justify-between w-full py-3"
+                  style={{ fontFamily: FRAUNCES, fontStyle: "italic", fontWeight: 700, fontSize: 22, color: C.ink, borderBottom: `1px solid ${C.border}` }}
                 >
                   {copy.nav.shop}
-                  <motion.span animate={{ rotate: mobileShopOpen ? 180 : 0 }} transition={{ duration: 0.25 }}>
+                  <motion.span animate={{ rotate: mobileShopOpen ? 180 : 0 }} transition={{ duration: 0.22 }}>
                     <ChevronDown className="w-5 h-5" />
                   </motion.span>
                 </button>
 
                 <AnimatePresence>
                   {mobileShopOpen && (
-                    <motion.div
-                      initial={{ height: 0, opacity: 0 }}
-                      animate={{ height: "auto", opacity: 1 }}
-                      exit={{ height: 0, opacity: 0 }}
-                      transition={{ duration: 0.22 }}
-                      className="overflow-hidden"
-                    >
+                    <motion.div initial={{ height: 0, opacity: 0 }} animate={{ height: "auto", opacity: 1 }} exit={{ height: 0, opacity: 0 }} transition={{ duration: 0.2 }} className="overflow-hidden">
                       <div className="pt-1 pb-2 pl-4 flex flex-col gap-0.5">
                         {categories.map((cat) => (
-                          <Link
-                            key={cat.href}
-                            href={cat.href}
-                            onClick={() => setIsMobileOpen(false)}
-                            className="py-2 text-[14px] font-bold uppercase tracking-[0.1em] transition-colors hover:text-[#d56826]"
-                            style={{ fontFamily: FRAUNCES, color: C.ink }}
-                          >
+                          <Link key={cat.href} href={cat.href} onClick={() => setIsMobileOpen(false)} className="py-2 text-[13px] font-bold uppercase tracking-[0.1em] hover:text-[#d56826] transition-colors" style={{ fontFamily: FRAUNCES, color: C.ink }}>
                             → {cat.label}
                           </Link>
                         ))}
@@ -304,13 +288,13 @@ export function Navbar({ lang, dictionary }: NavbarProps) {
                   )}
                 </AnimatePresence>
 
-                {extraLinks.map((link) => (
+                {rightLinks.map((link) => (
                   <Link
                     key={link.href}
                     href={link.href}
                     onClick={() => setIsMobileOpen(false)}
-                    className="py-3 transition-colors hover:text-[#d56826]"
-                    style={{ fontFamily: FRAUNCES, fontStyle: "italic", fontWeight: 700, fontSize: 24, color: C.ink, borderBottom: `1px solid ${C.border}` }}
+                    className="py-3 hover:text-[#d56826] transition-colors"
+                    style={{ fontFamily: FRAUNCES, fontStyle: "italic", fontWeight: 700, fontSize: 22, color: C.ink, borderBottom: `1px solid ${C.border}` }}
                   >
                     {link.name}
                   </Link>
@@ -318,17 +302,9 @@ export function Navbar({ lang, dictionary }: NavbarProps) {
               </nav>
 
               {/* Panel footer */}
-              <div
-                className="px-6 py-5 flex items-center justify-between"
-                style={{ borderTop: `2px solid ${C.ink}` }}
-              >
+              <div className="px-6 py-5 flex items-center justify-between" style={{ borderTop: `2px solid ${C.ink}` }}>
                 <LanguageSwitcher currentLang={lang} />
-                <Link
-                  href={`/${lang}/account`}
-                  onClick={() => setIsMobileOpen(false)}
-                  className="flex items-center gap-2 text-[13px] font-bold uppercase tracking-[0.1em] transition-colors hover:text-[#d56826]"
-                  style={{ fontFamily: FRAUNCES, color: C.ink }}
-                >
+                <Link href={`/${lang}/account`} onClick={() => setIsMobileOpen(false)} className="flex items-center gap-2 text-[13px] font-bold uppercase tracking-[0.1em] hover:text-[#d56826] transition-colors" style={{ fontFamily: FRAUNCES, color: C.ink }}>
                   <User className="w-4 h-4" />
                   {dictionary.nav.account}
                 </Link>
