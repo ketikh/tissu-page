@@ -117,15 +117,13 @@ export default function RetroHero({
             aria-hidden="true"
           >
             <defs>
-              <filter id="tissu-halo" x="-6%" y="-25%" width="112%" height="150%">
-                {/* dilate merges all letters into one unified mass, blur smooths jagged edges, threshold snaps to a clean hard contour */}
-                <feMorphology in="SourceAlpha" operator="dilate" radius="42" result="dilated"/>
-                <feGaussianBlur in="dilated" stdDeviation="5" result="blurred"/>
-                <feComponentTransfer in="blurred" result="hard">
-                  <feFuncA type="discrete" tableValues="0 1"/>
-                </feComponentTransfer>
+              <filter id="tissu-halo" x="-10%" y="-32%" width="120%" height="164%">
+                <feMorphology in="SourceAlpha" operator="dilate" radius="52" result="dilated"/>
+                <feGaussianBlur in="dilated" stdDeviation="22" result="blurred"/>
+                <feColorMatrix in="blurred" type="matrix"
+                  values="1 0 0 0 0  0 1 0 0 0  0 0 1 0 0  0 0 0 9 -1.2" result="solid"/>
                 <feFlood floodColor="#ffd9e7" result="pink"/>
-                <feComposite in="pink" in2="hard" operator="in" result="pinkHalo"/>
+                <feComposite in="pink" in2="solid" operator="in" result="pinkHalo"/>
                 <feMerge>
                   <feMergeNode in="pinkHalo"/>
                   <feMergeNode in="SourceGraphic"/>
