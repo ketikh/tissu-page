@@ -29,18 +29,48 @@ const C = {
   ink: "#2a1d14",
 };
 
+/* ---------- Path generators (3 styles in the same family) ---------- */
+
+// Deterministic 0..1 noise from a sine hash.
+function seedNoise(i: number, seed: number): number {
+  const n = Math.sin((i + 1) * 12.9898 + seed * 78.233) * 43758.5453;
+  return n - Math.floor(n);
+}
+
 /**
- * Smooth organic blob path. Drops `points` evenly around an ellipse of
- * radii (rx, ry) and pushes each point in/out by a deterministic amount
- * driven by `seed`. The points are then connected by quadratic curves that
- * pass through midpoints, which keeps the silhouette buttery-smooth — no
- * sharp scallops, just soft pebble / wave / drop deformations.
- *
- * - points    — anchor points around the perimeter (more = subtler shape)
- * - rx, ry    — ellipse radii. Equal = round blob. rx<ry = tall (drop-like).
- *               rx>ry = wide (wave-like).
- * - variance  — 0..1. How much each point may push in/out from the base ellipse.
- * - seed      — distinct number per frame so each blob has its own silhouette.
+ * Flower / scalloped path — closed loop of `bumps` outward Q-curves around
+ * `baseR`. Big chunky petals with high `bumpH`, fine frill with low `bumpH`.
+ */
+function flowerPath(
+  bumps: number,
+  baseR: number,
+  bumpH: number,
+  cx = 200,
+  cy = 250,
+  jitter = 0
+): string {
+  const step = (Math.PI * 2) / bumps;
+  let d = "";
+  for (let i = 0; i <= bumps; i++) {
+    const a = i * step;
+    const x = cx + baseR * Math.cos(a);
+    const y = cy + baseR * Math.sin(a);
+    if (i === 0) {
+      d += `M ${x.toFixed(1)} ${y.toFixed(1)} `;
+    } else {
+      const midA = a - step / 2;
+      const h = bumpH * (1 + (jitter ? Math.sin(i * 7.3) * jitter : 0));
+      const mx = cx + (baseR + h) * Math.cos(midA);
+      const my = cy + (baseR + h) * Math.sin(midA);
+      d += `Q ${mx.toFixed(1)} ${my.toFixed(1)} ${x.toFixed(1)} ${y.toFixed(1)} `;
+    }
+  }
+  return d + "Z";
+}
+
+/**
+ * Smooth organic blob — points placed at varying radii on an ellipse,
+ * connected by Q-curves through midpoints. rx<ry = tall, rx>ry = wide.
  */
 function blobPath(
   points: number,
@@ -51,25 +81,16 @@ function blobPath(
   cy = 250,
   seed = 0
 ): string {
-  // Deterministic 0..1 noise from a sine hash — same seed always gives the
-  // same shape, so server-rendered HTML matches the client exactly.
-  const noise = (i: number) => {
-    const n = Math.sin((i + 1) * 12.9898 + seed * 78.233) * 43758.5453;
-    return n - Math.floor(n);
-  };
-
   const pts: Array<[number, number]> = [];
   for (let i = 0; i < points; i++) {
     const a = (i / points) * Math.PI * 2;
-    const mult = 1 + (noise(i) * 2 - 1) * variance;
+    const mult = 1 + (seedNoise(i, seed) * 2 - 1) * variance;
     pts.push([cx + mult * rx * Math.cos(a), cy + mult * ry * Math.sin(a)]);
   }
-
   const mid = (i: number, j: number): [number, number] => [
     (pts[i][0] + pts[j][0]) / 2,
     (pts[i][1] + pts[j][1]) / 2,
   ];
-
   const start = mid(points - 1, 0);
   let d = `M ${start[0].toFixed(1)} ${start[1].toFixed(1)} `;
   for (let i = 0; i < points; i++) {
@@ -81,83 +102,357 @@ function blobPath(
 }
 
 /**
+ * Paint-drip rectangle. The drips are placed on one of the four edges
+ * (`side`); the two corners on the *opposite* edge get rounded (`cornerR`)
+ * so the silhouette feels intentional rather than a raw cut-out rectangle.
+ *
+ * - side="bottom" → drips drop *down*, rounded top corners.
+ * - side="top"    → drips rise *up*, rounded bottom corners.
+ * - side="left"   → drips reach *left*, rounded right corners.
+ * - side="right"  → drips reach *right*, rounded left corners.
+ */
+function dripPath(
+  bodyW: number,
+  bodyH: number,
+  drips: number,
+  minDepth: number,
+  maxDepth: number,
+  cornerR: number,
+  side: "top" | "bottom" | "left" | "right",
+  cx = 200,
+  cy = 250,
+  seed = 0
+): string {
+  const halfW = bodyW / 2;
+  const halfH = bodyH / 2;
+  const top = cy - halfH;
+  const left = cx - halfW;
+  const right = cx + halfW;
+  const bot = cy + halfH;
+  // Drips iterate along the perpendicular edge: top/bottom drips slide
+  // along X, left/right drips slide along Y.
+  const isHorizontal = side === "top" || side === "bottom";
+  const slot = (isHorizontal ? bodyW : bodyH) / drips;
+  const r = Math.min(cornerR, halfW * 0.5, halfH * 0.5);
+  const bulge = slot * 0.32;
+
+  const dripCurve = (
+    edgeY: number,
+    fromX: number,
+    toX: number,
+    midX: number,
+    apexY: number,
+    bulge: number,
+    halfDepthY: number
+  ) => {
+    let s = `C ${fromX.toFixed(1)} ${halfDepthY.toFixed(1)}, `;
+    s += `${(midX + Math.sign(toX - fromX) * -bulge).toFixed(1)} ${apexY.toFixed(1)}, `;
+    s += `${midX.toFixed(1)} ${apexY.toFixed(1)} `;
+    s += `C ${(midX - Math.sign(toX - fromX) * -bulge).toFixed(1)} ${apexY.toFixed(1)}, `;
+    s += `${toX.toFixed(1)} ${halfDepthY.toFixed(1)}, `;
+    s += `${toX.toFixed(1)} ${edgeY.toFixed(1)} `;
+    return s;
+  };
+
+  let d = "";
+
+  if (side === "bottom") {
+    // Rounded top corners → flat sides → drips along the bottom edge
+    d += `M ${(left + r).toFixed(1)} ${top.toFixed(1)} `;
+    d += `L ${(right - r).toFixed(1)} ${top.toFixed(1)} `;
+    d += `A ${r} ${r} 0 0 1 ${right.toFixed(1)} ${(top + r).toFixed(1)} `;
+    d += `L ${right.toFixed(1)} ${bot.toFixed(1)} `;
+
+    // Drips from right to left
+    for (let i = drips - 1; i >= 0; i--) {
+      const dripRight = left + (i + 1) * slot;
+      const dripLeft = left + i * slot;
+      const dripMid = (dripLeft + dripRight) / 2;
+      const depth = minDepth + seedNoise(i, seed) * (maxDepth - minDepth);
+      const apex = bot + depth;
+      const halfDepthY = bot + depth * 0.55;
+      d += dripCurve(bot, dripRight, dripLeft, dripMid, apex, bulge, halfDepthY);
+    }
+
+    d += `L ${left.toFixed(1)} ${(top + r).toFixed(1)} `;
+    d += `A ${r} ${r} 0 0 1 ${(left + r).toFixed(1)} ${top.toFixed(1)} `;
+    d += `Z`;
+  } else if (side === "top") {
+    // Drips along the top edge → flat sides → rounded bottom corners
+    d += `M ${left.toFixed(1)} ${top.toFixed(1)} `;
+
+    // Drips from left to right
+    for (let i = 0; i < drips; i++) {
+      const dripLeft = left + i * slot;
+      const dripRight = left + (i + 1) * slot;
+      const dripMid = (dripLeft + dripRight) / 2;
+      const depth = minDepth + seedNoise(i, seed) * (maxDepth - minDepth);
+      const apex = top - depth;
+      const halfDepthY = top - depth * 0.55;
+      d += dripCurve(top, dripLeft, dripRight, dripMid, apex, bulge, halfDepthY);
+    }
+
+    d += `L ${right.toFixed(1)} ${(bot - r).toFixed(1)} `;
+    d += `A ${r} ${r} 0 0 1 ${(right - r).toFixed(1)} ${bot.toFixed(1)} `;
+    d += `L ${(left + r).toFixed(1)} ${bot.toFixed(1)} `;
+    d += `A ${r} ${r} 0 0 1 ${left.toFixed(1)} ${(bot - r).toFixed(1)} `;
+    d += `Z`;
+  } else if (side === "left") {
+    // Drips along the LEFT edge (reaching leftward) → rounded right corners.
+    // CW traverse: top edge → top-right corner → right side → bottom-right
+    // corner → bottom edge → drips bottom→top up the left side → close.
+    d += `M ${left.toFixed(1)} ${top.toFixed(1)} `;
+    d += `L ${(right - r).toFixed(1)} ${top.toFixed(1)} `;
+    d += `A ${r} ${r} 0 0 1 ${right.toFixed(1)} ${(top + r).toFixed(1)} `;
+    d += `L ${right.toFixed(1)} ${(bot - r).toFixed(1)} `;
+    d += `A ${r} ${r} 0 0 1 ${(right - r).toFixed(1)} ${bot.toFixed(1)} `;
+    d += `L ${left.toFixed(1)} ${bot.toFixed(1)} `;
+
+    // Drips iterate bottom-to-top so we end where we started.
+    for (let i = drips - 1; i >= 0; i--) {
+      const dripTop = top + i * slot;
+      const dripBot = top + (i + 1) * slot;
+      const dripMid = (dripTop + dripBot) / 2;
+      const depth = minDepth + seedNoise(i, seed) * (maxDepth - minDepth);
+      const apexX = left - depth;
+      const halfDepthX = left - depth * 0.55;
+
+      // (left, dripBot) → apex (apexX, dripMid) → (left, dripTop)
+      d += `C ${halfDepthX.toFixed(1)} ${dripBot.toFixed(1)}, `;
+      d += `${apexX.toFixed(1)} ${(dripMid + bulge).toFixed(1)}, `;
+      d += `${apexX.toFixed(1)} ${dripMid.toFixed(1)} `;
+      d += `C ${apexX.toFixed(1)} ${(dripMid - bulge).toFixed(1)}, `;
+      d += `${halfDepthX.toFixed(1)} ${dripTop.toFixed(1)}, `;
+      d += `${left.toFixed(1)} ${dripTop.toFixed(1)} `;
+    }
+    d += `Z`;
+  } else {
+    // side === "right" — drips reach RIGHTWARD → rounded left corners.
+    // CW: start top-left (just past corner), across top, drips down right
+    // side, across bottom, up left side with rounded corners.
+    d += `M ${(left + r).toFixed(1)} ${top.toFixed(1)} `;
+    d += `L ${right.toFixed(1)} ${top.toFixed(1)} `;
+
+    // Drips iterate top-to-bottom along the right edge.
+    for (let i = 0; i < drips; i++) {
+      const dripTop = top + i * slot;
+      const dripBot = top + (i + 1) * slot;
+      const dripMid = (dripTop + dripBot) / 2;
+      const depth = minDepth + seedNoise(i, seed) * (maxDepth - minDepth);
+      const apexX = right + depth;
+      const halfDepthX = right + depth * 0.55;
+
+      // (right, dripTop) → apex (apexX, dripMid) → (right, dripBot)
+      d += `C ${halfDepthX.toFixed(1)} ${dripTop.toFixed(1)}, `;
+      d += `${apexX.toFixed(1)} ${(dripMid - bulge).toFixed(1)}, `;
+      d += `${apexX.toFixed(1)} ${dripMid.toFixed(1)} `;
+      d += `C ${apexX.toFixed(1)} ${(dripMid + bulge).toFixed(1)}, `;
+      d += `${halfDepthX.toFixed(1)} ${dripBot.toFixed(1)}, `;
+      d += `${right.toFixed(1)} ${dripBot.toFixed(1)} `;
+    }
+
+    d += `L ${(left + r).toFixed(1)} ${bot.toFixed(1)} `;
+    d += `A ${r} ${r} 0 0 1 ${left.toFixed(1)} ${(bot - r).toFixed(1)} `;
+    d += `L ${left.toFixed(1)} ${(top + r).toFixed(1)} `;
+    d += `A ${r} ${r} 0 0 1 ${(left + r).toFixed(1)} ${top.toFixed(1)} `;
+    d += `Z`;
+  }
+
+  return d;
+}
+
+/** Rounded rectangle path — used as the inner clip for drip frames so the
+ *  photo stays cleanly inside the body and the drips are pure matte. */
+function roundedRectPath(
+  width: number,
+  height: number,
+  cx = 200,
+  cy = 250,
+  radius = 8
+): string {
+  const x = cx - width / 2;
+  const y = cy - height / 2;
+  return [
+    `M ${x + radius} ${y}`,
+    `h ${width - 2 * radius}`,
+    `a ${radius} ${radius} 0 0 1 ${radius} ${radius}`,
+    `v ${height - 2 * radius}`,
+    `a ${radius} ${radius} 0 0 1 ${-radius} ${radius}`,
+    `h ${-(width - 2 * radius)}`,
+    `a ${radius} ${radius} 0 0 1 ${-radius} ${-radius}`,
+    `v ${-(height - 2 * radius)}`,
+    `a ${radius} ${radius} 0 0 1 ${radius} ${-radius}`,
+    "Z",
+  ].join(" ");
+}
+
+/**
  * Each frame defines:
  *   - path config that drives the scalloped matte behind the photo
  *   - colour of that matte
  *   - the "inner shape" of the photo itself (kept simple so the bag stays clear)
  */
-// Each frame is a different organic silhouette in the same hand-drawn family —
-// pebbles, drops, waves, stones. Variety comes from (a) ellipse aspect via
-// rx/ry and (b) per-frame `seed` which seeds the deterministic noise that
-// pushes each point in or out.
-const FRAMES = [
+// Each frame uses a different SHAPE FAMILY: chunky flower petals, paint drips,
+// organic blobs, and fine scallop frills. Variety is intentional — the four
+// product cards should each feel distinct, not four versions of the same idea.
+type FlowerSpec = {
+  kind: "flower";
+  bumps: number;
+  baseR: number;
+  bumpH: number;
+  jitter?: number;
+};
+type BlobSpec = {
+  kind: "blob";
+  points: number;
+  rx: number;
+  ry: number;
+  variance: number;
+  seed: number;
+};
+type DripSpec = {
+  kind: "drip";
+  bodyW: number;
+  bodyH: number;
+  drips: number;
+  minDepth: number;
+  maxDepth: number;
+  cornerR: number;
+  side: "top" | "bottom" | "left" | "right";
+  seed: number;
+};
+type FrameSpec = FlowerSpec | BlobSpec | DripSpec;
+
+interface Frame {
+  name: string;
+  color: string;
+  rotate: number;
+  spec: FrameSpec;
+}
+
+// Each card uses the same paint-drip family but the drips emerge from a
+// different edge. Drip count + depth profile + corner radius are tuned so
+// the four feel related but visually distinct. (4 sides: L, B, T, R.)
+const FRAMES: readonly Frame[] = [
+  // #1 — drips reaching out to the LEFT.
   {
-    // Round pebble — gentle wobbles, mostly circular.
-    name: "pebble",
+    name: "drip-left",
     color: C.green,
-    points: 7,
-    rx: 168,
-    ry: 168,
-    variance: 0.11,
-    seed: 3,
     rotate: -3,
+    spec: {
+      kind: "drip",
+      bodyW: 300,
+      bodyH: 340,
+      drips: 5,
+      minDepth: 16,
+      maxDepth: 42,
+      cornerR: 26,
+      side: "left",
+      seed: 41,
+    },
   },
+  // #2 — drips dropping DOWN from the bottom.
   {
-    // Drop — taller than wide, soft asymmetric deformations.
-    name: "drop",
-    color: C.mustard,
-    points: 7,
-    rx: 152,
-    ry: 188,
-    variance: 0.1,
-    seed: 11,
-    rotate: 4,
-  },
-  {
-    // Wave — wider than tall, undulating side bumps.
-    name: "wave",
-    color: C.peach,
-    points: 8,
-    rx: 192,
-    ry: 152,
-    variance: 0.13,
-    seed: 19,
-    rotate: -2,
-  },
-  {
-    // Stone — irregular round, more chaotic noise.
-    name: "stone",
+    name: "drip-bottom",
     color: C.lilac,
-    points: 8,
-    rx: 170,
-    ry: 165,
-    variance: 0.18,
-    seed: 31,
-    rotate: 5,
+    rotate: 3,
+    spec: {
+      kind: "drip",
+      bodyW: 320,
+      bodyH: 320,
+      drips: 7,
+      minDepth: 16,
+      maxDepth: 70,
+      cornerR: 22,
+      side: "bottom",
+      seed: 9,
+    },
   },
+  // #3 — fewer, gentler drips coming DOWN from above.
   {
-    // Lozenge — tall + chunky, fewer points = smoother lobes.
-    name: "lozenge",
-    color: C.cobalt,
-    points: 6,
-    rx: 158,
-    ry: 182,
-    variance: 0.14,
-    seed: 47,
-    rotate: -1.5,
+    name: "drip-top",
+    color: C.peach,
+    rotate: -2,
+    spec: {
+      kind: "drip",
+      bodyW: 320,
+      bodyH: 320,
+      drips: 4,
+      minDepth: 22,
+      maxDepth: 60,
+      cornerR: 22,
+      side: "top",
+      seed: 23,
+    },
   },
+  // #4 — drips reaching out to the RIGHT.
   {
-    // Puddle — wide, low, organic spread.
-    name: "puddle",
-    color: C.burnt,
-    points: 7,
-    rx: 188,
-    ry: 158,
-    variance: 0.16,
-    seed: 59,
-    rotate: 2,
+    name: "drip-right",
+    color: C.mustard,
+    rotate: 4,
+    spec: {
+      kind: "drip",
+      bodyW: 300,
+      bodyH: 340,
+      drips: 6,
+      minDepth: 12,
+      maxDepth: 42,
+      cornerR: 26,
+      side: "right",
+      seed: 53,
+    },
   },
 ] as const;
+
+function buildOuterPath(spec: FrameSpec): string {
+  switch (spec.kind) {
+    case "flower":
+      return flowerPath(spec.bumps, spec.baseR, spec.bumpH, 200, 250, spec.jitter ?? 0);
+    case "blob":
+      return blobPath(spec.points, spec.rx, spec.ry, spec.variance, 200, 250, spec.seed);
+    case "drip":
+      return dripPath(
+        spec.bodyW,
+        spec.bodyH,
+        spec.drips,
+        spec.minDepth,
+        spec.maxDepth,
+        spec.cornerR,
+        spec.side,
+        200,
+        250,
+        spec.seed
+      );
+  }
+}
+
+function buildInnerPath(spec: FrameSpec): string {
+  switch (spec.kind) {
+    case "flower":
+      return flowerPath(
+        spec.bumps,
+        spec.baseR - 12,
+        Math.max(spec.bumpH - 3, 4),
+        200,
+        250,
+        spec.jitter ?? 0
+      );
+    case "blob":
+      return blobPath(
+        spec.points,
+        spec.rx - 14,
+        spec.ry - 14,
+        spec.variance,
+        200,
+        250,
+        spec.seed
+      );
+    case "drip":
+      // Photo stays in a clean rounded rectangle inside the body — drips are
+      // pure decorative matte underneath.
+      return roundedRectPath(spec.bodyW - 28, spec.bodyH - 28, 200, 250, 10);
+  }
+}
 
 export default function RetroProducts({
   isKa = false,
@@ -171,7 +466,7 @@ export default function RetroProducts({
 
   return (
     <section
-      className="relative w-full overflow-hidden py-24 md:py-32"
+      className="relative w-full overflow-hidden py-16 md:py-20"
       style={{ background: C.burnt, color: C.cream }}
     >
       {/* Top decorative band */}
@@ -185,7 +480,7 @@ export default function RetroProducts({
       />
 
       <div className="container relative">
-        <div className="text-center mb-16 md:mb-24">
+        <div className="text-center mb-10 md:mb-12">
           <motion.span
             initial={{ opacity: 0, y: 6 }}
             animate={{ opacity: 1, y: 0 }}
@@ -230,7 +525,7 @@ export default function RetroProducts({
           </motion.p>
         </div>
 
-        <div className="grid grid-cols-1 sm:grid-cols-2 gap-x-12 gap-y-10 md:gap-y-14 max-w-3xl mx-auto">
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-x-10 gap-y-4 md:gap-y-6 max-w-2xl mx-auto">
           {showcase.map((p, i) => (
             <MirrorCard
               key={p.id}
@@ -242,7 +537,7 @@ export default function RetroProducts({
           ))}
         </div>
 
-        <div className="mt-20 flex justify-center">
+        <div className="mt-10 md:mt-14 flex justify-center">
           <Link
             href={shopHref}
             className="inline-flex items-center gap-2.5 px-7 py-3 rounded-full font-extrabold text-[12px] uppercase tracking-[0.2em] transition-transform hover:-translate-y-0.5 active:translate-y-0.5"
@@ -280,47 +575,20 @@ function MirrorCard({
   isKa,
 }: {
   product: StorefrontProduct;
-  frame: (typeof FRAMES)[number];
+  frame: Frame;
   index: number;
   isKa: boolean;
 }) {
   const [hover, setHover] = useState(false);
-  // Lighter alternating offset so cards no longer feel half a screen apart.
-  const offsetY = index % 2 === 0 ? 0 : 14;
+  // No alternating offset — keeps the rows visually compact.
+  const offsetY = 0;
   const hasBack = Boolean(product.image_back);
   const isNew = product.tags.includes("new");
 
-  // Outer organic blob path — the visible silhouette of the whole frame.
-  const outerPath = useMemo(
-    () =>
-      blobPath(
-        frame.points,
-        frame.rx,
-        frame.ry,
-        frame.variance,
-        200,
-        250,
-        frame.seed
-      ),
-    [frame]
-  );
-
-  // Inner blob — same shape with a tighter ellipse so a coloured ring is
-  // visible around the photo. Clipped on the <image> below so the photo's
-  // rectangular corners disappear inside the blob's curves.
-  const innerPath = useMemo(
-    () =>
-      blobPath(
-        frame.points,
-        frame.rx - 14,
-        frame.ry - 14,
-        frame.variance,
-        200,
-        250,
-        frame.seed
-      ),
-    [frame]
-  );
+  // Outer silhouette of the frame and inner shape used to clip the photo.
+  // Style is dispatched on `frame.spec.kind` (flower / blob / drip).
+  const outerPath = useMemo(() => buildOuterPath(frame.spec), [frame]);
+  const innerPath = useMemo(() => buildInnerPath(frame.spec), [frame]);
 
   // Stable, unique id for the SVG clipPath element.
   const clipId = `scallop-${frame.name}-${index}`;
@@ -441,7 +709,7 @@ function MirrorCard({
       </div>
 
       {/* Caption */}
-      <div className="mt-8 text-center max-w-65">
+      <div className="mt-5 text-center max-w-65">
         <div
           className="text-[10px] uppercase tracking-[0.3em] mb-1"
           style={{ color: C.mustard, fontFamily: FRAUNCES, fontWeight: 700 }}
