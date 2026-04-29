@@ -155,11 +155,11 @@ export default function RetroNecklaces({
 
   if (necklaces.length === 0) return null;
 
-  const showcase = necklaces.slice(0, FRAMES.length);
+  const showcase = necklaces.slice(0, 2);
 
   return (
     <section
-      className="relative w-full overflow-hidden py-16 md:py-20"
+      className="relative w-full overflow-hidden py-8 md:py-12"
       style={{ background: C.bg, color: C.cream }}
     >
       {/* Top stripe */}
@@ -170,7 +170,7 @@ export default function RetroNecklaces({
       />
 
       <div className="container relative">
-        <div className="text-center mb-10 md:mb-12">
+        <div className="text-center mb-6 md:mb-8">
           <motion.span
             initial={{ opacity: 0, y: 6 }}
             whileInView={{ opacity: 1, y: 0 }}
@@ -225,7 +225,7 @@ export default function RetroNecklaces({
           ))}
         </div>
 
-        <div className="mt-10 md:mt-14 flex justify-center">
+        <div className="mt-6 md:mt-8 flex justify-center">
           <Link
             href={shopHref}
             className="inline-flex items-center gap-2.5 px-7 py-3 rounded-full font-extrabold text-[12px] uppercase tracking-[0.2em] transition-transform hover:-translate-y-0.5 active:translate-y-0.5"

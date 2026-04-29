@@ -3,7 +3,6 @@ import { Nunito, Gloock, Caveat, Fraunces, Pacifico, Noto_Sans_Georgian, Noto_Se
 import localFont from "next/font/local";
 import "../globals.css";
 import { i18n, Locale } from "@/i18n/config";
-import { AnnouncementBar } from "@/components/layout/AnnouncementBar";
 import { Navbar } from "@/components/layout/Navbar";
 import { Footer } from "@/components/layout/Footer";
 import { CartDrawer } from "@/components/layout/CartDrawer";
@@ -100,7 +99,6 @@ export default async function RootLayout({
       className={`${nunito.variable} ${gloock.variable} ${caveat.variable} ${fraunces.variable} ${pacifico.variable} ${alkLife.variable} ${notoSansGeorgian.variable} ${notoSerifGeorgian.variable} scroll-smooth`}
     >
       <body className={`min-h-screen flex flex-col antialiased bg-background text-foreground ${locale === "ka" ? "font-noto-sans" : "font-sans"}`}>
-        <AnnouncementBar lang={locale} dictionary={dictionary} />
         <Navbar lang={locale} dictionary={dictionary} />
         <CartDrawer dictionary={dictionary} lang={locale} />
         <main className="flex-1 flex flex-col">

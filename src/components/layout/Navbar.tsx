@@ -85,8 +85,6 @@ export function Navbar({ lang, dictionary }: NavbarProps) {
 
   const rightLinks = [
     { name: copy.nav.story, href: `/${lang}/about` },
-    { name: lang === "ka" ? "FAQ" : "FAQ", href: `/${lang}/faq` },
-    { name: lang === "ka" ? "კონტაქტი" : "Contact", href: `/${lang}/contact` },
   ];
 
   return (
