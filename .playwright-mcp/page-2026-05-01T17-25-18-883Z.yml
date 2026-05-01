@@ -1,0 +1,288 @@
+- generic [active] [ref=e1]:
+  - banner [ref=e2]:
+    - generic [ref=e3]:
+      - generic [ref=e4]:
+        - button "Shop" [ref=e6]:
+          - text: Shop
+          - img [ref=e8]
+        - link "Our story" [ref=e10] [cursor=pointer]:
+          - /url: /en/about
+      - link "Tissu" [ref=e12] [cursor=pointer]:
+        - /url: /en
+        - img "Tissu" [ref=e13]
+      - generic [ref=e14]:
+        - generic "Select language" [ref=e15]:
+          - generic [ref=e16]:
+            - link "ka" [ref=e17] [cursor=pointer]:
+              - /url: /ka/shop
+            - link "en" [ref=e18] [cursor=pointer]:
+              - /url: /en/shop
+              - text: en
+        - link "Account" [ref=e20] [cursor=pointer]:
+          - /url: /en/account
+          - img [ref=e21]
+        - button "Cart" [ref=e24]:
+          - img [ref=e25]
+  - main [ref=e28]:
+    - generic [ref=e29]:
+      - generic [ref=e30]:
+        - generic:
+          - img
+        - generic:
+          - img
+        - generic:
+          - img
+        - generic:
+          - img
+        - generic [ref=e31]:
+          - generic [ref=e32]: Handmade in Tbilisi
+          - generic [ref=e33]:
+            - generic [ref=e34]: The
+            - generic [ref=e35]: bags.
+          - paragraph [ref=e36]: Every stitch by hand, in our studio.
+        - img [ref=e38]
+      - generic [ref=e40]:
+        - generic:
+          - generic:
+            - img
+          - generic:
+            - img
+          - generic:
+            - img
+          - generic:
+            - img
+          - generic:
+            - img
+          - generic:
+            - img
+          - generic:
+            - img
+          - generic:
+            - img
+          - generic:
+            - img
+          - generic:
+            - img
+          - generic:
+            - img
+          - generic:
+            - img
+          - generic:
+            - img
+          - generic:
+            - img
+          - generic:
+            - img
+          - generic:
+            - img
+          - generic:
+            - img
+          - generic:
+            - img
+          - generic:
+            - img
+          - generic:
+            - img
+          - generic:
+            - img
+          - generic:
+            - img
+          - generic:
+            - img
+          - generic:
+            - img
+          - generic:
+            - img
+          - generic:
+            - img
+          - generic:
+            - img
+          - generic:
+            - img
+          - generic:
+            - img
+          - generic:
+            - img
+          - generic:
+            - img
+          - generic:
+            - img
+          - generic:
+            - img
+          - generic:
+            - img
+          - generic:
+            - img
+          - generic:
+            - img
+          - generic:
+            - img
+          - generic:
+            - img
+          - generic:
+            - img
+          - generic:
+            - img
+          - generic:
+            - img
+          - generic:
+            - img
+        - complementary [ref=e41]:
+          - generic [ref=e42]: Category
+          - generic [ref=e43]:
+            - button "✦ All" [ref=e44] [cursor=pointer]:
+              - generic [ref=e45]: ✦
+              - text: All
+            - button "❀ Pouches" [ref=e46] [cursor=pointer]:
+              - generic [ref=e47]: ❀
+              - text: Pouches
+            - button "✿ Laptop sleeves" [ref=e48] [cursor=pointer]:
+              - generic [ref=e49]: ✿
+              - text: Laptop sleeves
+            - button "❧ Tote bags" [ref=e50] [cursor=pointer]:
+              - generic [ref=e51]: ❧
+              - text: Tote bags
+            - button "✤ Kids' backpacks" [ref=e52] [cursor=pointer]:
+              - generic [ref=e53]: ✤
+              - text: Kids' backpacks
+            - button "❦ Aprons" [ref=e54] [cursor=pointer]:
+              - generic [ref=e55]: ❦
+              - text: Aprons
+            - button "✾ Necklaces" [ref=e56] [cursor=pointer]:
+              - generic [ref=e57]: ✾
+              - text: Necklaces
+          - generic [ref=e58]: Sort by
+          - generic [ref=e59]:
+            - button "Featured" [ref=e60]:
+              - text: Featured
+              - img [ref=e61]
+            - button "Newest" [ref=e63]
+            - button "Price ↑" [ref=e64]
+            - button "Price ↓" [ref=e65]
+        - main [ref=e66]:
+          - generic [ref=e67]:
+            - generic [ref=e68]:
+              - generic [ref=e69]:
+                - generic [ref=e70]:
+                  - generic [ref=e71]:
+                    - img [ref=e72]
+                    - 'link "Tissu Large #1" [ref=e76] [cursor=pointer]':
+                      - /url: /en/product/31
+                    - button "Adjust photo position" [ref=e77] [cursor=pointer]:
+                      - generic [ref=e78]: ✎
+                      - text: Edit photo
+                  - generic [ref=e79]:
+                    - 'link "Tissu Large #1" [ref=e80] [cursor=pointer]':
+                      - /url: /en/product/31
+                    - generic [ref=e81]: ყაყაჩო
+                    - generic [ref=e83]: 74₾
+                    - button "Add to basket →" [ref=e84]
+                - generic [ref=e85]:
+                  - generic [ref=e86]:
+                    - img [ref=e87]
+                    - 'link "Tissu Large #6" [ref=e91] [cursor=pointer]':
+                      - /url: /en/product/35
+                    - button "Adjust photo position" [ref=e92] [cursor=pointer]:
+                      - generic [ref=e93]: ✎
+                      - text: Edit photo
+                  - generic [ref=e94]:
+                    - 'link "Tissu Large #6" [ref=e95] [cursor=pointer]':
+                      - /url: /en/product/35
+                    - generic [ref=e97]: 74₾
+                    - button "Add to basket →" [ref=e98]
+                - generic [ref=e99]:
+                  - generic [ref=e100]:
+                    - img [ref=e101]
+                    - link "Tissu with strap" [ref=e104] [cursor=pointer]:
+                      - /url: /en/product/37
+                    - button "Adjust photo position" [ref=e105] [cursor=pointer]:
+                      - generic [ref=e106]: ✎
+                      - text: Edit photo
+                  - generic [ref=e107]:
+                    - link "Tissu with strap" [ref=e108] [cursor=pointer]:
+                      - /url: /en/product/37
+                    - generic [ref=e110]: 74₾
+                    - button "Add to basket →" [ref=e111]
+                - generic [ref=e112]:
+                  - generic [ref=e113]:
+                    - img [ref=e114]
+                    - 'link "Tissu without strap #5" [ref=e118] [cursor=pointer]':
+                      - /url: /en/product/9
+                    - button "Adjust photo position" [ref=e119] [cursor=pointer]:
+                      - generic [ref=e120]: ✎
+                      - text: Edit photo
+                  - generic [ref=e121]:
+                    - 'link "Tissu without strap #5" [ref=e122] [cursor=pointer]':
+                      - /url: /en/product/9
+                    - generic [ref=e124]: 69₾
+                    - button "Add to basket →" [ref=e125]
+              - generic [ref=e126]:
+                - generic [ref=e127]:
+                  - generic [ref=e128]:
+                    - img [ref=e129]
+                    - 'link "Tissu Large #2" [ref=e133] [cursor=pointer]':
+                      - /url: /en/product/32
+                    - button "Adjust photo position" [ref=e134] [cursor=pointer]:
+                      - generic [ref=e135]: ✎
+                      - text: Edit photo
+                  - generic [ref=e136]:
+                    - 'link "Tissu Large #2" [ref=e137] [cursor=pointer]':
+                      - /url: /en/product/32
+                    - generic [ref=e138]: მარწყვი
+                    - generic [ref=e140]: 74₾
+                    - button "Add to basket →" [ref=e141]
+                - generic [ref=e142]:
+                  - generic [ref=e143]:
+                    - img [ref=e144]
+                    - 'link "Tissu Large #7" [ref=e148] [cursor=pointer]':
+                      - /url: /en/product/36
+                    - button "Adjust photo position" [ref=e149] [cursor=pointer]:
+                      - generic [ref=e150]: ✎
+                      - text: Edit photo
+                  - generic [ref=e151]:
+                    - 'link "Tissu Large #7" [ref=e152] [cursor=pointer]':
+                      - /url: /en/product/36
+                    - generic [ref=e154]: 74₾
+                    - button "Add to basket →" [ref=e155]
+                - generic [ref=e156]:
+                  - generic [ref=e157]:
+                    - img [ref=e158]
+                    - 'link "Tissu without strap #1" [ref=e162] [cursor=pointer]':
+                      - /url: /en/product/1
+                    - button "Adjust photo position" [ref=e163] [cursor=pointer]:
+                      - generic [ref=e164]: ✎
+                      - text: Edit photo
+                  - generic [ref=e165]:
+                    - 'link "Tissu without strap #1" [ref=e166] [cursor=pointer]':
+                      - /url: /en/product/1
+                    - generic [ref=e168]: 69₾
+                    - button "Add to basket →" [ref=e169]
+                - generic [ref=e170]:
+                  - generic [ref=e171]:
+                    - img [ref=e172]
+                    - 'link "Tissu without strap #6" [ref=e176] [cursor=pointer]':
+                      - /url: /en/product/10
+                    - button "Adjust photo position" [ref=e177] [cursor=pointer]:
+                      - generic [ref=e178]: ✎
+                      - text: Edit photo
+                  - generic [ref=e179]:
+                    - 'link "Tissu without strap #6" [ref=e180] [cursor=pointer]':
+                      - /url: /en/product/10
+                    - generic [ref=e182]: 69₾
+                    - button "Add to basket →" [ref=e183]
+            - button "❀ Show more ❀" [ref=e185]:
+              - generic [ref=e186]: ❀
+              - text: Show more
+              - generic [ref=e187]: ❀
+  - generic [ref=e192] [cursor=pointer]:
+    - button "Open Next.js Dev Tools" [ref=e193]:
+      - img [ref=e194]
+    - generic [ref=e197]:
+      - button "Open issues overlay" [ref=e198]:
+        - generic [ref=e199]:
+          - generic [ref=e200]: "0"
+          - generic [ref=e201]: "1"
+        - generic [ref=e202]: Issue
+      - button "Collapse issues badge" [ref=e203]:
+        - img [ref=e204]
+  - alert [ref=e206]

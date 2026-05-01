@@ -1,0 +1,114 @@
+[     426ms] [INFO] %cDownload the React DevTools for a better development experience: https://react.dev/link/react-devtools font-weight:bold @ http://localhost:3000/_next/static/chunks/node_modules_next_dist_115brz8._.js:2431
+[     508ms] [LOG] [HMR] connected @ http://localhost:3000/_next/static/chunks/node_modules_next_dist_115brz8._.js:2431
+[     845ms] Error: Hydration failed because the server rendered HTML didn't match the client. As a result this tree will be regenerated on the client. This can happen if a SSR-ed Client Component used:
+
+- A server/client branch `if (typeof window !== 'undefined')`.
+- Variable input such as `Date.now()` or `Math.random()` which changes each time it's called.
+- Date formatting in a user's locale which doesn't match the server.
+- External changing data without sending a snapshot of it along with the HTML.
+- Invalid HTML tag nesting.
+
+It can also happen if the client has a browser extension installed which messes with the HTML before React loaded.
+
+https://react.dev/link/hydration-mismatch
+
+  ...
+    <InnerScrollAndFocusHandlerOld focusAndScrollRef={{scrollRef:null, ...}} cacheNode={{rsc:{...}, ...}}>
+      <ErrorBoundary errorComponent={undefined} errorStyles={undefined} errorScripts={undefined}>
+        <LoadingBoundary name="shop/" loading={null}>
+          <HTTPAccessFallbackBoundary notFound={undefined} forbidden={undefined} unauthorized={undefined}>
+            <RedirectBoundary>
+              <RedirectErrorBoundary router={{...}}>
+                <InnerLayoutRouter url="/en/shop" tree={[...]} params={{lang:"en"}} cacheNode={{rsc:{...}, ...}} ...>
+                  <SegmentViewNode type="page" pagePath="[lang]/sho...">
+                    <SegmentTrieNode>
+                    <ShopPage>
+                      <Suspense fallback={{...}}>
+                        <ShopClient lang="en" dictionary={{nav:{...}, ...}} products={[...]}>
+                          <div style={{...}}>
+                            <section>
+                            <div className="flex" style={{...}}>
+                              <div
+                                aria-hidden="true"
+                                className="absolute hidden md:block pointer-events-none overflow-hidden"
+                                style={{
++                                 top: 0
+-                                 top: "0px"
++                                 bottom: 0
+-                                 bottom: "0px"
++                                 left: 250
+-                                 left: "210px"
++                                 right: 0
+-                                 right: "0px"
++                                 zIndex: 0
+-                                 z-index: "0"
+                                }}
+                              >
+                              <aside
+                                className="hidden md:flex flex-col shrink-0 pt-10 pb-24 px-7"
+                                style={{
++                                 width: 250
+-                                 width: "210px"
++                                 borderRight: "1.5px solid rgba(201,168,108,0.28)"
++                                 position: "sticky"
+-                                 position: "sticky"
++                                 top: 64
+-                                 top: "64px"
++                                 height: "calc(100vh - 64px)"
+-                                 height: "calc(-64px + 100vh)"
++                                 overflowY: "auto"
++                                 zIndex: 10
++                                 background: "#fef0d6"
+-                                 border-right-width: "1.5px"
+-                                 border-right-style: "solid"
+-                                 border-right-color: "rgba(201, 168, 108, 0.28)"
+-                                 overflow-y: "auto"
+-                                 z-index: "10"
+-                                 background-image: "initial"
+-                                 background-position-x: "initial"
+-                                 background-position-y: "initial"
+-                                 background-size: "initial"
+-                                 background-repeat: "initial"
+-                                 background-attachment: "initial"
+-                                 background-origin: "initial"
+-                                 background-clip: "initial"
+-                                 background-color: "rgb(254, 240, 214)"
+                                }}
+                              >
+                              ...
+                                <div className="flex flex-col" onMouseEnter={function onMouseEnter} ...>
+                                  <LinkComponent href="/en/produc..." className="relative w..." style={{...}}>
++                                   <a
++                                     className="relative w-full"
++                                     style={{aspectRatio:"1 / 1"}}
++                                     ref={function}
++                                     onClick={function onClick}
++                                     onMouseEnter={function onMouseEnter}
++                                     onTouchStart={function onTouchStart}
++                                     href="/en/product/31"
++                                   >
+-                                   <div className="relative w-full" style={{aspect-ratio:"1 / 1"}}>
+                                  ...
+                  ...
+                ...
+      ...
+
+    at throwOnHydrationMismatch (http://localhost:3000/_next/static/chunks/node_modules_next_dist_compiled_react-dom_058-ah~._.js:3318:56)
+    at beginWork (http://localhost:3000/_next/static/chunks/node_modules_next_dist_compiled_react-dom_058-ah~._.js:6758:918)
+    at runWithFiberInDEV (http://localhost:3000/_next/static/chunks/node_modules_next_dist_compiled_react-dom_058-ah~._.js:965:74)
+    at performUnitOfWork (http://localhost:3000/_next/static/chunks/node_modules_next_dist_compiled_react-dom_058-ah~._.js:9555:97)
+    at workLoopConcurrentByScheduler (http://localhost:3000/_next/static/chunks/node_modules_next_dist_compiled_react-dom_058-ah~._.js:9551:58)
+    at renderRootConcurrent (http://localhost:3000/_next/static/chunks/node_modules_next_dist_compiled_react-dom_058-ah~._.js:9534:71)
+    at performWorkOnRoot (http://localhost:3000/_next/static/chunks/node_modules_next_dist_compiled_react-dom_058-ah~._.js:9061:150)
+    at performWorkOnRootViaSchedulerTask (http://localhost:3000/_next/static/chunks/node_modules_next_dist_compiled_react-dom_058-ah~._.js:10255:9)
+    at MessagePort.performWorkUntilDeadline (http://localhost:3000/_next/static/chunks/node_modules_next_dist_compiled_0rpq4pf._.js:2647:64)
+[     870ms] [LOG] [Fast Refresh] rebuilding @ http://localhost:3000/_next/static/chunks/node_modules_next_dist_115brz8._.js:2431
+[     937ms] [LOG] [Fast Refresh] done in 181ms @ http://localhost:3000/_next/static/chunks/node_modules_next_dist_115brz8._.js:2431
+[  434927ms] [LOG] [Fast Refresh] rebuilding @ http://localhost:3000/_next/static/chunks/node_modules_next_dist_115brz8._.js:2431
+[  435032ms] [LOG] [Fast Refresh] done in 157ms @ http://localhost:3000/_next/static/chunks/node_modules_next_dist_115brz8._.js:2431
+[  469207ms] [LOG] [Fast Refresh] rebuilding @ http://localhost:3000/_next/static/chunks/node_modules_next_dist_115brz8._.js:2431
+[  470098ms] [LOG] [Fast Refresh] done in 848ms @ http://localhost:3000/_next/static/chunks/node_modules_next_dist_115brz8._.js:2431
+[  470411ms] [LOG] [Fast Refresh] rebuilding @ http://localhost:3000/_next/static/chunks/node_modules_next_dist_115brz8._.js:2431
+[  470768ms] [LOG] [Fast Refresh] done in 458ms @ http://localhost:3000/_next/static/chunks/node_modules_next_dist_115brz8._.js:2431
+[  475367ms] [LOG] [Fast Refresh] rebuilding @ http://localhost:3000/_next/static/chunks/node_modules_next_dist_115brz8._.js:2431
+[  475417ms] [LOG] [Fast Refresh] done in 45ms @ http://localhost:3000/_next/static/chunks/node_modules_next_dist_115brz8._.js:2431
