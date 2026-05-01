@@ -134,8 +134,10 @@ const CAT_COLORS: Record<string, { bg: string; text: string; shadow: string }> =
   necklace:     { bg: C.champagne,text: C.ink,    shadow: "#9a7840" },
 };
 
-const CAT_ICONS: Record<string, string> = {
-  all: "✦", pouch: "👜", laptop: "💻", tote: "🛍️", kidsbackpack: "🎒", apron: "👩‍🍳", necklace: "📿",
+/* botanical symbol per category — Unicode florals, no emoji */
+const CAT_BOTANICAL: Record<string, string> = {
+  all: "✦", pouch: "❀", laptop: "✿", tote: "❧",
+  kidsbackpack: "✤", apron: "❦", necklace: "✾",
 };
 
 /* ── Hero flowers ────────────────────────────────────────────────── */
@@ -232,6 +234,18 @@ function SmallBerries({ color, size, style }: { color: string; size: number; sty
   );
 }
 
+/* Mini 4-petal clover — matches product frame shape, 12-24px scatter size */
+function MiniClover({ color, size, style }: { color: string; size: number; style: CSSProperties }) {
+  return (
+    <div className="pointer-events-none" style={{ position: "absolute", width: size, height: size, ...style }}>
+      <svg viewBox="0 0 40 40" style={{ width: "100%", height: "100%" }} overflow="visible">
+        <path d="M31.5 8.5 A12 12 0 0 1 31.5 31.5 A12 12 0 0 1 8.5 31.5 A12 12 0 0 1 8.5 8.5 A12 12 0 0 1 31.5 8.5 Z"
+          fill={color} opacity="0.88" />
+      </svg>
+    </div>
+  );
+}
+
 /* ── Types ───────────────────────────────────────────────────────── */
 interface ShopClientProps { lang: Locale; dictionary: any; products: StorefrontProduct[] }
 type CategoryValue = "all" | StorefrontCategory;
@@ -268,6 +282,7 @@ export default function ShopClient({ lang, dictionary, products }: ShopClientPro
   const router = useRouter();
   const sp = useSearchParams();
   const isKa = lang === "ka";
+  const [pageSize, setPageSize] = useState(8);
 
   const catParam: CategoryValue = CAT_ALIASES[sp.get("category") ?? "all"] ?? "all";
   const sortParam = (sp.get("sort") as SortValue) ?? "featured";
@@ -275,6 +290,7 @@ export default function ShopClient({ lang, dictionary, products }: ShopClientPro
   const setParam = (key: string, val: string | null) => {
     const p = new URLSearchParams(sp.toString());
     if (val && val !== "all") p.set(key, val); else p.delete(key);
+    if (key === "category") setPageSize(8);
     router.push(`?${p.toString()}`, { scroll: false });
   };
 
@@ -362,40 +378,59 @@ export default function ShopClient({ lang, dictionary, products }: ShopClientPro
       {/* ── Content: sidebar + grid ── */}
       <div className="flex" style={{ background: C.cream, position: "relative" }}>
 
-        {/* Botanical decorations — full-width layer over the content area, behind sidebar */}
+        {/* Botanical decorations — full-width layer over content area */}
         <div
           aria-hidden="true"
           className="absolute hidden md:block pointer-events-none overflow-hidden"
           style={{ top: 0, bottom: 0, left: 210, right: 0, zIndex: 0 }}
         >
-          {/* Left product column */}
-          <Daisy        color={C.rose}      size={64} style={{ left: "3%",  top: "5%",  transform: "rotate(-12deg)", opacity: 0.68 }} />
-          <SmallLeaf    color={C.sage}      size={32} style={{ left: "8%",  top: "17%", transform: "rotate(25deg)",  opacity: 0.62 }} />
-          <TulipStem    color={C.lavender}  size={48} style={{ left: "28%", top: "11%", transform: "rotate(-8deg)",  opacity: 0.60 }} />
-          <Sparkle      color={C.mustard}   size={32} style={{ left: "20%", top: "31%", transform: "rotate(10deg)",  opacity: 0.65 }} />
-          <SmallBerries color={C.rose}      size={44} style={{ left: "38%", top: "26%", transform: "rotate(-18deg)", opacity: 0.62 }} />
-          <Daisy        color={C.champagne} size={52} style={{ left: "7%",  top: "53%", transform: "rotate(7deg)",   opacity: 0.65 }} />
-          <SmallLeaf    color={C.green}     size={30} style={{ left: "32%", top: "49%", transform: "rotate(-30deg)", opacity: 0.58 }} />
-          <TulipStem    color={C.sage}      size={42} style={{ left: "5%",  top: "72%", transform: "rotate(20deg)",  opacity: 0.62 }} />
-          <Sparkle      color={C.blue}      size={26} style={{ left: "24%", top: "68%", transform: "rotate(-14deg)", opacity: 0.62 }} />
-          <SmallBerries color={C.lavender}  size={38} style={{ left: "13%", top: "88%", transform: "rotate(10deg)",  opacity: 0.58 }} />
-          {/* Center gutter */}
-          <Sparkle      color={C.mustard}   size={28} style={{ left: "calc(50% - 14px)", top: "7%",  transform: "rotate(15deg)",  opacity: 0.72 }} />
-          <Daisy        color={C.blue}      size={54} style={{ left: "calc(50% - 27px)", top: "23%", transform: "rotate(-8deg)",  opacity: 0.68 }} />
-          <SmallLeaf    color={C.lavender}  size={28} style={{ left: "calc(50% - 14px)", top: "41%", transform: "rotate(20deg)",  opacity: 0.65 }} />
-          <SmallBerries color={C.sage}      size={40} style={{ left: "calc(50% - 20px)", top: "59%", transform: "rotate(-6deg)",  opacity: 0.65 }} />
-          <Daisy        color={C.rose}      size={56} style={{ left: "calc(50% - 28px)", top: "77%", transform: "rotate(14deg)",  opacity: 0.68 }} />
-          {/* Right product column */}
-          <Sparkle      color={C.champagne} size={22} style={{ right: "38%", top: "18%", transform: "rotate(8deg)",   opacity: 0.62 }} />
-          <TulipStem    color={C.sage}      size={46} style={{ right: "28%", top: "7%",  transform: "rotate(14deg)",  opacity: 0.62 }} />
-          <SmallLeaf    color={C.rose}      size={32} style={{ right: "5%",  top: "17%", transform: "rotate(-22deg)", opacity: 0.62 }} />
-          <Sparkle      color={C.lavender}  size={28} style={{ right: "22%", top: "35%", transform: "rotate(-12deg)", opacity: 0.65 }} />
-          <Daisy        color={C.mustard}   size={60} style={{ right: "4%",  top: "45%", transform: "rotate(9deg)",   opacity: 0.65 }} />
-          <SmallLeaf    color={C.mustard}   size={26} style={{ right: "16%", top: "55%", transform: "rotate(18deg)",  opacity: 0.60 }} />
-          <SmallBerries color={C.champagne} size={42} style={{ right: "32%", top: "64%", transform: "rotate(28deg)",  opacity: 0.62 }} />
-          <SmallLeaf    color={C.blue}      size={28} style={{ right: "8%",  top: "78%", transform: "rotate(-10deg)", opacity: 0.58 }} />
-          <TulipStem    color={C.rose}      size={38} style={{ right: "20%", top: "84%", transform: "rotate(-24deg)", opacity: 0.60 }} />
-          <Daisy        color={C.green}     size={48} style={{ right: "3%",  top: "91%", transform: "rotate(-17deg)", opacity: 0.62 }} />
+          {/* ── Left column — big anchors ── */}
+          <Daisy        color={C.rose}      size={68} style={{ left: "3%",  top: "4%",  transform: "rotate(-12deg)", opacity: 0.70 }} />
+          <TulipStem    color={C.lavender}  size={50} style={{ left: "28%", top: "10%", transform: "rotate(-8deg)",  opacity: 0.62 }} />
+          <SmallBerries color={C.rose}      size={46} style={{ left: "38%", top: "25%", transform: "rotate(-18deg)", opacity: 0.64 }} />
+          <Daisy        color={C.champagne} size={54} style={{ left: "6%",  top: "52%", transform: "rotate(7deg)",   opacity: 0.66 }} />
+          <TulipStem    color={C.sage}      size={44} style={{ left: "5%",  top: "71%", transform: "rotate(20deg)",  opacity: 0.64 }} />
+          <SmallBerries color={C.lavender}  size={40} style={{ left: "12%", top: "87%", transform: "rotate(10deg)",  opacity: 0.60 }} />
+          {/* ── Left column — tiny fills ── */}
+          <SmallLeaf    color={C.sage}      size={26} style={{ left: "8%",  top: "16%", transform: "rotate(25deg)",  opacity: 0.65 }} />
+          <MiniClover   color={C.rose}      size={20} style={{ left: "16%", top: "22%", transform: "rotate(-30deg)", opacity: 0.68 }} />
+          <Sparkle      color={C.mustard}   size={24} style={{ left: "21%", top: "30%", transform: "rotate(10deg)",  opacity: 0.68 }} />
+          <MiniClover   color={C.lavender}  size={16} style={{ left: "33%", top: "36%", transform: "rotate(14deg)",  opacity: 0.65 }} />
+          <SmallLeaf    color={C.green}     size={28} style={{ left: "31%", top: "48%", transform: "rotate(-30deg)", opacity: 0.62 }} />
+          <MiniClover   color={C.mustard}   size={18} style={{ left: "14%", top: "62%", transform: "rotate(22deg)",  opacity: 0.65 }} />
+          <Sparkle      color={C.blue}      size={20} style={{ left: "25%", top: "67%", transform: "rotate(-14deg)", opacity: 0.64 }} />
+          <MiniClover   color={C.sage}      size={14} style={{ left: "6%",  top: "79%", transform: "rotate(-8deg)",  opacity: 0.62 }} />
+          <SmallLeaf    color={C.champagne} size={22} style={{ left: "36%", top: "83%", transform: "rotate(18deg)",  opacity: 0.58 }} />
+          <MiniClover   color={C.rose}      size={16} style={{ left: "20%", top: "92%", transform: "rotate(-22deg)", opacity: 0.60 }} />
+          {/* ── Center gutter ── */}
+          <Sparkle      color={C.mustard}   size={26} style={{ left: "calc(50% - 13px)", top: "6%",  transform: "rotate(15deg)", opacity: 0.74 }} />
+          <MiniClover   color={C.rose}      size={18} style={{ left: "calc(50% - 9px)",  top: "14%", transform: "rotate(-8deg)", opacity: 0.70 }} />
+          <Daisy        color={C.blue}      size={56} style={{ left: "calc(50% - 28px)", top: "22%", transform: "rotate(-8deg)", opacity: 0.70 }} />
+          <MiniClover   color={C.lavender}  size={14} style={{ left: "calc(50% - 7px)",  top: "33%", transform: "rotate(20deg)", opacity: 0.68 }} />
+          <SmallLeaf    color={C.lavender}  size={26} style={{ left: "calc(50% - 13px)", top: "40%", transform: "rotate(20deg)", opacity: 0.66 }} />
+          <MiniClover   color={C.mustard}   size={20} style={{ left: "calc(50% - 10px)", top: "50%", transform: "rotate(-5deg)", opacity: 0.68 }} />
+          <SmallBerries color={C.sage}      size={42} style={{ left: "calc(50% - 21px)", top: "58%", transform: "rotate(-6deg)", opacity: 0.66 }} />
+          <MiniClover   color={C.rose}      size={16} style={{ left: "calc(50% - 8px)",  top: "70%", transform: "rotate(12deg)", opacity: 0.68 }} />
+          <Daisy        color={C.rose}      size={58} style={{ left: "calc(50% - 29px)", top: "76%", transform: "rotate(14deg)", opacity: 0.70 }} />
+          <MiniClover   color={C.green}     size={14} style={{ left: "calc(50% - 7px)",  top: "88%", transform: "rotate(-18deg)",opacity: 0.65 }} />
+          {/* ── Right column — big anchors ── */}
+          <TulipStem    color={C.sage}      size={48} style={{ right: "28%", top: "7%",  transform: "rotate(14deg)",  opacity: 0.64 }} />
+          <SmallLeaf    color={C.rose}      size={34} style={{ right: "5%",  top: "16%", transform: "rotate(-22deg)", opacity: 0.64 }} />
+          <Daisy        color={C.mustard}   size={62} style={{ right: "4%",  top: "44%", transform: "rotate(9deg)",   opacity: 0.68 }} />
+          <SmallBerries color={C.champagne} size={44} style={{ right: "31%", top: "63%", transform: "rotate(28deg)",  opacity: 0.64 }} />
+          <TulipStem    color={C.rose}      size={40} style={{ right: "20%", top: "83%", transform: "rotate(-24deg)", opacity: 0.62 }} />
+          <Daisy        color={C.green}     size={50} style={{ right: "3%",  top: "90%", transform: "rotate(-17deg)", opacity: 0.64 }} />
+          {/* ── Right column — tiny fills ── */}
+          <MiniClover   color={C.lavender}  size={18} style={{ right: "18%", top: "3%",  transform: "rotate(10deg)",  opacity: 0.68 }} />
+          <Sparkle      color={C.champagne} size={22} style={{ right: "38%", top: "17%", transform: "rotate(8deg)",   opacity: 0.65 }} />
+          <MiniClover   color={C.rose}      size={16} style={{ right: "10%", top: "26%", transform: "rotate(-20deg)", opacity: 0.65 }} />
+          <Sparkle      color={C.lavender}  size={24} style={{ right: "22%", top: "34%", transform: "rotate(-12deg)", opacity: 0.67 }} />
+          <MiniClover   color={C.sage}      size={20} style={{ right: "40%", top: "41%", transform: "rotate(18deg)",  opacity: 0.65 }} />
+          <SmallLeaf    color={C.mustard}   size={24} style={{ right: "16%", top: "54%", transform: "rotate(18deg)",  opacity: 0.62 }} />
+          <MiniClover   color={C.mustard}   size={14} style={{ right: "6%",  top: "60%", transform: "rotate(-10deg)", opacity: 0.65 }} />
+          <SmallLeaf    color={C.blue}      size={26} style={{ right: "8%",  top: "77%", transform: "rotate(-10deg)", opacity: 0.60 }} />
+          <MiniClover   color={C.champagne} size={18} style={{ right: "34%", top: "72%", transform: "rotate(15deg)",  opacity: 0.62 }} />
+          <Sparkle      color={C.rose}      size={18} style={{ right: "26%", top: "95%", transform: "rotate(6deg)",   opacity: 0.60 }} />
         </div>
 
         {/* ── LEFT SIDEBAR ── */}
@@ -419,7 +454,7 @@ export default function ShopClient({ lang, dictionary, products }: ShopClientPro
           >
             {isKa ? "კატეგორია" : "Category"}
           </div>
-          <div className="flex flex-col gap-1">
+          <div className="flex flex-col gap-2">
             {cats.map((cat) => {
               const active = catParam === cat.val;
               const col = CAT_COLORS[cat.val] ?? CAT_COLORS.all;
@@ -427,22 +462,31 @@ export default function ShopClient({ lang, dictionary, products }: ShopClientPro
                 <motion.button
                   key={cat.val}
                   onClick={() => setParam("category", cat.val)}
+                  animate={{ y: active ? 3 : 0 }}
                   whileTap={{ scale: 0.97 }}
-                  className="px-3 py-2 text-left rounded-[10px] transition-all w-full"
+                  transition={{ duration: 0.1 }}
+                  className="px-3 py-2.5 text-left rounded-[12px] w-full flex items-center gap-2"
                   style={{
                     fontFamily: FRAUNCES,
                     fontStyle: "italic",
-                    fontSize: 13.5,
-                    fontWeight: active ? 800 : 600,
-                    letterSpacing: "0.03em",
-                    background: active
-                      ? col.bg
-                      : `linear-gradient(to right, ${col.bg} 4px, ${hexFaint(col.bg, 0.10)} 4px)`,
-                    color: active ? col.text : C.ink,
-                    boxShadow: active ? `0 3px 0 ${col.shadow}` : "none",
+                    fontSize: 13,
+                    fontWeight: 700,
+                    letterSpacing: "0.02em",
+                    background: col.bg,
+                    color: col.text,
+                    boxShadow: active
+                      ? `0 1px 0 ${col.shadow}, inset 0 2px 5px rgba(0,0,0,0.14)`
+                      : `0 4px 0 ${col.shadow}`,
                     whiteSpace: "nowrap",
+                    border: "none",
+                    cursor: "pointer",
+                    outline: active ? `2px solid rgba(255,255,255,0.35)` : "none",
+                    outlineOffset: -2,
                   }}
                 >
+                  <span style={{ fontSize: 13, lineHeight: 1, flexShrink: 0 }}>
+                    {CAT_BOTANICAL[cat.val]}
+                  </span>
                   {cat.label}
                 </motion.button>
               );
@@ -499,7 +543,7 @@ export default function ShopClient({ lang, dictionary, products }: ShopClientPro
                     boxShadow: active ? `0 3px 0 ${col.shadow}` : "none",
                   }}
                 >
-                  {CAT_ICONS[cat.val]} {cat.label}
+                  {CAT_BOTANICAL[cat.val]} {cat.label}
                 </button>
               );
             })}
@@ -525,17 +569,39 @@ export default function ShopClient({ lang, dictionary, products }: ShopClientPro
               <div className="flex flex-col md:flex-row md:gap-10 lg:gap-14 gap-16">
                 {/* Left column */}
                 <div className="flex-1 flex flex-col gap-20 md:gap-28">
-                  {visible.filter((_, i) => i % 2 === 0).map((p, i) => (
+                  {visible.slice(0, pageSize).filter((_, i) => i % 2 === 0).map((p, i) => (
                     <ShopCard key={p.id} product={p} index={i * 2} lang={lang} isKa={isKa} copy={copy} />
                   ))}
                 </div>
                 {/* Right column — shifted down */}
                 <div className="flex-1 flex flex-col gap-20 md:gap-28 md:pt-36 lg:pt-44">
-                  {visible.filter((_, i) => i % 2 === 1).map((p, i) => (
+                  {visible.slice(0, pageSize).filter((_, i) => i % 2 === 1).map((p, i) => (
                     <ShopCard key={p.id} product={p} index={i * 2 + 1} lang={lang} isKa={isKa} copy={copy} />
                   ))}
                 </div>
               </div>
+
+              {/* Load more */}
+              {visible.length > pageSize && (
+                <div className="flex justify-center mt-16 mb-4">
+                  <motion.button
+                    onClick={() => setPageSize(n => n + 8)}
+                    whileTap={{ scale: 0.97 }}
+                    className="flex items-center gap-3 px-10 py-4 font-extrabold text-[11px] uppercase tracking-[0.22em] rounded-full"
+                    style={{
+                      fontFamily: FRAUNCES,
+                      background: C.cream,
+                      color: C.ink,
+                      border: `2px solid ${C.champagne}`,
+                      boxShadow: `0 5px 0 rgba(201,168,108,0.35)`,
+                    }}
+                  >
+                    <span style={{ fontSize: 16 }}>❀</span>
+                    {isKa ? "მეტის ჩვენება" : "Show more"}
+                    <span style={{ fontSize: 16 }}>❀</span>
+                  </motion.button>
+                </div>
+              )}
             </div>
           )}
         </main>
@@ -546,13 +612,86 @@ export default function ShopClient({ lang, dictionary, products }: ShopClientPro
 
 /* ════════════════════════ SHOP CARD ════════════════════════════════ */
 
+/* per-product photo position, persisted in localStorage */
+type PhotoPos = { x: number; y: number; scale: number };
+const DEFAULT_POS: PhotoPos = { x: 0, y: 0, scale: 1 };
+
+function loadPos(id: string): PhotoPos {
+  if (typeof window === "undefined") return DEFAULT_POS;
+  try { const s = localStorage.getItem(`tissu-pos-${id}`); return s ? JSON.parse(s) : DEFAULT_POS; }
+  catch { return DEFAULT_POS; }
+}
+
 function ShopCard({ product, index, lang, isKa, copy }: {
   product: StorefrontProduct; index: number; lang: Locale; isKa: boolean;
   copy: ReturnType<typeof getLandingCopy>;
 }) {
-  const [hover, setHover] = useState(false);
+  const [hover, setHover]     = useState(false);
+  const [editing, setEditing] = useState(false);
+  const [savedPos, setSavedPos] = useState<PhotoPos>(DEFAULT_POS);
+  const [tempPos, setTempPos]   = useState<PhotoPos>(DEFAULT_POS);
+  const svgRef  = useRef<SVGSVGElement>(null);
+  const dragRef = useRef<{ sx: number; sy: number; px: number; py: number } | null>(null);
+  const dragDivRef = useRef<HTMLDivElement>(null);
+
   const addItem  = useCartStore((s) => s.addItem);
   const openCart = useUIStore((s) => s.openCart);
+
+  /* load saved position after mount */
+  useEffect(() => {
+    const p = loadPos(product.id);
+    setSavedPos(p);
+    setTempPos(p);
+  }, [product.id]);
+
+  /* non-passive wheel handler for zoom (passive:false needed to preventDefault) */
+  useEffect(() => {
+    if (!editing || !dragDivRef.current) return;
+    const el = dragDivRef.current;
+    const onWheel = (e: WheelEvent) => {
+      e.preventDefault();
+      setTempPos(p => ({ ...p, scale: Math.max(0.5, Math.min(4, p.scale - e.deltaY * 0.002)) }));
+    };
+    el.addEventListener("wheel", onWheel, { passive: false });
+    return () => el.removeEventListener("wheel", onWheel);
+  }, [editing]);
+
+  const svgRatio = () => {
+    if (!svgRef.current) return 1;
+    const w = svgRef.current.getBoundingClientRect().width;
+    return w > 0 ? 400 / w : 1;
+  };
+
+  const startDrag = (e: React.MouseEvent) => {
+    e.preventDefault();
+    const ratio = svgRatio();
+    dragRef.current = { sx: e.clientX, sy: e.clientY, px: tempPos.x, py: tempPos.y };
+    const move = (ev: MouseEvent) => {
+      if (!dragRef.current) return;
+      setTempPos(p => ({
+        ...p,
+        x: dragRef.current!.px + (ev.clientX - dragRef.current!.sx) * ratio,
+        y: dragRef.current!.py + (ev.clientY - dragRef.current!.sy) * ratio,
+      }));
+    };
+    const up = () => { dragRef.current = null; window.removeEventListener("mousemove", move); window.removeEventListener("mouseup", up); };
+    window.addEventListener("mousemove", move);
+    window.addEventListener("mouseup", up);
+  };
+
+  const openEditor = (e: React.MouseEvent) => {
+    e.preventDefault(); e.stopPropagation();
+    setTempPos(savedPos);
+    setEditing(true);
+  };
+
+  const saveEdit = () => {
+    setSavedPos(tempPos);
+    try { localStorage.setItem(`tissu-pos-${product.id}`, JSON.stringify(tempPos)); } catch {}
+    setEditing(false);
+  };
+
+  const cancelEdit = () => { setTempPos(savedPos); setEditing(false); };
 
   const frame  = FRAMES[index % FRAMES.length];
   const clipId = `sc-${product.id}`;
@@ -562,6 +701,10 @@ function ShopCard({ product, index, lang, isKa, copy }: {
   const isOnSale = Boolean(product.original_price && product.original_price > product.price);
   const name     = product.name || product.code;
   const inStock  = product.in_stock;
+
+  /* SVG transform: scale from center (200,200) then offset */
+  const activePos = editing ? tempPos : savedPos;
+  const imgTransform = `translate(${200 + activePos.x} ${200 + activePos.y}) scale(${activePos.scale}) translate(-200 -200)`;
 
   const onBuy = (e: React.MouseEvent) => {
     e.preventDefault();
@@ -594,11 +737,7 @@ function ShopCard({ product, index, lang, isKa, copy }: {
       onMouseLeave={() => setHover(false)}
     >
       {/* Organic-framed photo */}
-      <Link
-        href={`/${lang}/product/${product.id}`}
-        className="relative w-full"
-        style={{ aspectRatio: "1 / 1" }}
-      >
+      <div className="relative w-full" style={{ aspectRatio: "1 / 1" }}>
         {product.tags.includes("new") && (
           <span
             className="absolute -top-2 right-3 z-10 px-3 py-1 text-[9px] font-extrabold uppercase tracking-[0.22em]"
@@ -613,11 +752,12 @@ function ShopCard({ product, index, lang, isKa, copy }: {
         )}
 
         <svg
+          ref={svgRef}
           viewBox="0 0 400 400"
           preserveAspectRatio="xMidYMid meet"
           aria-hidden="true"
           className="absolute inset-0 w-full h-full"
-          style={{ filter: "drop-shadow(0 10px 22px rgba(0,0,0,0.14))", overflow: "visible" }}
+          style={{ filter: "drop-shadow(0 10px 22px rgba(0,0,0,0.14))", overflow: "visible", zIndex: 0 }}
         >
           <defs><clipPath id={clipId}><path d={path} /></clipPath></defs>
 
@@ -626,6 +766,7 @@ function ShopCard({ product, index, lang, isKa, copy }: {
             x="0" y="0" width="400" height="400"
             preserveAspectRatio="xMidYMid slice"
             clipPath={`url(#${clipId})`}
+            transform={imgTransform}
             style={{ filter: "saturate(0.95) sepia(0.02)", opacity: hover && hasBack ? 0 : 1, transition: "opacity 0.5s ease" }}
           />
           {hasBack && (
@@ -634,14 +775,90 @@ function ShopCard({ product, index, lang, isKa, copy }: {
               x="0" y="0" width="400" height="400"
               preserveAspectRatio="xMidYMid slice"
               clipPath={`url(#${clipId})`}
+              transform={imgTransform}
               style={{ filter: "saturate(0.95) sepia(0.02)", opacity: hover ? 1 : 0, transition: "opacity 0.5s ease" }}
             />
           )}
-
-          {/* Colored stroke outline — no fill */}
           <path d={path} fill="none" stroke={frame.color} strokeWidth="7" strokeLinejoin="round" />
         </svg>
-      </Link>
+
+        {/* Transparent link overlay — navigates to product; disabled while editing */}
+        <Link
+          href={`/${lang}/product/${product.id}`}
+          className="absolute inset-0 block"
+          aria-label={name}
+          style={{ zIndex: 1, pointerEvents: editing ? "none" : "auto" }}
+        />
+
+        {/* Drag capture div — only rendered while editing */}
+        {editing && (
+          <div
+            ref={dragDivRef}
+            className="absolute inset-0"
+            style={{ zIndex: 2, cursor: "grab", touchAction: "none", userSelect: "none" }}
+            onMouseDown={startDrag}
+          />
+        )}
+
+        {/* Pencil edit button — appears on hover */}
+        <button
+          onClick={openEditor}
+          aria-label={isKa ? "ფოტოს პოზიციის შეცვლა" : "Adjust photo position"}
+          style={{
+            position: "absolute", top: 8, right: 8, zIndex: 3,
+            opacity: hover && !editing ? 1 : 0,
+            pointerEvents: hover && !editing ? "auto" : "none",
+            transition: "opacity 0.2s",
+            background: "rgba(255,255,255,0.88)",
+            border: "none",
+            borderRadius: "50%",
+            width: 34, height: 34,
+            display: "flex", alignItems: "center", justifyContent: "center",
+            cursor: "pointer",
+            fontSize: 15,
+            boxShadow: "0 2px 8px rgba(0,0,0,0.14)",
+          }}
+        >
+          ✎
+        </button>
+
+        {/* Editing toolbar — zoom in/out, save, cancel */}
+        {editing && (
+          <div
+            style={{
+              position: "absolute", bottom: 12, left: "50%", transform: "translateX(-50%)",
+              zIndex: 4,
+              display: "flex", alignItems: "center", gap: 6,
+              background: "rgba(255,255,255,0.95)",
+              borderRadius: 999,
+              padding: "7px 14px",
+              boxShadow: "0 4px 16px rgba(0,0,0,0.18)",
+              whiteSpace: "nowrap",
+            }}
+          >
+            <button
+              onClick={() => setTempPos(p => ({ ...p, scale: Math.min(4, p.scale + 0.15) }))}
+              style={{ width: 28, height: 28, borderRadius: "50%", background: C.cream, border: `1px solid ${C.champagne}`, cursor: "pointer", fontSize: 15, display: "flex", alignItems: "center", justifyContent: "center" }}
+            >＋</button>
+            <button
+              onClick={() => setTempPos(p => ({ ...p, scale: Math.max(0.5, p.scale - 0.15) }))}
+              style={{ width: 28, height: 28, borderRadius: "50%", background: C.cream, border: `1px solid ${C.champagne}`, cursor: "pointer", fontSize: 15, display: "flex", alignItems: "center", justifyContent: "center" }}
+            >－</button>
+            <button
+              onClick={saveEdit}
+              style={{ paddingInline: 12, height: 28, borderRadius: 999, background: C.sage, border: "none", color: C.cream, cursor: "pointer", fontSize: 11, fontWeight: 700, fontFamily: FRAUNCES, letterSpacing: "0.04em" }}
+            >
+              {isKa ? "შენახვა" : "Save"}
+            </button>
+            <button
+              onClick={cancelEdit}
+              style={{ paddingInline: 10, height: 28, borderRadius: 999, background: "transparent", border: `1px solid ${C.champagne}`, color: C.ink, cursor: "pointer", fontSize: 11, fontFamily: FRAUNCES }}
+            >
+              {isKa ? "გაუქმება" : "Cancel"}
+            </button>
+          </div>
+        )}
+      </div>
 
       {/* Editorial text — no card box */}
       <div className="mt-4 pl-1">
