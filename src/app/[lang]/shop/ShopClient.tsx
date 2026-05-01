@@ -112,13 +112,13 @@ function stadiumBottom(cx: number, cy: number, hw: number, ht: number, cr: numbe
 type Frame = { path: () => string; color: string };
 
 const FRAMES: Frame[] = [
-  { path: () => blob(10, 162, 155, 0.11, 200, 200, 7),     color: C.rose },
+  { path: () => flowerArc(4, 88, 108),                     color: C.rose },    // 4-petal clover (reference)
   { path: () => roundedRect(340, 340, 200, 200, 70),       color: C.green },
   { path: () => stadiumBottom(200, 185, 152, 210, 24),     color: C.mustard },
   { path: () => blob(10, 160, 158, 0.12, 200, 200, 22),    color: C.blue },
-  { path: () => roundedRect(300, 360, 200, 200, 80),       color: C.rose },
+  { path: () => flowerArc(4, 84, 112),                     color: C.mustard },  // 4-petal clover variant
   { path: () => blob(10, 170, 150, 0.10, 200, 200, 15),    color: C.green },
-  { path: () => stadiumBottom(200, 190, 148, 205, 26),     color: C.mustard },
+  { path: () => stadiumBottom(200, 190, 148, 205, 26),     color: C.rose },
   { path: () => roundedRect(360, 320, 200, 200, 65),       color: C.blue },
 ];
 
