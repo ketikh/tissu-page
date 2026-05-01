@@ -13,6 +13,7 @@ interface RetroNecklacesProps {
 
 const PACIFICO = "var(--font-pacifico), 'Pacifico', cursive";
 const FRAUNCES = "var(--font-fraunces), 'Fraunces', Georgia, serif";
+const ALK_LIFE = "var(--font-alk-life), serif";
 
 const C = {
   bg: "#1e4d43",          // deep forest teal
@@ -103,33 +104,33 @@ interface NecklaceFrame {
 
 /* Four distinct shapes — all flowers or blobs, no drips */
 const FRAMES: readonly NecklaceFrame[] = [
-  // #1 — 8-petal flower bloom (elegant, jewellery feel)
+  // #1 — 8-petal flower bloom
   {
     name: "bloom",
     color: C.rose,
     rotate: -3,
-    spec: { kind: "flower", bumps: 8, baseR: 120, bumpH: 44 },
+    spec: { kind: "flower", bumps: 8, baseR: 155, bumpH: 56 },
   },
-  // #2 — wide organic blob (soft, approachable)
+  // #2 — wide organic blob
   {
     name: "pebble",
     color: C.champagne,
     rotate: 4,
-    spec: { kind: "blob", points: 12, rx: 138, ry: 118, variance: 0.14, seed: 7 },
+    spec: { kind: "blob", points: 12, rx: 172, ry: 148, variance: 0.14, seed: 7 },
   },
-  // #3 — fine scallop frill (delicate, lace-like)
+  // #3 — fine scallop frill
   {
     name: "frill",
     color: C.lavender,
     rotate: -2,
-    spec: { kind: "flower", bumps: 14, baseR: 118, bumpH: 22, jitter: 0.15 },
+    spec: { kind: "flower", bumps: 14, baseR: 150, bumpH: 28, jitter: 0.15 },
   },
-  // #4 — tall organic blob (like a pendant shape)
+  // #4 — tall pendant blob
   {
     name: "pendant",
     color: C.sage,
     rotate: 3,
-    spec: { kind: "blob", points: 10, rx: 118, ry: 148, variance: 0.12, seed: 31 },
+    spec: { kind: "blob", points: 10, rx: 148, ry: 185, variance: 0.12, seed: 31 },
   },
 ] as const;
 
@@ -171,49 +172,27 @@ export default function RetroNecklaces({
 
       <div className="container relative">
         <div className="text-center mb-6 md:mb-8">
-          <motion.span
-            initial={{ opacity: 0, y: 6 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            viewport={{ once: true }}
-            transition={{ duration: 0.6, delay: 0.1 }}
-            className="inline-block text-[11px] font-extrabold uppercase tracking-[0.3em]"
-            style={{ color: C.champagne }}
-          >
-            {isKa ? "ყელსაბამები" : "Handcrafted necklaces"}
-          </motion.span>
-
           <motion.h2
             initial={{ opacity: 0, y: 14 }}
             whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: true }}
-            transition={{ duration: 0.85, delay: 0.2, ease: [0.215, 0.61, 0.355, 1] }}
-            className="mt-4 leading-[0.95]"
+            transition={{ duration: 0.85, delay: 0.1, ease: [0.215, 0.61, 0.355, 1] }}
+            className="leading-[0.95]"
             style={{
-              fontFamily: FRAUNCES,
-              fontStyle: "italic",
+              fontFamily: isKa ? ALK_LIFE : FRAUNCES,
+              fontStyle: isKa ? "normal" : "italic",
               fontWeight: 900,
-              fontSize: "clamp(36px, 6vw, 76px)",
+              fontSize: "clamp(28px, 5vw, 58px)",
               color: C.cream,
             }}
           >
-            {isKa ? <>ხელნაკეთი, სულდგმული.</> : <>Worn close, made by hand.</>}
-          </motion.h2>
-
-          <motion.p
-            initial={{ opacity: 0 }}
-            whileInView={{ opacity: 1 }}
-            viewport={{ once: true }}
-            transition={{ duration: 0.7, delay: 0.4 }}
-            className="mt-3 max-w-md mx-auto"
-            style={{ fontFamily: FRAUNCES, fontStyle: "italic", opacity: 0.8, fontSize: 16 }}
-          >
             {isKa
-              ? "ყოველი ცალი ხელით ნაკეთია თბილისში."
-              : "Each piece crafted by hand in our Tbilisi studio."}
-          </motion.p>
+              ? <>შარფი-ყელსაბამი — სურვილის მიხედვით.</>
+              : <>A scarf, a necklace — your way.</>}
+          </motion.h2>
         </div>
 
-        <div className="grid grid-cols-1 sm:grid-cols-2 gap-x-10 gap-y-4 md:gap-y-6 max-w-2xl mx-auto">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-x-8 gap-y-4 md:gap-y-6 max-w-4xl mx-auto">
           {showcase.map((p, i) => (
             <NecklaceCard
               key={p.id}
@@ -223,6 +202,7 @@ export default function RetroNecklaces({
               isKa={isKa}
             />
           ))}
+          <BuildYourOwnCard isKa={isKa} />
         </div>
 
         <div className="mt-6 md:mt-8 flex justify-center">
@@ -357,12 +337,6 @@ function NecklaceCard({
       </div>
 
       <div className="mt-5 text-center max-w-65">
-        <div
-          className="text-[10px] uppercase tracking-[0.3em] mb-1"
-          style={{ color: C.champagne, fontFamily: FRAUNCES, fontWeight: 700 }}
-        >
-          {[product.size, product.color].filter(Boolean).join(" · ") || (isKa ? "ხელით ნაკეთი" : "Handmade")}
-        </div>
         <Link
           href={`#product-${product.id}`}
           className="leading-tight hover:underline underline-offset-4 decoration-1"
@@ -373,6 +347,84 @@ function NecklaceCard({
         <div style={{ fontFamily: PACIFICO, fontSize: 26, color: C.champagne }}>
           {product.price}
           {product.currency === "GEL" ? "₾" : ` ${product.currency}`}
+        </div>
+      </div>
+    </motion.div>
+  );
+}
+
+function BuildYourOwnCard({ isKa }: { isKa: boolean }) {
+  const swatches = ["#c4849a", "#c9a86c", "#9e8abf", "#7aaa8a", "#f3b62b", "#6b9eb5"];
+
+  return (
+    <motion.div
+      initial={{ opacity: 0, y: 30 }}
+      whileInView={{ opacity: 1, y: 0 }}
+      viewport={{ once: true, margin: "-40px" }}
+      transition={{ duration: 0.85, delay: 0.35, ease: [0.215, 0.61, 0.355, 1] }}
+      className="flex flex-col items-center"
+    >
+      <Link
+        href="#necklace-builder"
+        className="relative w-full max-w-80 group"
+        style={{ aspectRatio: "4 / 5", display: "block" }}
+      >
+        {/* Card body */}
+        <div
+          className="w-full h-full rounded-[28px] flex flex-col items-center justify-center gap-5 px-7 transition-transform duration-500 group-hover:-translate-y-2"
+          style={{
+            background: "rgba(255,255,255,0.08)",
+            border: `2px dashed ${C.champagne}`,
+            transform: "rotate(2deg)",
+          }}
+        >
+          {/* Swatch mosaic */}
+          <div className="grid grid-cols-3 gap-2">
+            {swatches.map((color, i) => (
+              <motion.div
+                key={i}
+                className="rounded-full"
+                style={{ width: 28, height: 28, background: color, opacity: 0.85 }}
+                animate={{ scale: [1, 1.12, 1] }}
+                transition={{ duration: 2.5, delay: i * 0.3, repeat: Infinity, ease: "easeInOut" }}
+              />
+            ))}
+          </div>
+
+          {/* Plus icon */}
+          <div
+            className="w-14 h-14 rounded-full flex items-center justify-center text-2xl font-bold transition-transform duration-300 group-hover:scale-110"
+            style={{ background: C.mustard, color: C.ink }}
+          >
+            +
+          </div>
+
+          {/* Stars */}
+          {["top-4 left-5", "bottom-6 right-6"].map((pos, i) => (
+            <motion.span
+              key={i}
+              className={`absolute ${pos} text-[14px] pointer-events-none`}
+              style={{ color: C.champagne, opacity: 0.7 }}
+              animate={{ rotate: [0, 360] }}
+              transition={{ duration: 10 + i * 3, repeat: Infinity, ease: "linear" }}
+            >
+              ✦
+            </motion.span>
+          ))}
+        </div>
+      </Link>
+
+      <div className="mt-5 text-center max-w-65">
+        <div
+          style={{ fontFamily: isKa ? ALK_LIFE : FRAUNCES, fontStyle: isKa ? "normal" : "italic", fontWeight: 700, fontSize: 22, color: C.cream }}
+        >
+          {isKa ? "ააწყვე შენი" : "Build yours"}
+        </div>
+        <div
+          className="mt-1 text-[11px] uppercase tracking-[0.25em]"
+          style={{ color: C.champagne, fontFamily: FRAUNCES }}
+        >
+          {isKa ? "ქსოვილი + ჩარმები" : "Fabric + charms"}
         </div>
       </div>
     </motion.div>

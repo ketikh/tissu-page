@@ -3,14 +3,28 @@
 import { useState } from "react";
 import Link from "next/link";
 import Image from "next/image";
+import { motion, AnimatePresence } from "framer-motion";
 import { useCartStore } from "@/store/useCartStore";
 import { useStoreHydration } from "@/store/useHydration";
 import { formatPrice } from "@/lib/utils";
-import { Button } from "@/components/ui/Button";
-import { Trash2, ChevronLeft, ShieldCheck, Tag, ArrowRight, Minus, Plus } from "lucide-react";
-import { Input } from "@/components/ui/Input";
+import { Minus, Plus, Trash2, Tag } from "lucide-react";
 import { Locale } from "@/i18n/config";
-import { mockProducts } from "@/lib/mock-data";
+
+const PACIFICO = "var(--font-pacifico), 'Pacifico', cursive";
+const FRAUNCES = "var(--font-fraunces), 'Fraunces', Georgia, serif";
+const ALK_LIFE = "var(--font-alk-life), serif";
+
+const C = {
+  cream: "#fef0d6",
+  beige: "#f5e3c2",
+  ink: "#2a1d14",
+  mustard: "#f3b62b",
+  mustardDeep: "#d99820",
+  burnt: "#d56826",
+  green: "#3f6f56",
+  champagne: "#c9a86c",
+  rose: "#c4849a",
+};
 
 interface CartClientProps {
   dictionary: any;
@@ -24,239 +38,346 @@ export default function CartClient({ dictionary, lang }: CartClientProps) {
   const [promoCode, setPromoCode] = useState("");
   const [promoError, setPromoError] = useState(false);
   const [promoSuccess, setPromoSuccess] = useState(false);
+  const isKa = lang === "ka";
 
   const handleApplyPromo = () => {
     const success = applyPromoCode(promoCode);
-    if (success) {
-      setPromoSuccess(true);
-      setPromoError(false);
-    } else {
-      setPromoError(true);
-      setPromoSuccess(false);
-    }
+    setPromoSuccess(success);
+    setPromoError(!success);
   };
-
-  // Filter recommendations (different from items in cart)
-  const recommendations = mockProducts
-    .filter(p => !items.some(item => item.productId === p.id))
-    .slice(0, 3);
 
   if (items.length === 0) {
     return (
-      <div className="container min-h-[70vh] py-16 px-4 flex flex-col items-center">
-        <div className="max-w-2xl w-full text-center mb-16">
-          <h1 className="ka-display-lg text-4xl md:text-6xl font-serif text-brand-dark mb-6 tracking-tight">
-            {dictionary.cartDrawer.empty}
+      <div style={{ background: C.cream, minHeight: "80vh" }}>
+        <div
+          className="h-2 w-full"
+          style={{ background: "repeating-linear-gradient(90deg, #c4849a 0 18px, #fef0d6 18px 36px)" }}
+          aria-hidden="true"
+        />
+        <div className="container py-24 flex flex-col items-center text-center gap-8">
+          <motion.span
+            initial={{ scale: 0.6, opacity: 0 }}
+            animate={{ scale: 1, opacity: 1 }}
+            transition={{ duration: 0.6, type: "spring", stiffness: 200, damping: 14 }}
+            style={{ fontSize: 64, lineHeight: 1 }}
+            aria-hidden="true"
+          >
+            🛒
+          </motion.span>
+          <h1
+            style={{
+              fontFamily: isKa ? ALK_LIFE : FRAUNCES,
+              fontStyle: isKa ? "normal" : "italic",
+              fontWeight: 900,
+              fontSize: "clamp(32px, 5vw, 60px)",
+              color: C.ink,
+              lineHeight: 1.0,
+            }}
+          >
+            {isKa ? "კალათა ცარიელია" : "Your basket is empty"}
           </h1>
-          <p className="text-muted-foreground mb-10 text-lg">
-            {dictionary.cartDrawer.discover}
+          <p style={{ fontFamily: FRAUNCES, fontStyle: "italic", fontSize: 17, color: C.champagne, maxWidth: 380 }}>
+            {isKa ? "ჯერ კიდევ არ გამოგიყვანია ის ჩანთა." : "You haven't picked a bag yet."}
           </p>
-          <Button asChild variant="premium" size="lg" className="h-16 px-10 text-lg rounded-2xl shadow-xl shadow-brand-dark/10">
-            <Link href={`/${lang}/shop`}>{dictionary.cartDrawer.continue}</Link>
-          </Button>
-        </div>
-
-        {/* Recommendations */}
-        <div className="w-full max-w-6xl mt-12">
-          <h2 className="text-2xl font-serif text-brand-dark mb-8 text-center italic">
-            {dictionary.cartDrawer.recommendations}
-          </h2>
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
-            {recommendations.map((product) => (
-              <Link 
-                key={product.id} 
-                href={`/${lang}/product/${product.id}`}
-                className="group flex flex-col bg-white rounded-3xl overflow-hidden border border-border hover:shadow-2xl hover:shadow-brand-dark/5 transition-all duration-500"
-              >
-                <div className="relative aspect-[4/5] overflow-hidden">
-                  <Image 
-                    src={product.images[0]} 
-                    alt={product.name[lang] || product.name['ka']} 
-                    fill 
-                    className="object-cover group-hover:scale-110 transition-transform duration-700" 
-                  />
-                  <div className="absolute inset-0 bg-black/0 group-hover:bg-black/5 transition-colors duration-500" />
-                </div>
-                <div className="p-6">
-                  <h3 className="font-serif text-xl text-brand-dark group-hover:text-brand-primary transition-colors">
-                    {product.name[lang] || product.name['ka']}
-                  </h3>
-                  <p className="text-sm text-brand-dark/70 font-semibold mt-2">{formatPrice(product.price)}</p>
-                </div>
-              </Link>
-            ))}
-          </div>
+          <Link
+            href={`/${lang}/shop`}
+            className="inline-flex items-center gap-2.5 font-extrabold text-[13px] uppercase tracking-[0.2em] transition-transform hover:-translate-y-0.5 active:translate-y-0.5"
+            style={{
+              fontFamily: FRAUNCES,
+              fontWeight: 800,
+              background: C.ink,
+              color: C.cream,
+              borderRadius: 999,
+              padding: "14px 32px",
+              boxShadow: `0 5px 0 ${C.mustardDeep}`,
+            }}
+          >
+            {isKa ? "მაღაზიაში გადასვლა" : "Go to shop"}
+            <span aria-hidden="true">→</span>
+          </Link>
         </div>
       </div>
     );
   }
 
   return (
-    <div className="bg-[#fcfbf9] min-h-screen">
-      <div className="container px-4 py-8 md:py-16 max-w-7xl mx-auto">
-        
-        <div className="flex items-center gap-2 text-sm font-medium text-brand-primary mb-10 hover:translate-x-[-4px] transition-transform w-fit">
-          <Link href={`/${lang}/shop`} className="flex items-center">
-            <ChevronLeft className="w-4 h-4 mr-1" />
-            {dictionary.cartDrawer.continue}
-          </Link>
-        </div>
+    <div style={{ background: C.cream, minHeight: "100vh" }}>
+      {/* Top stripe */}
+      <div
+        className="h-2 w-full"
+        style={{ background: "repeating-linear-gradient(90deg, #c4849a 0 18px, #fef0d6 18px 36px)" }}
+        aria-hidden="true"
+      />
 
-        <h1 className="ka-display-lg text-4xl lg:text-6xl font-serif text-brand-dark mb-12 tracking-tight">
-          {dictionary.cartDrawer.title}
+      <div className="container py-10 md:py-14 max-w-6xl">
+        {/* Back link */}
+        <Link
+          href={`/${lang}/shop`}
+          className="inline-flex items-center gap-1.5 mb-8 hover:underline underline-offset-4"
+          style={{ fontFamily: FRAUNCES, fontWeight: 700, fontSize: 12, letterSpacing: "0.2em", textTransform: "uppercase", color: C.champagne }}
+        >
+          ← {isKa ? "მაღაზიაში დაბრუნება" : "Back to shop"}
+        </Link>
+
+        {/* Heading */}
+        <h1
+          className="mb-10"
+          style={{
+            fontFamily: isKa ? ALK_LIFE : FRAUNCES,
+            fontStyle: isKa ? "normal" : "italic",
+            fontWeight: 900,
+            fontSize: "clamp(32px, 5vw, 58px)",
+            color: C.ink,
+            lineHeight: 1.0,
+          }}
+        >
+          {isKa ? "კალათა" : dictionary.cartDrawer?.title ?? "Your basket"}
         </h1>
 
-        <div className="grid lg:grid-cols-12 gap-12 xl:gap-20">
-          
-          {/* Items List */}
-          <div className="lg:col-span-7 xl:col-span-8 flex flex-col gap-10">
-            {items.map((item) => {
-              const name = item.product.name[lang] || item.product.name['ka'];
-              const color = item.variant.color[lang] || item.variant.color['ka'];
-              
-              return (
-                <div key={item.id} className="flex flex-col md:flex-row gap-6 md:gap-10 pb-10 border-b border-border/60 last:border-0 relative group">
-                  {/* Product Image */}
-                  <div className="relative w-full md:w-48 aspect-[4/5] bg-brand-soft rounded-3xl overflow-hidden shadow-sm group-hover:shadow-md transition-shadow">
-                    <Image 
-                      src={item.product.images[0] || "/placeholder.jpg"} 
-                      alt={name}
-                      fill
-                      className="object-cover group-hover:scale-105 transition-transform duration-700"
-                    />
-                  </div>
+        <div className="grid lg:grid-cols-[1fr_380px] gap-12 items-start">
+          {/* ── Items ── */}
+          <div className="flex flex-col gap-6">
+            <AnimatePresence>
+              {items.map((item) => {
+                const name = item.product.name[lang] || item.product.name["ka"];
+                const color = item.variant.color[lang] || item.variant.color["ka"];
+                const linePrice = (item.variant.price || item.product.price) * item.quantity;
 
-                  {/* Details */}
-                  <div className="flex-1 flex flex-col justify-between py-2">
-                    <div>
-                      <div className="flex justify-between items-start">
-                        <Link href={`/${lang}/product/${item.product.id}`} className="font-serif text-2xl md:text-3xl font-medium text-brand-dark hover:text-brand-primary transition-colors pr-8">
+                return (
+                  <motion.div
+                    key={item.id}
+                    layout
+                    initial={{ opacity: 0, y: 16 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    exit={{ opacity: 0, x: -40 }}
+                    transition={{ duration: 0.4 }}
+                    className="flex gap-5 p-4 md:p-5"
+                    style={{
+                      background: C.beige,
+                      borderRadius: 24,
+                      border: `1.5px solid ${C.champagne}`,
+                    }}
+                  >
+                    {/* Photo */}
+                    <div
+                      className="relative shrink-0 overflow-hidden"
+                      style={{ width: 100, height: 120, borderRadius: 16, boxShadow: "0 6px 0 #d99820" }}
+                    >
+                      <Image
+                        src={item.product.images[0] || "/placeholder.jpg"}
+                        alt={name}
+                        fill
+                        className="object-cover"
+                        style={{ filter: "saturate(0.95) sepia(0.03)" }}
+                      />
+                    </div>
+
+                    {/* Details */}
+                    <div className="flex-1 flex flex-col justify-between py-1">
+                      <div>
+                        <Link
+                          href={`/${lang}/product/${item.product.id}`}
+                          className="hover:underline underline-offset-3"
+                          style={{ fontFamily: FRAUNCES, fontStyle: "italic", fontWeight: 700, fontSize: 19, color: C.ink, display: "block" }}
+                        >
                           {name}
                         </Link>
-                        <span className="text-xl font-bold text-brand-dark hidden md:block">
-                          {formatPrice(item.variant.price || item.product.price)}
-                        </span>
-                      </div>
-                      <p className="text-sm font-medium text-muted-foreground mt-3 uppercase tracking-widest bg-brand-soft/50 w-fit px-3 py-1 rounded-full">
-                        {item.variant.size} • {color}
-                      </p>
-                      
-                      <p className="text-lg font-bold text-brand-dark mt-4 md:hidden">
-                        {formatPrice(item.variant.price || item.product.price)}
-                      </p>
-                    </div>
-
-                    <div className="flex items-center justify-between mt-8">
-                      {/* Quantity Control */}
-                      <div className="flex items-center bg-white border border-border shadow-sm rounded-2xl p-1 h-14 w-36">
-                        <button 
-                          className="w-10 h-10 flex items-center justify-center text-brand-dark/60 hover:text-brand-primary hover:bg-brand-soft/30 transition-colors rounded-xl"
-                          onClick={() => updateQuantity(item.id, item.quantity - 1)}
-                        >
-                          <Minus className="w-4 h-4" />
-                        </button>
-                        <span className="flex-1 text-center font-bold text-lg text-brand-dark">{item.quantity}</span>
-                        <button 
-                          className="w-10 h-10 flex items-center justify-center text-brand-dark/60 hover:text-brand-primary hover:bg-brand-soft/30 transition-colors rounded-xl"
-                          onClick={() => updateQuantity(item.id, item.quantity + 1)}
-                        >
-                          <Plus className="w-4 h-4" />
-                        </button>
+                        {color && (
+                          <span
+                            className="inline-block mt-1 px-3 py-0.5 text-[11px] font-bold uppercase tracking-[0.18em]"
+                            style={{ fontFamily: FRAUNCES, color: C.champagne, background: C.cream, borderRadius: 999 }}
+                          >
+                            {color}
+                          </span>
+                        )}
                       </div>
 
-                      <button 
-                        onClick={() => removeItem(item.id)}
-                        className="p-3 text-muted-foreground hover:text-destructive hover:bg-destructive/5 transition-all rounded-2xl group/del"
-                        aria-label="Remove item"
-                      >
-                        <Trash2 className="w-5 h-5 group-hover/del:scale-110" />
-                      </button>
+                      <div className="flex items-center justify-between mt-3 gap-3 flex-wrap">
+                        {/* Qty stepper */}
+                        <div
+                          className="inline-flex items-center gap-1 p-1"
+                          style={{ background: C.cream, borderRadius: 999, border: `1.5px solid ${C.champagne}` }}
+                        >
+                          <button
+                            type="button"
+                            onClick={() => updateQuantity(item.id, item.quantity - 1)}
+                            aria-label="Decrease"
+                            className="w-8 h-8 rounded-full inline-flex items-center justify-center"
+                            style={{ color: C.ink }}
+                          >
+                            <Minus className="w-3.5 h-3.5" />
+                          </button>
+                          <span
+                            className="min-w-6 text-center"
+                            style={{ fontFamily: FRAUNCES, fontWeight: 700, fontSize: 14, color: C.ink }}
+                          >
+                            {item.quantity}
+                          </span>
+                          <button
+                            type="button"
+                            onClick={() => updateQuantity(item.id, item.quantity + 1)}
+                            aria-label="Increase"
+                            className="w-8 h-8 rounded-full inline-flex items-center justify-center"
+                            style={{ color: C.ink }}
+                          >
+                            <Plus className="w-3.5 h-3.5" />
+                          </button>
+                        </div>
+
+                        {/* Price + delete */}
+                        <div className="flex items-center gap-3">
+                          <span style={{ fontFamily: PACIFICO, fontSize: 22, color: C.burnt }}>
+                            {formatPrice(linePrice)}
+                          </span>
+                          <button
+                            type="button"
+                            onClick={() => removeItem(item.id)}
+                            aria-label="Remove"
+                            className="w-9 h-9 rounded-full inline-flex items-center justify-center transition-colors"
+                            style={{ background: C.cream, color: C.rose, border: `1.5px solid ${C.rose}` }}
+                          >
+                            <Trash2 className="w-4 h-4" />
+                          </button>
+                        </div>
+                      </div>
                     </div>
-                  </div>
-                </div>
-              );
-            })}
+                  </motion.div>
+                );
+              })}
+            </AnimatePresence>
           </div>
 
-          {/* Checkout Summary */}
-          <div className="lg:col-span-5 xl:col-span-4">
-            <div className="bg-white rounded-[2.5rem] p-8 lg:p-10 shadow-2xl shadow-brand-dark/[0.03] border border-border/40 sticky top-24">
-              <h2 className="text-2xl md:text-3xl font-serif text-brand-dark border-b border-border pb-6 mb-8">
-                {dictionary.checkout.orderSummary}
-              </h2>
-              
-              <div className="space-y-5 text-sm font-semibold mb-8">
-                <div className="flex justify-between text-muted-foreground">
-                  <span>{dictionary.checkout.subtotal}</span>
-                  <span className="text-brand-dark">{formatPrice(subtotal)}</span>
-                </div>
-                
-                <div className="flex justify-between text-muted-foreground">
-                  <span>{dictionary.checkout.shippingC}</span>
-                  <span className="text-brand-dark">
-                    {shipping === 0 ? "FREE" : formatPrice(shipping)}
-                  </span>
-                </div>
+          {/* ── Summary panel ── */}
+          <div
+            className="p-7 sticky top-24"
+            style={{
+              background: C.beige,
+              borderRadius: 28,
+              border: `2px solid ${C.champagne}`,
+              boxShadow: "0 12px 32px rgba(42,29,20,0.10)",
+            }}
+          >
+            <h2
+              className="mb-6 pb-4"
+              style={{
+                fontFamily: isKa ? ALK_LIFE : FRAUNCES,
+                fontStyle: isKa ? "normal" : "italic",
+                fontWeight: 800,
+                fontSize: 22,
+                color: C.ink,
+                borderBottom: `1.5px dashed ${C.champagne}`,
+              }}
+            >
+              {isKa ? "შეკვეთის შეჯამება" : "Order summary"}
+            </h2>
 
-                {discount > 0 && (
-                  <div className="flex justify-between text-success bg-success/5 p-3 rounded-xl border border-success/10 animate-in fade-in slide-in-from-top-1">
-                    <span className="flex items-center gap-1.5"><Tag className="w-4 h-4" /> {dictionary.checkout.discount} ({discount}%)</span>
-                    <span>-{formatPrice(discountAmount)}</span>
-                  </div>
-                )}
-
-                <div className="border-t border-border pt-6 flex justify-between text-2xl md:text-3xl font-serif font-bold text-brand-dark">
-                  <span>{dictionary.checkout.total}</span>
-                  <span>{formatPrice(total)}</span>
-                </div>
+            <div className="space-y-4 mb-6" style={{ fontFamily: FRAUNCES }}>
+              <div className="flex justify-between text-[13px] font-semibold" style={{ color: C.champagne }}>
+                <span>{isKa ? "სულ ფასი" : "Subtotal"}</span>
+                <span style={{ color: C.ink }}>{formatPrice(subtotal)}</span>
               </div>
-
-              {/* Promo Code UI */}
-              <div className="space-y-4 mb-8">
-                <div className="flex gap-2">
-                  <div className="relative flex-1">
-                    <Input 
-                      placeholder={dictionary.cartDrawer.promo.placeholder} 
-                      className={`bg-brand-soft/30 border-0 h-14 pl-12 rounded-2xl focus:ring-2 focus:ring-brand-primary/20 ${promoError ? 'ring-2 ring-destructive/20' : ''}`}
-                      value={promoCode}
-                      onChange={(e) => setPromoCode(e.target.value)}
-                    />
-                    <Tag className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
-                  </div>
-                  <Button 
-                    variant="outline" 
-                    onClick={handleApplyPromo}
-                    className="h-14 px-6 font-bold rounded-2xl border-border bg-white hover:bg-brand-soft/50 shadow-sm transition-all"
-                  >
-                    {dictionary.common.apply}
-                  </Button>
-                </div>
-                {promoError && <p className="text-xs font-bold text-destructive px-1">{dictionary.cartDrawer.promo.error}</p>}
-                {promoSuccess && <p className="text-xs font-bold text-success px-1">{dictionary.cartDrawer.promo.success}</p>}
+              <div className="flex justify-between text-[13px] font-semibold" style={{ color: C.champagne }}>
+                <span>{isKa ? "მიწოდება" : "Shipping"}</span>
+                <span style={{ color: shipping === 0 ? C.green : C.ink, fontWeight: 700 }}>
+                  {shipping === 0 ? (isKa ? "უფასო" : "FREE") : formatPrice(shipping)}
+                </span>
               </div>
-              
-              <Button asChild variant="premium" size="lg" className="w-full h-16 text-lg rounded-2xl shadow-xl shadow-brand-dark/10 group">
-                <Link href={`/${lang}/checkout`} className="flex items-center justify-center gap-2">
-                  {dictionary.cartDrawer.checkout}
-                  <ArrowRight className="w-5 h-5 group-hover:translate-x-1 transition-transform" />
-                </Link>
-              </Button>
-              
-              <div className="mt-10 flex items-start gap-4 p-5 rounded-[2rem] bg-[#fcfbf9] border border-border/50">
-                <div className="p-2 bg-white rounded-full text-brand-primary shadow-sm">
-                  <ShieldCheck className="w-5 h-5" />
+              {discount > 0 && (
+                <div
+                  className="flex justify-between text-[13px] font-bold px-3 py-2"
+                  style={{ color: C.green, background: C.cream, borderRadius: 12, border: `1px solid ${C.green}` }}
+                >
+                  <span className="flex items-center gap-1.5"><Tag className="w-3.5 h-3.5" /> {discount}%</span>
+                  <span>-{formatPrice(discountAmount)}</span>
                 </div>
-                <div>
-                  <p className="text-xs font-bold text-brand-dark uppercase tracking-wider">{dictionary.cartDrawer.secure}</p>
-                  <p className="text-[11px] text-muted-foreground mt-1.5 leading-relaxed font-medium">
-                    {dictionary.checkout.secureMsg}
-                  </p>
-                </div>
+              )}
+              <div
+                className="flex justify-between pt-4"
+                style={{ borderTop: `1.5px dashed ${C.champagne}` }}
+              >
+                <span style={{ fontFamily: isKa ? ALK_LIFE : FRAUNCES, fontStyle: isKa ? "normal" : "italic", fontWeight: 900, fontSize: 20, color: C.ink }}>
+                  {isKa ? "სულ" : "Total"}
+                </span>
+                <span style={{ fontFamily: PACIFICO, fontSize: 26, color: C.burnt }}>
+                  {formatPrice(total)}
+                </span>
               </div>
             </div>
+
+            {/* Promo code */}
+            <div className="flex gap-2 mb-6">
+              <div className="relative flex-1">
+                <Tag className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4" style={{ color: C.champagne }} />
+                <input
+                  type="text"
+                  placeholder={isKa ? "პრომო კოდი" : "Promo code"}
+                  value={promoCode}
+                  onChange={(e) => setPromoCode(e.target.value)}
+                  className="w-full h-11 pl-10 pr-4 text-[13px] font-bold outline-none"
+                  style={{
+                    fontFamily: FRAUNCES,
+                    background: C.cream,
+                    border: `1.5px solid ${promoError ? C.rose : C.champagne}`,
+                    borderRadius: 999,
+                    color: C.ink,
+                  }}
+                />
+              </div>
+              <button
+                type="button"
+                onClick={handleApplyPromo}
+                className="px-4 h-11 text-[12px] font-extrabold uppercase tracking-[0.15em] transition-transform hover:-translate-y-0.5"
+                style={{ fontFamily: FRAUNCES, background: C.ink, color: C.cream, borderRadius: 999 }}
+              >
+                {isKa ? "გამოყენება" : "Apply"}
+              </button>
+            </div>
+            {promoError && (
+              <p className="text-[11px] font-bold mb-3" style={{ color: C.rose, fontFamily: FRAUNCES }}>
+                {isKa ? "კოდი არასწორია" : "Invalid promo code"}
+              </p>
+            )}
+            {promoSuccess && (
+              <p className="text-[11px] font-bold mb-3" style={{ color: C.green, fontFamily: FRAUNCES }}>
+                {isKa ? "კოდი გამოყენებულია ✓" : "Code applied ✓"}
+              </p>
+            )}
+
+            {/* Checkout CTA */}
+            <Link
+              href={`/${lang}/checkout`}
+              className="flex items-center justify-center gap-2.5 w-full font-extrabold text-[13px] uppercase tracking-[0.2em] transition-transform hover:-translate-y-0.5 active:translate-y-0.5"
+              style={{
+                fontFamily: FRAUNCES,
+                fontWeight: 800,
+                background: C.ink,
+                color: C.cream,
+                borderRadius: 999,
+                padding: "15px 24px",
+                boxShadow: `0 5px 0 ${C.mustardDeep}`,
+              }}
+            >
+              {isKa ? "გადახდა" : "Checkout"}
+              <span aria-hidden="true">→</span>
+            </Link>
+
+            {/* Trust note */}
+            <p
+              className="mt-5 text-center text-[11px] font-semibold"
+              style={{ fontFamily: FRAUNCES, color: C.champagne, letterSpacing: "0.1em" }}
+            >
+              ✦ {isKa ? "უსაფრთხო გადახდა" : "Secure checkout"} ✦
+            </p>
           </div>
         </div>
       </div>
+
+      {/* Bottom stripe */}
+      <div
+        className="h-2 w-full mt-16"
+        style={{ background: "repeating-linear-gradient(90deg, #c4849a 0 18px, #fef0d6 18px 36px)" }}
+        aria-hidden="true"
+      />
     </div>
   );
 }

@@ -1,0 +1,141 @@
+- generic [active] [ref=e1]:
+  - banner [ref=e2]:
+    - generic [ref=e3]:
+      - generic [ref=e4]:
+        - button "Shop" [ref=e6]:
+          - text: Shop
+          - img [ref=e8]
+        - link "Our story" [ref=e10] [cursor=pointer]:
+          - /url: /en/about
+      - link "Tissu" [ref=e12] [cursor=pointer]:
+        - /url: /en
+        - img "Tissu" [ref=e13]
+      - generic [ref=e14]:
+        - generic "Select language" [ref=e15]:
+          - generic [ref=e16]:
+            - link "ka" [ref=e17] [cursor=pointer]:
+              - /url: /ka/product/31
+            - link "en" [ref=e18] [cursor=pointer]:
+              - /url: /en/product/31
+              - text: en
+        - link "Account" [ref=e20] [cursor=pointer]:
+          - /url: /en/account
+          - img [ref=e21]
+        - button "Cart" [ref=e24]:
+          - img [ref=e25]
+  - main [ref=e28]:
+    - generic [ref=e31]:
+      - navigation [ref=e32]:
+        - link "Home" [ref=e33] [cursor=pointer]:
+          - /url: /en
+        - generic [ref=e34]: ›
+        - link "Shop" [ref=e35] [cursor=pointer]:
+          - /url: /en/shop
+        - generic [ref=e36]: ›
+        - generic [ref=e37]: "Tissu Large #1"
+      - generic [ref=e38]:
+        - generic [ref=e39]:
+          - 'img "Tissu Large #1" [ref=e41]'
+          - generic [ref=e42]:
+            - generic [ref=e43]: Two sides, one bag
+            - generic [ref=e44]:
+              - button "Front" [ref=e45]
+              - button "Back" [ref=e46]
+          - generic [ref=e47]:
+            - button [ref=e48]
+            - button [ref=e49]
+        - generic [ref=e50]:
+          - generic [ref=e51]: Pouches
+          - 'heading "Tissu Large #1" [level=1] [ref=e52]'
+          - paragraph [ref=e53]: დიდი (37x27) · ყაყაჩო
+          - generic [ref=e54]:
+            - generic [ref=e55]: 74₾
+            - generic [ref=e56]: In stock · 2
+          - generic [ref=e57]:
+            - generic [ref=e58]: Water-resistant canvas
+            - generic [ref=e59]: Reversible
+          - generic [ref=e60]:
+            - generic [ref=e61]:
+              - button "Decrease" [ref=e62]:
+                - img [ref=e63]
+              - generic [ref=e64]: "1"
+              - button "Increase" [ref=e65]:
+                - img [ref=e66]
+            - button "Add to basket" [ref=e67]:
+              - text: Add to basket
+              - generic [ref=e68]: →
+          - generic [ref=e69]:
+            - generic [ref=e70]:
+              - generic [ref=e71]: 🚚
+              - generic [ref=e72]:
+                - generic [ref=e73]: Free shipping over 150₾
+                - generic [ref=e74]: 2–4 business days
+            - generic [ref=e75]:
+              - generic [ref=e76]: ✦
+              - generic [ref=e77]:
+                - generic [ref=e78]: Handmade
+                - generic [ref=e79]: In our Tbilisi studio
+      - generic [ref=e80]:
+        - heading "You might also love" [level=2] [ref=e81]
+        - generic [ref=e82]:
+          - 'link "Favourite Flip sides Tissu Large #2 Tissu Large #2 დიდი (37x27) · მარწყვი 74₾ Add to basket" [ref=e83] [cursor=pointer]':
+            - /url: /en/product/32
+            - generic [ref=e84]:
+              - button "Favourite" [ref=e85]:
+                - img [ref=e86]
+              - button "Flip sides" [ref=e88]:
+                - img [ref=e89]
+              - 'img "Tissu Large #2" [ref=e92]'
+            - generic [ref=e93]:
+              - 'heading "Tissu Large #2" [level=3] [ref=e94]'
+              - generic [ref=e95]: დიდი (37x27) · მარწყვი
+            - generic [ref=e97]: 74₾
+            - button "Add to basket" [ref=e98]:
+              - img [ref=e99]
+              - text: Add to basket
+          - 'link "Favourite Flip sides Tissu Large #6 Tissu Large #6 დიდი (37x27) 74₾ Add to basket" [ref=e102] [cursor=pointer]':
+            - /url: /en/product/35
+            - generic [ref=e103]:
+              - button "Favourite" [ref=e104]:
+                - img [ref=e105]
+              - button "Flip sides" [ref=e107]:
+                - img [ref=e108]
+              - 'img "Tissu Large #6" [ref=e111]'
+            - generic [ref=e112]:
+              - 'heading "Tissu Large #6" [level=3] [ref=e113]'
+              - generic [ref=e114]: დიდი (37x27)
+            - generic [ref=e116]: 74₾
+            - button "Add to basket" [ref=e117]:
+              - img [ref=e118]
+              - text: Add to basket
+          - 'link "Favourite Flip sides Tissu Large #7 Tissu Large #7 დიდი (37x27) 74₾ Add to basket" [ref=e121] [cursor=pointer]':
+            - /url: /en/product/36
+            - generic [ref=e122]:
+              - button "Favourite" [ref=e123]:
+                - img [ref=e124]
+              - button "Flip sides" [ref=e126]:
+                - img [ref=e127]
+              - 'img "Tissu Large #7" [ref=e130]'
+            - generic [ref=e131]:
+              - 'heading "Tissu Large #7" [level=3] [ref=e132]'
+              - generic [ref=e133]: დიდი (37x27)
+            - generic [ref=e135]: 74₾
+            - button "Add to basket" [ref=e136]:
+              - img [ref=e137]
+              - text: Add to basket
+          - link "Favourite Tissu with strap Tissu with strap დიდი (37x27) 74₾ Add to basket" [ref=e140] [cursor=pointer]:
+            - /url: /en/product/37
+            - generic [ref=e141]:
+              - button "Favourite" [ref=e142]:
+                - img [ref=e143]
+              - img "Tissu with strap" [ref=e145]
+            - generic [ref=e146]:
+              - heading "Tissu with strap" [level=3] [ref=e147]
+              - generic [ref=e148]: დიდი (37x27)
+            - generic [ref=e150]: 74₾
+            - button "Add to basket" [ref=e151]:
+              - img [ref=e152]
+              - text: Add to basket
+  - button "Open Next.js Dev Tools" [ref=e161] [cursor=pointer]:
+    - img [ref=e162]
+  - alert [ref=e165]

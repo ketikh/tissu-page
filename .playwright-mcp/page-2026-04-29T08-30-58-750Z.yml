@@ -1,0 +1,250 @@
+- generic [active] [ref=e1]:
+  - button "Open Next.js Dev Tools" [ref=e7] [cursor=pointer]:
+    - img [ref=e8]
+  - generic [ref=e12]:
+    - generic [ref=e13]: flip it.
+    - generic [ref=e15]: free shipping over 150₾
+    - generic [ref=e17]: bold one day. clean the next.
+    - generic [ref=e19]: two sides. one bag.
+    - generic [ref=e21]: made in tbilisi
+    - generic [ref=e23]: flip it.
+    - generic [ref=e25]: free shipping over 150₾
+    - generic [ref=e27]: bold one day. clean the next.
+    - generic [ref=e29]: two sides. one bag.
+    - generic [ref=e31]: made in tbilisi
+  - main [ref=e33]:
+    - generic [ref=e34]:
+      - generic [ref=e35]:
+        - generic [ref=e38]:
+          - link "Tissu" [ref=e39] [cursor=pointer]:
+            - /url: /en
+            - img [ref=e40]
+          - generic [ref=e47]:
+            - generic "Select language" [ref=e49]:
+              - generic [ref=e50]:
+                - link "ka" [ref=e51] [cursor=pointer]:
+                  - /url: /ka
+                - link "en" [ref=e52] [cursor=pointer]:
+                  - /url: /en
+                  - text: en
+            - link "Account" [ref=e54] [cursor=pointer]:
+              - /url: /en/account
+              - img [ref=e55]
+            - button "Cart" [ref=e58]:
+              - img [ref=e59]
+        - generic [ref=e62]:
+          - generic [ref=e63]: Not a print on a bag. Two completely different bags in one. Pick your mood. Flip when it changes. Made by hand in Tbilisi.
+          - heading "T w o s i d e s . O n e b a g ." [level=1] [ref=e64]:
+            - generic [ref=e65]:
+              - generic [ref=e66]: T
+              - generic [ref=e67]: w
+              - generic [ref=e68]: o
+              - generic [ref=e70]: s
+              - generic [ref=e71]: i
+              - generic [ref=e72]: d
+              - generic [ref=e73]: e
+              - generic [ref=e74]: s
+              - generic [ref=e75]: .
+              - generic [ref=e77]: O
+              - generic [ref=e78]: "n"
+              - generic [ref=e79]: e
+            - generic [ref=e80]:
+              - generic [ref=e81]: b
+              - generic [ref=e82]: a
+              - generic [ref=e83]: g
+              - generic [ref=e84]: .
+          - generic:
+            - img
+          - generic:
+            - img
+          - link "Shop the drop" [ref=e86] [cursor=pointer]:
+            - /url: /en/shop
+      - generic [ref=e89]:
+        - generic [ref=e90]:
+          - generic [ref=e91]: Spring drop · curated few
+          - heading "One bag, two sides." [level=2] [ref=e92]
+          - paragraph [ref=e93]: Hover the photo — the bag turns to its other side.
+        - generic [ref=e94]:
+          - generic [ref=e95]:
+            - generic [ref=e96] [cursor=pointer]:
+              - img [ref=e97]
+              - generic [ref=e101]:
+                - img [ref=e102]
+                - text: hover
+            - generic [ref=e105]:
+              - generic [ref=e106]: დიდი (37x27) · ყაყაჩო
+              - 'link "Tissu Large #1" [ref=e107] [cursor=pointer]':
+                - /url: "#product-31"
+              - generic [ref=e108]: 74₾
+          - generic [ref=e109]:
+            - generic [ref=e110] [cursor=pointer]:
+              - img [ref=e111]
+              - generic [ref=e115]:
+                - img [ref=e116]
+                - text: hover
+            - generic [ref=e119]:
+              - generic [ref=e120]: დიდი (37x27) · მარწყვი
+              - 'link "Tissu Large #2" [ref=e121] [cursor=pointer]':
+                - /url: "#product-32"
+              - generic [ref=e122]: 74₾
+          - generic [ref=e123]:
+            - generic [ref=e124] [cursor=pointer]:
+              - img [ref=e125]
+              - generic [ref=e129]:
+                - img [ref=e130]
+                - text: hover
+            - generic [ref=e133]:
+              - generic [ref=e134]: დიდი (37x27)
+              - 'link "Tissu Large #6" [ref=e135] [cursor=pointer]':
+                - /url: "#product-35"
+              - generic [ref=e136]: 74₾
+          - generic [ref=e137]:
+            - generic [ref=e138] [cursor=pointer]:
+              - img [ref=e139]
+              - generic [ref=e143]:
+                - img [ref=e144]
+                - text: hover
+            - generic [ref=e147]:
+              - generic [ref=e148]: დიდი (37x27)
+              - 'link "Tissu Large #7" [ref=e149] [cursor=pointer]':
+                - /url: "#product-36"
+              - generic [ref=e150]: 74₾
+        - link "View the full drop" [ref=e152] [cursor=pointer]:
+          - /url: /en/shop
+          - text: View the full drop
+          - generic [ref=e153]: →
+      - generic [ref=e157]:
+        - generic [ref=e158]:
+          - generic [ref=e159]: Handcrafted necklaces
+          - heading "Worn close, made by hand." [level=2] [ref=e160]
+          - paragraph [ref=e161]: Each piece crafted by hand in our Tbilisi studio.
+        - generic [ref=e162]:
+          - generic [ref=e163]:
+            - img [ref=e165] [cursor=pointer]
+            - generic [ref=e168]:
+              - generic [ref=e169]: Handmade
+              - link "ყელსაბამი" [ref=e170] [cursor=pointer]:
+                - /url: "#product-38"
+              - generic [ref=e171]: 19₾
+          - generic [ref=e172]:
+            - img [ref=e174] [cursor=pointer]
+            - generic [ref=e177]:
+              - generic [ref=e178]: Handmade
+              - link "ყელსაბამი" [ref=e179] [cursor=pointer]:
+                - /url: "#product-39"
+              - generic [ref=e180]: 15₾
+          - generic [ref=e181]:
+            - img [ref=e183] [cursor=pointer]
+            - generic [ref=e186]:
+              - generic [ref=e187]: Handmade
+              - link "ყელსაბამი" [ref=e188] [cursor=pointer]:
+                - /url: "#product-42"
+              - generic [ref=e189]: 16₾
+        - link "See all necklaces" [ref=e191] [cursor=pointer]:
+          - /url: /en/shop
+          - text: See all necklaces
+          - generic [ref=e192]: →
+      - generic [ref=e194]:
+        - generic:
+          - img
+        - generic:
+          - img
+        - generic [ref=e200]:
+          - generic [ref=e201]: Coaching for handmade brands
+          - heading "Your Grandma Would be Jealous" [level=2] [ref=e202]:
+            - text: Your Grandma Would
+            - text: be Jealous
+          - paragraph [ref=e203]: to grow and scale your handmade business — one stitch at a time.
+          - link "Let's get there" [ref=e205] [cursor=pointer]:
+            - /url: /en/shop
+      - generic [ref=e206]:
+        - generic:
+          - generic: Reviews
+        - generic:
+          - generic: Reviews
+        - generic: ✦
+        - generic: ✦
+        - generic: ✦
+        - generic: ✦
+        - generic [ref=e207]:
+          - generic [ref=e208]:
+            - generic [ref=e209]:
+              - img "Mariam K." [ref=e210]
+              - generic [ref=e211]: ✦
+              - generic [ref=e212]: ✦
+            - generic [ref=e213]:
+              - heading "“Got caught in the rain and the stuff inside stayed dry. I flipped to the lemon side at brunch and felt like a different person.”" [level=3] [ref=e214]:
+                - generic [ref=e215]: “Got caught in the rain and the stuff inside stayed dry. I flipped to the lemon side at brunch and felt like a different person.”
+              - generic [ref=e216]:
+                - generic [ref=e217]: — Mariam K.
+                - generic [ref=e218]: Tbilisi · Blueberry pouch
+          - generic [ref=e219]:
+            - button "Review 1" [ref=e220]
+            - button "Review 2" [ref=e221]
+            - button "Review 3" [ref=e222]
+      - generic [ref=e223]:
+        - generic: ✦
+        - generic: ✦
+        - generic: ✦
+        - generic: ✦
+        - generic [ref=e224]:
+          - generic [ref=e225]: Boogie with us
+          - heading "first dibs on the drop." [level=2] [ref=e226]
+          - paragraph [ref=e227]: Two emails a month, max. New colours, studio peeks, and a 10% code on us.
+          - generic [ref=e228]:
+            - textbox "you@lovely.com" [ref=e229]
+            - button "Sign me up" [ref=e230]
+          - generic [ref=e231]:
+            - img "Tissu" [ref=e232]
+            - generic [ref=e233]: Made with love in Tbilisi
+  - contentinfo [ref=e234]:
+    - generic [ref=e236]:
+      - generic [ref=e237]:
+        - generic [ref=e238]:
+          - link "Tissu" [ref=e239] [cursor=pointer]:
+            - /url: /en
+            - img [ref=e240]
+          - paragraph [ref=e247]: Two sides. One bag. Made by hand in Tbilisi since 2023.
+          - generic [ref=e248]:
+            - link "Instagram" [ref=e249] [cursor=pointer]:
+              - /url: https://instagram.com/thetissushop
+              - img [ref=e250]
+            - link "TikTok" [ref=e254] [cursor=pointer]:
+              - /url: https://tiktok.com/@thetissushop
+              - img [ref=e255]
+            - link "Pinterest" [ref=e257] [cursor=pointer]:
+              - /url: https://pinterest.com/thetissushop
+              - img [ref=e258]
+        - generic [ref=e260]:
+          - heading "Explore" [level=5] [ref=e261]
+          - list [ref=e262]:
+            - listitem [ref=e263]:
+              - link "Shop" [ref=e264] [cursor=pointer]:
+                - /url: /en/shop
+            - listitem [ref=e265]:
+              - link "Our story" [ref=e266] [cursor=pointer]:
+                - /url: /en/about
+            - listitem [ref=e267]:
+              - link "Contact" [ref=e268] [cursor=pointer]:
+                - /url: /en/contact
+            - listitem [ref=e269]:
+              - link "FAQ" [ref=e270] [cursor=pointer]:
+                - /url: /en/faq
+        - generic [ref=e271]:
+          - heading "Info" [level=5] [ref=e272]
+          - list [ref=e273]:
+            - listitem [ref=e274]:
+              - link "Privacy" [ref=e275] [cursor=pointer]:
+                - /url: /en/privacy
+            - listitem [ref=e276]:
+              - link "Terms" [ref=e277] [cursor=pointer]:
+                - /url: /en/terms
+            - listitem [ref=e278]:
+              - link "Shipping" [ref=e279] [cursor=pointer]:
+                - /url: /en/faq#shipping
+            - listitem [ref=e280]:
+              - link "Returns" [ref=e281] [cursor=pointer]:
+                - /url: /en/faq#returns
+      - generic [ref=e282]:
+        - generic [ref=e283]: © 2026 Tissu Shop · All rights reserved
+        - generic [ref=e284]: Made with love in Tbilisi

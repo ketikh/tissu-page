@@ -18,6 +18,7 @@ interface RetroReviewsProps {
 
 const PACIFICO = "var(--font-pacifico), 'Pacifico', cursive";
 const FRAUNCES = "var(--font-fraunces), 'Fraunces', Georgia, serif";
+const ALK_LIFE = "var(--font-alk-life), serif";
 
 const C = {
   cream: "#fef0d6",
@@ -83,7 +84,7 @@ export default function RetroReviews({ isKa = false, reviews = DEFAULT_REVIEWS }
   return (
     <section
       className="relative w-full overflow-hidden py-24 md:py-36"
-      style={{ background: C.cream }}
+      style={{ background: C.beige }}
     >
       {/* The huge "Reviews" wordmark, behind everything. Outlined (stroke only)
           retro PACIFICO so it reads as decoration, not a real heading. */}
@@ -196,11 +197,11 @@ export default function RetroReviews({ isKa = false, reviews = DEFAULT_REVIEWS }
             <h3
               className="font-retro-display"
               style={{
-                fontFamily: FRAUNCES,
-                fontStyle: "italic",
+                fontFamily: isKa ? ALK_LIFE : FRAUNCES,
+                fontStyle: isKa ? "normal" : "italic",
                 fontWeight: 700,
                 fontSize: "clamp(20px, 2.5vw, 26px)",
-                lineHeight: 1.85, // breathing room so the sticker bands don't touch
+                lineHeight: 1.85,
                 color: C.greenDeep,
               }}
             >

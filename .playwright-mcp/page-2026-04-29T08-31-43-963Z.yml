@@ -1,0 +1,103 @@
+- generic [active] [ref=e1]:
+  - generic [ref=e6] [cursor=pointer]:
+    - button "Open Next.js Dev Tools" [ref=e7]:
+      - img [ref=e8]
+    - generic [ref=e11]:
+      - button "Open issues overlay" [ref=e12]:
+        - generic [ref=e13]:
+          - generic [ref=e14]: "0"
+          - generic [ref=e15]: "1"
+        - generic [ref=e16]: Issue
+      - button "Collapse issues badge" [ref=e17]:
+        - img [ref=e18]
+  - generic [ref=e21]:
+    - generic [ref=e22]: flip it.
+    - generic [ref=e24]: free shipping over 150₾
+    - generic [ref=e26]: bold one day. clean the next.
+    - generic [ref=e28]: two sides. one bag.
+    - generic [ref=e30]: made in tbilisi
+    - generic [ref=e32]: flip it.
+    - generic [ref=e34]: free shipping over 150₾
+    - generic [ref=e36]: bold one day. clean the next.
+    - generic [ref=e38]: two sides. one bag.
+    - generic [ref=e40]: made in tbilisi
+  - banner [ref=e42]:
+    - generic [ref=e43]:
+      - link "Tissu" [ref=e44] [cursor=pointer]:
+        - /url: /en
+        - img [ref=e45]
+      - navigation [ref=e52]:
+        - button "Shop" [ref=e54]:
+          - text: Shop
+          - img [ref=e56]
+        - link "Our story" [ref=e58] [cursor=pointer]:
+          - /url: /en/about
+        - link "Contact" [ref=e59] [cursor=pointer]:
+          - /url: /en/contact
+      - generic [ref=e60]:
+        - generic "Select language" [ref=e62]:
+          - generic [ref=e63]:
+            - link "ka" [ref=e64] [cursor=pointer]:
+              - /url: /ka/shop
+            - link "en" [ref=e65] [cursor=pointer]:
+              - /url: /en/shop
+              - text: en
+        - link "Account" [ref=e67] [cursor=pointer]:
+          - /url: /en/account
+          - img [ref=e68]
+        - button "Cart" [ref=e71]:
+          - img [ref=e72]
+  - main [ref=e75]:
+    - generic [ref=e76]: Loading…
+  - contentinfo [ref=e77]:
+    - generic [ref=e79]:
+      - generic [ref=e80]:
+        - generic [ref=e81]:
+          - link "Tissu" [ref=e82] [cursor=pointer]:
+            - /url: /en
+            - img [ref=e83]
+          - paragraph [ref=e90]: Two sides. One bag. Made by hand in Tbilisi since 2023.
+          - generic [ref=e91]:
+            - link "Instagram" [ref=e92] [cursor=pointer]:
+              - /url: https://instagram.com/thetissushop
+              - img [ref=e93]
+            - link "TikTok" [ref=e97] [cursor=pointer]:
+              - /url: https://tiktok.com/@thetissushop
+              - img [ref=e98]
+            - link "Pinterest" [ref=e100] [cursor=pointer]:
+              - /url: https://pinterest.com/thetissushop
+              - img [ref=e101]
+        - generic [ref=e103]:
+          - heading "Explore" [level=5] [ref=e104]
+          - list [ref=e105]:
+            - listitem [ref=e106]:
+              - link "Shop" [ref=e107] [cursor=pointer]:
+                - /url: /en/shop
+            - listitem [ref=e108]:
+              - link "Our story" [ref=e109] [cursor=pointer]:
+                - /url: /en/about
+            - listitem [ref=e110]:
+              - link "Contact" [ref=e111] [cursor=pointer]:
+                - /url: /en/contact
+            - listitem [ref=e112]:
+              - link "FAQ" [ref=e113] [cursor=pointer]:
+                - /url: /en/faq
+        - generic [ref=e114]:
+          - heading "Info" [level=5] [ref=e115]
+          - list [ref=e116]:
+            - listitem [ref=e117]:
+              - link "Privacy" [ref=e118] [cursor=pointer]:
+                - /url: /en/privacy
+            - listitem [ref=e119]:
+              - link "Terms" [ref=e120] [cursor=pointer]:
+                - /url: /en/terms
+            - listitem [ref=e121]:
+              - link "Shipping" [ref=e122] [cursor=pointer]:
+                - /url: /en/faq#shipping
+            - listitem [ref=e123]:
+              - link "Returns" [ref=e124] [cursor=pointer]:
+                - /url: /en/faq#returns
+      - generic [ref=e125]:
+        - generic [ref=e126]: © 2026 Tissu Shop · All rights reserved
+        - generic [ref=e127]: Made with love in Tbilisi
+  - alert [ref=e129]

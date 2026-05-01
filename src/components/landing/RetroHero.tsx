@@ -23,6 +23,7 @@ interface RetroHeroProps {
 }
 
 const FRAUNCES = "var(--font-fraunces), 'Fraunces', Georgia, serif";
+const ALK_LIFE = "var(--font-alk-life), serif";
 
 const C = {
   cream: "#fef0d6",
@@ -199,9 +200,9 @@ export default function RetroHero({
 
         <h1
           style={{
-            fontFamily: FRAUNCES,
+            fontFamily: lang === "ka" ? ALK_LIFE : FRAUNCES,
             fontWeight: 900,
-            fontStyle: "italic",
+            fontStyle: lang === "ka" ? "normal" : "italic",
             fontSize: "clamp(40px, 7vw, 96px)",
             lineHeight: 0.95,
             letterSpacing: "-0.01em",

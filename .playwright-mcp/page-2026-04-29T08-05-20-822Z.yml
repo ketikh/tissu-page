@@ -1,0 +1,689 @@
+- generic [active] [ref=e1]:
+  - generic [ref=e3]:
+    - generic [ref=e4]: flip it.
+    - generic [ref=e6]: free shipping over 150₾
+    - generic [ref=e8]: bold one day. clean the next.
+    - generic [ref=e10]: two sides. one bag.
+    - generic [ref=e12]: made in tbilisi
+    - generic [ref=e14]: flip it.
+    - generic [ref=e16]: free shipping over 150₾
+    - generic [ref=e18]: bold one day. clean the next.
+    - generic [ref=e20]: two sides. one bag.
+    - generic [ref=e22]: made in tbilisi
+  - banner [ref=e24]:
+    - generic [ref=e25]:
+      - link "Tissu" [ref=e26] [cursor=pointer]:
+        - /url: /en
+        - generic [ref=e27]: TISSU
+      - navigation [ref=e29]:
+        - link "Shop" [ref=e30] [cursor=pointer]:
+          - /url: /en/shop
+        - link "Our story" [ref=e31] [cursor=pointer]:
+          - /url: /en/about
+        - link "How it's made" [ref=e32] [cursor=pointer]:
+          - /url: /en/about#process
+        - link "Journal" [ref=e33] [cursor=pointer]:
+          - /url: /en#journal
+      - generic [ref=e34]:
+        - generic "Select language" [ref=e36]:
+          - generic [ref=e37]:
+            - link "ka" [ref=e38] [cursor=pointer]:
+              - /url: /ka
+            - link "en" [ref=e39] [cursor=pointer]:
+              - /url: /en
+              - text: en
+        - link "Account" [ref=e41] [cursor=pointer]:
+          - /url: /en/account
+          - img [ref=e42]
+        - button "Cart" [ref=e45]:
+          - img [ref=e46]
+  - main [ref=e49]:
+    - generic [ref=e50]:
+      - generic [ref=e51]:
+        - link "Tissu" [ref=e55] [cursor=pointer]:
+          - /url: /
+          - img [ref=e56]
+        - navigation [ref=e63]:
+          - link "Shop" [ref=e64] [cursor=pointer]:
+            - /url: /en/shop
+          - link "Our story" [ref=e65] [cursor=pointer]:
+            - /url: /en/about
+        - generic [ref=e66]:
+          - generic [ref=e67]: Not a print on a bag. Two completely different bags in one. Pick your mood. Flip when it changes. Made by hand in Tbilisi.
+          - heading "T w o s i d e s . O n e b a g ." [level=1] [ref=e68]:
+            - generic [ref=e69]:
+              - generic [ref=e70]: T
+              - generic [ref=e71]: w
+              - generic [ref=e72]: o
+              - generic [ref=e74]: s
+              - generic [ref=e75]: i
+              - generic [ref=e76]: d
+              - generic [ref=e77]: e
+              - generic [ref=e78]: s
+              - generic [ref=e79]: .
+              - generic [ref=e81]: O
+              - generic [ref=e82]: "n"
+              - generic [ref=e83]: e
+            - generic [ref=e84]:
+              - generic [ref=e85]: b
+              - generic [ref=e86]: a
+              - generic [ref=e87]: g
+              - generic [ref=e88]: .
+          - generic:
+            - img
+          - generic:
+            - img
+          - link "Shop the drop" [ref=e90] [cursor=pointer]:
+            - /url: /en/shop
+        - generic [ref=e92]:
+          - generic [ref=e93]: As seen on
+          - generic [ref=e94]:
+            - generic [ref=e95]: Vogue
+            - generic [ref=e96]: Forbes
+            - generic [ref=e97]: USA Today
+            - generic [ref=e98]: Wallpaper*
+            - generic [ref=e99]: Kinfolk
+      - generic [ref=e102]:
+        - generic [ref=e103]:
+          - generic [ref=e104]: Spring drop · curated few
+          - heading "One bag, two sides." [level=2] [ref=e105]
+          - paragraph [ref=e106]: Hover the photo — the bag turns to its other side.
+        - generic [ref=e107]:
+          - generic [ref=e108]:
+            - generic [ref=e109] [cursor=pointer]:
+              - img [ref=e110]
+              - generic [ref=e114]:
+                - img [ref=e115]
+                - text: hover
+            - generic [ref=e118]:
+              - generic [ref=e119]: დიდი (37x27) · ყაყაჩო
+              - 'link "Tissu Large #1" [ref=e120] [cursor=pointer]':
+                - /url: "#product-31"
+              - generic [ref=e121]: 74₾
+          - generic [ref=e122]:
+            - generic [ref=e123] [cursor=pointer]:
+              - img [ref=e124]
+              - generic [ref=e128]:
+                - img [ref=e129]
+                - text: hover
+            - generic [ref=e132]:
+              - generic [ref=e133]: დიდი (37x27) · მარწყვი
+              - 'link "Tissu Large #2" [ref=e134] [cursor=pointer]':
+                - /url: "#product-32"
+              - generic [ref=e135]: 74₾
+          - generic [ref=e136]:
+            - generic [ref=e137] [cursor=pointer]:
+              - img [ref=e138]
+              - generic [ref=e142]:
+                - img [ref=e143]
+                - text: hover
+            - generic [ref=e146]:
+              - generic [ref=e147]: დიდი (37x27)
+              - 'link "Tissu Large #6" [ref=e148] [cursor=pointer]':
+                - /url: "#product-35"
+              - generic [ref=e149]: 74₾
+          - generic [ref=e150]:
+            - generic [ref=e151] [cursor=pointer]:
+              - img [ref=e152]
+              - generic [ref=e156]:
+                - img [ref=e157]
+                - text: hover
+            - generic [ref=e160]:
+              - generic [ref=e161]: დიდი (37x27)
+              - 'link "Tissu Large #7" [ref=e162] [cursor=pointer]':
+                - /url: "#product-36"
+              - generic [ref=e163]: 74₾
+        - link "View the full drop" [ref=e165] [cursor=pointer]:
+          - /url: /en/shop
+          - text: View the full drop
+          - generic [ref=e166]: →
+      - generic [ref=e170]:
+        - heading "The everyday little-things edit." [level=2] [ref=e171]
+        - generic [ref=e172]:
+          - button "All · 38" [ref=e173]
+          - button "Pouches" [ref=e174]
+          - button "Laptop sleeves" [ref=e175]
+          - button "Tote bags" [ref=e176]
+          - button "Kids' backpacks" [ref=e177]
+          - button "Aprons" [ref=e178]
+          - button "Necklaces" [ref=e179]
+          - button "New arrivals" [ref=e180]
+        - generic [ref=e181]:
+          - generic [ref=e182]:
+            - 'img "Tissu Large #1" [ref=e184]'
+            - generic [ref=e185]:
+              - generic [ref=e186]:
+                - 'heading "Tissu Large #1" [level=3] [ref=e187]'
+                - generic [ref=e188]: დიდი (37x27) · ყაყაჩო
+              - generic [ref=e189]:
+                - generic [ref=e190]: 74₾
+                - generic [ref=e191]:
+                  - img [ref=e192]
+                  - text: flip
+              - button "Add to basket" [ref=e195]
+          - generic [ref=e196]:
+            - 'img "Tissu Large #2" [ref=e198]'
+            - generic [ref=e199]:
+              - generic [ref=e200]:
+                - 'heading "Tissu Large #2" [level=3] [ref=e201]'
+                - generic [ref=e202]: დიდი (37x27) · მარწყვი
+              - generic [ref=e203]:
+                - generic [ref=e204]: 74₾
+                - generic [ref=e205]:
+                  - img [ref=e206]
+                  - text: flip
+              - button "Add to basket" [ref=e209]
+          - generic [ref=e210]:
+            - 'img "Tissu Large #6" [ref=e212]'
+            - generic [ref=e213]:
+              - generic [ref=e214]:
+                - 'heading "Tissu Large #6" [level=3] [ref=e215]'
+                - generic [ref=e216]: დიდი (37x27)
+              - generic [ref=e217]:
+                - generic [ref=e218]: 74₾
+                - generic [ref=e219]:
+                  - img [ref=e220]
+                  - text: flip
+              - button "Add to basket" [ref=e223]
+          - generic [ref=e224]:
+            - 'img "Tissu Large #7" [ref=e226]'
+            - generic [ref=e227]:
+              - generic [ref=e228]:
+                - 'heading "Tissu Large #7" [level=3] [ref=e229]'
+                - generic [ref=e230]: დიდი (37x27)
+              - generic [ref=e231]:
+                - generic [ref=e232]: 74₾
+                - generic [ref=e233]:
+                  - img [ref=e234]
+                  - text: flip
+              - button "Add to basket" [ref=e237]
+          - generic [ref=e238]:
+            - img "Tissu with strap" [ref=e240]
+            - generic [ref=e241]:
+              - generic [ref=e242]:
+                - heading "Tissu with strap" [level=3] [ref=e243]
+                - generic [ref=e244]: დიდი (37x27)
+              - generic [ref=e246]: 74₾
+              - button "Add to basket" [ref=e247]
+          - generic [ref=e248]:
+            - 'img "Tissu without strap #1" [ref=e250]'
+            - generic [ref=e251]:
+              - generic [ref=e252]:
+                - 'heading "Tissu without strap #1" [level=3] [ref=e253]'
+                - generic [ref=e254]: პატარა (33x25)
+              - generic [ref=e255]:
+                - generic [ref=e256]: 69₾
+                - generic [ref=e257]:
+                  - img [ref=e258]
+                  - text: flip
+              - button "Add to basket" [ref=e261]
+          - generic [ref=e262]:
+            - 'img "Tissu without strap #5" [ref=e264]'
+            - generic [ref=e265]:
+              - generic [ref=e266]:
+                - 'heading "Tissu without strap #5" [level=3] [ref=e267]'
+                - generic [ref=e268]: პატარა (33x25)
+              - generic [ref=e269]:
+                - generic [ref=e270]: 69₾
+                - generic [ref=e271]:
+                  - img [ref=e272]
+                  - text: flip
+              - button "Add to basket" [ref=e275]
+          - generic [ref=e276]:
+            - 'img "Tissu without strap #6" [ref=e278]'
+            - generic [ref=e279]:
+              - generic [ref=e280]:
+                - 'heading "Tissu without strap #6" [level=3] [ref=e281]'
+                - generic [ref=e282]: პატარა (33x25)
+              - generic [ref=e283]:
+                - generic [ref=e284]: 69₾
+                - generic [ref=e285]:
+                  - img [ref=e286]
+                  - text: flip
+              - button "Add to basket" [ref=e289]
+          - generic [ref=e290]:
+            - 'img "Tissu without strap #7" [ref=e292]'
+            - generic [ref=e293]:
+              - generic [ref=e294]:
+                - 'heading "Tissu without strap #7" [level=3] [ref=e295]'
+                - generic [ref=e296]: პატარა (33x25)
+              - generic [ref=e297]:
+                - generic [ref=e298]: 69₾
+                - generic [ref=e299]:
+                  - img [ref=e300]
+                  - text: flip
+              - button "Add to basket" [ref=e303]
+          - generic [ref=e304]:
+            - 'img "Tissu without strap #8" [ref=e306]'
+            - generic [ref=e307]:
+              - generic [ref=e308]:
+                - 'heading "Tissu without strap #8" [level=3] [ref=e309]'
+                - generic [ref=e310]: პატარა (33x25)
+              - generic [ref=e311]:
+                - generic [ref=e312]: 69₾
+                - generic [ref=e313]:
+                  - img [ref=e314]
+                  - text: flip
+              - button "Add to basket" [ref=e317]
+          - generic [ref=e318]:
+            - 'img "Tissu without strap #9" [ref=e320]'
+            - generic [ref=e321]:
+              - generic [ref=e322]:
+                - 'heading "Tissu without strap #9" [level=3] [ref=e323]'
+                - generic [ref=e324]: პატარა (33x25)
+              - generic [ref=e325]:
+                - generic [ref=e326]: 69₾
+                - generic [ref=e327]:
+                  - img [ref=e328]
+                  - text: flip
+              - button "Add to basket" [ref=e331]
+          - generic [ref=e332]:
+            - 'img "Tissu without strap #10" [ref=e334]'
+            - generic [ref=e335]:
+              - generic [ref=e336]:
+                - 'heading "Tissu without strap #10" [level=3] [ref=e337]'
+                - generic [ref=e338]: პატარა (33x25)
+              - generic [ref=e339]:
+                - generic [ref=e340]: 69₾
+                - generic [ref=e341]:
+                  - img [ref=e342]
+                  - text: flip
+              - button "Add to basket" [ref=e345]
+          - generic [ref=e346]:
+            - 'img "Tissu without strap #11" [ref=e348]'
+            - generic [ref=e349]:
+              - generic [ref=e350]:
+                - 'heading "Tissu without strap #11" [level=3] [ref=e351]'
+                - generic [ref=e352]: პატარა (33x25)
+              - generic [ref=e353]:
+                - generic [ref=e354]: 69₾
+                - generic [ref=e355]:
+                  - img [ref=e356]
+                  - text: flip
+              - button "Add to basket" [ref=e359]
+          - generic [ref=e360]:
+            - 'img "Tissu without strap #2" [ref=e362]'
+            - generic [ref=e363]:
+              - generic [ref=e364]:
+                - 'heading "Tissu without strap #2" [level=3] [ref=e365]'
+                - generic [ref=e366]: პატარა (33x25)
+              - generic [ref=e367]:
+                - generic [ref=e368]: 69₾
+                - generic [ref=e369]:
+                  - img [ref=e370]
+                  - text: flip
+              - button "Add to basket" [ref=e373]
+          - generic [ref=e374]:
+            - 'img "Tissu without strap #3" [ref=e376]'
+            - generic [ref=e377]:
+              - generic [ref=e378]:
+                - 'heading "Tissu without strap #3" [level=3] [ref=e379]'
+                - generic [ref=e380]: პატარა (33x25)
+              - generic [ref=e381]:
+                - generic [ref=e382]: 69₾
+                - generic [ref=e383]:
+                  - img [ref=e384]
+                  - text: flip
+              - button "Add to basket" [ref=e387]
+          - generic [ref=e388]:
+            - 'img "Tissu without strap #3" [ref=e390]'
+            - generic [ref=e391]:
+              - generic [ref=e392]:
+                - 'heading "Tissu without strap #3" [level=3] [ref=e393]'
+                - generic [ref=e394]: პატარა (33x25)
+              - generic [ref=e395]:
+                - generic [ref=e396]: 69₾
+                - generic [ref=e397]:
+                  - img [ref=e398]
+                  - text: flip
+              - button "Add to basket" [ref=e401]
+          - generic [ref=e402]:
+            - 'img "Tissu without strap #4" [ref=e404]'
+            - generic [ref=e405]:
+              - generic [ref=e406]:
+                - 'heading "Tissu without strap #4" [level=3] [ref=e407]'
+                - generic [ref=e408]: პატარა (33x25)
+              - generic [ref=e409]:
+                - generic [ref=e410]: 69₾
+                - generic [ref=e411]:
+                  - img [ref=e412]
+                  - text: flip
+              - button "Add to basket" [ref=e415]
+          - generic [ref=e416]:
+            - 'img "Tissu without strap #4" [ref=e418]'
+            - generic [ref=e419]:
+              - generic [ref=e420]:
+                - 'heading "Tissu without strap #4" [level=3] [ref=e421]'
+                - generic [ref=e422]: პატარა (33x25)
+              - generic [ref=e423]:
+                - generic [ref=e424]: 69₾
+                - generic [ref=e425]:
+                  - img [ref=e426]
+                  - text: flip
+              - button "Add to basket" [ref=e429]
+          - generic [ref=e430]:
+            - 'img "Tissu without strap #5" [ref=e432]'
+            - generic [ref=e433]:
+              - generic [ref=e434]:
+                - 'heading "Tissu without strap #5" [level=3] [ref=e435]'
+                - generic [ref=e436]: პატარა (33x25)
+              - generic [ref=e437]:
+                - generic [ref=e438]: 69₾
+                - generic [ref=e439]:
+                  - img [ref=e440]
+                  - text: flip
+              - button "Add to basket" [ref=e443]
+          - generic [ref=e444]:
+            - 'img "Tissu Large #4" [ref=e446]'
+            - generic [ref=e447]:
+              - generic [ref=e448]:
+                - 'heading "Tissu Large #4" [level=3] [ref=e449]'
+                - generic [ref=e450]: დიდი (37x27)
+              - generic [ref=e451]:
+                - generic [ref=e452]: 60₾
+                - generic [ref=e453]:
+                  - img [ref=e454]
+                  - text: flip
+              - button "Add to basket" [ref=e457]
+          - generic [ref=e458]:
+            - 'img "Tissu with strap #1" [ref=e460]'
+            - generic [ref=e461]:
+              - generic [ref=e462]:
+                - 'heading "Tissu with strap #1" [level=3] [ref=e463]'
+                - generic [ref=e464]: პატარა (33x25)
+              - generic [ref=e466]: 69₾
+              - button "Add to basket" [ref=e467]
+          - generic [ref=e468]:
+            - 'img "Tissu with strap #6" [ref=e470]'
+            - generic [ref=e471]:
+              - generic [ref=e472]:
+                - 'heading "Tissu with strap #6" [level=3] [ref=e473]'
+                - generic [ref=e474]: პატარა (33x25)
+              - generic [ref=e475]:
+                - generic [ref=e476]: 60₾
+                - generic [ref=e477]:
+                  - img [ref=e478]
+                  - text: flip
+              - button "Add to basket" [ref=e481]
+          - generic [ref=e482]:
+            - 'img "Tissu with strap #7" [ref=e484]'
+            - generic [ref=e485]:
+              - generic [ref=e486]:
+                - 'heading "Tissu with strap #7" [level=3] [ref=e487]'
+                - generic [ref=e488]: პატარა (33x25)
+              - generic [ref=e489]:
+                - generic [ref=e490]: 69₾
+                - generic [ref=e491]:
+                  - img [ref=e492]
+                  - text: flip
+              - button "Add to basket" [ref=e495]
+          - generic [ref=e496]:
+            - 'img "Tissu with strap #8" [ref=e498]'
+            - generic [ref=e499]:
+              - generic [ref=e500]:
+                - 'heading "Tissu with strap #8" [level=3] [ref=e501]'
+                - generic [ref=e502]: პატარა (33x25)
+              - generic [ref=e503]:
+                - generic [ref=e504]: 69₾
+                - generic [ref=e505]:
+                  - img [ref=e506]
+                  - text: flip
+              - button "Add to basket" [ref=e509]
+          - generic [ref=e510]:
+            - 'img "Tissu with strap #9" [ref=e512]'
+            - generic [ref=e513]:
+              - generic [ref=e514]:
+                - 'heading "Tissu with strap #9" [level=3] [ref=e515]'
+                - generic [ref=e516]: პატარა (33x25)
+              - generic [ref=e517]:
+                - generic [ref=e518]: 69₾
+                - generic [ref=e519]:
+                  - img [ref=e520]
+                  - text: flip
+              - button "Add to basket" [ref=e523]
+          - generic [ref=e524]:
+            - 'img "Tissu with strap #10" [ref=e526]'
+            - generic [ref=e527]:
+              - generic [ref=e528]:
+                - 'heading "Tissu with strap #10" [level=3] [ref=e529]'
+                - generic [ref=e530]: პატარა (33x25)
+              - generic [ref=e531]:
+                - generic [ref=e532]: 69₾
+                - generic [ref=e533]:
+                  - img [ref=e534]
+                  - text: flip
+              - button "Add to basket" [ref=e537]
+          - generic [ref=e538]:
+            - 'img "Tissu with strap #11" [ref=e540]'
+            - generic [ref=e541]:
+              - generic [ref=e542]:
+                - 'heading "Tissu with strap #11" [level=3] [ref=e543]'
+                - generic [ref=e544]: პატარა (33x25)
+              - generic [ref=e545]:
+                - generic [ref=e546]: 69₾
+                - generic [ref=e547]:
+                  - img [ref=e548]
+                  - text: flip
+              - button "Add to basket" [ref=e551]
+          - generic [ref=e552]:
+            - 'img "Tissu with strap #1" [ref=e554]'
+            - generic [ref=e555]:
+              - generic [ref=e556]:
+                - 'heading "Tissu with strap #1" [level=3] [ref=e557]'
+                - generic [ref=e558]: პატარა (33x25)
+              - generic [ref=e559]:
+                - generic [ref=e560]: 69₾
+                - generic [ref=e561]:
+                  - img [ref=e562]
+                  - text: flip
+              - button "Add to basket" [ref=e565]
+          - generic [ref=e566]:
+            - 'img "Tissu with strap #2" [ref=e568]'
+            - generic [ref=e569]:
+              - generic [ref=e570]:
+                - 'heading "Tissu with strap #2" [level=3] [ref=e571]'
+                - generic [ref=e572]: პატარა (33x25)
+              - generic [ref=e574]: 60₾
+              - button "Add to basket" [ref=e575]
+          - generic [ref=e576]:
+            - 'img "Tissu with strap #2" [ref=e578]'
+            - generic [ref=e579]:
+              - generic [ref=e580]:
+                - 'heading "Tissu with strap #2" [level=3] [ref=e581]'
+                - generic [ref=e582]: პატარა (33x25)
+              - generic [ref=e584]: 69₾
+              - button "Add to basket" [ref=e585]
+          - generic [ref=e586]:
+            - 'img "Tissu with strap #3" [ref=e588]'
+            - generic [ref=e589]:
+              - generic [ref=e590]:
+                - 'heading "Tissu with strap #3" [level=3] [ref=e591]'
+                - generic [ref=e592]: პატარა (33x25)
+              - generic [ref=e594]: 69₾
+              - button "Add to basket" [ref=e595]
+          - generic [ref=e596]:
+            - 'img "Tissu with strap #3" [ref=e598]'
+            - generic [ref=e599]:
+              - generic [ref=e600]:
+                - 'heading "Tissu with strap #3" [level=3] [ref=e601]'
+                - generic [ref=e602]: პატარა (33x25)
+              - generic [ref=e604]: 69₾
+              - button "Add to basket" [ref=e605]
+          - generic [ref=e606]:
+            - 'img "Tissu with strap #4" [ref=e608]'
+            - generic [ref=e609]:
+              - generic [ref=e610]:
+                - 'heading "Tissu with strap #4" [level=3] [ref=e611]'
+                - generic [ref=e612]: პატარა (33x25)
+              - generic [ref=e614]: 69₾
+              - button "Add to basket" [ref=e615]
+          - generic [ref=e616]:
+            - 'img "Tissu with strap #4" [ref=e618]'
+            - generic [ref=e619]:
+              - generic [ref=e620]:
+                - 'heading "Tissu with strap #4" [level=3] [ref=e621]'
+                - generic [ref=e622]: პატარა (33x25)
+              - generic [ref=e624]: 69₾
+              - button "Add to basket" [ref=e625]
+          - generic [ref=e626]:
+            - 'img "Tissu with strap #5" [ref=e628]'
+            - generic [ref=e629]:
+              - generic [ref=e630]:
+                - 'heading "Tissu with strap #5" [level=3] [ref=e631]'
+                - generic [ref=e632]: პატარა (33x25)
+              - generic [ref=e634]: 69₾
+              - button "Add to basket" [ref=e635]
+          - generic [ref=e636]:
+            - img "ყელსაბამი" [ref=e638]
+            - generic [ref=e639]:
+              - heading "ყელსაბამი" [level=3] [ref=e641]
+              - generic [ref=e643]: 19₾
+              - button "Add to basket" [ref=e644]
+          - generic [ref=e645]:
+            - img "ყელსაბამი" [ref=e647]
+            - generic [ref=e648]:
+              - heading "ყელსაბამი" [level=3] [ref=e650]
+              - generic [ref=e652]: 15₾
+              - button "Add to basket" [ref=e653]
+          - generic [ref=e654]:
+            - img "ყელსაბამი" [ref=e656]
+            - generic [ref=e657]:
+              - heading "ყელსაბამი" [level=3] [ref=e659]
+              - generic [ref=e661]: 16₾
+              - button "Add to basket" [ref=e662]
+      - generic [ref=e664]:
+        - generic:
+          - img
+        - generic:
+          - img
+        - generic [ref=e670]:
+          - generic [ref=e671]: Coaching for handmade brands
+          - heading "Your Grandma Would be Jealous" [level=2] [ref=e672]:
+            - text: Your Grandma Would
+            - text: be Jealous
+          - paragraph [ref=e673]: to grow and scale your handmade business — one stitch at a time.
+          - link "Let's get there" [ref=e675] [cursor=pointer]:
+            - /url: /en/shop
+      - generic [ref=e676]:
+        - generic:
+          - generic: Reviews
+        - generic:
+          - generic: Reviews
+        - generic: ✦
+        - generic: ✦
+        - generic: ✦
+        - generic: ✦
+        - generic [ref=e677]:
+          - generic [ref=e678]:
+            - generic [ref=e679]:
+              - img "Mariam K." [ref=e680]
+              - generic [ref=e681]: ✦
+              - generic [ref=e682]: ✦
+            - generic [ref=e683]:
+              - heading "“Got caught in the rain and the stuff inside stayed dry. I flipped to the lemon side at brunch and felt like a different person.”" [level=3] [ref=e684]:
+                - generic [ref=e685]: “Got caught in the rain and the stuff inside stayed dry. I flipped to the lemon side at brunch and felt like a different person.”
+              - generic [ref=e686]:
+                - generic [ref=e687]: — Mariam K.
+                - generic [ref=e688]: Tbilisi · Blueberry pouch
+          - generic [ref=e689]:
+            - button "Review 1" [ref=e690]
+            - button "Review 2" [ref=e691]
+            - button "Review 3" [ref=e692]
+      - generic [ref=e693]:
+        - generic: ✦
+        - generic: ✦
+        - generic: ✦
+        - generic: ✦
+        - generic [ref=e694]:
+          - generic [ref=e695]: Boogie with us
+          - heading "first dibs on the drop." [level=2] [ref=e696]
+          - paragraph [ref=e697]: Two emails a month, max. New colours, studio peeks, and a 10% code on us.
+          - generic [ref=e698]:
+            - textbox "you@lovely.com" [ref=e699]
+            - button "Sign me up" [ref=e700]
+          - generic [ref=e701]:
+            - img "Tissu" [ref=e702]
+            - generic [ref=e703]: Made with love in Tbilisi
+  - contentinfo [ref=e704]:
+    - generic [ref=e705]:
+      - generic [ref=e706]:
+        - generic [ref=e707]:
+          - link "TISSU" [ref=e708] [cursor=pointer]:
+            - /url: /en
+            - generic [ref=e709]: TISSU
+          - paragraph [ref=e711]: Two sides. One bag. Made by hand in Tbilisi since 2023.
+        - generic [ref=e712]:
+          - heading "Shop" [level=5] [ref=e713]
+          - list [ref=e714]:
+            - listitem [ref=e715]:
+              - link "Pouches" [ref=e716] [cursor=pointer]:
+                - /url: /en/shop?category=pouches
+            - listitem [ref=e717]:
+              - link "Laptop sleeves" [ref=e718] [cursor=pointer]:
+                - /url: /en/shop?category=laptop-sleeves
+            - listitem [ref=e719]:
+              - link "Totes" [ref=e720] [cursor=pointer]:
+                - /url: /en/shop?category=totes
+            - listitem [ref=e721]:
+              - link "Kids' backpacks" [ref=e722] [cursor=pointer]:
+                - /url: /en/shop?category=kids-backpacks
+            - listitem [ref=e723]:
+              - link "Aprons" [ref=e724] [cursor=pointer]:
+                - /url: /en/shop?category=aprons
+            - listitem [ref=e725]:
+              - link "Necklaces" [ref=e726] [cursor=pointer]:
+                - /url: /en/shop?category=necklaces
+            - listitem [ref=e727]:
+              - link "Gift cards" [ref=e728] [cursor=pointer]:
+                - /url: /en/shop?category=gift
+        - generic [ref=e729]:
+          - heading "Care" [level=5] [ref=e730]
+          - list [ref=e731]:
+            - listitem [ref=e732]:
+              - link "Shipping" [ref=e733] [cursor=pointer]:
+                - /url: /en/faq#shipping
+            - listitem [ref=e734]:
+              - link "Returns" [ref=e735] [cursor=pointer]:
+                - /url: /en/faq#returns
+            - listitem [ref=e736]:
+              - link "Wash guide" [ref=e737] [cursor=pointer]:
+                - /url: /en/faq#wash
+            - listitem [ref=e738]:
+              - link "FAQ" [ref=e739] [cursor=pointer]:
+                - /url: /en/faq
+        - generic [ref=e740]:
+          - heading "Studio" [level=5] [ref=e741]
+          - list [ref=e742]:
+            - listitem [ref=e743]:
+              - link "Our story" [ref=e744] [cursor=pointer]:
+                - /url: /en/about
+            - listitem [ref=e745]:
+              - link "Journal" [ref=e746] [cursor=pointer]:
+                - /url: /en#journal
+            - listitem [ref=e747]:
+              - link "Wholesale" [ref=e748] [cursor=pointer]:
+                - /url: /en/contact?topic=wholesale
+            - listitem [ref=e749]:
+              - link "Contact" [ref=e750] [cursor=pointer]:
+                - /url: /en/contact
+      - generic [ref=e751]:
+        - generic [ref=e752]:
+          - generic [ref=e753]: © 2026 Tissu Shop · made with love in tbilisi
+          - generic [ref=e754]:
+            - link "Privacy" [ref=e755] [cursor=pointer]:
+              - /url: /en/privacy
+            - generic [ref=e756]: ·
+            - link "Terms" [ref=e757] [cursor=pointer]:
+              - /url: /en/terms
+        - generic [ref=e758]:
+          - link "Instagram" [ref=e759] [cursor=pointer]:
+            - /url: https://instagram.com/thetissushop
+            - img [ref=e760]
+          - link "TikTok" [ref=e764] [cursor=pointer]:
+            - /url: "#"
+            - img [ref=e765]
+          - link "Pinterest" [ref=e767] [cursor=pointer]:
+            - /url: "#"
+            - img [ref=e768]
+  - button "Open Next.js Dev Tools" [ref=e776] [cursor=pointer]:
+    - img [ref=e777]

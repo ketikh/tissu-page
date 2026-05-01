@@ -26,7 +26,9 @@ export interface StorefrontProduct {
   model: string;
   size: string;
   color: string;
+  description: string | null;
   price: number;
+  original_price: number | null;
   currency: string;
   stock: number;
   in_stock: boolean;

@@ -1,0 +1,86 @@
+- generic [active] [ref=e1]:
+  - banner [ref=e2]:
+    - generic [ref=e3]:
+      - generic [ref=e4]:
+        - button "Shop" [ref=e6]:
+          - text: Shop
+          - img [ref=e8]
+        - link "Our story" [ref=e10] [cursor=pointer]:
+          - /url: /en/about
+      - link "Tissu" [ref=e12] [cursor=pointer]:
+        - /url: /en
+        - img "Tissu" [ref=e13]
+      - generic [ref=e14]:
+        - generic "Select language" [ref=e15]:
+          - generic [ref=e16]:
+            - link "ka" [ref=e17] [cursor=pointer]:
+              - /url: /ka/about
+            - link "en" [ref=e18] [cursor=pointer]:
+              - /url: /en/about
+              - text: en
+        - link "Account" [ref=e20] [cursor=pointer]:
+          - /url: /en/account
+          - img [ref=e21]
+        - button "Cart" [ref=e24]:
+          - img [ref=e25]
+  - main [ref=e28]:
+    - generic [ref=e29]:
+      - generic [ref=e31]:
+        - generic [ref=e32]: Our story
+        - heading "One pair of hands, one bag at a time." [level=1] [ref=e33]:
+          - text: One pair of hands,
+          - text: one bag at a time.
+        - paragraph [ref=e34]: Tissu started on a sunny Tbilisi kitchen table — one sewing machine, a roll of canvas, and the idea that a bag should work twice as hard. We're still small, still handmade.
+      - generic [ref=e37]:
+        - heading "One bag, two lives." [level=2] [ref=e38]
+        - generic [ref=e39]:
+          - generic [ref=e40]:
+            - generic [ref=e41]: 💧
+            - generic [ref=e42]: Water-resistant canvas
+            - paragraph [ref=e43]: Handles rain. Keeps what's inside dry.
+          - generic [ref=e44]:
+            - generic [ref=e45]: ↺
+            - generic [ref=e46]: Two sides, one bag
+            - paragraph [ref=e47]: One design outside, another inside.
+          - generic [ref=e48]:
+            - generic [ref=e49]: ✦
+            - generic [ref=e50]: Handmade
+            - paragraph [ref=e51]: Every stitch by a real human in Tbilisi.
+          - generic [ref=e52]:
+            - generic [ref=e53]: ★
+            - generic [ref=e54]: Since 2023
+            - paragraph [ref=e55]: In a sunny Tbilisi studio.
+      - generic [ref=e57]:
+        - generic [ref=e58]:
+          - heading "How we make them." [level=2] [ref=e59]
+          - paragraph [ref=e60]: Four quiet steps — from canvas roll to your doorstep.
+        - generic [ref=e61]:
+          - generic [ref=e62]:
+            - generic [ref=e63]: "01"
+            - heading "Source" [level=4] [ref=e64]
+            - paragraph [ref=e65]: Water-resistant canvas from local mills. Colours chosen by season, texture by hand.
+          - generic [ref=e66]:
+            - generic [ref=e67]: "02"
+            - heading "Pattern" [level=4] [ref=e68]
+            - paragraph [ref=e69]: From paper templates we've refined for two years — always with two prints in mind.
+          - generic [ref=e70]:
+            - generic [ref=e71]: "03"
+            - heading "Stitch & line" [level=4] [ref=e72]
+            - paragraph [ref=e73]: Two layers, one seam. Flip it — and the bag becomes a whole new friend.
+          - generic [ref=e74]:
+            - generic [ref=e75]: "04"
+            - heading "Wrap & send" [level=4] [ref=e76]
+            - paragraph [ref=e77]: Wrapped in colourful paper, stickered, and sent off in a kraft-paper bag.
+      - generic [ref=e84]:
+        - heading "Find your Tissu." [level=2] [ref=e85]
+        - paragraph [ref=e86]: Pouches, laptop sleeves, totes, necklaces — all handmade.
+        - generic [ref=e87]:
+          - link "Shop the drop" [ref=e88] [cursor=pointer]:
+            - /url: /en/shop
+            - text: Shop the drop
+            - generic [ref=e89]: →
+          - link "Contact us" [ref=e90] [cursor=pointer]:
+            - /url: /en/contact
+  - button "Open Next.js Dev Tools" [ref=e97] [cursor=pointer]:
+    - img [ref=e98]
+  - alert [ref=e101]

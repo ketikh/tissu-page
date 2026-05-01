@@ -16,6 +16,7 @@ interface RetroProductsProps {
 
 const PACIFICO = "var(--font-pacifico), 'Pacifico', cursive";
 const FRAUNCES = "var(--font-fraunces), 'Fraunces', Georgia, serif";
+const ALK_LIFE = "var(--font-alk-life), serif";
 
 const C = {
   cream: "#fef0d6",
@@ -497,8 +498,8 @@ export default function RetroProducts({
             transition={{ duration: 0.85, delay: 0.2, ease: [0.215, 0.61, 0.355, 1] }}
             className="font-retro-display mt-4 leading-[0.95]"
             style={{
-              fontFamily: FRAUNCES,
-              fontStyle: "italic",
+              fontFamily: isKa ? ALK_LIFE : FRAUNCES,
+              fontStyle: isKa ? "normal" : "italic",
               fontWeight: 900,
               fontSize: "clamp(40px, 6.5vw, 80px)",
               color: C.cream,
