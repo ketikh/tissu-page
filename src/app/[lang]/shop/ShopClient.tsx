@@ -236,6 +236,37 @@ function FloatFlower({ color, size, petals = 5, style }: {
   );
 }
 
+/* ── Botanical decorations (daisy / leaf) ───────────────────────── */
+function BotanicalEl({ type, color, size, style }: {
+  type: "daisy" | "leaf"; color: string; size: number; style: React.CSSProperties;
+}) {
+  if (type === "daisy") {
+    return (
+      <div className="pointer-events-none" style={{ position: "absolute", width: size, height: size, ...style }}>
+        <svg viewBox="0 0 100 100" style={{ width: "100%", height: "100%" }}>
+          <g transform="translate(50,50)">
+            {Array.from({ length: 8 }, (_, i) => (
+              <ellipse key={i} cx="0" cy="-24" rx="9" ry="20"
+                fill={color} transform={`rotate(${45 * i})`} />
+            ))}
+            <circle r="12" fill={C.mustard} />
+          </g>
+        </svg>
+      </div>
+    );
+  }
+  return (
+    <div className="pointer-events-none" style={{ position: "absolute", width: size, height: Math.round(size * 1.35), ...style }}>
+      <svg viewBox="0 0 60 80" style={{ width: "100%", height: "100%" }}>
+        <path d="M30 78 Q4 52 8 20 Q18 2 30 8 Q42 2 52 20 Q56 52 30 78Z" fill={color} />
+        <line x1="30" y1="78" x2="30" y2="8" stroke="white" strokeWidth="1.5" opacity="0.4" />
+        <path d="M30 60 Q18 50 15 38" stroke="white" strokeWidth="1" fill="none" opacity="0.35" />
+        <path d="M30 44 Q42 34 45 22" stroke="white" strokeWidth="1" fill="none" opacity="0.35" />
+      </svg>
+    </div>
+  );
+}
+
 /* ════════════════════════ MAIN COMPONENT ══════════════════════════ */
 
 export default function ShopClient({ lang, dictionary, products }: ShopClientProps) {
@@ -448,7 +479,7 @@ export default function ShopClient({ lang, dictionary, products }: ShopClientPro
           </div>
         </nav>
 
-        {/* ── Product grid ── */}
+        {/* ── Product grid — editorial 2-col scatter ── */}
         <main className="container pb-24" style={{ position: "relative", zIndex: 10 }}>
           {visible.length === 0 ? (
             <div className="py-24 flex flex-col items-center gap-5">
@@ -465,10 +496,32 @@ export default function ShopClient({ lang, dictionary, products }: ShopClientPro
               </button>
             </div>
           ) : (
-            <div className="grid grid-cols-2 md:grid-cols-3 gap-x-8 gap-y-16">
-              {visible.map((p, i) => (
-                <ShopCard key={p.id} product={p} index={i} lang={lang} isKa={isKa} copy={copy} />
-              ))}
+            <div className="relative">
+              {/* Botanical gutter decorations — desktop only */}
+              <div className="hidden md:block" aria-hidden="true">
+                <BotanicalEl type="daisy"  color={C.rose}      size={54} style={{ left: "calc(50% - 27px)", top: "7%",  transform: "rotate(18deg)",  opacity: 0.68, zIndex: 5 }} />
+                <BotanicalEl type="leaf"   color={C.sage}      size={42} style={{ left: "calc(50% - 21px)", top: "26%", transform: "rotate(-28deg)", opacity: 0.60, zIndex: 5 }} />
+                <BotanicalEl type="daisy"  color={C.champagne} size={46} style={{ left: "calc(50% - 23px)", top: "47%", transform: "rotate(-10deg)", opacity: 0.62, zIndex: 5 }} />
+                <BotanicalEl type="leaf"   color={C.lavender}  size={38} style={{ left: "calc(50% - 19px)", top: "68%", transform: "rotate(32deg)",  opacity: 0.58, zIndex: 5 }} />
+                <BotanicalEl type="daisy"  color={C.mustard}   size={42} style={{ left: "calc(50% - 21px)", top: "87%", transform: "rotate(6deg)",   opacity: 0.55, zIndex: 5 }} />
+              </div>
+
+              {/* Two independent columns */}
+              <div className="flex flex-col md:flex-row md:gap-12 lg:gap-20 gap-16">
+                {/* Left column — even-indexed products */}
+                <div className="flex-1 flex flex-col gap-20 md:gap-28">
+                  {visible.filter((_, i) => i % 2 === 0).map((p, i) => (
+                    <ShopCard key={p.id} product={p} index={i * 2} lang={lang} isKa={isKa} copy={copy} />
+                  ))}
+                </div>
+
+                {/* Right column — odd-indexed, shifted down for scatter effect */}
+                <div className="flex-1 flex flex-col gap-20 md:gap-28 md:pt-36 lg:pt-44">
+                  {visible.filter((_, i) => i % 2 === 1).map((p, i) => (
+                    <ShopCard key={p.id} product={p} index={i * 2 + 1} lang={lang} isKa={isKa} copy={copy} />
+                  ))}
+                </div>
+              </div>
             </div>
           )}
         </main>
