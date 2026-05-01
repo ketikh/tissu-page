@@ -90,7 +90,7 @@ export function Navbar({ lang, dictionary }: NavbarProps) {
   return (
     <header
       className="sticky top-0 z-40"
-      style={{ background: C.cream, borderBottom: `3px solid ${C.ink}`, boxShadow: `0 3px 0 ${C.mustardDeep}` }}
+      style={{ background: C.cream, borderBottom: `1.5px solid rgba(201,168,108,0.35)`, boxShadow: `0 4px 24px rgba(196,132,154,0.13)` }}
     >
       {/* ── Desktop: 3-column centred-logo layout ── */}
       <div className="hidden md:grid grid-cols-3 items-center px-6 py-3">
@@ -118,8 +118,8 @@ export function Navbar({ lang, dictionary }: NavbarProps) {
                   animate={{ opacity: 1, y: 0, scale: 1 }}
                   exit={{ opacity: 0, y: 4, scale: 0.97 }}
                   transition={{ duration: 0.16 }}
-                  className="absolute left-0 top-full mt-2 min-w-[200px] z-50"
-                  style={{ background: C.cream, border: `2px solid ${C.ink}`, boxShadow: `4px 4px 0 ${C.ink}` }}
+                  className="absolute left-0 top-full mt-2 min-w-[200px] z-50 rounded-2xl overflow-hidden"
+                  style={{ background: C.cream, border: `1.5px solid rgba(201,168,108,0.4)`, boxShadow: `0 8px 32px rgba(196,132,154,0.18)` }}
                 >
                   {categories.map((cat) => (
                     <Link
@@ -163,7 +163,8 @@ export function Navbar({ lang, dictionary }: NavbarProps) {
 
           <Link
             href={`/${lang}/account`}
-            className="w-10 h-10 rounded-full border-2 border-[#2a1d14] inline-flex items-center justify-center text-[#2a1d14] hover:bg-[#2a1d14] hover:text-[#fef0d6] transition-colors"
+            className="w-10 h-10 rounded-full inline-flex items-center justify-center transition-colors hover:bg-[rgba(201,168,108,0.18)]"
+            style={{ border: `1.5px solid rgba(201,168,108,0.5)`, color: C.ink }}
             aria-label={dictionary.nav.account}
           >
             <User className="w-[17px] h-[17px]" />
@@ -173,7 +174,8 @@ export function Navbar({ lang, dictionary }: NavbarProps) {
             type="button"
             onClick={openCart}
             aria-label={dictionary.nav.cart}
-            className="relative w-10 h-10 rounded-full border-2 border-[#2a1d14] inline-flex items-center justify-center text-[#2a1d14] hover:bg-[#2a1d14] hover:text-[#fef0d6] transition-colors"
+            className="relative w-10 h-10 rounded-full inline-flex items-center justify-center transition-colors hover:bg-[rgba(201,168,108,0.18)]"
+            style={{ border: `1.5px solid rgba(201,168,108,0.5)`, color: C.ink }}
           >
             <ShoppingBag className="w-[17px] h-[17px]" />
             <AnimatePresence>
@@ -197,7 +199,8 @@ export function Navbar({ lang, dictionary }: NavbarProps) {
         <button
           type="button"
           onClick={() => setIsMobileOpen(true)}
-          className="w-10 h-10 rounded-full border-2 border-[#2a1d14] inline-flex items-center justify-center text-[#2a1d14]"
+          className="w-10 h-10 rounded-full inline-flex items-center justify-center"
+          style={{ border: `1.5px solid rgba(201,168,108,0.5)`, color: C.ink }}
           aria-label="Menu"
         >
           <Menu className="w-5 h-5" />
@@ -212,7 +215,8 @@ export function Navbar({ lang, dictionary }: NavbarProps) {
           type="button"
           onClick={openCart}
           aria-label={dictionary.nav.cart}
-          className="relative w-10 h-10 rounded-full border-2 border-[#2a1d14] inline-flex items-center justify-center text-[#2a1d14]"
+          className="relative w-10 h-10 rounded-full inline-flex items-center justify-center"
+          style={{ border: `1.5px solid rgba(201,168,108,0.5)`, color: C.ink }}
         >
           <ShoppingBag className="w-[17px] h-[17px]" />
           <AnimatePresence>
@@ -247,12 +251,12 @@ export function Navbar({ lang, dictionary }: NavbarProps) {
               exit={{ x: "100%" }}
               transition={{ type: "spring", damping: 28, stiffness: 220 }}
               className="fixed top-0 right-0 bottom-0 w-[85%] max-w-[360px] z-[60] flex flex-col overflow-y-auto"
-              style={{ background: C.cream, borderLeft: `3px solid ${C.ink}` }}
+              style={{ background: C.cream, borderLeft: `1.5px solid rgba(201,168,108,0.35)`, boxShadow: `-8px 0 32px rgba(42,29,20,0.12)` }}
             >
               {/* Panel header */}
-              <div className="flex justify-between items-center px-6 py-5" style={{ borderBottom: `2px solid ${C.ink}` }}>
+              <div className="flex justify-between items-center px-6 py-5" style={{ borderBottom: `1.5px solid rgba(201,168,108,0.3)` }}>
                 <TissuLogo fill={C.burnt} className="h-7 w-auto" />
-                <button onClick={() => setIsMobileOpen(false)} className="w-9 h-9 rounded-full border-2 border-[#2a1d14] inline-flex items-center justify-center" aria-label="Close">
+                <button onClick={() => setIsMobileOpen(false)} className="w-9 h-9 rounded-full inline-flex items-center justify-center" style={{ border: `1.5px solid rgba(201,168,108,0.5)`, color: C.ink }} aria-label="Close">
                   <X className="w-4 h-4" />
                 </button>
               </div>
@@ -300,7 +304,7 @@ export function Navbar({ lang, dictionary }: NavbarProps) {
               </nav>
 
               {/* Panel footer */}
-              <div className="px-6 py-5 flex items-center justify-between" style={{ borderTop: `2px solid ${C.ink}` }}>
+              <div className="px-6 py-5 flex items-center justify-between" style={{ borderTop: `1.5px solid rgba(201,168,108,0.3)` }}>
                 <LanguageSwitcher currentLang={lang} />
                 <Link href={`/${lang}/account`} onClick={() => setIsMobileOpen(false)} className="flex items-center gap-2 text-[13px] font-bold uppercase tracking-[0.1em] hover:text-[#d56826] transition-colors" style={{ fontFamily: FRAUNCES, color: C.ink }}>
                   <User className="w-4 h-4" />
