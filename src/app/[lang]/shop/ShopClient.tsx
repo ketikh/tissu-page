@@ -1,6 +1,6 @@
 "use client";
 
-import { useMemo, useState, useRef, useEffect } from "react";
+import { useMemo, useState } from "react";
 import type { CSSProperties } from "react";
 import { useSearchParams, useRouter } from "next/navigation";
 import Link from "next/link";
@@ -612,86 +612,14 @@ export default function ShopClient({ lang, dictionary, products }: ShopClientPro
 
 /* ════════════════════════ SHOP CARD ════════════════════════════════ */
 
-/* per-product photo position, persisted in localStorage */
-type PhotoPos = { x: number; y: number; scale: number };
-const DEFAULT_POS: PhotoPos = { x: 0, y: 0, scale: 1 };
-
-function loadPos(id: string): PhotoPos {
-  if (typeof window === "undefined") return DEFAULT_POS;
-  try { const s = localStorage.getItem(`tissu-pos-${id}`); return s ? JSON.parse(s) : DEFAULT_POS; }
-  catch { return DEFAULT_POS; }
-}
-
 function ShopCard({ product, index, lang, isKa, copy }: {
   product: StorefrontProduct; index: number; lang: Locale; isKa: boolean;
   copy: ReturnType<typeof getLandingCopy>;
 }) {
-  const [hover, setHover]     = useState(false);
-  const [editing, setEditing] = useState(false);
-  const [savedPos, setSavedPos] = useState<PhotoPos>(DEFAULT_POS);
-  const [tempPos, setTempPos]   = useState<PhotoPos>(DEFAULT_POS);
-  const svgRef  = useRef<SVGSVGElement>(null);
-  const dragRef = useRef<{ sx: number; sy: number; px: number; py: number } | null>(null);
-  const dragDivRef = useRef<HTMLDivElement>(null);
+  const [hover, setHover] = useState(false);
 
   const addItem  = useCartStore((s) => s.addItem);
   const openCart = useUIStore((s) => s.openCart);
-
-  /* load saved position after mount */
-  useEffect(() => {
-    const p = loadPos(product.id);
-    setSavedPos(p);
-    setTempPos(p);
-  }, [product.id]);
-
-  /* non-passive wheel handler for zoom (passive:false needed to preventDefault) */
-  useEffect(() => {
-    if (!editing || !dragDivRef.current) return;
-    const el = dragDivRef.current;
-    const onWheel = (e: WheelEvent) => {
-      e.preventDefault();
-      setTempPos(p => ({ ...p, scale: Math.max(0.5, Math.min(4, p.scale - e.deltaY * 0.002)) }));
-    };
-    el.addEventListener("wheel", onWheel, { passive: false });
-    return () => el.removeEventListener("wheel", onWheel);
-  }, [editing]);
-
-  const svgRatio = () => {
-    if (!svgRef.current) return 1;
-    const w = svgRef.current.getBoundingClientRect().width;
-    return w > 0 ? 400 / w : 1;
-  };
-
-  const startDrag = (e: React.MouseEvent) => {
-    e.preventDefault();
-    const ratio = svgRatio();
-    dragRef.current = { sx: e.clientX, sy: e.clientY, px: tempPos.x, py: tempPos.y };
-    const move = (ev: MouseEvent) => {
-      if (!dragRef.current) return;
-      setTempPos(p => ({
-        ...p,
-        x: dragRef.current!.px + (ev.clientX - dragRef.current!.sx) * ratio,
-        y: dragRef.current!.py + (ev.clientY - dragRef.current!.sy) * ratio,
-      }));
-    };
-    const up = () => { dragRef.current = null; window.removeEventListener("mousemove", move); window.removeEventListener("mouseup", up); };
-    window.addEventListener("mousemove", move);
-    window.addEventListener("mouseup", up);
-  };
-
-  const openEditor = (e: React.MouseEvent) => {
-    e.preventDefault(); e.stopPropagation();
-    setTempPos(savedPos);
-    setEditing(true);
-  };
-
-  const saveEdit = () => {
-    setSavedPos(tempPos);
-    try { localStorage.setItem(`tissu-pos-${product.id}`, JSON.stringify(tempPos)); } catch {}
-    setEditing(false);
-  };
-
-  const cancelEdit = () => { setTempPos(savedPos); setEditing(false); };
 
   const frame  = FRAMES[index % FRAMES.length];
   const clipId = `sc-${product.id}`;
@@ -701,10 +629,6 @@ function ShopCard({ product, index, lang, isKa, copy }: {
   const isOnSale = Boolean(product.original_price && product.original_price > product.price);
   const name     = product.name || product.code;
   const inStock  = product.in_stock;
-
-  /* SVG transform: scale from center (200,200) then offset */
-  const activePos = editing ? tempPos : savedPos;
-  const imgTransform = `translate(${200 + activePos.x} ${200 + activePos.y}) scale(${activePos.scale}) translate(-200 -200)`;
 
   const onBuy = (e: React.MouseEvent) => {
     e.preventDefault();
@@ -737,7 +661,11 @@ function ShopCard({ product, index, lang, isKa, copy }: {
       onMouseLeave={() => setHover(false)}
     >
       {/* Organic-framed photo */}
-      <div className="relative w-full" style={{ aspectRatio: "1 / 1" }}>
+      <Link
+        href={`/${lang}/product/${product.id}`}
+        className="relative w-full"
+        style={{ aspectRatio: "1 / 1" }}
+      >
         {product.tags.includes("new") && (
           <span
             className="absolute -top-2 right-3 z-10 px-3 py-1 text-[9px] font-extrabold uppercase tracking-[0.22em]"
@@ -752,12 +680,11 @@ function ShopCard({ product, index, lang, isKa, copy }: {
         )}
 
         <svg
-          ref={svgRef}
           viewBox="0 0 400 400"
           preserveAspectRatio="xMidYMid meet"
           aria-hidden="true"
           className="absolute inset-0 w-full h-full"
-          style={{ filter: "drop-shadow(0 10px 22px rgba(0,0,0,0.14))", overflow: "visible", zIndex: 0 }}
+          style={{ filter: "drop-shadow(0 10px 22px rgba(0,0,0,0.14))", overflow: "visible" }}
         >
           <defs><clipPath id={clipId}><path d={path} /></clipPath></defs>
 
@@ -766,7 +693,6 @@ function ShopCard({ product, index, lang, isKa, copy }: {
             x="0" y="0" width="400" height="400"
             preserveAspectRatio="xMidYMid slice"
             clipPath={`url(#${clipId})`}
-            transform={imgTransform}
             style={{ filter: "saturate(0.95) sepia(0.02)", opacity: hover && hasBack ? 0 : 1, transition: "opacity 0.5s ease" }}
           />
           {hasBack && (
@@ -775,90 +701,12 @@ function ShopCard({ product, index, lang, isKa, copy }: {
               x="0" y="0" width="400" height="400"
               preserveAspectRatio="xMidYMid slice"
               clipPath={`url(#${clipId})`}
-              transform={imgTransform}
               style={{ filter: "saturate(0.95) sepia(0.02)", opacity: hover ? 1 : 0, transition: "opacity 0.5s ease" }}
             />
           )}
           <path d={path} fill="none" stroke={frame.color} strokeWidth="7" strokeLinejoin="round" />
         </svg>
-
-        {/* Transparent link overlay — navigates to product; disabled while editing */}
-        <Link
-          href={`/${lang}/product/${product.id}`}
-          className="absolute inset-0 block"
-          aria-label={name}
-          style={{ zIndex: 1, pointerEvents: editing ? "none" : "auto" }}
-        />
-
-        {/* Drag capture div — only rendered while editing */}
-        {editing && (
-          <div
-            ref={dragDivRef}
-            className="absolute inset-0"
-            style={{ zIndex: 2, cursor: "grab", touchAction: "none", userSelect: "none" }}
-            onMouseDown={startDrag}
-          />
-        )}
-
-        {/* Pencil edit button — appears on hover */}
-        <button
-          onClick={openEditor}
-          aria-label={isKa ? "ფოტოს პოზიციის შეცვლა" : "Adjust photo position"}
-          style={{
-            position: "absolute", top: 8, right: 8, zIndex: 3,
-            opacity: hover && !editing ? 1 : 0,
-            pointerEvents: hover && !editing ? "auto" : "none",
-            transition: "opacity 0.2s",
-            background: "rgba(255,255,255,0.88)",
-            border: "none",
-            borderRadius: "50%",
-            width: 34, height: 34,
-            display: "flex", alignItems: "center", justifyContent: "center",
-            cursor: "pointer",
-            fontSize: 15,
-            boxShadow: "0 2px 8px rgba(0,0,0,0.14)",
-          }}
-        >
-          ✎
-        </button>
-
-        {/* Editing toolbar — zoom in/out, save, cancel */}
-        {editing && (
-          <div
-            style={{
-              position: "absolute", bottom: 12, left: "50%", transform: "translateX(-50%)",
-              zIndex: 4,
-              display: "flex", alignItems: "center", gap: 6,
-              background: "rgba(255,255,255,0.95)",
-              borderRadius: 999,
-              padding: "7px 14px",
-              boxShadow: "0 4px 16px rgba(0,0,0,0.18)",
-              whiteSpace: "nowrap",
-            }}
-          >
-            <button
-              onClick={() => setTempPos(p => ({ ...p, scale: Math.min(4, p.scale + 0.15) }))}
-              style={{ width: 28, height: 28, borderRadius: "50%", background: C.cream, border: `1px solid ${C.champagne}`, cursor: "pointer", fontSize: 15, display: "flex", alignItems: "center", justifyContent: "center" }}
-            >＋</button>
-            <button
-              onClick={() => setTempPos(p => ({ ...p, scale: Math.max(0.5, p.scale - 0.15) }))}
-              style={{ width: 28, height: 28, borderRadius: "50%", background: C.cream, border: `1px solid ${C.champagne}`, cursor: "pointer", fontSize: 15, display: "flex", alignItems: "center", justifyContent: "center" }}
-            >－</button>
-            <button
-              onClick={saveEdit}
-              style={{ paddingInline: 12, height: 28, borderRadius: 999, background: C.sage, border: "none", color: C.cream, cursor: "pointer", fontSize: 11, fontWeight: 700, fontFamily: FRAUNCES, letterSpacing: "0.04em" }}
-            >
-              {isKa ? "შენახვა" : "Save"}
-            </button>
-            <button
-              onClick={cancelEdit}
-              style={{ paddingInline: 10, height: 28, borderRadius: 999, background: "transparent", border: `1px solid ${C.champagne}`, color: C.ink, cursor: "pointer", fontSize: 11, fontFamily: FRAUNCES }}
-            >
-              {isKa ? "გაუქმება" : "Cancel"}
-            </button>
-          </div>
-        )}
-      </div>
+      </Link>
 
       {/* Editorial text — no card box */}
       <div className="mt-4 pl-1">
