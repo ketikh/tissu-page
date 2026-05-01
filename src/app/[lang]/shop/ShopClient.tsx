@@ -47,20 +47,24 @@ function seedNoise(i: number, seed: number): number {
   return n - Math.floor(n);
 }
 
-function flower(bumps: number, baseR: number, bumpH: number, cx = 200, cy = 200): string {
-  const step = (Math.PI * 2) / bumps;
-  let d = "";
-  for (let i = 0; i <= bumps; i++) {
-    const a = i * step;
-    const x = cx + baseR * Math.cos(a);
-    const y = cy + baseR * Math.sin(a);
-    if (i === 0) { d += `M ${x.toFixed(1)} ${y.toFixed(1)} `; }
-    else {
-      const midA = a - step / 2;
-      d += `Q ${(cx + (baseR + bumpH) * Math.cos(midA)).toFixed(1)} ${(cy + (baseR + bumpH) * Math.sin(midA)).toFixed(1)} ${x.toFixed(1)} ${y.toFixed(1)} `;
-    }
+/* Each petal is a genuine circle arc — creates round puffy clover/cloud shapes
+   where the product photo remains clearly visible.
+   d = distance from center to petal-circle center, r = petal circle radius */
+function flowerArc(petals: number, d: number, r: number, cx = 200, cy = 200): string {
+  const step = (Math.PI * 2) / petals;
+  const halfStep = step / 2;
+  const L = d * Math.sin(halfStep);
+  const midD = d * Math.cos(halfStep);
+  const W = midD + Math.sqrt(Math.max(0, r * r - L * L));
+  const waist: [number, number][] = Array.from({ length: petals }, (_, i) => {
+    const a = i * step + halfStep;
+    return [cx + W * Math.cos(a), cy + W * Math.sin(a)];
+  });
+  let p = `M ${waist[petals - 1][0].toFixed(1)} ${waist[petals - 1][1].toFixed(1)} `;
+  for (let i = 0; i < petals; i++) {
+    p += `A ${r} ${r} 0 1 1 ${waist[i][0].toFixed(1)} ${waist[i][1].toFixed(1)} `;
   }
-  return d + "Z";
+  return p + "Z";
 }
 
 function blob(pts: number, rx: number, ry: number, variance: number, cx = 200, cy = 200, seed = 0): string {
@@ -86,18 +90,36 @@ function roundedRect(w: number, h: number, cx = 200, cy = 200, r = 10): string {
   return `M ${x+r} ${y} h ${w-2*r} a ${r} ${r} 0 0 1 ${r} ${r} v ${h-2*r} a ${r} ${r} 0 0 1 ${-r} ${r} h ${-(w-2*r)} a ${r} ${r} 0 0 1 ${-r} ${-r} v ${-(h-2*r)} a ${r} ${r} 0 0 1 ${r} ${-r} Z`;
 }
 
-/* ── Frame shapes — reference style (outline stroke only) ────────── */
+/* arch frame: flat top with rounded corners, elliptical arch at bottom */
+function stadiumBottom(cx: number, cy: number, hw: number, ht: number, cr: number): string {
+  const top  = cy - ht * 0.5;
+  const archY = cy + ht * 0.5;
+  const left  = cx - hw;
+  const right = cx + hw;
+  return [
+    `M ${left + cr} ${top}`,
+    `L ${right - cr} ${top}`,
+    `A ${cr} ${cr} 0 0 1 ${right} ${top + cr}`,
+    `L ${right} ${archY}`,
+    `A ${hw} ${hw * 0.62} 0 0 1 ${left} ${archY}`,
+    `L ${left} ${top + cr}`,
+    `A ${cr} ${cr} 0 0 1 ${left + cr} ${top}`,
+    `Z`,
+  ].join(" ");
+}
+
+/* ── Frame shapes — outlined only, product clearly visible ───────── */
 type Frame = { path: () => string; color: string };
 
 const FRAMES: Frame[] = [
-  { path: () => flower(4, 148, 65),                       color: C.rose },
-  { path: () => flower(6, 144, 68),                       color: C.green },
-  { path: () => blob(10, 162, 155, 0.13, 200, 200, 7),    color: C.mustard },
-  { path: () => roundedRect(340, 340, 200, 200, 44),      color: C.blue },
-  { path: () => flower(8, 148, 48),                       color: C.rose },
-  { path: () => blob(12, 158, 162, 0.12, 200, 200, 22),   color: C.green },
-  { path: () => flower(4, 144, 70),                       color: C.blue },
-  { path: () => flower(6, 142, 65),                       color: C.mustard },
+  { path: () => flowerArc(4, 78, 92),                      color: C.rose },
+  { path: () => flowerArc(6, 80, 90),                      color: C.green },
+  { path: () => blob(10, 162, 155, 0.11, 200, 200, 7),     color: C.mustard },
+  { path: () => stadiumBottom(200, 185, 152, 210, 24),     color: C.blue },
+  { path: () => flowerArc(4, 76, 95),                      color: C.blue },
+  { path: () => roundedRect(340, 340, 200, 200, 54),       color: C.green },
+  { path: () => flowerArc(6, 78, 94),                      color: C.rose },
+  { path: () => flowerArc(4, 80, 88),                      color: C.mustard },
 ];
 
 /* ── Category styling ────────────────────────────────────────────── */
