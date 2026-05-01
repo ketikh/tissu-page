@@ -4,7 +4,6 @@ import { useMemo, useState } from "react";
 import type { CSSProperties } from "react";
 import { useSearchParams, useRouter } from "next/navigation";
 import Link from "next/link";
-import { Check } from "lucide-react";
 import type { Locale } from "@/i18n/config";
 import type { StorefrontProduct, StorefrontCategory } from "@/lib/admin-api";
 import { getLandingCopy } from "@/app/[lang]/landingCopy";
@@ -393,14 +392,14 @@ export default function ShopClient({ lang, dictionary, products }: ShopClientPro
         </div>
       </section>
 
-      {/* ── Content: sidebar + grid ── */}
-      <div className="flex" style={{ background: C.cream, position: "relative" }}>
+      {/* ── Content ── */}
+      <div style={{ background: C.cream, position: "relative" }}>
 
-        {/* Botanical decorations — full-width layer over content area */}
+        {/* Botanical decorations — full-width layer */}
         <div
           aria-hidden="true"
           className="absolute hidden md:block pointer-events-none overflow-hidden"
-          style={{ top: 0, bottom: 0, left: 250, right: 0, zIndex: 0 }}
+          style={{ top: 0, bottom: 0, left: 0, right: 0, zIndex: 0 }}
         >
           {/* ── Left column — big anchors ── */}
           <Daisy        color={C.rose}      size={68} style={{ left: "3%",  top: "4%",  transform: "rotate(-12deg)", opacity: 0.70 }} />
@@ -451,121 +450,89 @@ export default function ShopClient({ lang, dictionary, products }: ShopClientPro
           <Sparkle      color={C.rose}      size={18} style={{ right: "26%", top: "95%", transform: "rotate(6deg)",   opacity: 0.60 }} />
         </div>
 
-        {/* ── LEFT SIDEBAR ── */}
-        <aside
-          className="hidden md:flex flex-col shrink-0 pt-10 pb-24 px-7"
-          style={{
-            width: 250,
-            borderRight: `1.5px solid rgba(201,168,108,0.28)`,
-            position: "sticky",
-            top: 64,
-            height: "calc(100vh - 64px)",
-            overflowY: "auto",
-            zIndex: 10,
-            background: C.cream,
-          }}
-        >
-          {/* Category */}
-          <div
-            className="mb-3 text-[10px] font-extrabold uppercase tracking-[0.26em]"
-            style={{ fontFamily: FRAUNCES, color: C.champagne }}
-          >
-            {isKa ? "კატეგორია" : "Category"}
-          </div>
-          <div className="flex flex-col gap-2">
-            {cats.map((cat) => {
-              const active = catParam === cat.val;
-              const col = CAT_COLORS[cat.val] ?? CAT_COLORS.all;
-              return (
-                <motion.button
-                  key={cat.val}
-                  onClick={() => setParam("category", cat.val)}
-                  animate={{ y: active ? 3 : 0 }}
-                  whileTap={{ scale: 0.97 }}
-                  transition={{ duration: 0.1 }}
-                  className="px-3 py-2.5 text-left rounded-[12px] w-full flex items-center gap-2"
-                  style={{
-                    fontFamily: FRAUNCES,
-                    fontStyle: "italic",
-                    fontSize: 13,
-                    fontWeight: 700,
-                    letterSpacing: "0.02em",
-                    background: col.bg,
-                    color: col.text,
-                    boxShadow: active
-                      ? `0 1px 0 ${col.shadow}, inset 0 2px 5px rgba(0,0,0,0.14)`
-                      : `0 4px 0 ${col.shadow}`,
-                    whiteSpace: "nowrap",
-                    border: "none",
-                    cursor: "pointer",
-                    outline: active ? `2px solid rgba(255,255,255,0.35)` : "none",
-                    outlineOffset: -2,
-                  }}
-                >
-                  <span style={{ fontSize: 13, lineHeight: 1, flexShrink: 0 }}>
-                    {CAT_BOTANICAL[cat.val]}
-                  </span>
-                  {cat.label}
-                </motion.button>
-              );
-            })}
-          </div>
-
-          {/* Sort */}
-          <div
-            className="mt-8 mb-3 text-[10px] font-extrabold uppercase tracking-[0.26em]"
-            style={{ fontFamily: FRAUNCES, color: C.champagne }}
-          >
-            {isKa ? "დალაგება" : "Sort by"}
-          </div>
-          <div className="flex flex-col gap-0.5">
-            {SORT_OPTIONS.map((opt) => {
-              const active = opt.val === sortParam;
-              return (
-                <button
-                  key={opt.val}
-                  onClick={() => setParam("sort", opt.val)}
-                  className="flex items-center justify-between px-3 py-2 text-left text-[12px] font-bold uppercase tracking-[0.12em] rounded-[10px] transition-all"
-                  style={{
-                    fontFamily: FRAUNCES,
-                    background: active ? "rgba(201,168,108,0.16)" : "transparent",
-                    color: active ? C.burnt : C.ink,
-                  }}
-                >
-                  {isKa ? opt.ka : opt.en}
-                  {active && <Check className="w-3 h-3 shrink-0" />}
-                </button>
-              );
-            })}
-          </div>
-        </aside>
-
         {/* ── PRODUCT GRID ── */}
-        <main className="flex-1 px-6 md:px-10 lg:px-14 pt-8 pb-24">
+        <main className="px-6 md:px-14 lg:px-20 pt-0 pb-24">
 
-          {/* Mobile filter pills */}
-          <nav className="flex flex-wrap gap-2 mb-8 md:hidden">
-            {cats.map((cat) => {
-              const active = catParam === cat.val;
-              const col = CAT_COLORS[cat.val] ?? CAT_COLORS.all;
-              return (
-                <button
-                  key={cat.val}
-                  onClick={() => setParam("category", cat.val)}
-                  className="inline-flex items-center gap-1.5 px-4 py-2 text-[11px] font-extrabold uppercase tracking-[0.12em] rounded-[10px]"
+          {/* ── Filter + Sort bar ── */}
+          <div
+            className="sticky z-10 py-5"
+            style={{ top: 64, background: C.cream, borderBottom: `1.5px solid rgba(201,168,108,0.22)` }}
+          >
+            <div className="flex flex-wrap items-center gap-3">
+              {/* Category pills */}
+              <div className="flex flex-wrap gap-2 flex-1">
+                {cats.map((cat) => {
+                  const active = catParam === cat.val;
+                  const col = CAT_COLORS[cat.val] ?? CAT_COLORS.all;
+                  return (
+                    <motion.button
+                      key={cat.val}
+                      onClick={() => setParam("category", cat.val)}
+                      animate={{ y: active ? 2 : 0 }}
+                      whileTap={{ scale: 0.96 }}
+                      transition={{ duration: 0.1 }}
+                      style={{
+                        fontFamily: FRAUNCES,
+                        fontStyle: "italic",
+                        fontWeight: 700,
+                        fontSize: 13,
+                        display: "inline-flex",
+                        alignItems: "center",
+                        gap: 6,
+                        padding: "8px 18px",
+                        borderRadius: active ? "14px 20px 16px 18px" : "20px 14px 18px 16px",
+                        background: active ? col.bg : C.cream,
+                        color: active ? col.text : C.ink,
+                        border: `2px solid ${active ? col.bg : "rgba(201,168,108,0.4)"}`,
+                        boxShadow: active
+                          ? `0 3px 0 ${col.shadow}`
+                          : `0 2px 0 rgba(201,168,108,0.25)`,
+                        cursor: "pointer",
+                        whiteSpace: "nowrap",
+                        transition: "border-radius 0.3s ease",
+                      }}
+                    >
+                      <span style={{ fontSize: 14 }}>{CAT_BOTANICAL[cat.val]}</span>
+                      {cat.label}
+                    </motion.button>
+                  );
+                })}
+              </div>
+
+              {/* Sort dropdown */}
+              <div style={{ position: "relative", flexShrink: 0 }}>
+                <select
+                  value={sortParam}
+                  onChange={(e) => setParam("sort", e.target.value)}
                   style={{
                     fontFamily: FRAUNCES,
-                    background: active ? col.bg : "rgba(201,168,108,0.1)",
-                    color: active ? col.text : C.ink,
-                    border: `1.5px solid ${active ? col.bg : C.champagne}`,
-                    boxShadow: active ? `0 3px 0 ${col.shadow}` : "none",
+                    fontWeight: 700,
+                    fontSize: 12,
+                    color: C.ink,
+                    background: C.cream,
+                    border: `2px solid rgba(201,168,108,0.4)`,
+                    borderRadius: "16px 12px 14px 18px",
+                    padding: "8px 36px 8px 14px",
+                    cursor: "pointer",
+                    appearance: "none",
+                    WebkitAppearance: "none",
+                    boxShadow: `0 2px 0 rgba(201,168,108,0.25)`,
+                    outline: "none",
                   }}
                 >
-                  {CAT_BOTANICAL[cat.val]} {cat.label}
-                </button>
-              );
-            })}
-          </nav>
+                  {SORT_OPTIONS.map((opt) => (
+                    <option key={opt.val} value={opt.val}>
+                      {isKa ? opt.ka : opt.en}
+                    </option>
+                  ))}
+                </select>
+                <span style={{
+                  position: "absolute", right: 12, top: "50%", transform: "translateY(-50%)",
+                  pointerEvents: "none", fontSize: 10, color: C.champagne,
+                }}>▾</span>
+              </div>
+            </div>
+          </div>
 
           {visible.length === 0 ? (
             <div className="py-24 flex flex-col items-center gap-5">
