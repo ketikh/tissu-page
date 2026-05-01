@@ -27,9 +27,23 @@ const C = {
   lavender:    "#9e8abf",
   sage:        "#7aaa8a",
   green:       "#3f6f56",
+  teal:        "#1e4d43",
 };
 
-/* ── Scalloped divider — cream arc path ────────────────────────────── */
+/* ── Repeating flower tile background ───────────────────────────── */
+const BG_PATTERN = `url("data:image/svg+xml,${encodeURIComponent(
+  `<svg xmlns="http://www.w3.org/2000/svg" width="68" height="68">` +
+  `<g transform="translate(34,34)" opacity="0.32">` +
+  `<ellipse cx="0" cy="-13" rx="5" ry="11" fill="#c9a86c" transform="rotate(0)"/>` +
+  `<ellipse cx="0" cy="-13" rx="5" ry="11" fill="#c9a86c" transform="rotate(72)"/>` +
+  `<ellipse cx="0" cy="-13" rx="5" ry="11" fill="#c9a86c" transform="rotate(144)"/>` +
+  `<ellipse cx="0" cy="-13" rx="5" ry="11" fill="#c9a86c" transform="rotate(216)"/>` +
+  `<ellipse cx="0" cy="-13" rx="5" ry="11" fill="#c9a86c" transform="rotate(288)"/>` +
+  `<circle r="5" fill="#c9a86c"/>` +
+  `</g></svg>`
+)}")`;
+
+/* ── Scalloped divider ───────────────────────────────────────────── */
 const SCALLOP_PATH = (() => {
   const n = 20, w = 1440, sw = w / n, H = 44;
   let d = `M 0 80 L 0 ${H}`;
@@ -39,8 +53,14 @@ const SCALLOP_PATH = (() => {
   return d + ` L ${w} 80 Z`;
 })();
 
-/* ── Flower shape helper ─────────────────────────────────────────── */
-function flower(bumps: number, baseR: number, bumpH: number, cx = 200, cy = 200): string {
+/* ── Shape helpers ───────────────────────────────────────────────── */
+
+function seedNoise(i: number, seed: number): number {
+  const n = Math.sin((i + 1) * 12.9898 + seed * 78.233) * 43758.5453;
+  return n - Math.floor(n);
+}
+
+function flower(bumps: number, baseR: number, bumpH: number, cx = 200, cy = 200, jitter = 0): string {
   const step = (Math.PI * 2) / bumps;
   let d = "";
   for (let i = 0; i <= bumps; i++) {
@@ -50,21 +70,128 @@ function flower(bumps: number, baseR: number, bumpH: number, cx = 200, cy = 200)
     if (i === 0) { d += `M ${x.toFixed(1)} ${y.toFixed(1)} `; }
     else {
       const midA = a - step / 2;
-      d += `Q ${(cx + (baseR + bumpH) * Math.cos(midA)).toFixed(1)} ${(cy + (baseR + bumpH) * Math.sin(midA)).toFixed(1)} ${x.toFixed(1)} ${y.toFixed(1)} `;
+      const h = bumpH * (1 + (jitter ? Math.sin(i * 7.3) * jitter : 0));
+      d += `Q ${(cx + (baseR + h) * Math.cos(midA)).toFixed(1)} ${(cy + (baseR + h) * Math.sin(midA)).toFixed(1)} ${x.toFixed(1)} ${y.toFixed(1)} `;
     }
   }
   return d + "Z";
 }
 
-/* ── 4 clean flower-outline frames ──────────────────────────────── */
-const FRAMES = [
-  { path: () => flower(6,  178, 68),  rotate: -3, color: C.rose },
-  { path: () => flower(8,  176, 56),  rotate:  4, color: C.champagne },
-  { path: () => flower(10, 174, 46),  rotate: -2, color: C.lavender },
-  { path: () => flower(12, 172, 36),  rotate:  3, color: C.sage },
+function blob(pts: number, rx: number, ry: number, variance: number, cx = 200, cy = 200, seed = 0): string {
+  const arr: [number, number][] = [];
+  for (let i = 0; i < pts; i++) {
+    const a = (i / pts) * Math.PI * 2;
+    const m = 1 + (seedNoise(i, seed) * 2 - 1) * variance;
+    arr.push([cx + m * rx * Math.cos(a), cy + m * ry * Math.sin(a)]);
+  }
+  const mid = (i: number, j: number): [number, number] => [(arr[i][0] + arr[j][0]) / 2, (arr[i][1] + arr[j][1]) / 2];
+  const start = mid(pts - 1, 0);
+  let d = `M ${start[0].toFixed(1)} ${start[1].toFixed(1)} `;
+  for (let i = 0; i < pts; i++) {
+    const next = (i + 1) % pts;
+    const m = mid(i, next);
+    d += `Q ${arr[i][0].toFixed(1)} ${arr[i][1].toFixed(1)} ${m[0].toFixed(1)} ${m[1].toFixed(1)} `;
+  }
+  return d + "Z";
+}
+
+function dripPath(
+  bodyW: number, bodyH: number, drips: number,
+  minDepth: number, maxDepth: number, cornerR: number,
+  side: "top" | "bottom" | "left" | "right",
+  cx = 200, cy = 200, seed = 0
+): string {
+  const halfW = bodyW / 2, halfH = bodyH / 2;
+  const top = cy - halfH, left = cx - halfW, right = cx + halfW, bot = cy + halfH;
+  const slot = ((side === "top" || side === "bottom") ? bodyW : bodyH) / drips;
+  const r = Math.min(cornerR, halfW * 0.5, halfH * 0.5);
+  const bulge = slot * 0.32;
+  const dc = (eY: number, fX: number, tX: number, mX: number, apY: number, bl: number, hdY: number) => {
+    let s = `C ${fX.toFixed(1)} ${hdY.toFixed(1)}, `;
+    s += `${(mX + Math.sign(tX - fX) * -bl).toFixed(1)} ${apY.toFixed(1)}, ${mX.toFixed(1)} ${apY.toFixed(1)} `;
+    s += `C ${(mX - Math.sign(tX - fX) * -bl).toFixed(1)} ${apY.toFixed(1)}, ${tX.toFixed(1)} ${hdY.toFixed(1)}, ${tX.toFixed(1)} ${eY.toFixed(1)} `;
+    return s;
+  };
+  let d = "";
+  if (side === "bottom") {
+    d += `M ${(left+r).toFixed(1)} ${top.toFixed(1)} L ${(right-r).toFixed(1)} ${top.toFixed(1)} A ${r} ${r} 0 0 1 ${right.toFixed(1)} ${(top+r).toFixed(1)} L ${right.toFixed(1)} ${bot.toFixed(1)} `;
+    for (let i = drips - 1; i >= 0; i--) {
+      const dR = left+(i+1)*slot, dL = left+i*slot, dM = (dL+dR)/2;
+      const dep = minDepth + seedNoise(i, seed) * (maxDepth - minDepth);
+      d += dc(bot, dR, dL, dM, bot+dep, bulge, bot+dep*0.55);
+    }
+    d += `L ${left.toFixed(1)} ${(top+r).toFixed(1)} A ${r} ${r} 0 0 1 ${(left+r).toFixed(1)} ${top.toFixed(1)} Z`;
+  } else if (side === "top") {
+    d += `M ${left.toFixed(1)} ${top.toFixed(1)} `;
+    for (let i = 0; i < drips; i++) {
+      const dL = left+i*slot, dR = left+(i+1)*slot, dM = (dL+dR)/2;
+      const dep = minDepth + seedNoise(i, seed) * (maxDepth - minDepth);
+      d += dc(top, dL, dR, dM, top-dep, bulge, top-dep*0.55);
+    }
+    d += `L ${right.toFixed(1)} ${(bot-r).toFixed(1)} A ${r} ${r} 0 0 1 ${(right-r).toFixed(1)} ${bot.toFixed(1)} L ${(left+r).toFixed(1)} ${bot.toFixed(1)} A ${r} ${r} 0 0 1 ${left.toFixed(1)} ${(bot-r).toFixed(1)} Z`;
+  } else if (side === "left") {
+    d += `M ${left.toFixed(1)} ${top.toFixed(1)} L ${(right-r).toFixed(1)} ${top.toFixed(1)} A ${r} ${r} 0 0 1 ${right.toFixed(1)} ${(top+r).toFixed(1)} L ${right.toFixed(1)} ${(bot-r).toFixed(1)} A ${r} ${r} 0 0 1 ${(right-r).toFixed(1)} ${bot.toFixed(1)} L ${left.toFixed(1)} ${bot.toFixed(1)} `;
+    for (let i = drips - 1; i >= 0; i--) {
+      const dT = top+i*slot, dB = top+(i+1)*slot, dM = (dT+dB)/2;
+      const dep = minDepth + seedNoise(i, seed) * (maxDepth - minDepth);
+      const aX = left - dep, hdX = left - dep*0.55;
+      d += `C ${hdX.toFixed(1)} ${dB.toFixed(1)}, ${aX.toFixed(1)} ${(dM+bulge).toFixed(1)}, ${aX.toFixed(1)} ${dM.toFixed(1)} C ${aX.toFixed(1)} ${(dM-bulge).toFixed(1)}, ${hdX.toFixed(1)} ${dT.toFixed(1)}, ${left.toFixed(1)} ${dT.toFixed(1)} `;
+    }
+    d += `Z`;
+  } else {
+    d += `M ${(left+r).toFixed(1)} ${top.toFixed(1)} L ${right.toFixed(1)} ${top.toFixed(1)} `;
+    for (let i = 0; i < drips; i++) {
+      const dT = top+i*slot, dB = top+(i+1)*slot, dM = (dT+dB)/2;
+      const dep = minDepth + seedNoise(i, seed) * (maxDepth - minDepth);
+      const aX = right + dep, hdX = right + dep*0.55;
+      d += `C ${hdX.toFixed(1)} ${dT.toFixed(1)}, ${aX.toFixed(1)} ${(dM-bulge).toFixed(1)}, ${aX.toFixed(1)} ${dM.toFixed(1)} C ${aX.toFixed(1)} ${(dM+bulge).toFixed(1)}, ${hdX.toFixed(1)} ${dB.toFixed(1)}, ${right.toFixed(1)} ${dB.toFixed(1)} `;
+    }
+    d += `L ${(left+r).toFixed(1)} ${bot.toFixed(1)} A ${r} ${r} 0 0 1 ${left.toFixed(1)} ${(bot-r).toFixed(1)} L ${left.toFixed(1)} ${(top+r).toFixed(1)} A ${r} ${r} 0 0 1 ${(left+r).toFixed(1)} ${top.toFixed(1)} Z`;
+  }
+  return d;
+}
+
+function roundedRect(w: number, h: number, cx = 200, cy = 200, r = 10): string {
+  const x = cx - w / 2, y = cy - h / 2;
+  return `M ${x+r} ${y} h ${w-2*r} a ${r} ${r} 0 0 1 ${r} ${r} v ${h-2*r} a ${r} ${r} 0 0 1 ${-r} ${r} h ${-(w-2*r)} a ${r} ${r} 0 0 1 ${-r} ${-r} v ${-(h-2*r)} a ${r} ${r} 0 0 1 ${r} ${-r} Z`;
+}
+
+/* ── Frame definitions (varied shapes) ──────────────────────────── */
+type OutlineFrame = { kind: "outline"; path: () => string; rotate: number; color: string };
+type DripFrame    = { kind: "drip"; outerPath: () => string; innerPath: () => string; rotate: number; color: string };
+type ShopFrame    = OutlineFrame | DripFrame;
+
+const FRAMES: ShopFrame[] = [
+  { kind: "outline", path: () => flower(8, 178, 62),                       rotate: -3, color: C.rose },
+  { kind: "outline", path: () => blob(12, 178, 168, 0.13, 200, 200, 7),    rotate:  4, color: C.champagne },
+  { kind: "outline", path: () => flower(6, 172, 72),                       rotate: -5, color: C.lavender },
+  { kind: "drip",
+    outerPath: () => dripPath(300, 250, 6, 14, 62, 22, "bottom", 200, 200, 9),
+    innerPath: () => roundedRect(272, 222, 200, 200, 10),
+    rotate: 2, color: C.sage },
+  { kind: "outline", path: () => flower(14, 170, 32, 200, 200, 0.18),      rotate: -2, color: C.mustard },
+  { kind: "outline", path: () => blob(10, 175, 175, 0.14, 200, 200, 31),   rotate:  5, color: C.rose },
+  { kind: "drip",
+    outerPath: () => dripPath(280, 250, 4, 18, 55, 22, "top", 200, 200, 23),
+    innerPath: () => roundedRect(252, 222, 200, 200, 10),
+    rotate: -4, color: C.champagne },
+  { kind: "outline", path: () => blob(13, 180, 162, 0.12, 200, 200, 55),   rotate:  3, color: C.lavender },
 ];
 
-/* ── Category icons ──────────────────────────────────────────────── */
+/* ── Colorful sticker-style category filter pills ───────────────── */
+const CAT_COLORS: Record<string, {
+  bg: string; text: string; shadow: string;
+  idleBg: string; idleBorder: string; idleText: string; rotate: string;
+}> = {
+  all:          { bg: C.rose,      text: C.cream, shadow: "#9c6078",      idleBg: "rgba(196,132,154,0.15)", idleBorder: C.rose,      idleText: "#9c6078",  rotate: "-1.5deg" },
+  pouch:        { bg: C.burnt,     text: C.cream, shadow: "#a83c14",      idleBg: "rgba(213,104,38,0.15)",  idleBorder: C.burnt,     idleText: C.burnt,    rotate: "1deg" },
+  laptop:       { bg: C.lavender,  text: C.cream, shadow: "#7060a0",      idleBg: "rgba(158,138,191,0.15)", idleBorder: C.lavender,  idleText: C.lavender, rotate: "-2deg" },
+  tote:         { bg: C.sage,      text: C.cream, shadow: "#568868",      idleBg: "rgba(122,170,138,0.15)", idleBorder: C.sage,      idleText: "#3f6f56",  rotate: "1.5deg" },
+  kidsbackpack: { bg: C.mustard,   text: C.ink,   shadow: C.mustardDeep,  idleBg: "rgba(243,182,43,0.15)",  idleBorder: C.mustard,   idleText: "#8a6200",  rotate: "-1deg" },
+  apron:        { bg: C.green,     text: C.cream, shadow: "#1e3828",      idleBg: "rgba(63,111,86,0.15)",   idleBorder: C.green,     idleText: C.green,    rotate: "2deg" },
+  necklace:     { bg: C.champagne, text: C.ink,   shadow: "#9a7840",      idleBg: "rgba(201,168,108,0.15)", idleBorder: C.champagne, idleText: "#8a5820",  rotate: "-0.5deg" },
+};
+
 const CAT_ICONS: Record<string, string> = {
   all: "✦", pouch: "👜", laptop: "💻", tote: "🛍️", kidsbackpack: "🎒", apron: "👩‍🍳", necklace: "📿",
 };
@@ -106,37 +233,6 @@ function FloatFlower({ color, size, petals = 5, style }: {
         </g>
       </svg>
     </div>
-  );
-}
-
-/* ── Animated background sparkles ────────────────────────────────── */
-const SPARKLE_POSITIONS = [
-  { x: "4%",  y: "6%",   size: 14, delay: 0 },
-  { x: "16%", y: "3%",   size: 10, delay: 1.2 },
-  { x: "34%", y: "5%",   size: 12, delay: 2.1 },
-  { x: "58%", y: "2%",   size: 9,  delay: 0.7 },
-  { x: "76%", y: "7%",   size: 13, delay: 1.8 },
-  { x: "91%", y: "4%",   size: 11, delay: 0.3 },
-  { x: "7%",  y: "38%",  size: 9,  delay: 2.5 },
-  { x: "87%", y: "33%",  size: 12, delay: 1.5 },
-  { x: "43%", y: "50%",  size: 10, delay: 3.2 },
-  { x: "23%", y: "62%",  size: 11, delay: 0.9 },
-  { x: "70%", y: "66%",  size: 9,  delay: 2.0 },
-  { x: "53%", y: "78%",  size: 13, delay: 1.1 },
-  { x: "11%", y: "82%",  size: 10, delay: 3.5 },
-  { x: "82%", y: "88%",  size: 11, delay: 2.8 },
-];
-
-function FloatSparkle({ x, y, size, delay }: { x: string; y: string; size: number; delay: number }) {
-  return (
-    <motion.div
-      className="absolute pointer-events-none select-none"
-      style={{ left: x, top: y, fontSize: size, color: C.champagne, lineHeight: 1 }}
-      animate={{ y: [0, -11, 0], opacity: [0.16, 0.36, 0.16] }}
-      transition={{ duration: 5 + delay * 0.6, repeat: Infinity, ease: "easeInOut", delay }}
-    >
-      ✦
-    </motion.div>
   );
 }
 
@@ -191,7 +287,7 @@ export default function ShopClient({ lang, dictionary, products }: ShopClientPro
   return (
     <div style={{ background: C.cream, minHeight: "100vh" }}>
 
-      {/* ── Hero — rose + scalloped cream bottom ── */}
+      {/* ── Hero — rose bg + scalloped cream bottom ── */}
       <section className="relative overflow-hidden" style={{ background: C.rose, paddingBottom: 90 }}>
         <FloatFlower color={C.cream}   size={72} petals={5} style={{ left: "4%",   top: "14%",    opacity: 0.22, transform: "rotate(-14deg)" }} />
         <FloatFlower color={C.mustard} size={52} petals={5} style={{ right: "6%",  top: "20%",    opacity: 0.40, transform: "rotate(18deg)" }} />
@@ -249,53 +345,39 @@ export default function ShopClient({ lang, dictionary, products }: ShopClientPro
         </div>
       </section>
 
-      {/* ── Sparkle + filter + grid wrapper ── */}
-      <div className="relative overflow-hidden">
+      {/* ── Flower-patterned cream section ── */}
+      <div style={{ backgroundImage: BG_PATTERN, backgroundSize: "68px 68px", backgroundRepeat: "repeat" }}>
 
-        {/* Floating sparkles in the cream area */}
-        <div className="absolute inset-0 pointer-events-none overflow-hidden" aria-hidden="true">
-          {SPARKLE_POSITIONS.map((s, i) => (
-            <FloatSparkle key={i} {...s} />
-          ))}
-        </div>
+        {/* ── Filter + sort bar ── */}
+        <nav className="relative pt-10 pb-6 px-4" style={{ zIndex: 20 }}>
 
-        {/* ── Filter bar ── */}
-        <nav className="relative z-10 pt-10 pb-6 px-4">
-
-          {/* Unified pill container */}
-          <div className="flex justify-center">
-            <div
-              className="inline-flex flex-wrap justify-center gap-1 p-1.5"
-              style={{
-                background: C.beige,
-                border: `2px solid ${C.champagne}`,
-                borderRadius: 999,
-                boxShadow: `0 5px 0 ${C.champagne}`,
-              }}
-            >
-              {cats.map((cat) => {
-                const active = catParam === cat.val;
-                return (
-                  <motion.button
-                    key={cat.val}
-                    onClick={() => setParam("category", cat.val)}
-                    className="inline-flex items-center gap-1.5 px-4 py-2 text-[11px] font-extrabold uppercase tracking-[0.13em]"
-                    style={{
-                      fontFamily: FRAUNCES,
-                      borderRadius: 999,
-                      background: active ? C.ink : "transparent",
-                      color: active ? C.cream : C.ink,
-                      boxShadow: active ? `0 3px 0 rgba(42,29,20,0.35)` : "none",
-                      transition: "background 0.18s ease, color 0.18s ease, box-shadow 0.18s ease",
-                    }}
-                    whileTap={{ scale: 0.95 }}
-                  >
-                    <span style={{ fontSize: 13, lineHeight: 1 }}>{CAT_ICONS[cat.val] ?? "•"}</span>
-                    <span>{cat.label}</span>
-                  </motion.button>
-                );
-              })}
-            </div>
+          {/* Colorful sticker-style pills */}
+          <div className="flex flex-wrap justify-center gap-3">
+            {cats.map((cat) => {
+              const active = catParam === cat.val;
+              const col = CAT_COLORS[cat.val] ?? CAT_COLORS.all;
+              return (
+                <motion.button
+                  key={cat.val}
+                  onClick={() => setParam("category", cat.val)}
+                  className="inline-flex items-center gap-2 px-5 py-2.5 text-[11px] font-extrabold uppercase tracking-[0.18em]"
+                  style={{
+                    fontFamily: FRAUNCES,
+                    borderRadius: 14,
+                    background: active ? col.bg : col.idleBg,
+                    color: active ? col.text : col.idleText,
+                    border: `2px solid ${active ? col.bg : col.idleBorder}`,
+                    boxShadow: active ? `0 4px 0 ${col.shadow}` : "none",
+                    transform: `rotate(${col.rotate})`,
+                    transition: "background 0.18s ease, color 0.18s ease, box-shadow 0.18s ease, border-color 0.18s ease",
+                  }}
+                  whileTap={{ scale: 0.93 }}
+                >
+                  <span style={{ fontSize: 15, lineHeight: 1 }}>{CAT_ICONS[cat.val] ?? "•"}</span>
+                  <span>{cat.label}</span>
+                </motion.button>
+              );
+            })}
           </div>
 
           {/* Custom sort — desktop only */}
@@ -303,11 +385,11 @@ export default function ShopClient({ lang, dictionary, products }: ShopClientPro
             <span style={{ fontFamily: FRAUNCES, fontStyle: "italic", fontSize: 12, color: C.champagne }}>
               {isKa ? "დალაგება:" : "Sort by:"}
             </span>
-            <div className="relative" ref={sortRef}>
+            <div ref={sortRef} style={{ position: "relative", zIndex: 50 }}>
               <button
                 type="button"
                 onClick={() => setSortOpen(v => !v)}
-                className="inline-flex items-center gap-2 px-5 py-2.5 font-bold text-[12px] uppercase tracking-[0.12em] transition-transform hover:-translate-y-0.5"
+                className="inline-flex items-center gap-2 px-5 py-2.5 font-bold text-[12px] uppercase tracking-[0.12em]"
                 style={{
                   fontFamily: FRAUNCES,
                   background: sortOpen ? C.ink : C.beige,
@@ -315,7 +397,7 @@ export default function ShopClient({ lang, dictionary, products }: ShopClientPro
                   border: `1.5px solid ${C.champagne}`,
                   borderRadius: 999,
                   boxShadow: `0 3px 0 ${C.champagne}`,
-                  transition: "background 0.18s ease, color 0.18s ease",
+                  transition: "background 0.18s, color 0.18s",
                 }}
               >
                 {isKa ? currentSort.ka : currentSort.en}
@@ -331,26 +413,31 @@ export default function ShopClient({ lang, dictionary, products }: ShopClientPro
                     animate={{ opacity: 1, y: 0, scale: 1 }}
                     exit={{ opacity: 0, y: 4, scale: 0.97 }}
                     transition={{ duration: 0.16 }}
-                    className="absolute right-0 top-full mt-2 min-w-[160px] z-30 overflow-hidden"
                     style={{
+                      position: "absolute",
+                      right: 0,
+                      top: "calc(100% + 8px)",
+                      minWidth: 160,
+                      zIndex: 50,
                       background: C.cream,
                       border: `1.5px solid rgba(201,168,108,0.5)`,
                       borderRadius: 18,
                       boxShadow: `0 8px 28px rgba(42,29,20,0.13)`,
+                      overflow: "hidden",
                     }}
                   >
                     {SORT_OPTIONS.map((opt) => {
-                      const active = opt.val === sortParam;
+                      const isActive = opt.val === sortParam;
                       return (
                         <button
                           key={opt.val}
                           type="button"
                           onClick={() => { setParam("sort", opt.val); setSortOpen(false); }}
                           className="w-full flex items-center justify-between px-5 py-3 text-[12px] font-bold uppercase tracking-[0.1em] transition-colors hover:bg-[#f5e3c2]"
-                          style={{ fontFamily: FRAUNCES, color: active ? C.burnt : C.ink }}
+                          style={{ fontFamily: FRAUNCES, color: isActive ? C.burnt : C.ink }}
                         >
                           {isKa ? opt.ka : opt.en}
-                          {active && <Check className="w-3.5 h-3.5" />}
+                          {isActive && <Check className="w-3.5 h-3.5" />}
                         </button>
                       );
                     })}
@@ -362,7 +449,7 @@ export default function ShopClient({ lang, dictionary, products }: ShopClientPro
         </nav>
 
         {/* ── Product grid ── */}
-        <main className="container relative z-10 pb-24">
+        <main className="container pb-24" style={{ position: "relative", zIndex: 10 }}>
           {visible.length === 0 ? (
             <div className="py-24 flex flex-col items-center gap-5">
               <span style={{ fontSize: 52, color: C.champagne }}>✦</span>
@@ -371,7 +458,7 @@ export default function ShopClient({ lang, dictionary, products }: ShopClientPro
               </p>
               <button
                 onClick={() => setParam("category", "all")}
-                className="inline-flex items-center gap-2 px-7 py-3 rounded-full font-extrabold text-[12px] uppercase tracking-[0.2em] transition-transform hover:-translate-y-0.5"
+                className="inline-flex items-center gap-2 px-7 py-3 rounded-full font-extrabold text-[12px] uppercase tracking-[0.2em]"
                 style={{ fontFamily: FRAUNCES, fontWeight: 800, background: C.mustard, color: C.ink, boxShadow: `0 5px 0 ${C.mustardDeep}` }}
               >
                 {isKa ? "ყველა" : "Clear filters"}
@@ -402,7 +489,14 @@ function ShopCard({ product, index, lang, isKa, copy }: {
 
   const frame  = FRAMES[index % FRAMES.length];
   const clipId = `sc-${product.id}`;
-  const clipD  = useMemo(() => frame.path(), [frame]);
+
+  const { clipD, fillD, strokeD } = useMemo(() => {
+    if (frame.kind === "drip") {
+      return { clipD: frame.innerPath(), fillD: frame.outerPath(), strokeD: null };
+    }
+    const p = frame.path();
+    return { clipD: p, fillD: null, strokeD: p };
+  }, [frame]);
 
   const hasBack  = Boolean(product.image_back);
   const isOnSale = Boolean(product.original_price && product.original_price > product.price);
@@ -440,7 +534,7 @@ function ShopCard({ product, index, lang, isKa, copy }: {
       onMouseEnter={() => setHover(true)}
       onMouseLeave={() => setHover(false)}
     >
-      {/* Flower photo frame */}
+      {/* Organic photo frame */}
       <Link
         href={`/${lang}/product/${product.id}`}
         className="relative w-full cursor-pointer"
@@ -463,6 +557,7 @@ function ShopCard({ product, index, lang, isKa, copy }: {
           style={{ filter: "drop-shadow(0 14px 22px rgba(0,0,0,0.22))", overflow: "visible" }}
         >
           <defs><clipPath id={clipId}><path d={clipD} /></clipPath></defs>
+          {fillD && <path d={fillD} fill={frame.color} />}
           <image
             href={product.image_front} x="0" y="0" width="400" height="400"
             preserveAspectRatio="xMidYMid slice" clipPath={`url(#${clipId})`}
@@ -475,7 +570,9 @@ function ShopCard({ product, index, lang, isKa, copy }: {
               style={{ filter: "saturate(0.95) sepia(0.02)", opacity: hover ? 1 : 0, transition: "opacity 0.5s ease" }}
             />
           )}
-          <path d={clipD} fill="none" stroke={frame.color} strokeWidth="8" strokeLinejoin="round" />
+          {strokeD && (
+            <path d={strokeD} fill="none" stroke={frame.color} strokeWidth="8" strokeLinejoin="round" />
+          )}
         </svg>
       </Link>
 
@@ -490,7 +587,7 @@ function ShopCard({ product, index, lang, isKa, copy }: {
           borderBottom: `1.5px solid ${C.champagne}`,
           borderLeft: `1.5px solid ${C.champagne}`,
           boxShadow: `0 5px 0 ${C.champagne}`,
-          transform: `rotate(${tilt * -0.6}deg)`,
+          transform: `rotate(${tilt * -0.5}deg)`,
         }}
       >
         <Link
