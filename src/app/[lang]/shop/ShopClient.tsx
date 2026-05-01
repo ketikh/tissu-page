@@ -49,7 +49,8 @@ function seedNoise(i: number, seed: number): number {
 
 /* Each petal is a genuine circle arc — creates round puffy clover/cloud shapes
    where the product photo remains clearly visible.
-   d = distance from center to petal-circle center, r = petal circle radius */
+   d = distance from center to petal-circle center, r = petal circle radius
+   large-arc=0 (minor arc, outward) + sweep=1 (clockwise) = correct outward petal */
 function flowerArc(petals: number, d: number, r: number, cx = 200, cy = 200): string {
   const step = (Math.PI * 2) / petals;
   const halfStep = step / 2;
@@ -62,7 +63,7 @@ function flowerArc(petals: number, d: number, r: number, cx = 200, cy = 200): st
   });
   let p = `M ${waist[petals - 1][0].toFixed(1)} ${waist[petals - 1][1].toFixed(1)} `;
   for (let i = 0; i < petals; i++) {
-    p += `A ${r} ${r} 0 1 1 ${waist[i][0].toFixed(1)} ${waist[i][1].toFixed(1)} `;
+    p += `A ${r} ${r} 0 0 1 ${waist[i][0].toFixed(1)} ${waist[i][1].toFixed(1)} `;
   }
   return p + "Z";
 }
@@ -112,11 +113,11 @@ function stadiumBottom(cx: number, cy: number, hw: number, ht: number, cr: numbe
 type Frame = { path: () => string; color: string };
 
 const FRAMES: Frame[] = [
-  { path: () => flowerArc(4, 88, 108),                     color: C.rose },    // 4-petal clover (reference)
+  { path: () => flowerArc(4, 65, 95),                      color: C.rose },    // 4-petal clover
   { path: () => roundedRect(340, 340, 200, 200, 70),       color: C.green },
   { path: () => stadiumBottom(200, 185, 152, 210, 24),     color: C.mustard },
   { path: () => blob(10, 160, 158, 0.12, 200, 200, 22),    color: C.blue },
-  { path: () => flowerArc(4, 84, 112),                     color: C.mustard },  // 4-petal clover variant
+  { path: () => flowerArc(4, 68, 98),                      color: C.mustard },  // 4-petal clover variant
   { path: () => blob(10, 170, 150, 0.10, 200, 200, 15),    color: C.green },
   { path: () => stadiumBottom(200, 190, 148, 205, 26),     color: C.rose },
   { path: () => roundedRect(360, 320, 200, 200, 65),       color: C.blue },
@@ -185,6 +186,47 @@ function TulipStem({ color, size, style }: { color: string; size: number; style:
         <path d="M22 18 Q10 10 16 0 Q26 8 22 18Z" fill={color} opacity="0.88" />
         <path d="M38 18 Q50 10 44 0 Q34 8 38 18Z" fill={color} opacity="0.88" />
         <path d="M30 10 Q28 -4 30 -8 Q32 -4 30 10Z" fill={color} opacity="0.88" />
+      </svg>
+    </div>
+  );
+}
+
+function SmallLeaf({ color, size, style }: { color: string; size: number; style: CSSProperties }) {
+  return (
+    <div className="pointer-events-none" style={{ position: "absolute", width: size, height: Math.round(size * 1.5), ...style }}>
+      <svg viewBox="0 0 40 60" style={{ width: "100%", height: "100%" }}>
+        <path d="M20 58 C20 58 5 44 5 28 Q5 4 20 2 Q35 4 35 28 C35 44 20 58 20 58Z" fill={color} opacity="0.75" />
+        <path d="M20 58 L20 2" stroke="white" strokeWidth="1.2" strokeOpacity="0.35" />
+        <path d="M20 28 Q10 22 8 14" stroke="white" strokeWidth="0.9" strokeOpacity="0.28" fill="none" />
+        <path d="M20 38 Q30 32 32 24" stroke="white" strokeWidth="0.9" strokeOpacity="0.28" fill="none" />
+      </svg>
+    </div>
+  );
+}
+
+function Sparkle({ color, size, style }: { color: string; size: number; style: CSSProperties }) {
+  return (
+    <div className="pointer-events-none" style={{ position: "absolute", width: size, height: size, ...style }}>
+      <svg viewBox="0 0 40 40" style={{ width: "100%", height: "100%" }}>
+        <path d="M20 1 L22 17 L38 20 L22 23 L20 39 L18 23 L2 20 L18 17 Z" fill={color} opacity="0.78" />
+      </svg>
+    </div>
+  );
+}
+
+function SmallBerries({ color, size, style }: { color: string; size: number; style: CSSProperties }) {
+  return (
+    <div className="pointer-events-none" style={{ position: "absolute", width: size, height: Math.round(size * 1.4), ...style }}>
+      <svg viewBox="0 0 50 70" style={{ width: "100%", height: "100%" }}>
+        <path d="M25 65 C22 55 28 45 25 35" stroke={color} strokeWidth="2" fill="none" strokeOpacity="0.6" strokeLinecap="round" />
+        <path d="M25 50 Q15 42 10 35" stroke={color} strokeWidth="1.5" fill="none" strokeOpacity="0.5" strokeLinecap="round" />
+        <path d="M25 45 Q35 37 40 30" stroke={color} strokeWidth="1.5" fill="none" strokeOpacity="0.5" strokeLinecap="round" />
+        <circle cx="25" cy="32" r="5" fill={color} opacity="0.80" />
+        <circle cx="9"  cy="32" r="4" fill={color} opacity="0.70" />
+        <circle cx="41" cy="27" r="4" fill={color} opacity="0.70" />
+        <circle cx="16" cy="20" r="3.5" fill={color} opacity="0.65" />
+        <circle cx="34" cy="16" r="3.5" fill={color} opacity="0.65" />
+        <circle cx="25" cy="10" r="4" fill={color} opacity="0.75" />
       </svg>
     </div>
   );
@@ -426,13 +468,34 @@ export default function ShopClient({ lang, dictionary, products }: ShopClientPro
             </div>
           ) : (
             <div className="relative">
-              {/* Botanical decorations in center gutter — desktop only */}
+              {/* Botanical decorations scattered across grid — desktop only */}
               <div className="hidden md:block" aria-hidden="true">
-                <Daisy     color={C.rose}      size={50} style={{ left: "calc(50% - 25px)", top: "5%",  transform: "rotate(18deg)",  opacity: 0.72 }} />
-                <TulipStem color={C.sage}      size={34} style={{ left: "calc(50% - 17px)", top: "23%", transform: "rotate(-22deg)", opacity: 0.62 }} />
-                <Daisy     color={C.mustard}   size={42} style={{ left: "calc(50% - 21px)", top: "44%", transform: "rotate(-10deg)", opacity: 0.65 }} />
-                <TulipStem color={C.lavender}  size={30} style={{ left: "calc(50% - 15px)", top: "63%", transform: "rotate(25deg)",  opacity: 0.58 }} />
-                <Daisy     color={C.blue}      size={38} style={{ left: "calc(50% - 19px)", top: "83%", transform: "rotate(6deg)",   opacity: 0.55 }} />
+                {/* Center gutter */}
+                <Daisy       color={C.rose}      size={50} style={{ left: "calc(50% - 25px)", top: "3%",  transform: "rotate(18deg)",  opacity: 0.70 }} />
+                <SmallLeaf   color={C.sage}      size={22} style={{ left: "calc(50% - 11px)", top: "10%", transform: "rotate(-35deg)", opacity: 0.60 }} />
+                <TulipStem   color={C.lavender}  size={34} style={{ left: "calc(50% - 17px)", top: "16%", transform: "rotate(-18deg)", opacity: 0.58 }} />
+                <Sparkle     color={C.mustard}   size={20} style={{ left: "calc(50% - 10px)", top: "25%", transform: "rotate(12deg)",  opacity: 0.60 }} />
+                <SmallBerries color={C.rose}     size={32} style={{ left: "calc(50% - 16px)", top: "30%", transform: "rotate(8deg)",   opacity: 0.55 }} />
+                <Daisy       color={C.mustard}   size={44} style={{ left: "calc(50% - 22px)", top: "38%", transform: "rotate(-10deg)", opacity: 0.65 }} />
+                <SmallLeaf   color={C.green}     size={20} style={{ left: "calc(50% - 10px)", top: "47%", transform: "rotate(22deg)",  opacity: 0.55 }} />
+                <Sparkle     color={C.blue}      size={18} style={{ left: "calc(50% - 9px)",  top: "52%", transform: "rotate(-15deg)", opacity: 0.52 }} />
+                <TulipStem   color={C.sage}      size={30} style={{ left: "calc(50% - 15px)", top: "57%", transform: "rotate(28deg)",  opacity: 0.56 }} />
+                <SmallBerries color={C.lavender} size={28} style={{ left: "calc(50% - 14px)", top: "65%", transform: "rotate(-6deg)",  opacity: 0.50 }} />
+                <Daisy       color={C.blue}      size={38} style={{ left: "calc(50% - 19px)", top: "73%", transform: "rotate(6deg)",   opacity: 0.55 }} />
+                <SmallLeaf   color={C.champagne} size={24} style={{ left: "calc(50% - 12px)", top: "82%", transform: "rotate(-28deg)", opacity: 0.48 }} />
+                <Sparkle     color={C.rose}      size={22} style={{ left: "calc(50% - 11px)", top: "88%", transform: "rotate(20deg)",  opacity: 0.52 }} />
+                <TulipStem   color={C.champagne} size={28} style={{ left: "calc(50% - 14px)", top: "94%", transform: "rotate(-12deg)", opacity: 0.45 }} />
+                {/* Left margin */}
+                <Daisy       color={C.champagne} size={30} style={{ left: "2%",  top: "8%",  transform: "rotate(-12deg)", opacity: 0.40 }} />
+                <SmallLeaf   color={C.sage}      size={18} style={{ left: "4%",  top: "28%", transform: "rotate(18deg)",  opacity: 0.38 }} />
+                <Sparkle     color={C.lavender}  size={16} style={{ left: "1%",  top: "50%", transform: "rotate(-5deg)",  opacity: 0.40 }} />
+                <SmallBerries color={C.rose}     size={26} style={{ left: "3%",  top: "70%", transform: "rotate(30deg)",  opacity: 0.36 }} />
+                <Daisy       color={C.blue}      size={28} style={{ left: "5%",  top: "90%", transform: "rotate(8deg)",   opacity: 0.38 }} />
+                {/* Right margin */}
+                <SmallLeaf   color={C.rose}      size={20} style={{ right: "2%", top: "14%", transform: "rotate(-18deg)", opacity: 0.38 }} />
+                <Sparkle     color={C.mustard}   size={18} style={{ right: "3%", top: "35%", transform: "rotate(10deg)",  opacity: 0.42 }} />
+                <Daisy       color={C.sage}      size={32} style={{ right: "4%", top: "58%", transform: "rotate(-8deg)",  opacity: 0.40 }} />
+                <SmallLeaf   color={C.lavender}  size={22} style={{ right: "2%", top: "80%", transform: "rotate(25deg)",  opacity: 0.36 }} />
               </div>
 
               {/* Editorial 2-column scatter */}
