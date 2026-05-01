@@ -140,6 +140,18 @@ const CAT_BOTANICAL: Record<string, string> = {
   kidsbackpack: "✤", apron: "❦", necklace: "✾",
 };
 
+/* ── Botanical float animation — deterministic from color+size ───── */
+function botanicalAnim(color: string, size: number) {
+  const h = (color.charCodeAt(1) + color.charCodeAt(2) + size) % 21;
+  const dur = 2.8 + (h % 6) * 0.45;
+  const delay = (h % 8) * 0.3;
+  const amp = h % 2 === 0 ? -(4 + (h % 5)) : (3 + (h % 4));
+  return {
+    animate: { y: [0, amp, 0] as number[] },
+    transition: { duration: dur, repeat: Infinity, ease: "easeInOut" as const, delay },
+  };
+}
+
 /* ── Hero flowers ────────────────────────────────────────────────── */
 function FloatFlower({ color, size, petals = 5, style }: {
   color: string; size: number; petals?: number; style: CSSProperties;
@@ -161,8 +173,9 @@ function FloatFlower({ color, size, petals = 5, style }: {
 
 /* ── Botanical decorations (hand-drawn style) ────────────────────── */
 function Daisy({ color, size, style }: { color: string; size: number; style: CSSProperties }) {
+  const { animate, transition } = botanicalAnim(color, size);
   return (
-    <div className="pointer-events-none" style={{ position: "absolute", width: size, height: size, ...style }}>
+    <motion.div className="pointer-events-none" style={{ position: "absolute", width: size, height: size, ...style }} animate={animate} transition={transition}>
       <svg viewBox="0 0 80 80" style={{ width: "100%", height: "100%" }}>
         <g transform="translate(40,40)">
           {Array.from({ length: 8 }, (_, i) => (
@@ -172,14 +185,15 @@ function Daisy({ color, size, style }: { color: string; size: number; style: CSS
           <circle r="9" fill={C.mustard} />
         </g>
       </svg>
-    </div>
+    </motion.div>
   );
 }
 
 function TulipStem({ color, size, style }: { color: string; size: number; style: CSSProperties }) {
   const h = Math.round(size * 2.4);
+  const { animate, transition } = botanicalAnim(color, size + 1);
   return (
-    <div className="pointer-events-none" style={{ position: "absolute", width: size, height: h, ...style }}>
+    <motion.div className="pointer-events-none" style={{ position: "absolute", width: size, height: h, ...style }} animate={animate} transition={transition}>
       <svg viewBox="0 0 60 140" style={{ width: "100%", height: "100%" }}>
         <path d="M30 130 C27 100 33 75 28 50 C23 28 30 10 30 10"
           fill="none" stroke={color} strokeWidth="2.5" strokeLinecap="round" />
@@ -189,36 +203,39 @@ function TulipStem({ color, size, style }: { color: string; size: number; style:
         <path d="M38 18 Q50 10 44 0 Q34 8 38 18Z" fill={color} opacity="0.88" />
         <path d="M30 10 Q28 -4 30 -8 Q32 -4 30 10Z" fill={color} opacity="0.88" />
       </svg>
-    </div>
+    </motion.div>
   );
 }
 
 function SmallLeaf({ color, size, style }: { color: string; size: number; style: CSSProperties }) {
+  const { animate, transition } = botanicalAnim(color, size + 2);
   return (
-    <div className="pointer-events-none" style={{ position: "absolute", width: size, height: Math.round(size * 1.5), ...style }}>
+    <motion.div className="pointer-events-none" style={{ position: "absolute", width: size, height: Math.round(size * 1.5), ...style }} animate={animate} transition={transition}>
       <svg viewBox="0 0 40 60" style={{ width: "100%", height: "100%" }}>
         <path d="M20 58 C20 58 5 44 5 28 Q5 4 20 2 Q35 4 35 28 C35 44 20 58 20 58Z" fill={color} opacity="0.75" />
         <path d="M20 58 L20 2" stroke="white" strokeWidth="1.2" strokeOpacity="0.35" />
         <path d="M20 28 Q10 22 8 14" stroke="white" strokeWidth="0.9" strokeOpacity="0.28" fill="none" />
         <path d="M20 38 Q30 32 32 24" stroke="white" strokeWidth="0.9" strokeOpacity="0.28" fill="none" />
       </svg>
-    </div>
+    </motion.div>
   );
 }
 
 function Sparkle({ color, size, style }: { color: string; size: number; style: CSSProperties }) {
+  const { animate, transition } = botanicalAnim(color, size + 3);
   return (
-    <div className="pointer-events-none" style={{ position: "absolute", width: size, height: size, ...style }}>
+    <motion.div className="pointer-events-none" style={{ position: "absolute", width: size, height: size, ...style }} animate={animate} transition={transition}>
       <svg viewBox="0 0 40 40" style={{ width: "100%", height: "100%" }}>
         <path d="M20 1 L22 17 L38 20 L22 23 L20 39 L18 23 L2 20 L18 17 Z" fill={color} opacity="0.78" />
       </svg>
-    </div>
+    </motion.div>
   );
 }
 
 function SmallBerries({ color, size, style }: { color: string; size: number; style: CSSProperties }) {
+  const { animate, transition } = botanicalAnim(color, size + 4);
   return (
-    <div className="pointer-events-none" style={{ position: "absolute", width: size, height: Math.round(size * 1.4), ...style }}>
+    <motion.div className="pointer-events-none" style={{ position: "absolute", width: size, height: Math.round(size * 1.4), ...style }} animate={animate} transition={transition}>
       <svg viewBox="0 0 50 70" style={{ width: "100%", height: "100%" }}>
         <path d="M25 65 C22 55 28 45 25 35" stroke={color} strokeWidth="2" fill="none" strokeOpacity="0.6" strokeLinecap="round" />
         <path d="M25 50 Q15 42 10 35" stroke={color} strokeWidth="1.5" fill="none" strokeOpacity="0.5" strokeLinecap="round" />
@@ -230,19 +247,20 @@ function SmallBerries({ color, size, style }: { color: string; size: number; sty
         <circle cx="34" cy="16" r="3.5" fill={color} opacity="0.65" />
         <circle cx="25" cy="10" r="4" fill={color} opacity="0.75" />
       </svg>
-    </div>
+    </motion.div>
   );
 }
 
 /* Mini 4-petal clover — matches product frame shape, 12-24px scatter size */
 function MiniClover({ color, size, style }: { color: string; size: number; style: CSSProperties }) {
+  const { animate, transition } = botanicalAnim(color, size + 5);
   return (
-    <div className="pointer-events-none" style={{ position: "absolute", width: size, height: size, ...style }}>
+    <motion.div className="pointer-events-none" style={{ position: "absolute", width: size, height: size, ...style }} animate={animate} transition={transition}>
       <svg viewBox="0 0 40 40" style={{ width: "100%", height: "100%" }} overflow="visible">
         <path d="M31.5 8.5 A12 12 0 0 1 31.5 31.5 A12 12 0 0 1 8.5 31.5 A12 12 0 0 1 8.5 8.5 A12 12 0 0 1 31.5 8.5 Z"
           fill={color} opacity="0.88" />
       </svg>
-    </div>
+    </motion.div>
   );
 }
 
@@ -382,7 +400,7 @@ export default function ShopClient({ lang, dictionary, products }: ShopClientPro
         <div
           aria-hidden="true"
           className="absolute hidden md:block pointer-events-none overflow-hidden"
-          style={{ top: 0, bottom: 0, left: 210, right: 0, zIndex: 0 }}
+          style={{ top: 0, bottom: 0, left: 250, right: 0, zIndex: 0 }}
         >
           {/* ── Left column — big anchors ── */}
           <Daisy        color={C.rose}      size={68} style={{ left: "3%",  top: "4%",  transform: "rotate(-12deg)", opacity: 0.70 }} />
@@ -437,7 +455,7 @@ export default function ShopClient({ lang, dictionary, products }: ShopClientPro
         <aside
           className="hidden md:flex flex-col shrink-0 pt-10 pb-24 px-7"
           style={{
-            width: 210,
+            width: 250,
             borderRight: `1.5px solid rgba(201,168,108,0.28)`,
             position: "sticky",
             top: 64,
@@ -585,7 +603,7 @@ export default function ShopClient({ lang, dictionary, products }: ShopClientPro
               {visible.length > pageSize && (
                 <div className="flex justify-center mt-16 mb-4">
                   <motion.button
-                    onClick={() => setPageSize(n => n + 8)}
+                    onClick={() => setPageSize(visible.length)}
                     whileTap={{ scale: 0.97 }}
                     className="flex items-center gap-3 px-10 py-4 font-extrabold text-[11px] uppercase tracking-[0.22em] rounded-full"
                     style={{
