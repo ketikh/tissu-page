@@ -289,8 +289,24 @@ export default function ShopClient({ lang, dictionary, products }: ShopClientPro
     { label: copy.shop.filters.necklace,     val: "necklace" },
   ];
 
+  /* botanical tile: 4-petal clover (correct minor-arc math) + sparkles + leaf + berries */
+  const BG = `url("data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' width='140' height='140' viewBox='0 0 140 140'>` +
+    `<path d='M49.8 20.2 A15 15 0 0 1 49.8 49.8 A15 15 0 0 1 20.2 49.8 A15 15 0 0 1 20.2 20.2 A15 15 0 0 1 49.8 20.2 Z' fill='%23c4849a' opacity='0.26'/>` +
+    `<path d='M112 14 L113.6 19.4 L119 21 L113.6 22.6 L112 28 L110.4 22.6 L105 21 L110.4 19.4 Z' fill='%23f3b62b' opacity='0.32'/>` +
+    `<ellipse cx='115' cy='95' rx='5' ry='12' fill='%233f6f56' opacity='0.26' transform='rotate(-28 115 95)'/>` +
+    `<circle cx='22' cy='107' r='4' fill='%23c9a86c' opacity='0.30'/>` +
+    `<circle cx='30' cy='116' r='3' fill='%23c9a86c' opacity='0.26'/>` +
+    `<circle cx='14' cy='116' r='3' fill='%23c9a86c' opacity='0.26'/>` +
+    `<circle cx='22' cy='124' r='2.5' fill='%23c9a86c' opacity='0.22'/>` +
+    `<path d='M72 63 L73 66.5 L76.5 67.5 L73 68.5 L72 72 L71 68.5 L67.5 67.5 L71 66.5 Z' fill='%239e8abf' opacity='0.28'/>` +
+    `<path d='M112.8 97.2 A8 8 0 0 1 112.8 112.8 A8 8 0 0 1 97.2 112.8 A8 8 0 0 1 97.2 97.2 A8 8 0 0 1 112.8 97.2 Z' fill='%237aaa8a' opacity='0.24'/>` +
+    `<circle cx='70' cy='22' r='2.5' fill='%235a9fd4' opacity='0.26'/>` +
+    `<circle cx='22' cy='68' r='2' fill='%235a9fd4' opacity='0.22'/>` +
+    `<ellipse cx='88' cy='45' rx='3' ry='7' fill='%23c4849a' opacity='0.20' transform='rotate(40 88 45)'/>` +
+    `</svg>")`;
+
   return (
-    <div style={{ background: C.cream, minHeight: "100vh" }}>
+    <div style={{ background: C.cream, minHeight: "100vh", backgroundImage: BG, backgroundSize: "140px 140px" }}>
 
       {/* ── Hero ── */}
       <section className="relative overflow-hidden" style={{ background: C.rose, paddingBottom: 90 }}>
@@ -381,15 +397,27 @@ export default function ShopClient({ lang, dictionary, products }: ShopClientPro
                   key={cat.val}
                   onClick={() => setParam("category", cat.val)}
                   whileTap={{ scale: 0.97 }}
-                  className="flex items-center gap-2.5 px-3 py-2 text-left text-[12px] font-bold uppercase tracking-[0.12em] rounded-[10px] transition-all"
+                  className="flex items-center gap-2.5 px-3 py-2 text-left rounded-[10px] transition-all w-full"
                   style={{
                     fontFamily: FRAUNCES,
+                    fontStyle: "italic",
+                    fontSize: 13,
+                    fontWeight: active ? 800 : 500,
+                    letterSpacing: "0.04em",
                     background: active ? col.bg : "transparent",
                     color: active ? col.text : C.ink,
                     boxShadow: active ? `0 3px 0 ${col.shadow}` : "none",
+                    opacity: active ? 1 : 0.82,
+                    whiteSpace: "nowrap",
                   }}
                 >
-                  <span style={{ fontSize: 14, lineHeight: 1 }}>{CAT_ICONS[cat.val]}</span>
+                  <span style={{
+                    width: 7, height: 7, borderRadius: "50%",
+                    background: active ? col.text : col.bg,
+                    opacity: active ? 0.75 : 0.55,
+                    flexShrink: 0,
+                    display: "inline-block",
+                  }} />
                   {cat.label}
                 </motion.button>
               );
