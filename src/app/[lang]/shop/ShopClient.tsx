@@ -253,6 +253,14 @@ const SORT_OPTIONS: Array<{ val: SortValue; en: string; ka: string }> = [
   { val: "price-high", en: "Price ↓",   ka: "ფასი ↓" },
 ];
 
+/* convert hex + alpha → rgba for tinted backgrounds */
+function hexFaint(hex: string, a = 0.14): string {
+  const r = parseInt(hex.slice(1, 3), 16);
+  const g = parseInt(hex.slice(3, 5), 16);
+  const b = parseInt(hex.slice(5, 7), 16);
+  return `rgba(${r},${g},${b},${a})`;
+}
+
 /* ════════════════════════ MAIN COMPONENT ══════════════════════════ */
 
 export default function ShopClient({ lang, dictionary, products }: ShopClientProps) {
@@ -289,24 +297,9 @@ export default function ShopClient({ lang, dictionary, products }: ShopClientPro
     { label: copy.shop.filters.necklace,     val: "necklace" },
   ];
 
-  /* botanical tile: 4-petal clover (correct minor-arc math) + sparkles + leaf + berries */
-  const BG = `url("data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' width='140' height='140' viewBox='0 0 140 140'>` +
-    `<path d='M49.8 20.2 A15 15 0 0 1 49.8 49.8 A15 15 0 0 1 20.2 49.8 A15 15 0 0 1 20.2 20.2 A15 15 0 0 1 49.8 20.2 Z' fill='%23c4849a' opacity='0.26'/>` +
-    `<path d='M112 14 L113.6 19.4 L119 21 L113.6 22.6 L112 28 L110.4 22.6 L105 21 L110.4 19.4 Z' fill='%23f3b62b' opacity='0.32'/>` +
-    `<ellipse cx='115' cy='95' rx='5' ry='12' fill='%233f6f56' opacity='0.26' transform='rotate(-28 115 95)'/>` +
-    `<circle cx='22' cy='107' r='4' fill='%23c9a86c' opacity='0.30'/>` +
-    `<circle cx='30' cy='116' r='3' fill='%23c9a86c' opacity='0.26'/>` +
-    `<circle cx='14' cy='116' r='3' fill='%23c9a86c' opacity='0.26'/>` +
-    `<circle cx='22' cy='124' r='2.5' fill='%23c9a86c' opacity='0.22'/>` +
-    `<path d='M72 63 L73 66.5 L76.5 67.5 L73 68.5 L72 72 L71 68.5 L67.5 67.5 L71 66.5 Z' fill='%239e8abf' opacity='0.28'/>` +
-    `<path d='M112.8 97.2 A8 8 0 0 1 112.8 112.8 A8 8 0 0 1 97.2 112.8 A8 8 0 0 1 97.2 97.2 A8 8 0 0 1 112.8 97.2 Z' fill='%237aaa8a' opacity='0.24'/>` +
-    `<circle cx='70' cy='22' r='2.5' fill='%235a9fd4' opacity='0.26'/>` +
-    `<circle cx='22' cy='68' r='2' fill='%235a9fd4' opacity='0.22'/>` +
-    `<ellipse cx='88' cy='45' rx='3' ry='7' fill='%23c4849a' opacity='0.20' transform='rotate(40 88 45)'/>` +
-    `</svg>")`;
 
   return (
-    <div style={{ background: C.cream, minHeight: "100vh", backgroundImage: BG, backgroundSize: "140px 140px" }}>
+    <div style={{ background: C.cream, minHeight: "100vh" }}>
 
       {/* ── Hero ── */}
       <section className="relative overflow-hidden" style={{ background: C.rose, paddingBottom: 90 }}>
@@ -367,7 +360,43 @@ export default function ShopClient({ lang, dictionary, products }: ShopClientPro
       </section>
 
       {/* ── Content: sidebar + grid ── */}
-      <div className="flex" style={{ background: C.cream }}>
+      <div className="flex" style={{ background: C.cream, position: "relative" }}>
+
+        {/* Botanical decorations — full-width layer over the content area, behind sidebar */}
+        <div
+          aria-hidden="true"
+          className="absolute hidden md:block pointer-events-none overflow-hidden"
+          style={{ top: 0, bottom: 0, left: 210, right: 0, zIndex: 0 }}
+        >
+          {/* Left product column */}
+          <Daisy        color={C.rose}      size={64} style={{ left: "3%",  top: "5%",  transform: "rotate(-12deg)", opacity: 0.68 }} />
+          <SmallLeaf    color={C.sage}      size={32} style={{ left: "8%",  top: "17%", transform: "rotate(25deg)",  opacity: 0.62 }} />
+          <TulipStem    color={C.lavender}  size={48} style={{ left: "28%", top: "11%", transform: "rotate(-8deg)",  opacity: 0.60 }} />
+          <Sparkle      color={C.mustard}   size={32} style={{ left: "20%", top: "31%", transform: "rotate(10deg)",  opacity: 0.65 }} />
+          <SmallBerries color={C.rose}      size={44} style={{ left: "38%", top: "26%", transform: "rotate(-18deg)", opacity: 0.62 }} />
+          <Daisy        color={C.champagne} size={52} style={{ left: "7%",  top: "53%", transform: "rotate(7deg)",   opacity: 0.65 }} />
+          <SmallLeaf    color={C.green}     size={30} style={{ left: "32%", top: "49%", transform: "rotate(-30deg)", opacity: 0.58 }} />
+          <TulipStem    color={C.sage}      size={42} style={{ left: "5%",  top: "72%", transform: "rotate(20deg)",  opacity: 0.62 }} />
+          <Sparkle      color={C.blue}      size={26} style={{ left: "24%", top: "68%", transform: "rotate(-14deg)", opacity: 0.62 }} />
+          <SmallBerries color={C.lavender}  size={38} style={{ left: "13%", top: "88%", transform: "rotate(10deg)",  opacity: 0.58 }} />
+          {/* Center gutter */}
+          <Sparkle      color={C.mustard}   size={28} style={{ left: "calc(50% - 14px)", top: "7%",  transform: "rotate(15deg)",  opacity: 0.72 }} />
+          <Daisy        color={C.blue}      size={54} style={{ left: "calc(50% - 27px)", top: "23%", transform: "rotate(-8deg)",  opacity: 0.68 }} />
+          <SmallLeaf    color={C.lavender}  size={28} style={{ left: "calc(50% - 14px)", top: "41%", transform: "rotate(20deg)",  opacity: 0.65 }} />
+          <SmallBerries color={C.sage}      size={40} style={{ left: "calc(50% - 20px)", top: "59%", transform: "rotate(-6deg)",  opacity: 0.65 }} />
+          <Daisy        color={C.rose}      size={56} style={{ left: "calc(50% - 28px)", top: "77%", transform: "rotate(14deg)",  opacity: 0.68 }} />
+          {/* Right product column */}
+          <Sparkle      color={C.champagne} size={22} style={{ right: "38%", top: "18%", transform: "rotate(8deg)",   opacity: 0.62 }} />
+          <TulipStem    color={C.sage}      size={46} style={{ right: "28%", top: "7%",  transform: "rotate(14deg)",  opacity: 0.62 }} />
+          <SmallLeaf    color={C.rose}      size={32} style={{ right: "5%",  top: "17%", transform: "rotate(-22deg)", opacity: 0.62 }} />
+          <Sparkle      color={C.lavender}  size={28} style={{ right: "22%", top: "35%", transform: "rotate(-12deg)", opacity: 0.65 }} />
+          <Daisy        color={C.mustard}   size={60} style={{ right: "4%",  top: "45%", transform: "rotate(9deg)",   opacity: 0.65 }} />
+          <SmallLeaf    color={C.mustard}   size={26} style={{ right: "16%", top: "55%", transform: "rotate(18deg)",  opacity: 0.60 }} />
+          <SmallBerries color={C.champagne} size={42} style={{ right: "32%", top: "64%", transform: "rotate(28deg)",  opacity: 0.62 }} />
+          <SmallLeaf    color={C.blue}      size={28} style={{ right: "8%",  top: "78%", transform: "rotate(-10deg)", opacity: 0.58 }} />
+          <TulipStem    color={C.rose}      size={38} style={{ right: "20%", top: "84%", transform: "rotate(-24deg)", opacity: 0.60 }} />
+          <Daisy        color={C.green}     size={48} style={{ right: "3%",  top: "91%", transform: "rotate(-17deg)", opacity: 0.62 }} />
+        </div>
 
         {/* ── LEFT SIDEBAR ── */}
         <aside
@@ -379,6 +408,8 @@ export default function ShopClient({ lang, dictionary, products }: ShopClientPro
             top: 64,
             height: "calc(100vh - 64px)",
             overflowY: "auto",
+            zIndex: 10,
+            background: C.cream,
           }}
         >
           {/* Category */}
@@ -388,7 +419,7 @@ export default function ShopClient({ lang, dictionary, products }: ShopClientPro
           >
             {isKa ? "კატეგორია" : "Category"}
           </div>
-          <div className="flex flex-col gap-0.5">
+          <div className="flex flex-col gap-1">
             {cats.map((cat) => {
               const active = catParam === cat.val;
               const col = CAT_COLORS[cat.val] ?? CAT_COLORS.all;
@@ -397,27 +428,21 @@ export default function ShopClient({ lang, dictionary, products }: ShopClientPro
                   key={cat.val}
                   onClick={() => setParam("category", cat.val)}
                   whileTap={{ scale: 0.97 }}
-                  className="flex items-center gap-2.5 px-3 py-2 text-left rounded-[10px] transition-all w-full"
+                  className="px-3 py-2 text-left rounded-[10px] transition-all w-full"
                   style={{
                     fontFamily: FRAUNCES,
                     fontStyle: "italic",
-                    fontSize: 13,
-                    fontWeight: active ? 800 : 500,
-                    letterSpacing: "0.04em",
-                    background: active ? col.bg : "transparent",
+                    fontSize: 13.5,
+                    fontWeight: active ? 800 : 600,
+                    letterSpacing: "0.03em",
+                    background: active
+                      ? col.bg
+                      : `linear-gradient(to right, ${col.bg} 4px, ${hexFaint(col.bg, 0.10)} 4px)`,
                     color: active ? col.text : C.ink,
                     boxShadow: active ? `0 3px 0 ${col.shadow}` : "none",
-                    opacity: active ? 1 : 0.82,
                     whiteSpace: "nowrap",
                   }}
                 >
-                  <span style={{
-                    width: 7, height: 7, borderRadius: "50%",
-                    background: active ? col.text : col.bg,
-                    opacity: active ? 0.75 : 0.55,
-                    flexShrink: 0,
-                    display: "inline-block",
-                  }} />
                   {cat.label}
                 </motion.button>
               );
@@ -496,36 +521,6 @@ export default function ShopClient({ lang, dictionary, products }: ShopClientPro
             </div>
           ) : (
             <div className="relative">
-              {/* Botanical decorations scattered across grid — desktop only */}
-              <div className="hidden md:block" aria-hidden="true">
-                {/* Center gutter */}
-                <Daisy       color={C.rose}      size={50} style={{ left: "calc(50% - 25px)", top: "3%",  transform: "rotate(18deg)",  opacity: 0.70 }} />
-                <SmallLeaf   color={C.sage}      size={22} style={{ left: "calc(50% - 11px)", top: "10%", transform: "rotate(-35deg)", opacity: 0.60 }} />
-                <TulipStem   color={C.lavender}  size={34} style={{ left: "calc(50% - 17px)", top: "16%", transform: "rotate(-18deg)", opacity: 0.58 }} />
-                <Sparkle     color={C.mustard}   size={20} style={{ left: "calc(50% - 10px)", top: "25%", transform: "rotate(12deg)",  opacity: 0.60 }} />
-                <SmallBerries color={C.rose}     size={32} style={{ left: "calc(50% - 16px)", top: "30%", transform: "rotate(8deg)",   opacity: 0.55 }} />
-                <Daisy       color={C.mustard}   size={44} style={{ left: "calc(50% - 22px)", top: "38%", transform: "rotate(-10deg)", opacity: 0.65 }} />
-                <SmallLeaf   color={C.green}     size={20} style={{ left: "calc(50% - 10px)", top: "47%", transform: "rotate(22deg)",  opacity: 0.55 }} />
-                <Sparkle     color={C.blue}      size={18} style={{ left: "calc(50% - 9px)",  top: "52%", transform: "rotate(-15deg)", opacity: 0.52 }} />
-                <TulipStem   color={C.sage}      size={30} style={{ left: "calc(50% - 15px)", top: "57%", transform: "rotate(28deg)",  opacity: 0.56 }} />
-                <SmallBerries color={C.lavender} size={28} style={{ left: "calc(50% - 14px)", top: "65%", transform: "rotate(-6deg)",  opacity: 0.50 }} />
-                <Daisy       color={C.blue}      size={38} style={{ left: "calc(50% - 19px)", top: "73%", transform: "rotate(6deg)",   opacity: 0.55 }} />
-                <SmallLeaf   color={C.champagne} size={24} style={{ left: "calc(50% - 12px)", top: "82%", transform: "rotate(-28deg)", opacity: 0.48 }} />
-                <Sparkle     color={C.rose}      size={22} style={{ left: "calc(50% - 11px)", top: "88%", transform: "rotate(20deg)",  opacity: 0.52 }} />
-                <TulipStem   color={C.champagne} size={28} style={{ left: "calc(50% - 14px)", top: "94%", transform: "rotate(-12deg)", opacity: 0.45 }} />
-                {/* Left margin */}
-                <Daisy       color={C.champagne} size={30} style={{ left: "2%",  top: "8%",  transform: "rotate(-12deg)", opacity: 0.40 }} />
-                <SmallLeaf   color={C.sage}      size={18} style={{ left: "4%",  top: "28%", transform: "rotate(18deg)",  opacity: 0.38 }} />
-                <Sparkle     color={C.lavender}  size={16} style={{ left: "1%",  top: "50%", transform: "rotate(-5deg)",  opacity: 0.40 }} />
-                <SmallBerries color={C.rose}     size={26} style={{ left: "3%",  top: "70%", transform: "rotate(30deg)",  opacity: 0.36 }} />
-                <Daisy       color={C.blue}      size={28} style={{ left: "5%",  top: "90%", transform: "rotate(8deg)",   opacity: 0.38 }} />
-                {/* Right margin */}
-                <SmallLeaf   color={C.rose}      size={20} style={{ right: "2%", top: "14%", transform: "rotate(-18deg)", opacity: 0.38 }} />
-                <Sparkle     color={C.mustard}   size={18} style={{ right: "3%", top: "35%", transform: "rotate(10deg)",  opacity: 0.42 }} />
-                <Daisy       color={C.sage}      size={32} style={{ right: "4%", top: "58%", transform: "rotate(-8deg)",  opacity: 0.40 }} />
-                <SmallLeaf   color={C.lavender}  size={22} style={{ right: "2%", top: "80%", transform: "rotate(25deg)",  opacity: 0.36 }} />
-              </div>
-
               {/* Editorial 2-column scatter */}
               <div className="flex flex-col md:flex-row md:gap-10 lg:gap-14 gap-16">
                 {/* Left column */}
