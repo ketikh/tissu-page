@@ -1,0 +1,179 @@
+- generic [active] [ref=e1]:
+  - generic [ref=e6] [cursor=pointer]:
+    - button "Open Next.js Dev Tools" [ref=e7]:
+      - img [ref=e8]
+    - generic [ref=e11]:
+      - button "Open issues overlay" [ref=e12]:
+        - generic [ref=e13]:
+          - generic [ref=e14]: "0"
+          - generic [ref=e15]: "1"
+        - generic [ref=e16]: Issue
+      - button "Collapse issues badge" [ref=e17]:
+        - img [ref=e18]
+  - banner [ref=e20]:
+    - generic [ref=e21]:
+      - generic [ref=e22]:
+        - button "მაღაზია" [ref=e24]:
+          - text: მაღაზია
+          - img [ref=e26]
+        - link "ჩვენი ამბავი" [ref=e28] [cursor=pointer]:
+          - /url: /ka/about
+      - link "Tissu" [ref=e30] [cursor=pointer]:
+        - /url: /ka
+        - img "Tissu" [ref=e31]
+      - generic [ref=e32]:
+        - generic "Select language" [ref=e33]:
+          - generic [ref=e34]:
+            - link "ka" [ref=e35] [cursor=pointer]:
+              - /url: /ka/product/31
+              - text: ka
+            - link "en" [ref=e37] [cursor=pointer]:
+              - /url: /en/product/31
+        - link "ანგარიში" [ref=e38] [cursor=pointer]:
+          - /url: /ka/account
+          - img [ref=e39]
+        - button "კალათა" [ref=e42]:
+          - img [ref=e43]
+  - main [ref=e46]:
+    - generic [ref=e47]:
+      - generic [ref=e48]:
+        - navigation [ref=e49]:
+          - link "მთავარი" [ref=e50] [cursor=pointer]:
+            - /url: /ka
+          - generic [ref=e51]: /
+          - link "მაღაზია" [ref=e52] [cursor=pointer]:
+            - /url: /ka/shop
+          - generic [ref=e53]: /
+          - generic [ref=e54]: "Tissu Large #1"
+        - generic [ref=e55]:
+          - generic [ref=e56]:
+            - generic: ✦
+            - generic: ✦
+            - generic: ✶
+            - generic: ✦
+            - generic: ✦
+            - generic [ref=e57]: ✦ ორიგინალი
+            - 'img "Tissu Large #1" [ref=e59]'
+            - generic [ref=e67]:
+              - img [ref=e69]:
+                - generic [ref=e71]: ✦ ხელნაკეთი · თბილისი ·
+              - generic:
+                - generic: tissu
+                - generic: "2019"
+            - generic [ref=e72]:
+              - generic [ref=e73]:
+                - button "გარე" [ref=e74] [cursor=pointer]
+                - button "შიდა" [ref=e75] [cursor=pointer]
+              - generic [ref=e77]:
+                - generic [ref=e78]: გარე
+                - generic [ref=e79]: შიდა
+          - generic [ref=e80]:
+            - generic [ref=e81]: ✦ ✦ ✦
+            - generic [ref=e82]:
+              - generic [ref=e83]: ქისები
+              - generic [ref=e84]: · 2 მარაგშია
+            - 'heading "Tissu Large #1" [level=1] [ref=e85]'
+            - paragraph [ref=e86]: დიდი (37x27) · ყაყაჩო
+            - generic [ref=e89]: 74₾
+            - generic [ref=e90]:
+              - generic [ref=e91]: ✶ ხელნაკეთი
+              - generic [ref=e92]: 💧 წყალგაუმტარი
+              - generic [ref=e93]: ↺ ორმხრივი
+            - generic [ref=e94]:
+              - generic [ref=e95]: რაოდენობა
+              - generic [ref=e96]:
+                - button "Decrease quantity" [ref=e97]:
+                  - img [ref=e98]
+                - generic [ref=e99]: "1"
+                - button "Increase quantity" [ref=e100]:
+                  - img [ref=e101]
+            - generic [ref=e102]:
+              - button "კალათაში" [ref=e103] [cursor=pointer]:
+                - text: კალათაში
+                - generic [ref=e104]: →
+              - link "სხვა ჩანთები" [ref=e106] [cursor=pointer]:
+                - /url: /ka/shop
+            - paragraph [ref=e107]: ✦ ხელნაკეთი თბილისში · სწრაფი მიწოდება საქართველოში
+      - generic [ref=e112]:
+        - generic [ref=e113]:
+          - generic [ref=e114]: 🚚
+          - generic [ref=e115]:
+            - generic [ref=e116]: უფასო მიწოდება
+            - generic [ref=e117]: 150₾-დან · 2–4 დღე
+        - generic [ref=e118]:
+          - generic [ref=e119]: ✦
+          - generic [ref=e120]:
+            - generic [ref=e121]: ხელნაკეთი
+            - generic [ref=e122]: თბილისის სტუდიაში
+        - generic [ref=e123]:
+          - generic [ref=e124]: ↺
+          - generic [ref=e125]:
+            - generic [ref=e126]: ორმხრივი
+            - generic [ref=e127]: ორი მხარე, ერთი ჩანთა
+        - generic [ref=e128]:
+          - generic [ref=e129]: 💧
+          - generic [ref=e130]:
+            - generic [ref=e131]: წყალგაუმტარი
+            - generic [ref=e132]: ტილო, სეზონი კარგი
+      - generic [ref=e133]:
+        - heading "შესაძლოა ესეც მოგეწონოს" [level=2] [ref=e136]
+        - generic [ref=e138]:
+          - 'link "რჩეულებში დამატება გადმოაბრუნე Tissu Large #2 Tissu Large #2 დიდი (37x27) · მარწყვი 74₾ კალათაში დამატება" [ref=e139] [cursor=pointer]':
+            - /url: /ka/product/32
+            - generic [ref=e140]:
+              - button "რჩეულებში დამატება" [ref=e141]:
+                - img [ref=e142]
+              - button "გადმოაბრუნე" [ref=e144]:
+                - img [ref=e145]
+              - 'img "Tissu Large #2" [ref=e148]'
+            - generic [ref=e149]:
+              - 'heading "Tissu Large #2" [level=3] [ref=e150]'
+              - generic [ref=e151]: დიდი (37x27) · მარწყვი
+            - generic [ref=e153]: 74₾
+            - button "კალათაში დამატება" [ref=e154]:
+              - img [ref=e155]
+              - text: კალათაში დამატება
+          - 'link "რჩეულებში დამატება გადმოაბრუნე Tissu Large #6 Tissu Large #6 დიდი (37x27) 74₾ კალათაში დამატება" [ref=e158] [cursor=pointer]':
+            - /url: /ka/product/35
+            - generic [ref=e159]:
+              - button "რჩეულებში დამატება" [ref=e160]:
+                - img [ref=e161]
+              - button "გადმოაბრუნე" [ref=e163]:
+                - img [ref=e164]
+              - 'img "Tissu Large #6" [ref=e167]'
+            - generic [ref=e168]:
+              - 'heading "Tissu Large #6" [level=3] [ref=e169]'
+              - generic [ref=e170]: დიდი (37x27)
+            - generic [ref=e172]: 74₾
+            - button "კალათაში დამატება" [ref=e173]:
+              - img [ref=e174]
+              - text: კალათაში დამატება
+          - 'link "რჩეულებში დამატება გადმოაბრუნე Tissu Large #7 Tissu Large #7 დიდი (37x27) 74₾ კალათაში დამატება" [ref=e177] [cursor=pointer]':
+            - /url: /ka/product/36
+            - generic [ref=e178]:
+              - button "რჩეულებში დამატება" [ref=e179]:
+                - img [ref=e180]
+              - button "გადმოაბრუნე" [ref=e182]:
+                - img [ref=e183]
+              - 'img "Tissu Large #7" [ref=e186]'
+            - generic [ref=e187]:
+              - 'heading "Tissu Large #7" [level=3] [ref=e188]'
+              - generic [ref=e189]: დიდი (37x27)
+            - generic [ref=e191]: 74₾
+            - button "კალათაში დამატება" [ref=e192]:
+              - img [ref=e193]
+              - text: კალათაში დამატება
+          - link "რჩეულებში დამატება Tissu with strap Tissu with strap დიდი (37x27) 74₾ კალათაში დამატება" [ref=e196] [cursor=pointer]:
+            - /url: /ka/product/37
+            - generic [ref=e197]:
+              - button "რჩეულებში დამატება" [ref=e198]:
+                - img [ref=e199]
+              - img "Tissu with strap" [ref=e201]
+            - generic [ref=e202]:
+              - heading "Tissu with strap" [level=3] [ref=e203]
+              - generic [ref=e204]: დიდი (37x27)
+            - generic [ref=e206]: 74₾
+            - button "კალათაში დამატება" [ref=e207]:
+              - img [ref=e208]
+              - text: კალათაში დამატება
+  - alert [ref=e211]
