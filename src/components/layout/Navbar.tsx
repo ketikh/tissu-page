@@ -90,8 +90,38 @@ export function Navbar({ lang, dictionary }: NavbarProps) {
   return (
     <header
       className="sticky top-0 z-40"
-      style={{ background: C.cream, borderBottom: `1.5px solid rgba(201,168,108,0.35)`, boxShadow: `0 4px 24px rgba(196,132,154,0.13)` }}
+      style={{
+        background: "linear-gradient(180deg, #f5e3c2 0%, #fef0d6 100%)",
+        boxShadow: `0 4px 24px rgba(196,132,154,0.13)`,
+        position: "relative",
+        paddingBottom: 6,
+      }}
     >
+      {/* ── Top accent stripe ── */}
+      <div
+        style={{
+          height: 3,
+          background: "linear-gradient(to right, #f3b62b, #d56826, #c4849a, #f3b62b)",
+        }}
+      />
+
+      {/* ── Wavy bottom decoration ── */}
+      <svg
+        viewBox="0 0 1440 8"
+        preserveAspectRatio="none"
+        xmlns="http://www.w3.org/2000/svg"
+        style={{ position: "absolute", bottom: 0, left: 0, right: 0, width: "100%", height: 8, display: "block" }}
+        aria-hidden="true"
+      >
+        <path
+          d="M0,4 Q90,0 180,4 Q270,8 360,4 Q450,0 540,4 Q630,8 720,4 Q810,0 900,4 Q990,8 1080,4 Q1170,0 1260,4 Q1350,8 1440,4"
+          fill="none"
+          stroke="#c9a86c"
+          strokeWidth="1.5"
+          opacity="0.5"
+        />
+      </svg>
+
       {/* ── Desktop: 3-column centred-logo layout ── */}
       <div className="hidden md:grid grid-cols-3 items-center px-6 py-3">
 
@@ -141,7 +171,7 @@ export function Navbar({ lang, dictionary }: NavbarProps) {
             <Link
               key={link.href}
               href={link.href}
-              className="px-3 py-2 text-[12px] font-extrabold uppercase tracking-[0.14em] rounded-full transition-colors hover:text-[#d56826]"
+              className="px-3 py-2 text-[12px] font-extrabold uppercase tracking-[0.14em] rounded-full transition-colors hover:text-[#d56826] after:content-[''] after:block after:w-1 after:h-1 after:rounded-full after:bg-[#d56826] after:mx-auto after:mt-0.5 after:opacity-0 hover:after:opacity-100"
               style={{ fontFamily: FRAUNCES, color: pathname === link.href ? C.burnt : C.ink }}
             >
               {link.name}
@@ -151,10 +181,14 @@ export function Navbar({ lang, dictionary }: NavbarProps) {
 
         {/* CENTER — TISSU logo */}
         <div className="flex justify-center">
-          <Link href={`/${lang}`} aria-label="Tissu">
-            {/* eslint-disable-next-line @next/next/no-img-element */}
-            <img src="/static/logo.svg" alt="Tissu" className="h-8 w-auto" />
-          </Link>
+          <div className="flex items-center gap-1.5">
+            <span aria-hidden="true" style={{ color: "#c9a86c", fontSize: 10, opacity: 0.7, lineHeight: 1 }}>✦</span>
+            <Link href={`/${lang}`} aria-label="Tissu">
+              {/* eslint-disable-next-line @next/next/no-img-element */}
+              <img src="/static/logo.svg" alt="Tissu" className="h-8 w-auto" />
+            </Link>
+            <span aria-hidden="true" style={{ color: "#c9a86c", fontSize: 10, opacity: 0.7, lineHeight: 1 }}>✦</span>
+          </div>
         </div>
 
         {/* RIGHT — Language + Account + Cart */}
