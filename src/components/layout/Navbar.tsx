@@ -91,10 +91,10 @@ export function Navbar({ lang, dictionary }: NavbarProps) {
     <header
       className="sticky top-0 z-40"
       style={{
-        background: "linear-gradient(180deg, #f5e3c2 0%, #fef0d6 100%)",
-        boxShadow: `0 4px 24px rgba(196,132,154,0.13)`,
+        background: "white",
+        boxShadow: "0 1px 6px rgba(42,29,20,0.08)",
         position: "relative",
-        paddingBottom: 6,
+        paddingBottom: 0,
       }}
     >
       {/* ── Top accent stripe ── */}
@@ -104,23 +104,6 @@ export function Navbar({ lang, dictionary }: NavbarProps) {
           background: "linear-gradient(to right, #f3b62b, #d56826, #c4849a, #f3b62b)",
         }}
       />
-
-      {/* ── Wavy bottom decoration ── */}
-      <svg
-        viewBox="0 0 1440 8"
-        preserveAspectRatio="none"
-        xmlns="http://www.w3.org/2000/svg"
-        style={{ position: "absolute", bottom: 0, left: 0, right: 0, width: "100%", height: 8, display: "block" }}
-        aria-hidden="true"
-      >
-        <path
-          d="M0,4 Q90,0 180,4 Q270,8 360,4 Q450,0 540,4 Q630,8 720,4 Q810,0 900,4 Q990,8 1080,4 Q1170,0 1260,4 Q1350,8 1440,4"
-          fill="none"
-          stroke="#c9a86c"
-          strokeWidth="1.5"
-          opacity="0.5"
-        />
-      </svg>
 
       {/* ── Desktop: 3-column centred-logo layout ── */}
       <div className="hidden md:grid grid-cols-3 items-center px-6 py-3">
@@ -181,14 +164,10 @@ export function Navbar({ lang, dictionary }: NavbarProps) {
 
         {/* CENTER — TISSU logo */}
         <div className="flex justify-center">
-          <div className="flex items-center gap-1.5">
-            <span aria-hidden="true" style={{ color: "#c9a86c", fontSize: 10, opacity: 0.7, lineHeight: 1 }}>✦</span>
-            <Link href={`/${lang}`} aria-label="Tissu">
-              {/* eslint-disable-next-line @next/next/no-img-element */}
-              <img src="/static/logo.svg" alt="Tissu" className="h-8 w-auto" />
-            </Link>
-            <span aria-hidden="true" style={{ color: "#c9a86c", fontSize: 10, opacity: 0.7, lineHeight: 1 }}>✦</span>
-          </div>
+          <Link href={`/${lang}`} aria-label="Tissu">
+            {/* eslint-disable-next-line @next/next/no-img-element */}
+            <img src="/static/logo.svg" alt="Tissu" className="h-8 w-auto" />
+          </Link>
         </div>
 
         {/* RIGHT — Language + Account + Cart */}
