@@ -247,6 +247,13 @@ export function Navbar({ lang, dictionary }: NavbarProps) {
         </button>
       </div>
 
+      {/* Wavy bottom border */}
+      <div style={{ height: 10, lineHeight: 0, overflow: "hidden" }}>
+        <svg viewBox="0 0 1440 10" preserveAspectRatio="none" style={{ width: "100%", height: "100%", display: "block" }}>
+          <path d="M0,5 Q40,0 80,5 Q120,10 160,5 Q200,0 240,5 Q280,10 320,5 Q360,0 400,5 Q440,10 480,5 Q520,0 560,5 Q600,10 640,5 Q680,0 720,5 Q760,10 800,5 Q840,0 880,5 Q920,10 960,5 Q1000,0 1040,5 Q1080,10 1120,5 Q1160,0 1200,5 Q1240,10 1280,5 Q1320,0 1360,5 Q1400,10 1440,5" fill="none" stroke="#f3b62b" strokeWidth="2.5" strokeLinecap="round" />
+        </svg>
+      </div>
+
       {/* ── Mobile slide panel ── */}
       <AnimatePresence>
         {isMobileOpen && (

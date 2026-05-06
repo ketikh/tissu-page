@@ -13,12 +13,10 @@ import { useUIStore } from "@/store/useUIStore";
 import { useStoreHydration } from "@/store/useHydration";
 import { getLandingCopy } from "@/app/[lang]/landingCopy";
 
-/* ─── Fonts — identical to ShopClient ─── */
 const PACIFICO = "var(--font-pacifico), 'Pacifico', cursive";
 const FRAUNCES = "var(--font-fraunces), 'Fraunces', Georgia, serif";
 const ALK_LIFE = "var(--font-alk-life), serif";
 
-/* ─── Palette — identical to ShopClient ─── */
 const C = {
   cream:       "#fef0d6",
   beige:       "#f5e3c2",
@@ -31,20 +29,114 @@ const C = {
   lavender:    "#9e8abf",
   sage:        "#7aaa8a",
   green:       "#3f6f56",
-  blue:        "#5a9fd4",
+  peach:       "#e9a574",
+  lilac:       "#b89bd9",
 };
 
-/* ─── Scalloped hero bottom — same as ShopClient ─── */
-const SCALLOP_PATH = (() => {
-  const n = 20, w = 1440, sw = w / n, H = 44;
-  let d = `M 0 80 L 0 ${H}`;
+/* Zigzag SVG bottom for hero — very different from scalloped shop hero */
+const ZIGZAG_PATH = (() => {
+  const n = 36, w = 1440, sw = w / n, H = 44;
+  let d = `M 0 ${H}`;
   for (let i = 0; i < n; i++) {
-    d += ` Q ${Math.round(i * sw + sw / 2)} 0 ${Math.round((i + 1) * sw)} ${H}`;
+    d += ` L ${Math.round(i * sw + sw / 2)} 0 L ${Math.round((i + 1) * sw)} ${H}`;
   }
-  return d + ` L ${w} 80 Z`;
+  return d + ` L ${w} 80 L 0 80 Z`;
 })();
 
-/* ─── Botanical float animation — same helper as ShopClient ─── */
+const CAT_COLORS: Record<string, { bg: string; text: string; shadow: string }> = {
+  pouch:        { bg: C.burnt,     text: C.cream, shadow: "#a83c14" },
+  laptop:       { bg: C.lavender,  text: C.cream, shadow: "#7060a0" },
+  tote:         { bg: C.sage,      text: C.cream, shadow: "#568868" },
+  kidsbackpack: { bg: C.mustard,   text: C.ink,   shadow: C.mustardDeep },
+  apron:        { bg: C.green,     text: C.cream, shadow: "#1e3828" },
+  necklace:     { bg: C.champagne, text: C.ink,   shadow: "#9a7840" },
+};
+
+/* ── Drip path helpers (mirrored from RetroProducts) ── */
+function seedNoise(i: number, seed: number): number {
+  const n = Math.sin((i + 1) * 12.9898 + seed * 78.233) * 43758.5453;
+  return n - Math.floor(n);
+}
+
+function roundedRectPath(width: number, height: number, cx = 200, cy = 250, radius = 8): string {
+  const x = cx - width / 2, y = cy - height / 2;
+  return [
+    `M ${x + radius} ${y}`, `h ${width - 2 * radius}`,
+    `a ${radius} ${radius} 0 0 1 ${radius} ${radius}`,
+    `v ${height - 2 * radius}`,
+    `a ${radius} ${radius} 0 0 1 ${-radius} ${radius}`,
+    `h ${-(width - 2 * radius)}`,
+    `a ${radius} ${radius} 0 0 1 ${-radius} ${-radius}`,
+    `v ${-(height - 2 * radius)}`,
+    `a ${radius} ${radius} 0 0 1 ${radius} ${-radius}`, "Z",
+  ].join(" ");
+}
+
+function dripPath(
+  bodyW: number, bodyH: number, drips: number,
+  minDepth: number, maxDepth: number, cornerR: number,
+  side: "top" | "bottom" | "left" | "right",
+  cx = 200, cy = 250, seed = 0
+): string {
+  const halfW = bodyW / 2, halfH = bodyH / 2;
+  const top = cy - halfH, left = cx - halfW, right = cx + halfW, bot = cy + halfH;
+  const isH = side === "top" || side === "bottom";
+  const slot = (isH ? bodyW : bodyH) / drips;
+  const r = Math.min(cornerR, halfW * 0.5, halfH * 0.5);
+  const bulge = slot * 0.32;
+
+  const dc = (eY: number, fX: number, tX: number, mX: number, aY: number, bl: number, hdY: number) => {
+    const s = Math.sign(tX - fX);
+    return (
+      `C ${fX.toFixed(1)} ${hdY.toFixed(1)}, ${(mX - s * bl).toFixed(1)} ${aY.toFixed(1)}, ${mX.toFixed(1)} ${aY.toFixed(1)} ` +
+      `C ${(mX + s * bl).toFixed(1)} ${aY.toFixed(1)}, ${tX.toFixed(1)} ${hdY.toFixed(1)}, ${tX.toFixed(1)} ${eY.toFixed(1)} `
+    );
+  };
+
+  let d = "";
+  if (side === "bottom") {
+    d += `M ${(left+r).toFixed(1)} ${top.toFixed(1)} L ${(right-r).toFixed(1)} ${top.toFixed(1)} A ${r} ${r} 0 0 1 ${right.toFixed(1)} ${(top+r).toFixed(1)} L ${right.toFixed(1)} ${bot.toFixed(1)} `;
+    for (let i = drips - 1; i >= 0; i--) {
+      const dr = left+(i+1)*slot, dl = left+i*slot, dm = (dl+dr)/2, depth = minDepth+seedNoise(i,seed)*(maxDepth-minDepth);
+      d += dc(bot, dr, dl, dm, bot+depth, bulge, bot+depth*0.55);
+    }
+    d += `L ${left.toFixed(1)} ${(top+r).toFixed(1)} A ${r} ${r} 0 0 1 ${(left+r).toFixed(1)} ${top.toFixed(1)} Z`;
+  } else if (side === "top") {
+    d += `M ${left.toFixed(1)} ${top.toFixed(1)} `;
+    for (let i = 0; i < drips; i++) {
+      const dl = left+i*slot, dr = left+(i+1)*slot, dm = (dl+dr)/2, depth = minDepth+seedNoise(i,seed)*(maxDepth-minDepth);
+      d += dc(top, dl, dr, dm, top-depth, bulge, top-depth*0.55);
+    }
+    d += `L ${right.toFixed(1)} ${(bot-r).toFixed(1)} A ${r} ${r} 0 0 1 ${(right-r).toFixed(1)} ${bot.toFixed(1)} L ${(left+r).toFixed(1)} ${bot.toFixed(1)} A ${r} ${r} 0 0 1 ${left.toFixed(1)} ${(bot-r).toFixed(1)} Z`;
+  } else if (side === "left") {
+    d += `M ${left.toFixed(1)} ${top.toFixed(1)} L ${(right-r).toFixed(1)} ${top.toFixed(1)} A ${r} ${r} 0 0 1 ${right.toFixed(1)} ${(top+r).toFixed(1)} L ${right.toFixed(1)} ${(bot-r).toFixed(1)} A ${r} ${r} 0 0 1 ${(right-r).toFixed(1)} ${bot.toFixed(1)} L ${left.toFixed(1)} ${bot.toFixed(1)} `;
+    for (let i = drips - 1; i >= 0; i--) {
+      const dt = top+i*slot, db = top+(i+1)*slot, dm = (dt+db)/2, depth = minDepth+seedNoise(i,seed)*(maxDepth-minDepth);
+      const ax = left-depth, hx = left-depth*0.55;
+      d += `C ${hx.toFixed(1)} ${db.toFixed(1)}, ${ax.toFixed(1)} ${(dm+bulge).toFixed(1)}, ${ax.toFixed(1)} ${dm.toFixed(1)} C ${ax.toFixed(1)} ${(dm-bulge).toFixed(1)}, ${hx.toFixed(1)} ${dt.toFixed(1)}, ${left.toFixed(1)} ${dt.toFixed(1)} `;
+    }
+    d += "Z";
+  } else {
+    d += `M ${(left+r).toFixed(1)} ${top.toFixed(1)} L ${right.toFixed(1)} ${top.toFixed(1)} `;
+    for (let i = 0; i < drips; i++) {
+      const dt = top+i*slot, db = top+(i+1)*slot, dm = (dt+db)/2, depth = minDepth+seedNoise(i,seed)*(maxDepth-minDepth);
+      const ax = right+depth, hx = right+depth*0.55;
+      d += `C ${hx.toFixed(1)} ${dt.toFixed(1)}, ${ax.toFixed(1)} ${(dm-bulge).toFixed(1)}, ${ax.toFixed(1)} ${dm.toFixed(1)} C ${ax.toFixed(1)} ${(dm+bulge).toFixed(1)}, ${hx.toFixed(1)} ${db.toFixed(1)}, ${right.toFixed(1)} ${db.toFixed(1)} `;
+    }
+    d += `L ${(left+r).toFixed(1)} ${bot.toFixed(1)} A ${r} ${r} 0 0 1 ${left.toFixed(1)} ${(bot-r).toFixed(1)} L ${left.toFixed(1)} ${(top+r).toFixed(1)} A ${r} ${r} 0 0 1 ${(left+r).toFixed(1)} ${top.toFixed(1)} Z`;
+  }
+  return d;
+}
+
+/* Related card frames — same 4 drip types as RetroProducts landing */
+const RELATED_FRAMES = [
+  { name: "drip-left",   color: C.green,   rotate: -3, bodyW: 300, bodyH: 340, drips: 5, minD: 16, maxD: 42, corner: 26, side: "left"   as const, seed: 41 },
+  { name: "drip-bottom", color: C.lilac,   rotate:  3, bodyW: 320, bodyH: 320, drips: 7, minD: 16, maxD: 70, corner: 22, side: "bottom" as const, seed: 9  },
+  { name: "drip-top",    color: C.peach,   rotate: -2, bodyW: 320, bodyH: 320, drips: 4, minD: 22, maxD: 60, corner: 22, side: "top"    as const, seed: 23 },
+  { name: "drip-right",  color: C.mustard, rotate:  4, bodyW: 300, bodyH: 340, drips: 6, minD: 12, maxD: 42, corner: 26, side: "right"  as const, seed: 53 },
+];
+
+/* ── Botanical helpers ── */
 function botanicalAnim(color: string, size: number) {
   const h = (color.charCodeAt(1) + color.charCodeAt(2) + size) % 21;
   return {
@@ -53,7 +145,6 @@ function botanicalAnim(color: string, size: number) {
   };
 }
 
-/* ─── Botanical decoration components — copied from ShopClient ─── */
 function Daisy({ color, size, style }: { color: string; size: number; style: CSSProperties }) {
   const { animate, transition } = botanicalAnim(color, size);
   return (
@@ -68,42 +159,24 @@ function Daisy({ color, size, style }: { color: string; size: number; style: CSS
   );
 }
 
-function TulipStem({ color, size, style }: { color: string; size: number; style: CSSProperties }) {
-  const { animate, transition } = botanicalAnim(color, size + 1);
-  return (
-    <motion.div className="pointer-events-none" style={{ position: "absolute", width: size, height: Math.round(size * 2.4), ...style }} animate={animate} transition={transition}>
-      <svg viewBox="0 0 60 140" style={{ width: "100%", height: "100%" }}>
-        <path d="M30 130 C27 100 33 75 28 50 C23 28 30 10 30 10" fill="none" stroke={color} strokeWidth="2.5" strokeLinecap="round" />
-        <path d="M28 80 Q10 65 17 50 Q27 63 28 80Z" fill={color} opacity="0.72" />
-        <path d="M32 95 Q50 80 43 65 Q33 78 32 95Z" fill={color} opacity="0.65" />
-        <path d="M22 18 Q10 10 16 0 Q26 8 22 18Z" fill={color} opacity="0.88" />
-        <path d="M38 18 Q50 10 44 0 Q34 8 38 18Z" fill={color} opacity="0.88" />
-        <path d="M30 10 Q28 -4 30 -8 Q32 -4 30 10Z" fill={color} opacity="0.88" />
-      </svg>
-    </motion.div>
-  );
-}
-
 function SmallLeaf({ color, size, style }: { color: string; size: number; style: CSSProperties }) {
-  const { animate, transition } = botanicalAnim(color, size + 2);
+  const { animate, transition } = botanicalAnim(color, size + 3);
   return (
-    <motion.div className="pointer-events-none" style={{ position: "absolute", width: size, height: Math.round(size * 1.5), ...style }} animate={animate} transition={transition}>
-      <svg viewBox="0 0 40 60" style={{ width: "100%", height: "100%" }}>
-        <path d="M20 58 C20 58 5 44 5 28 Q5 4 20 2 Q35 4 35 28 C35 44 20 58 20 58Z" fill={color} opacity="0.75" />
-        <path d="M20 58 L20 2" stroke="white" strokeWidth="1.2" strokeOpacity="0.35" />
-        <path d="M20 28 Q10 22 8 14" stroke="white" strokeWidth="0.9" strokeOpacity="0.28" fill="none" />
-        <path d="M20 38 Q30 32 32 24" stroke="white" strokeWidth="0.9" strokeOpacity="0.28" fill="none" />
+    <motion.div className="pointer-events-none" style={{ position: "absolute", width: size, height: Math.round(size * 1.6), ...style }} animate={animate} transition={transition}>
+      <svg viewBox="0 0 40 64" style={{ width: "100%", height: "100%" }}>
+        <path d="M20 60 C8 45 4 28 10 14 C14 4 26 4 30 14 C36 28 32 45 20 60Z" fill={color} opacity="0.82" />
+        <path d="M20 60 L20 20" fill="none" stroke={color} strokeWidth="1.5" opacity="0.55" strokeLinecap="round" />
       </svg>
     </motion.div>
   );
 }
 
 function Sparkle({ color, size, style }: { color: string; size: number; style: CSSProperties }) {
-  const { animate, transition } = botanicalAnim(color, size + 3);
+  const { animate, transition } = botanicalAnim(color, size + 7);
   return (
     <motion.div className="pointer-events-none" style={{ position: "absolute", width: size, height: size, ...style }} animate={animate} transition={transition}>
       <svg viewBox="0 0 40 40" style={{ width: "100%", height: "100%" }}>
-        <path d="M20 1 L22 17 L38 20 L22 23 L20 39 L18 23 L2 20 L18 17 Z" fill={color} opacity="0.78" />
+        <path d="M20 2 L22 18 L38 20 L22 22 L20 38 L18 22 L2 20 L18 18 Z" fill={color} opacity="0.90" />
       </svg>
     </motion.div>
   );
@@ -114,91 +187,22 @@ function MiniClover({ color, size, style }: { color: string; size: number; style
   return (
     <motion.div className="pointer-events-none" style={{ position: "absolute", width: size, height: size, ...style }} animate={animate} transition={transition}>
       <svg viewBox="0 0 40 40" style={{ width: "100%", height: "100%", overflow: "visible" }}>
-        <path d="M31.5 8.5 A12 12 0 0 1 31.5 31.5 A12 12 0 0 1 8.5 31.5 A12 12 0 0 1 8.5 8.5 A12 12 0 0 1 31.5 8.5 Z" fill={color} opacity="0.88" />
+        <circle cx="20" cy="12" r="10" fill={color} opacity="0.80" />
+        <circle cx="12" cy="26" r="10" fill={color} opacity="0.80" />
+        <circle cx="28" cy="26" r="10" fill={color} opacity="0.80" />
+        <rect x="18.5" y="20" width="3" height="16" rx="1.5" fill={color} opacity="0.72" />
       </svg>
     </motion.div>
   );
 }
 
-function SmallBerries({ color, size, style }: { color: string; size: number; style: CSSProperties }) {
-  const { animate, transition } = botanicalAnim(color, size + 4);
-  return (
-    <motion.div className="pointer-events-none" style={{ position: "absolute", width: size, height: Math.round(size * 1.4), ...style }} animate={animate} transition={transition}>
-      <svg viewBox="0 0 50 70" style={{ width: "100%", height: "100%" }}>
-        <path d="M25 65 C22 55 28 45 25 35" stroke={color} strokeWidth="2" fill="none" strokeOpacity="0.6" strokeLinecap="round" />
-        <path d="M25 50 Q15 42 10 35" stroke={color} strokeWidth="1.5" fill="none" strokeOpacity="0.5" strokeLinecap="round" />
-        <path d="M25 45 Q35 37 40 30" stroke={color} strokeWidth="1.5" fill="none" strokeOpacity="0.5" strokeLinecap="round" />
-        <circle cx="25" cy="32" r="5" fill={color} opacity="0.80" />
-        <circle cx="9"  cy="32" r="4" fill={color} opacity="0.70" />
-        <circle cx="41" cy="27" r="4" fill={color} opacity="0.70" />
-        <circle cx="25" cy="10" r="4" fill={color} opacity="0.75" />
-      </svg>
-    </motion.div>
-  );
-}
-
-/* ─── Category colours — same as ShopClient ─── */
-const CAT_COLORS: Record<string, { bg: string; text: string; shadow: string }> = {
-  pouch:        { bg: C.burnt,    text: C.cream, shadow: "#a83c14" },
-  laptop:       { bg: C.lavender, text: C.cream, shadow: "#7060a0" },
-  tote:         { bg: C.sage,     text: C.cream, shadow: "#568868" },
-  kidsbackpack: { bg: C.mustard,  text: C.ink,   shadow: C.mustardDeep },
-  apron:        { bg: C.green,    text: C.cream, shadow: "#1e3828" },
-  necklace:     { bg: C.champagne,text: C.ink,   shadow: "#9a7840" },
-};
-
-/* ─── Frame shapes for related cards — copied from ShopClient ─── */
-function flowerArc(petals: number, d: number, r: number, cx = 200, cy = 200): string {
-  const step = (Math.PI * 2) / petals;
-  const halfStep = step / 2;
-  const L = d * Math.sin(halfStep);
-  const W = d * Math.cos(halfStep) + Math.sqrt(Math.max(0, r * r - L * L));
-  const waist: [number, number][] = Array.from({ length: petals }, (_, i) => {
-    const a = i * step + halfStep;
-    return [cx + W * Math.cos(a), cy + W * Math.sin(a)];
-  });
-  let p = `M ${waist[petals - 1][0].toFixed(1)} ${waist[petals - 1][1].toFixed(1)} `;
-  for (let i = 0; i < petals; i++) p += `A ${r} ${r} 0 0 1 ${waist[i][0].toFixed(1)} ${waist[i][1].toFixed(1)} `;
-  return p + "Z";
-}
-
-function seedNoise(i: number, seed: number): number {
-  const n = Math.sin((i + 1) * 12.9898 + seed * 78.233) * 43758.5453;
-  return n - Math.floor(n);
-}
-
-function blob(pts: number, rx: number, ry: number, variance: number, cx = 200, cy = 200, seed = 0): string {
-  const arr: [number, number][] = Array.from({ length: pts }, (_, i) => {
-    const a = (i / pts) * Math.PI * 2;
-    const m = 1 + (seedNoise(i, seed) * 2 - 1) * variance;
-    return [cx + m * rx * Math.cos(a), cy + m * ry * Math.sin(a)];
-  });
-  const mid = (i: number, j: number): [number, number] => [(arr[i][0] + arr[j][0]) / 2, (arr[i][1] + arr[j][1]) / 2];
-  const start = mid(pts - 1, 0);
-  let d = `M ${start[0].toFixed(1)} ${start[1].toFixed(1)} `;
-  for (let i = 0; i < pts; i++) {
-    const m = mid(i, (i + 1) % pts);
-    d += `Q ${arr[i][0].toFixed(1)} ${arr[i][1].toFixed(1)} ${m[0].toFixed(1)} ${m[1].toFixed(1)} `;
-  }
-  return d + "Z";
-}
-
-const RELATED_FRAMES = [
-  { path: () => flowerArc(4, 65, 95),                    color: C.rose },
-  { path: () => blob(10, 160, 158, 0.12, 200, 200, 22),  color: C.blue },
-  { path: () => flowerArc(4, 68, 98),                    color: C.mustard },
-  { path: () => blob(10, 170, 150, 0.10, 200, 200, 15),  color: C.green },
-];
-
-/* ─── Types ─── */
 interface ProductDetailsClientProps {
   product: StorefrontProduct;
   related: StorefrontProduct[];
   lang: Locale;
-  dictionary: any;
+  dictionary?: unknown;
 }
 
-/* ════════════════════════════════════════════════════════════════════ */
 export function ProductDetailsClient({ product, related, lang }: ProductDetailsClientProps) {
   useStoreHydration();
   const copy = getLandingCopy(lang);
@@ -232,217 +236,212 @@ export function ProductDetailsClient({ product, related, lang }: ProductDetailsC
           description: { en: "",   ka: ""   },
           price:       product.price,
           images:      [product.image_front, product.image_back].filter(Boolean) as string[],
-          variants: [{ id: `${product.id}-default`, size: "one", colorName: { en: product.color || "default", ka: product.color || "default" }, colorCode: "#264ba0", inStock: true }],
+          variants: [{ id: `${product.id}-default`, size: "one", colorName: { en: product.color || "default", ka: product.color || "default" }, colorCode: catColor.bg, inStock: true }],
           category: product.category as any, featured: true, badges: [],
         } as any,
-        { id: `${product.id}-default`, size: "one", colorName: { en: product.color || "default", ka: product.color || "default" }, colorCode: "#264ba0", inStock: true } as any,
+        { id: `${product.id}-default`, size: "one", colorName: { en: product.color || "default", ka: product.color || "default" }, colorCode: catColor.bg, inStock: true } as any,
         quantity
       );
       openCart();
     } catch { openCart(); }
   };
 
-  /* ── render ── */
   return (
-    <div style={{ background: C.cream, minHeight: "100vh" }}>
+    <div style={{ background: "#ffffff", minHeight: "100vh" }}>
 
-      {/* ══ ROSE HERO — matches shop hero style ════════════════════════ */}
-      <section className="relative overflow-hidden" style={{ background: C.rose, paddingBottom: 90 }}>
-        {/* Floating flowers — same decorations as shop hero */}
-        {[
-          { color: C.cream,   size: 64, petals: 5, style: { left: "5%",   top: "18%", opacity: 0.22, transform: "rotate(-14deg)" } },
-          { color: C.mustard, size: 48, petals: 5, style: { right: "7%",  top: "22%", opacity: 0.40, transform: "rotate(18deg)"  } },
-          { color: C.cream,   size: 36, petals: 6, style: { left: "22%",  bottom: "30%", opacity: 0.18 } },
-          { color: C.mustard, size: 28, petals: 6, style: { right: "20%", bottom: "34%", opacity: 0.35, transform: "rotate(-9deg)" } },
-        ].map(({ color, size, petals, style }, i) => (
-          <div key={i} className="absolute pointer-events-none" style={{ width: size, height: size, ...style }}>
-            <svg viewBox="0 0 100 100" className="w-full h-full">
-              <g transform="translate(50,50)">
-                {Array.from({ length: petals }, (_, j) => (
-                  <ellipse key={j} cx="0" cy="-22" rx="10" ry="20" fill={color} transform={`rotate(${(360 / petals) * j})`} />
-                ))}
-                <circle r="11" fill={color} />
-              </g>
-            </svg>
-          </div>
-        ))}
+      {/* ══ HERO — dynamic category colour + zigzag bottom ══ */}
+      <section className="relative overflow-hidden" style={{ background: catColor.bg, paddingBottom: 72 }}>
 
-        <div className="relative z-10 text-center px-6 pt-14 md:pt-20">
+        {/* Floating sparkles & botanicals */}
+        <div aria-hidden="true" className="absolute inset-0 pointer-events-none">
+          <Sparkle color="white" size={20} style={{ left: "8%",   top: "28%", opacity: 0.35 }} />
+          <Sparkle color="white" size={14} style={{ left: "16%",  top: "58%", opacity: 0.25 }} />
+          <Sparkle color="white" size={18} style={{ right: "10%", top: "22%", opacity: 0.30 }} />
+          <Sparkle color="white" size={12} style={{ right: "19%", top: "60%", opacity: 0.22 }} />
+          <Sparkle color={C.cream} size={22} style={{ left: "32%", top: "16%", opacity: 0.26 }} />
+          <Sparkle color={C.cream} size={14} style={{ right: "34%", top: "64%", opacity: 0.20 }} />
+          <SmallLeaf color="white" size={26} style={{ left: "4%",  top: "22%", opacity: 0.18, transform: "rotate(16deg)" }} />
+          <SmallLeaf color="white" size={20} style={{ right: "5%", top: "30%", opacity: 0.16, transform: "rotate(-22deg)" }} />
+          <MiniClover color="white" size={18} style={{ left: "24%",  bottom: "36%", opacity: 0.18 }} />
+          <MiniClover color="white" size={14} style={{ right: "26%", bottom: "33%", opacity: 0.16 }} />
+        </div>
+
+        <div className="relative z-10 text-center px-6 pt-12 md:pt-16">
           {/* Breadcrumb */}
-          <div style={{ fontFamily: FRAUNCES, fontStyle: "italic", fontSize: 12, color: C.cream, opacity: 0.65, marginBottom: 12, display: "flex", gap: 10, justifyContent: "center", alignItems: "center", flexWrap: "wrap" }}>
-            <Link href={`/${lang}`}       style={{ color: "inherit", textDecoration: "none" }}>{isKa ? "მთავარი" : "home"}</Link>
-            <span>✦</span>
-            <Link href={`/${lang}/shop`}  style={{ color: "inherit", textDecoration: "none" }}>{isKa ? "მაღაზია" : "shop"}</Link>
-            <span>✦</span>
-            <span style={{ opacity: 0.9 }}>{categoryLabel || product.category}</span>
-          </div>
-
-          {/* Product name — big italic, same size as shop "bags." heading */}
           <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.65, ease: [0.215, 0.61, 0.355, 1] }}
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            transition={{ duration: 0.5, delay: 0.1 }}
+            style={{
+              fontFamily: FRAUNCES, fontStyle: "italic", fontSize: 11,
+              color: catColor.text, opacity: 0.65, marginBottom: 14,
+              display: "flex", gap: 8, justifyContent: "center", alignItems: "center", flexWrap: "wrap",
+            }}
           >
-            <h1 style={{
-              fontFamily: isKa ? ALK_LIFE : FRAUNCES,
-              fontStyle: isKa ? "normal" : "italic",
-              fontWeight: 900,
-              fontSize: "clamp(34px, 6vw, 76px)",
-              color: C.cream,
-              lineHeight: 1.0,
-              margin: 0,
-            }}>
-              {name}
-            </h1>
+            <Link href={`/${lang}`}      style={{ color: "inherit", textDecoration: "none", opacity: 0.8 }}>{isKa ? "მთავარი" : "home"}</Link>
+            <span style={{ opacity: 0.45 }}>→</span>
+            <Link href={`/${lang}/shop`} style={{ color: "inherit", textDecoration: "none", opacity: 0.8 }}>{isKa ? "მაღაზია" : "shop"}</Link>
+            <span style={{ opacity: 0.45 }}>→</span>
+            <span>{categoryLabel || product.category}</span>
           </motion.div>
 
+          {/* Product name — slides up */}
+          <div style={{ overflow: "hidden" }}>
+            <motion.h1
+              initial={{ opacity: 0, y: 40 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.75, ease: [0.215, 0.61, 0.355, 1], delay: 0.15 }}
+              style={{
+                fontFamily: isKa ? ALK_LIFE : FRAUNCES,
+                fontStyle: isKa ? "normal" : "italic",
+                fontWeight: 900,
+                fontSize: "clamp(32px, 5.5vw, 72px)",
+                color: catColor.text,
+                lineHeight: 1.0,
+                margin: 0,
+              }}
+            >
+              {name}
+            </motion.h1>
+          </div>
+
           {sub && (
-            <p style={{ fontFamily: FRAUNCES, fontStyle: "italic", fontSize: 15, color: C.cream, opacity: 0.72, marginTop: 10, marginBottom: 0 }}>
+            <motion.p
+              initial={{ opacity: 0, y: 12 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.55, delay: 0.3 }}
+              style={{ fontFamily: FRAUNCES, fontStyle: "italic", fontSize: 14, color: catColor.text, opacity: 0.62, marginTop: 10, marginBottom: 0 }}
+            >
               {sub}
-            </p>
+            </motion.p>
           )}
         </div>
 
-        {/* Scalloped bottom — identical to shop */}
-        <div className="absolute bottom-0 left-0 w-full" style={{ height: 80, lineHeight: 0 }}>
+        {/* Zigzag bottom cut */}
+        <div className="absolute bottom-0 left-0 w-full" style={{ height: 64, lineHeight: 0 }}>
           <svg viewBox="0 0 1440 80" preserveAspectRatio="none" className="w-full h-full block">
-            <path d={SCALLOP_PATH} fill={C.cream} />
+            <path d={ZIGZAG_PATH} fill="#ffffff" />
           </svg>
         </div>
       </section>
 
-      {/* ══ PRODUCT DETAIL AREA — cream with botanical sides ══════════ */}
-      <div style={{ background: C.cream, position: "relative" }}>
+      {/* ══ PRODUCT AREA — white background ══ */}
+      <div style={{ background: "#ffffff", position: "relative" }}>
 
-        {/* Botanical decorations — same layout as shop content area */}
-        <div aria-hidden="true" className="absolute hidden md:block pointer-events-none overflow-hidden" style={{ top: 0, bottom: 0, left: 0, right: 0, zIndex: 0 }}>
-          <Daisy        color={C.rose}      size={62} style={{ left: "2%",  top: "5%",  transform: "rotate(-12deg)", opacity: 0.68 }} />
-          <SmallLeaf    color={C.sage}      size={28} style={{ left: "4%",  top: "18%", transform: "rotate(25deg)",  opacity: 0.62 }} />
-          <TulipStem    color={C.lavender}  size={44} style={{ left: "1%",  top: "32%", transform: "rotate(-8deg)",  opacity: 0.60 }} />
-          <Sparkle      color={C.mustard}   size={22} style={{ left: "6%",  top: "52%", transform: "rotate(10deg)",  opacity: 0.64 }} />
-          <MiniClover   color={C.rose}      size={18} style={{ left: "3%",  top: "64%", transform: "rotate(-20deg)", opacity: 0.62 }} />
-          <SmallBerries color={C.champagne} size={42} style={{ left: "1%",  top: "76%", transform: "rotate(6deg)",   opacity: 0.60 }} />
-
-          <TulipStem    color={C.sage}      size={46} style={{ right: "1%", top: "8%",  transform: "rotate(14deg)",  opacity: 0.62 }} />
-          <SmallLeaf    color={C.rose}      size={30} style={{ right: "3%", top: "24%", transform: "rotate(-22deg)", opacity: 0.62 }} />
-          <Sparkle      color={C.lavender}  size={24} style={{ right: "5%", top: "40%", transform: "rotate(-12deg)", opacity: 0.64 }} />
-          <Daisy        color={C.mustard}   size={54} style={{ right: "2%", top: "56%", transform: "rotate(9deg)",   opacity: 0.65 }} />
-          <MiniClover   color={C.champagne} size={18} style={{ right: "4%", top: "72%", transform: "rotate(15deg)",  opacity: 0.60 }} />
-          <Daisy        color={C.green}     size={46} style={{ right: "1%", top: "88%", transform: "rotate(-17deg)", opacity: 0.60 }} />
+        {/* Subtle side botanical decorations */}
+        <div aria-hidden="true" className="absolute hidden lg:block pointer-events-none" style={{ top: 0, bottom: 0, left: 0, right: 0, zIndex: 0 }}>
+          <Daisy     color={C.rose}    size={46} style={{ left: "1.5%", top: "6%",  opacity: 0.28, transform: "rotate(-12deg)" }} />
+          <SmallLeaf color={C.sage}    size={20} style={{ left: "3%",   top: "22%", opacity: 0.26, transform: "rotate(20deg)" }} />
+          <Sparkle   color={C.mustard} size={16} style={{ left: "1%",   top: "42%", opacity: 0.30 }} />
+          <MiniClover color={C.champagne} size={14} style={{ left: "2.5%", top: "60%", opacity: 0.24 }} />
+          <Daisy     color={C.mustard} size={42} style={{ right: "1.5%", top: "8%",  opacity: 0.26, transform: "rotate(10deg)" }} />
+          <SmallLeaf color={C.rose}    size={22} style={{ right: "2.5%", top: "28%", opacity: 0.24, transform: "rotate(-18deg)" }} />
+          <Sparkle   color={C.lavender} size={18} style={{ right: "1%",  top: "48%", opacity: 0.28 }} />
+          <MiniClover color={C.sage}   size={14} style={{ right: "3%",   top: "66%", opacity: 0.22 }} />
         </div>
 
-        {/* Main product grid */}
         <div className="max-w-5xl mx-auto px-5 sm:px-8 lg:px-12 pt-12 pb-20 relative" style={{ zIndex: 1 }}>
           <div className="grid grid-cols-1 md:grid-cols-2" style={{ gap: 52, alignItems: "start" }}>
 
-            {/* ── LEFT: Main product photo — large, fully visible ── */}
-            <div>
-              <motion.div
-                initial={{ opacity: 0, y: 28 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ duration: 0.65, ease: [0.215, 0.61, 0.355, 1] }}
-              >
-                {/* Photo frame: rounded rectangle, no clipping — product fully visible */}
-                <div style={{
-                  position: "relative",
-                  borderRadius: 28,
-                  overflow: "hidden",
-                  aspectRatio: "4 / 5",
-                  boxShadow: `0 0 0 4px ${catColor.bg}, 0 0 0 8px rgba(201,168,108,0.18), 0 14px 44px rgba(42,29,20,0.18)`,
-                  background: C.beige,
-                }}>
-                  <Image
-                    src={activeImg}
-                    alt={name}
-                    fill
-                    sizes="(max-width: 768px) 100vw, 50vw"
-                    style={{ objectFit: "cover" }}
-                    priority
-                  />
+            {/* LEFT: Product photo */}
+            <motion.div
+              initial={{ opacity: 0, y: 28 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.65, ease: [0.215, 0.61, 0.355, 1] }}
+            >
+              <div style={{
+                position: "relative",
+                borderRadius: 24,
+                overflow: "hidden",
+                aspectRatio: "4 / 5",
+                boxShadow: `0 0 0 4px ${catColor.bg}, 0 0 0 8px rgba(201,168,108,0.14), 0 16px 48px rgba(42,29,20,0.13)`,
+                background: "#f5f5f5",
+              }}>
+                <Image src={activeImg} alt={name} fill sizes="(max-width: 768px) 100vw, 50vw" style={{ objectFit: "cover" }} priority />
 
-                  {/* Wishlist button */}
-                  <motion.button
-                    whileTap={{ scale: 0.88 }}
-                    onClick={() => setWishlisted((w) => !w)}
-                    aria-label={wishlisted ? "Remove from wishlist" : "Add to wishlist"}
-                    style={{
-                      position: "absolute", top: 14, right: 14, zIndex: 2,
-                      background: "white", border: "none", borderRadius: "50%",
-                      width: 42, height: 42,
-                      display: "flex", alignItems: "center", justifyContent: "center",
-                      cursor: "pointer", boxShadow: "0 2px 12px rgba(0,0,0,0.14)",
-                    }}
-                  >
-                    <Heart size={18} fill={wishlisted ? C.rose : "none"} stroke={wishlisted ? C.rose : C.champagne} strokeWidth={2} />
-                  </motion.button>
+                <motion.button
+                  whileTap={{ scale: 0.88 }}
+                  onClick={() => setWishlisted((w) => !w)}
+                  aria-label={wishlisted ? "Remove from wishlist" : "Add to wishlist"}
+                  style={{
+                    position: "absolute", top: 14, right: 14, zIndex: 2,
+                    background: "white", border: "none", borderRadius: "50%",
+                    width: 42, height: 42,
+                    display: "flex", alignItems: "center", justifyContent: "center",
+                    cursor: "pointer", boxShadow: "0 2px 12px rgba(0,0,0,0.12)",
+                  }}
+                >
+                  <Heart size={18} fill={wishlisted ? C.rose : "none"} stroke={wishlisted ? C.rose : "#bbb"} strokeWidth={2} />
+                </motion.button>
 
-                  {/* New tag */}
-                  {product.tags.includes("new") && (
-                    <span style={{
-                      position: "absolute", top: 14, left: 14, zIndex: 2,
-                      background: C.mustard, color: C.ink,
-                      fontFamily: FRAUNCES, fontStyle: "italic", fontWeight: 700,
-                      fontSize: 10, letterSpacing: "0.18em", textTransform: "uppercase",
-                      padding: "4px 12px", borderRadius: 999,
-                      boxShadow: `0 3px 0 ${C.mustardDeep}`,
-                      transform: "rotate(-4deg)",
-                    }}>
-                      {isKa ? "ახალი" : "New"}
-                    </span>
-                  )}
-
-                  {/* Stock badge */}
-                  <div style={{
-                    position: "absolute", bottom: 14, left: 14, zIndex: 2,
-                    background: "rgba(255,255,255,0.92)",
-                    borderRadius: 999, padding: "4px 14px",
-                    fontFamily: FRAUNCES, fontStyle: "italic", fontSize: 11,
-                    color: inStock ? C.green : C.rose,
+                {product.tags.includes("new") && (
+                  <span style={{
+                    position: "absolute", top: 14, left: 14, zIndex: 2,
+                    background: C.mustard, color: C.ink,
+                    fontFamily: FRAUNCES, fontStyle: "italic", fontWeight: 700,
+                    fontSize: 10, letterSpacing: "0.18em", textTransform: "uppercase",
+                    padding: "4px 12px", borderRadius: 999,
+                    boxShadow: `0 3px 0 ${C.mustardDeep}`,
+                    transform: "rotate(-4deg)",
                   }}>
-                    {inStock
-                      ? `✦ ${product.stock} ${isKa ? "მარაგშია" : "in stock"}`
-                      : isKa ? "გაყიდულია" : "Sold out"}
-                  </div>
-                </div>
-
-                {/* Front / Back thumb switcher */}
-                {hasBack && (
-                  <div style={{ display: "flex", gap: 10, marginTop: 14, justifyContent: "center" }}>
-                    {(["front", "back"] as const).map((side) => {
-                      const src    = side === "front" ? product.image_front : product.image_back!;
-                      const active = activeSide === side;
-                      return (
-                        <motion.button
-                          key={side}
-                          onClick={() => setActiveSide(side)}
-                          whileTap={{ scale: 0.95 }}
-                          style={{
-                            width: 64, height: 64, borderRadius: 14, overflow: "hidden",
-                            border: active ? `3px solid ${catColor.bg}` : `2px solid rgba(201,168,108,0.30)`,
-                            padding: 0, cursor: "pointer", position: "relative", background: C.beige,
-                            boxShadow: active ? `0 3px 0 ${catColor.shadow}` : `0 2px 0 rgba(201,168,108,0.25)`,
-                            transition: "border-color 0.18s, box-shadow 0.18s",
-                          }}
-                          aria-label={side}
-                        >
-                          <Image src={src} alt={side} fill style={{ objectFit: "cover" }} sizes="64px" />
-                        </motion.button>
-                      );
-                    })}
-                  </div>
+                    {isKa ? "ახალი" : "New"}
+                  </span>
                 )}
-              </motion.div>
-            </div>
 
-            {/* ── RIGHT: Product info ── */}
+                <div style={{
+                  position: "absolute", bottom: 14, left: 14, zIndex: 2,
+                  background: "rgba(255,255,255,0.92)", backdropFilter: "blur(4px)",
+                  borderRadius: 999, padding: "4px 14px",
+                  fontFamily: FRAUNCES, fontStyle: "italic", fontSize: 11,
+                  color: inStock ? C.green : C.rose,
+                }}>
+                  {inStock
+                    ? `✦ ${product.stock} ${isKa ? "მარაგშია" : "in stock"}`
+                    : isKa ? "გაყიდულია" : "Sold out"}
+                </div>
+              </div>
+
+              {hasBack && (
+                <div style={{ display: "flex", gap: 10, marginTop: 14, justifyContent: "center" }}>
+                  {(["front", "back"] as const).map((side) => {
+                    const src    = side === "front" ? product.image_front : product.image_back!;
+                    const active = activeSide === side;
+                    return (
+                      <motion.button
+                        key={side}
+                        onClick={() => setActiveSide(side)}
+                        whileTap={{ scale: 0.95 }}
+                        style={{
+                          width: 64, height: 64, borderRadius: 12, overflow: "hidden",
+                          border: active ? `3px solid ${catColor.bg}` : `2px solid rgba(201,168,108,0.22)`,
+                          padding: 0, cursor: "pointer", position: "relative",
+                          boxShadow: active ? `0 3px 0 ${catColor.shadow}` : `0 2px 8px rgba(0,0,0,0.07)`,
+                          transition: "border-color 0.18s, box-shadow 0.18s",
+                        }}
+                        aria-label={side}
+                      >
+                        <Image src={src} alt={side} fill style={{ objectFit: "cover" }} sizes="64px" />
+                      </motion.button>
+                    );
+                  })}
+                </div>
+              )}
+            </motion.div>
+
+            {/* RIGHT: Info */}
             <motion.div
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.6, delay: 0.1, ease: [0.215, 0.61, 0.355, 1] }}
+              transition={{ duration: 0.6, delay: 0.12, ease: [0.215, 0.61, 0.355, 1] }}
               style={{ paddingTop: 6 }}
             >
-              {/* Category pill — same style as shop filter pills */}
-              <div style={{ marginBottom: 20 }}>
+              {/* Category pill */}
+              <motion.div
+                initial={{ scale: 0.82, opacity: 0 }}
+                animate={{ scale: 1, opacity: 1 }}
+                transition={{ type: "spring", stiffness: 260, damping: 22, delay: 0.22 }}
+                style={{ marginBottom: 20 }}
+              >
                 <span style={{
                   display: "inline-flex", alignItems: "center", gap: 6,
                   background: catColor.bg, color: catColor.text,
@@ -453,70 +452,99 @@ export function ProductDetailsClient({ product, related, lang }: ProductDetailsC
                   boxShadow: `0 4px 0 ${catColor.shadow}`,
                 }}>
                   {categoryLabel || product.category}
-                  <span style={{ opacity: 0.55 }}>·</span>
-                  <span style={{ fontWeight: 600, opacity: 0.88 }}>
+                  <span style={{ opacity: 0.40 }}>·</span>
+                  <span style={{ fontWeight: 600, opacity: 0.85 }}>
                     {product.stock} {isKa ? "მარაგში" : "in stock"}
                   </span>
                 </span>
-              </div>
+              </motion.div>
 
               {/* Price */}
-              <div style={{ display: "flex", alignItems: "baseline", gap: 12, marginBottom: 18 }}>
-                <span style={{ fontFamily: FRAUNCES, fontStyle: "italic", fontWeight: 900, fontSize: 46, color: C.ink, lineHeight: 1 }}>
+              <motion.div
+                initial={{ opacity: 0, x: -10 }}
+                animate={{ opacity: 1, x: 0 }}
+                transition={{ duration: 0.5, delay: 0.28 }}
+                style={{ display: "flex", alignItems: "baseline", gap: 12, marginBottom: 22 }}
+              >
+                <span style={{ fontFamily: PACIFICO, fontSize: 44, color: C.burnt, lineHeight: 1 }}>
                   {product.price}{curr}
                 </span>
                 {isOnSale && product.original_price && (
-                  <span style={{ fontFamily: FRAUNCES, fontSize: 22, color: C.champagne, textDecoration: "line-through" }}>
+                  <span style={{ fontFamily: FRAUNCES, fontSize: 20, color: C.champagne, textDecoration: "line-through" }}>
                     {product.original_price}{curr}
                   </span>
                 )}
-              </div>
+              </motion.div>
 
-              {/* Description */}
+              {/* Description — clean modern style, no italic serif */}
               {product.description && (
-                <p style={{
-                  fontFamily: FRAUNCES, fontStyle: "italic",
-                  fontSize: 15, lineHeight: 1.75, color: C.ink, opacity: 0.80,
-                  marginBottom: 20,
-                  borderLeft: `3px solid ${catColor.bg}`,
-                  paddingLeft: 14,
-                }}>
-                  {product.description}
-                </p>
+                <motion.div
+                  initial={{ opacity: 0 }}
+                  animate={{ opacity: 1 }}
+                  transition={{ duration: 0.5, delay: 0.32 }}
+                  style={{
+                    marginBottom: 22,
+                    padding: "12px 16px",
+                    background: "rgba(42,29,20,0.03)",
+                    borderRadius: 12,
+                    borderLeft: `3px solid ${catColor.bg}`,
+                  }}
+                >
+                  <p style={{
+                    fontSize: 15, lineHeight: 1.7,
+                    color: C.ink, opacity: 0.74,
+                    margin: 0,
+                    fontFamily: "system-ui, -apple-system, 'Segoe UI', sans-serif",
+                    fontWeight: 400,
+                  }}>
+                    {product.description}
+                  </p>
+                </motion.div>
               )}
 
-              {/* Feature pills — same style as shop category pills */}
-              <div style={{ display: "flex", flexWrap: "wrap", gap: 8, marginBottom: 26 }}>
+              {/* Feature pills */}
+              <motion.div
+                initial={{ opacity: 0, y: 8 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.45, delay: 0.36 }}
+                style={{ display: "flex", flexWrap: "wrap", gap: 8, marginBottom: 28 }}
+              >
                 {[
                   isKa ? "ხელნაკეთი"   : "Handmade",
                   isKa ? "წყალგამძლე" : "Water-resistant",
                   isKa ? "ორმხრივი"   : "Reversible",
-                ].map((label) => (
-                  <span key={label} style={{
-                    fontFamily: FRAUNCES, fontStyle: "italic", fontWeight: 700,
-                    fontSize: 12, color: C.ink,
-                    background: C.cream,
-                    border: `2px solid rgba(201,168,108,0.40)`,
-                    borderRadius: "20px 14px 18px 16px",
-                    padding: "7px 16px",
-                    boxShadow: `0 3px 0 rgba(201,168,108,0.28)`,
-                  }}>
+                ].map((label, i) => (
+                  <motion.span
+                    key={label}
+                    initial={{ opacity: 0, scale: 0.88 }}
+                    animate={{ opacity: 1, scale: 1 }}
+                    transition={{ delay: 0.36 + i * 0.07, duration: 0.3 }}
+                    style={{
+                      fontFamily: FRAUNCES, fontStyle: "italic", fontWeight: 700,
+                      fontSize: 12, color: C.ink,
+                      background: "#f9f4eb",
+                      border: `1.5px solid rgba(201,168,108,0.32)`,
+                      borderRadius: "20px 14px 18px 16px",
+                      padding: "7px 16px",
+                      boxShadow: `0 2px 0 rgba(201,168,108,0.20)`,
+                    }}
+                  >
                     {label}
-                  </span>
+                  </motion.span>
                 ))}
-              </div>
+              </motion.div>
 
               {/* Quantity */}
-              <div style={{ display: "flex", alignItems: "center", gap: 14, marginBottom: 24 }}>
-                <span style={{ fontFamily: FRAUNCES, fontStyle: "italic", fontSize: 12, color: C.champagne, letterSpacing: "0.08em", textTransform: "uppercase" }}>
+              <div style={{ display: "flex", alignItems: "center", gap: 14, marginBottom: 22 }}>
+                <span style={{ fontFamily: FRAUNCES, fontStyle: "italic", fontSize: 11, color: C.champagne, letterSpacing: "0.12em", textTransform: "uppercase" }}>
                   {isKa ? "რაოდ." : "Qty"}
                 </span>
                 <div style={{
                   display: "flex", alignItems: "center",
-                  border: `2px solid rgba(201,168,108,0.40)`,
+                  border: `1.5px solid rgba(201,168,108,0.30)`,
                   borderRadius: "20px 14px 18px 16px",
-                  background: "white",
-                  boxShadow: `0 3px 0 rgba(201,168,108,0.25)`,
+                  background: "#f9f4eb",
+                  boxShadow: `0 2px 0 rgba(201,168,108,0.18)`,
                 }}>
                   <button onClick={() => setQuantity((q) => Math.max(1, q - 1))} aria-label="decrease"
                     style={{ width: 38, height: 38, border: "none", background: "transparent", cursor: "pointer", display: "flex", alignItems: "center", justifyContent: "center", color: C.ink }}>
@@ -530,18 +558,22 @@ export function ProductDetailsClient({ product, related, lang }: ProductDetailsC
                 </div>
               </div>
 
-              {/* Buttons — shop pill style with drop shadow */}
-              <div style={{ display: "flex", gap: 12, flexWrap: "wrap", marginBottom: 18 }}>
+              {/* Buttons */}
+              <motion.div
+                initial={{ opacity: 0, y: 8 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.45, delay: 0.44 }}
+                style={{ display: "flex", gap: 12, flexWrap: "wrap", marginBottom: 16 }}
+              >
                 <motion.button
-                  whileHover={{ y: -1 }}
+                  whileHover={{ y: -2, transition: { duration: 0.14 } }}
                   whileTap={{ y: 3 }}
                   onClick={onAddToCart}
                   disabled={!inStock}
                   style={{
                     flex: "1 1 0", minWidth: 160,
                     background: inStock ? C.mustard : C.champagne,
-                    color: C.ink,
-                    border: "none",
+                    color: C.ink, border: "none",
                     borderRadius: "20px 14px 18px 16px",
                     padding: "14px 24px",
                     fontFamily: FRAUNCES, fontStyle: "italic",
@@ -556,26 +588,25 @@ export function ProductDetailsClient({ product, related, lang }: ProductDetailsC
                 </motion.button>
 
                 <motion.button
-                  whileHover={{ y: -1 }}
+                  whileHover={{ y: -2, transition: { duration: 0.14 } }}
                   whileTap={{ y: 3 }}
                   onClick={() => { window.location.href = `/${lang}/shop`; }}
                   style={{
                     flexShrink: 0,
-                    background: C.cream, color: C.ink,
-                    border: `2px solid rgba(201,168,108,0.40)`,
+                    background: "white", color: C.ink,
+                    border: `1.5px solid rgba(42,29,20,0.15)`,
                     borderRadius: "14px 20px 16px 18px",
                     padding: "14px 22px",
                     fontFamily: FRAUNCES, fontStyle: "italic",
                     fontSize: 15, fontWeight: 700, cursor: "pointer",
-                    boxShadow: `0 5px 0 rgba(201,168,108,0.28)`,
+                    boxShadow: `0 5px 0 rgba(42,29,20,0.07)`,
                   }}
                 >
                   {isKa ? "მაღაზია" : "Shop"}
                 </motion.button>
-              </div>
+              </motion.div>
 
-              {/* Delivery note */}
-              <p style={{ fontFamily: FRAUNCES, fontStyle: "italic", fontSize: 12, color: C.champagne, opacity: 0.88 }}>
+              <p style={{ fontFamily: FRAUNCES, fontStyle: "italic", fontSize: 12, color: C.champagne, opacity: 0.85, margin: 0 }}>
                 ✦ {isKa ? "ხელნაკეთი თბილისში · სწრაფი მიტანა საქართველოში" : "Handmade in Tbilisi · Fast delivery across Georgia"}
               </p>
             </motion.div>
@@ -583,86 +614,87 @@ export function ProductDetailsClient({ product, related, lang }: ProductDetailsC
         </div>
       </div>
 
-      {/* ══ FEATURES STRIP — beige, dashed borders ═════════════════════ */}
-      <div style={{ background: C.beige, borderTop: `1.5px dashed rgba(201,168,108,0.35)`, borderBottom: `1.5px dashed rgba(201,168,108,0.35)` }}>
-        <div className="max-w-5xl mx-auto px-5 sm:px-8">
-          <div className="grid grid-cols-2 md:grid-cols-4" style={{ padding: "28px 0", gap: 16 }}>
+      {/* ══ FEATURES STRIP — 3 items, no free shipping ══ */}
+      <div style={{ background: "#f9f4eb", borderTop: `1px solid rgba(201,168,108,0.22)` }}>
+        <div className="max-w-4xl mx-auto px-5 sm:px-8">
+          <div className="grid grid-cols-3" style={{ padding: "24px 0", gap: 8 }}>
             {[
-              { icon: "🚗", title: isKa ? "უფასო მიტანა"  : "Free shipping",    sub: isKa ? "1-2 სამ. დღე"       : "1–2 business days"      },
-              { icon: "✦",  title: isKa ? "ხელნაკეთი"     : "Handmade",         sub: isKa ? "ჩვენს სახელოსნოში"  : "In our Tbilisi studio"   },
-              { icon: "↺",  title: isKa ? "ორმხრივი"      : "Reversible",       sub: isKa ? "ორი მხარე, ერთი ჩანთა" : "Two sides, one bag"   },
-              { icon: "💧", title: isKa ? "წყალგამძლე"    : "Water-resistant",  sub: isKa ? "სანვარე ტილო"       : "Canvas that handles rain" },
+              { icon: "✦",  title: isKa ? "ხელნაკეთი"  : "Handmade",       sub: isKa ? "ჩვენს სახელოსნოში"     : "In our Tbilisi studio"    },
+              { icon: "↺",  title: isKa ? "ორმხრივი"   : "Reversible",      sub: isKa ? "ორი მხარე, ერთი ჩანთა" : "Two sides, one bag"       },
+              { icon: "💧", title: isKa ? "წყალგამძლე" : "Water-resistant", sub: isKa ? "სანვარე ტილო"          : "Canvas that handles rain" },
             ].map(({ icon, title, sub: fsub }) => (
               <div key={title} style={{ textAlign: "center" }}>
-                <div style={{ fontSize: 24, marginBottom: 6 }}>{icon}</div>
-                <div style={{ fontFamily: FRAUNCES, fontStyle: "italic", fontSize: 14, color: C.burnt, fontWeight: 700, marginBottom: 3 }}>{title}</div>
-                <div style={{ fontSize: 11, color: C.champagne }}>{fsub}</div>
+                <div style={{ fontSize: 22, marginBottom: 5 }}>{icon}</div>
+                <div style={{ fontFamily: FRAUNCES, fontStyle: "italic", fontSize: 13, color: C.burnt, fontWeight: 700, marginBottom: 2 }}>{title}</div>
+                <div style={{ fontSize: 11, color: C.champagne, lineHeight: 1.4 }}>{fsub}</div>
               </div>
             ))}
           </div>
         </div>
       </div>
 
-      {/* ══ RELATED PRODUCTS — shop-style organic frames ═══════════════ */}
+      {/* ══ RELATED — burnt background exactly like RetroProducts ══ */}
       {related.length > 0 && (
-        <div style={{ background: C.cream, padding: "60px 0 80px" }}>
-          <div className="max-w-5xl mx-auto px-5 sm:px-8">
-            {/* Heading — shop style */}
+        <section style={{ background: C.burnt, position: "relative", padding: "64px 0 72px" }}>
+          <div style={{ position: "absolute", top: 0, left: 0, right: 0, height: 3, background: "repeating-linear-gradient(90deg, #f3b62b 0 18px, #fef0d6 18px 36px)" }} aria-hidden="true" />
+
+          <div className="container relative">
             <div className="text-center" style={{ marginBottom: 44 }}>
               <span style={{
                 fontFamily: FRAUNCES, fontStyle: "italic", fontWeight: 700,
-                fontSize: 10, color: C.champagne,
+                fontSize: 10, color: C.mustard,
                 letterSpacing: "0.35em", textTransform: "uppercase",
                 display: "block", marginBottom: 8,
               }}>
                 {isKa ? "ხელით ნაკერი · თბილისი" : "Handmade in Tbilisi"}
               </span>
               <h2 style={{
-                fontFamily: FRAUNCES, fontStyle: "italic",
-                fontSize: "clamp(28px, 4vw, 44px)", fontWeight: 900, color: C.ink, margin: 0,
+                fontFamily: isKa ? ALK_LIFE : FRAUNCES,
+                fontStyle: isKa ? "normal" : "italic",
+                fontWeight: 900,
+                fontSize: "clamp(28px, 4vw, 52px)",
+                color: C.cream, margin: 0,
               }}>
                 {isKa ? "შეიძლება მოგეწონოს" : "You might also love"}
               </h2>
             </div>
 
-            {/* Shop-style 2-col on mobile, 4-col on lg */}
-            <div className="grid grid-cols-2 lg:grid-cols-4" style={{ gap: 24 }}>
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-x-10 gap-y-4 max-w-2xl mx-auto">
               {related.slice(0, 4).map((rp, idx) => (
-                <RelatedCard key={rp.id} product={rp} lang={lang} isKa={isKa} index={idx} />
+                <DripCard key={rp.id} product={rp} lang={lang} isKa={isKa} index={idx} />
               ))}
             </div>
           </div>
-        </div>
+
+          <div style={{ position: "absolute", bottom: 0, left: 0, right: 0, height: 3, background: "repeating-linear-gradient(90deg, #f3b62b 0 18px, #fef0d6 18px 36px)" }} aria-hidden="true" />
+        </section>
       )}
     </div>
   );
 }
 
-/* ─── Related product card — shop ShopCard style ─── */
-function RelatedCard({
-  product, lang, isKa, index,
-}: {
-  product: StorefrontProduct; lang: Locale; isKa: boolean; index: number;
-}) {
+/* ── Drip card — matches RetroProducts MirrorCard look ── */
+function DripCard({ product, lang, isKa, index }: { product: StorefrontProduct; lang: Locale; isKa: boolean; index: number }) {
   const addItem  = useCartStore((s) => s.addItem);
   const openCart = useUIStore((s) => s.openCart);
-  const name     = product.name || product.code;
-  const curr     = product.currency === "GEL" ? "₾" : ` ${product.currency}`;
-  const frame    = RELATED_FRAMES[index % RELATED_FRAMES.length];
-  const path     = useMemo(() => frame.path(), [frame]);
-  const clipId   = `rc-${product.id}`;
+
+  const frame     = RELATED_FRAMES[index % RELATED_FRAMES.length];
+  const name      = product.name || product.code;
+  const curr      = product.currency === "GEL" ? "₾" : ` ${product.currency}`;
+  const outerPath = useMemo(() => dripPath(frame.bodyW, frame.bodyH, frame.drips, frame.minD, frame.maxD, frame.corner, frame.side, 200, 250, frame.seed), [frame]);
+  const innerPath = useMemo(() => roundedRectPath(frame.bodyW - 28, frame.bodyH - 28, 200, 250, 10), [frame]);
+  const clipId    = `dc-${frame.name}-${index}`;
 
   const handleAdd = (e: React.MouseEvent) => {
     e.preventDefault();
     e.stopPropagation();
     try {
       addItem(
-        { id: product.id, slug: product.id, name: { en: name, ka: name },
-          subtitle: { en: "", ka: "" }, description: { en: "", ka: "" }, price: product.price,
-          images: [product.image_front, product.image_back].filter(Boolean) as string[],
-          variants: [{ id: `${product.id}-d`, size: "one", colorName: { en: product.color || "default", ka: product.color || "default" }, colorCode: "#c9a86c", inStock: true }],
+        { id: product.id, slug: product.id, name: { en: name, ka: name }, subtitle: { en: "", ka: "" }, description: { en: "", ka: "" },
+          price: product.price, images: [product.image_front, product.image_back].filter(Boolean) as string[],
+          variants: [{ id: `${product.id}-d`, size: "one", colorName: { en: "default", ka: "default" }, colorCode: "#c9a86c", inStock: true }],
           category: product.category as any, featured: true, badges: [] } as any,
-        { id: `${product.id}-d`, size: "one", colorName: { en: product.color || "default", ka: product.color || "default" }, colorCode: "#c9a86c", inStock: true } as any,
+        { id: `${product.id}-d`, size: "one", colorName: { en: "default", ka: "default" }, colorCode: "#c9a86c", inStock: true } as any,
         1
       );
       openCart();
@@ -672,56 +704,51 @@ function RelatedCard({
   return (
     <Link href={`/${lang}/product/${product.id}`} style={{ textDecoration: "none" }}>
       <motion.div
-        initial={{ opacity: 0, y: 32 }}
+        initial={{ opacity: 0, y: 30 }}
         whileInView={{ opacity: 1, y: 0 }}
         viewport={{ once: true, margin: "-40px" }}
-        transition={{ duration: 0.6, delay: index * 0.07, ease: [0.215, 0.61, 0.355, 1] }}
-        className="flex flex-col items-center"
-        style={{ gap: 12 }}
+        transition={{ duration: 0.85, delay: index * 0.1, ease: [0.215, 0.61, 0.355, 1] }}
+        className="group flex flex-col items-center"
+        style={{ gap: 16 }}
       >
-        {/* Organic-framed photo — same as ShopCard */}
-        <div style={{ position: "relative", width: "100%", aspectRatio: "1/1" }}>
-          <svg
-            viewBox="0 0 400 400"
-            preserveAspectRatio="xMidYMid meet"
-            aria-hidden
+        <div style={{
+          position: "relative", width: "100%", maxWidth: 320, aspectRatio: "4/5",
+          transform: `rotate(${frame.rotate}deg)`,
+          transition: "transform 0.6s cubic-bezier(0.215,0.61,0.355,1)",
+        }}>
+          <svg viewBox="0 0 400 500" preserveAspectRatio="xMidYMid meet" aria-hidden="true"
             className="absolute inset-0 w-full h-full"
-            style={{ filter: "drop-shadow(0 8px 18px rgba(0,0,0,0.13))", overflow: "visible" }}
+            style={{ filter: "drop-shadow(0 18px 22px rgba(42,29,20,0.28))", overflow: "visible" }}
           >
-            <defs><clipPath id={clipId}><path d={path} /></clipPath></defs>
-            <image
-              href={product.image_front}
-              x="0" y="0" width="400" height="400"
-              preserveAspectRatio="xMidYMid slice"
-              clipPath={`url(#${clipId})`}
+            <defs><clipPath id={clipId}><path d={innerPath} /></clipPath></defs>
+            <path d={outerPath} fill={frame.color} />
+            <image href={product.image_front} x="0" y="0" width="400" height="500"
+              preserveAspectRatio="xMidYMid meet" clipPath={`url(#${clipId})`}
+              style={{ filter: "saturate(0.96) sepia(0.04)" }}
             />
-            <path d={path} fill="none" stroke={frame.color} strokeWidth="6" />
           </svg>
         </div>
 
-        {/* Name + price + add button */}
-        <div style={{ textAlign: "center", width: "100%" }}>
-          <div style={{ fontFamily: FRAUNCES, fontStyle: "italic", fontSize: 14, fontWeight: 700, color: C.ink, marginBottom: 3 }}>
+        <div style={{ textAlign: "center" }}>
+          <div style={{ fontFamily: FRAUNCES, fontStyle: "italic", fontWeight: 700, fontSize: 18, color: C.cream, lineHeight: 1.2, marginBottom: 4 }}>
             {name}
           </div>
-          <div style={{ fontFamily: FRAUNCES, fontStyle: "italic", fontSize: 17, fontWeight: 900, color: C.burnt, marginBottom: 10 }}>
+          <div style={{ fontFamily: PACIFICO, fontSize: 22, color: C.mustard, marginBottom: 8 }}>
             {product.price}{curr}
           </div>
-          <motion.button
-            whileTap={{ y: 2 }}
+          <button
             onClick={handleAdd}
             style={{
-              background: C.cream, color: C.ink,
-              border: `2px solid rgba(201,168,108,0.40)`,
-              borderRadius: "20px 14px 18px 16px",
-              padding: "7px 20px",
-              fontFamily: FRAUNCES, fontStyle: "italic",
-              fontSize: 12, fontWeight: 700, cursor: "pointer",
-              boxShadow: `0 3px 0 rgba(201,168,108,0.28)`,
+              fontFamily: FRAUNCES, fontStyle: "italic", fontWeight: 700,
+              fontSize: 11, color: C.ink,
+              background: C.cream, border: "none", borderRadius: 999,
+              padding: "6px 16px", cursor: "pointer",
+              boxShadow: `0 3px 0 ${C.mustardDeep}`,
+              letterSpacing: "0.06em",
             }}
           >
-            {isKa ? "+ კალათი" : "+ Add"}
-          </motion.button>
+            + {isKa ? "კალათი" : "Add"}
+          </button>
         </div>
       </motion.div>
     </Link>
