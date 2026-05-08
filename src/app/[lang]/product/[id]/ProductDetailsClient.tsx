@@ -469,92 +469,97 @@ export function ProductDetailsClient({ product, related, lang }: ProductDetailsC
               transition={{ duration: 0.6, delay: 0.12, ease: [0.215, 0.61, 0.355, 1] }}
               style={{ paddingTop: 6 }}
             >
-              {/* Category pill */}
+              {/* Category label + stock — subtle, no fill */}
               <motion.div
-                initial={{ scale: 0.82, opacity: 0 }}
-                animate={{ scale: 1, opacity: 1 }}
-                transition={{ type: "spring", stiffness: 260, damping: 22, delay: 0.22 }}
-                style={{ marginBottom: 20 }}
+                initial={{ opacity: 0, y: 4 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.4, delay: 0.22 }}
+                style={{ display: "flex", alignItems: "center", gap: 10, marginBottom: 14, flexWrap: "wrap" }}
               >
                 <span style={{
-                  display: "inline-flex", alignItems: "center", gap: 6,
-                  background: catColor.bg, color: catColor.text,
-                  fontFamily: FRAUNCES, fontStyle: "italic", fontWeight: 700,
-                  fontSize: 12, letterSpacing: "0.06em",
-                  padding: "7px 18px",
-                  borderRadius: "14px 20px 16px 18px",
-                  boxShadow: `0 4px 0 ${catColor.shadow}`,
+                  display: "inline-flex", alignItems: "center", gap: 7,
+                  fontFamily: FRAUNCES, fontWeight: 600,
+                  fontSize: 12, letterSpacing: "0.04em",
+                  color: C.ink,
+                  padding: "5px 12px",
+                  borderRadius: 999,
+                  border: `1px solid rgba(42,29,20,0.14)`,
+                  background: "transparent",
                 }}>
+                  <span aria-hidden="true" style={{ width: 7, height: 7, borderRadius: "50%", background: catColor.bg }} />
                   {categoryLabel || product.category}
-                  <span style={{ opacity: 0.40 }}>·</span>
-                  <span style={{ fontWeight: 600, opacity: 0.85 }}>
-                    {product.stock} {isKa ? "მარაგში" : "in stock"}
-                  </span>
+                </span>
+                <span style={{
+                  fontFamily: "system-ui, -apple-system, 'Segoe UI', sans-serif",
+                  fontSize: 12, color: C.ink, opacity: 0.55,
+                }}>
+                  {inStock ? `${product.stock} ${isKa ? "მარაგში" : "in stock"}` : (isKa ? "გაყიდულია" : "Sold out")}
                 </span>
               </motion.div>
 
-              {/* Price — big number with small currency in the corner */}
+              {/* Price — big number with the currency tucked into the bottom-right corner */}
               <motion.div
-                initial={{ opacity: 0, x: -10 }}
+                initial={{ opacity: 0, x: -8 }}
                 animate={{ opacity: 1, x: 0 }}
                 transition={{ duration: 0.5, delay: 0.28 }}
-                style={{ display: "flex", alignItems: "flex-start", gap: 4, marginBottom: 22 }}
+                style={{ display: "flex", alignItems: "flex-end", gap: 4, marginBottom: 14 }}
               >
-                <span style={{ fontFamily: PACIFICO, fontSize: 48, color: C.burnt, lineHeight: 0.9 }}>
+                <span style={{ fontFamily: FRAUNCES, fontWeight: 700, fontSize: 44, color: C.ink, lineHeight: 0.95, letterSpacing: "-0.02em" }}>
                   {activeSizePrice}
                 </span>
-                <span style={{ fontFamily: FRAUNCES, fontStyle: "italic", fontWeight: 700, fontSize: 14, color: C.burnt, marginTop: 4, opacity: 0.75 }}>
+                <span style={{
+                  fontFamily: "system-ui, -apple-system, 'Segoe UI', sans-serif",
+                  fontWeight: 500, fontSize: 14, color: C.ink, opacity: 0.55,
+                  marginBottom: 4,
+                }}>
                   {curr.trim()}
                 </span>
                 {isOnSale && product.original_price && (
-                  <span style={{ fontFamily: FRAUNCES, fontSize: 16, color: C.champagne, textDecoration: "line-through", marginLeft: 10, marginTop: 8 }}>
-                    {product.original_price}{curr}
+                  <span style={{
+                    fontFamily: "system-ui, sans-serif", fontSize: 14,
+                    color: C.ink, opacity: 0.4, textDecoration: "line-through",
+                    marginLeft: 10, marginBottom: 4,
+                  }}>
+                    {product.original_price}{curr.trim()}
                   </span>
                 )}
               </motion.div>
 
-              {/* Reversible tagline — playful "two looks, one bag" line */}
+              {/* Reversible note — quiet single line under the price */}
               <motion.p
-                initial={{ opacity: 0, y: 6 }}
+                initial={{ opacity: 0, y: 4 }}
                 animate={{ opacity: 1, y: 0 }}
-                transition={{ duration: 0.45, delay: 0.30 }}
+                transition={{ duration: 0.4, delay: 0.30 }}
                 style={{
                   display: "inline-flex", alignItems: "center", gap: 8,
-                  fontFamily: FRAUNCES, fontStyle: "italic", fontWeight: 600,
-                  fontSize: 13, color: catColor.bg,
+                  fontFamily: "system-ui, -apple-system, 'Segoe UI', sans-serif",
+                  fontWeight: 500, fontSize: 13,
+                  color: C.ink, opacity: 0.6,
                   margin: "0 0 22px 0",
                 }}
               >
-                <span style={{ fontSize: 16, lineHeight: 1 }}>↻</span>
+                <span style={{ fontSize: 14, lineHeight: 1, color: catColor.bg }}>↻</span>
                 {isKa
-                  ? "ორი სახე — ერთ ჩანთაში. გადააბრუნე და ახალია."
-                  : "Two looks — one bag. Flip inside-out for a fresh face."}
+                  ? "ორმხრივი — გადააბრუნე და ახალი ჩანთაა."
+                  : "Reversible — flip inside-out for a fresh face."}
               </motion.p>
 
-              {/* Description — clean modern style, no italic serif */}
+              {/* Description — plain paragraph, no decorative box */}
               {product.description && (
-                <motion.div
+                <motion.p
                   initial={{ opacity: 0 }}
                   animate={{ opacity: 1 }}
                   transition={{ duration: 0.5, delay: 0.32 }}
                   style={{
-                    marginBottom: 24,
-                    padding: "12px 16px",
-                    background: "rgba(42,29,20,0.03)",
-                    borderRadius: 12,
-                    borderLeft: `3px solid ${catColor.bg}`,
-                  }}
-                >
-                  <p style={{
-                    fontSize: 15, lineHeight: 1.7,
-                    color: C.ink, opacity: 0.74,
-                    margin: 0,
+                    fontSize: 14, lineHeight: 1.7,
+                    color: C.ink, opacity: 0.72,
+                    margin: "0 0 24px 0",
                     fontFamily: "system-ui, -apple-system, 'Segoe UI', sans-serif",
                     fontWeight: 400,
-                  }}>
-                    {product.description}
-                  </p>
-                </motion.div>
+                  }}
+                >
+                  {product.description}
+                </motion.p>
               )}
 
               {/* Size selector */}
@@ -660,29 +665,21 @@ export function ProductDetailsClient({ product, related, lang }: ProductDetailsC
                 </motion.button>
               </div>
 
-              {/* Care & Material */}
-              <div style={{
-                marginTop: 8,
-                padding: "16px 18px",
-                background: "#f9f4eb",
-                border: `1px solid rgba(201,168,108,0.28)`,
-                borderRadius: 14,
-              }}>
+              {/* Care & Material — minimal divided sections, no boxy bg */}
+              <div style={{ marginTop: 12, borderTop: `1px solid rgba(42,29,20,0.10)`, paddingTop: 18 }}>
                 <div style={{
-                  fontFamily: FRAUNCES, fontStyle: "italic", fontWeight: 700,
-                  fontSize: 13, color: C.ink,
-                  letterSpacing: "0.04em",
-                  marginBottom: 10,
-                  display: "flex", alignItems: "center", gap: 6,
+                  fontFamily: FRAUNCES, fontWeight: 600,
+                  fontSize: 12, letterSpacing: "0.16em", textTransform: "uppercase",
+                  color: C.ink, opacity: 0.55,
+                  marginBottom: 12,
                 }}>
-                  <span style={{ color: catColor.bg }}>✦</span>
-                  {isKa ? "მოვლა და მასალა" : "Care & Material"}
+                  {isKa ? "მოვლა" : "Care"}
                 </div>
                 <ul style={{
-                  margin: 0, padding: 0, listStyle: "none",
-                  display: "flex", flexDirection: "column", gap: 5,
+                  margin: "0 0 22px 0", padding: 0, listStyle: "none",
+                  display: "flex", flexDirection: "column", gap: 7,
                   fontFamily: "system-ui, -apple-system, 'Segoe UI', sans-serif",
-                  fontSize: 13, lineHeight: 1.55, color: C.ink, opacity: 0.78,
+                  fontSize: 14, lineHeight: 1.5, color: C.ink, opacity: 0.78,
                 }}>
                   {(isKa
                     ? [
@@ -700,21 +697,31 @@ export function ProductDetailsClient({ product, related, lang }: ProductDetailsC
                         "Iron inside out on low heat",
                       ]
                   ).map((line) => (
-                    <li key={line} style={{ display: "flex", gap: 8, alignItems: "flex-start" }}>
-                      <span style={{ color: C.champagne, marginTop: 1 }}>•</span>
+                    <li key={line} style={{ display: "flex", gap: 12, alignItems: "flex-start" }}>
+                      <span aria-hidden="true" style={{
+                        width: 4, height: 4, borderRadius: "50%",
+                        background: C.ink, opacity: 0.35, marginTop: 9, flexShrink: 0,
+                      }} />
                       <span>{line}</span>
                     </li>
                   ))}
                 </ul>
+
                 <div style={{
-                  marginTop: 12, paddingTop: 10,
-                  borderTop: `1px dashed rgba(201,168,108,0.36)`,
-                  fontFamily: "system-ui, -apple-system, 'Segoe UI', sans-serif",
-                  fontSize: 13, color: C.ink, opacity: 0.78,
+                  fontFamily: FRAUNCES, fontWeight: 600,
+                  fontSize: 12, letterSpacing: "0.16em", textTransform: "uppercase",
+                  color: C.ink, opacity: 0.55,
+                  marginBottom: 8,
                 }}>
-                  <span style={{ fontWeight: 600 }}>{isKa ? "მასალა: " : "Material: "}</span>
-                  {isKa ? "წყალგამძლე საღებავიანი ტილო (Duck Canvas)" : "Water-Repellent Duck Canvas"}
+                  {isKa ? "მასალა" : "Material"}
                 </div>
+                <p style={{
+                  fontFamily: "system-ui, -apple-system, 'Segoe UI', sans-serif",
+                  fontSize: 14, lineHeight: 1.5, color: C.ink, opacity: 0.78,
+                  margin: 0,
+                }}>
+                  {isKa ? "წყალგამძლე საღებავიანი ტილო (Duck Canvas)" : "Water-Repellent Duck Canvas"}
+                </p>
               </div>
             </motion.div>
           </div>
