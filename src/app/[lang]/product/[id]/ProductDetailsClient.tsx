@@ -69,6 +69,41 @@ const CAT_COLORS: Record<string, { bg: string; text: string; shadow: string }> =
   necklace:     { bg: C.champagne, text: C.ink,   shadow: "#9a7840" },
 };
 
+/* Map of friendly color names admins may type in tags (e.g. `color:rose`). */
+const NAMED_COLORS: Record<string, string> = {
+  rose: C.rose, burnt: C.burnt, mustard: C.mustard, sage: C.sage,
+  lavender: C.lavender, green: C.green, champagne: C.champagne,
+  peach: C.peach, lilac: C.lilac, cream: C.cream, ink: C.ink,
+};
+
+/* Look for an admin-supplied colour override inside the product's tags array.
+   Accepts `color:#abcdef`, `color:rose`, or a bare `#abcdef` tag. Returns the first hit. */
+function colorFromTags(tags: string[]): string | null {
+  for (const raw of tags) {
+    const t = raw.trim();
+    if (/^#[0-9a-f]{3,8}$/i.test(t)) return t;
+    if (t.toLowerCase().startsWith("color:")) {
+      const val = t.slice(6).trim();
+      if (/^#[0-9a-f]{3,8}$/i.test(val)) return val;
+      const named = NAMED_COLORS[val.toLowerCase()];
+      if (named) return named;
+    }
+  }
+  return null;
+}
+
+/* Pick readable text colour (cream on dark bg, ink on light bg) for any hex. */
+function pickTextOn(hex: string): string {
+  const h = hex.replace("#", "");
+  if (h.length !== 6 && h.length !== 3) return C.cream;
+  const full = h.length === 3 ? h.split("").map((c) => c + c).join("") : h;
+  const r = parseInt(full.slice(0, 2), 16);
+  const g = parseInt(full.slice(2, 4), 16);
+  const b = parseInt(full.slice(4, 6), 16);
+  const lum = (0.299 * r + 0.587 * g + 0.114 * b) / 255;
+  return lum > 0.65 ? C.ink : C.cream;
+}
+
 /* ── Drip path helpers (mirrored from RetroProducts) ── */
 function seedNoise(i: number, seed: number): number {
   const n = Math.sin((i + 1) * 12.9898 + seed * 78.233) * 43758.5453;
@@ -248,19 +283,25 @@ export function ProductDetailsClient({ product, related, lang }: ProductDetailsC
   const isKa      = lang === "ka";
   const curr      = product.currency === "GEL" ? "₾" : ` ${product.currency}`;
   const categoryLabel = copy.shop.filters[product.category === "tote" ? "bag" : product.category];
-  const catColor  = CAT_COLORS[product.category] ?? { bg: C.rose, text: C.cream, shadow: "#9c6078" };
+  const baseCatColor = CAT_COLORS[product.category] ?? { bg: C.rose, text: C.cream, shadow: "#9c6078" };
+  /* Optional admin override — set a tag like `color:#hex` or `color:rose` to recolor banner + buttons */
+  const tagColor = colorFromTags(product.tags || []);
+  const catColor = tagColor
+    ? { bg: tagColor, text: pickTextOn(tagColor), shadow: baseCatColor.shadow }
+    : baseCatColor;
 
   const onAddToCart = () => {
     if (!inStock) return;
     const sizeMeta = SIZES.find((s) => s.id === selectedSize)!;
-    const sizeLabelKa = sizeMeta.id === "small" ? `პატარა (${sizeMeta.dim}სმ)` : `დიდი (${sizeMeta.dim}სმ)`;
-    const sizeLabelEn = sizeMeta.id === "small" ? `Small (${sizeMeta.dim}cm)` : `Large (${sizeMeta.dim}cm)`;
+    const sizeLabelKa = sizeMeta.id === "small" ? `პატარა ${sizeMeta.dim}სმ` : `დიდი ${sizeMeta.dim}სმ`;
+    const sizeLabelEn = sizeMeta.id === "small" ? `Small ${sizeMeta.dim}cm` : `Large ${sizeMeta.dim}cm`;
     const variant = {
       id: `${product.id}-${sizeMeta.id}`,
       size: sizeMeta.id,
-      colorName: { en: sizeLabelEn, ka: sizeLabelKa },
+      color: { en: sizeLabelEn, ka: sizeLabelKa },
       colorCode: catColor.bg,
       inStock: true,
+      price: sizeMeta.price,
     };
     try {
       addItem(
@@ -269,6 +310,7 @@ export function ProductDetailsClient({ product, related, lang }: ProductDetailsC
           name:        { en: name, ka: name },
           subtitle:    { en: sub,  ka: sub  },
           description: { en: "",   ka: ""   },
+          materials: [], careInstructions: [], reviews: [],
           price:       sizeMeta.price,
           images:      [product.image_front, product.image_back].filter(Boolean) as string[],
           variants: [variant],
@@ -278,7 +320,10 @@ export function ProductDetailsClient({ product, related, lang }: ProductDetailsC
         quantity
       );
       openCart();
-    } catch { openCart(); }
+    } catch (err) {
+      console.error("[cart] add failed", err);
+      openCart();
+    }
   };
 
   return (

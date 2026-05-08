@@ -456,17 +456,29 @@ export default function ShopClient({ lang, dictionary, products }: ShopClientPro
           {/* ── Filter + Sort bar (clean, non-sticky) ── */}
           <div className="py-6 mb-2">
             <div className="flex flex-wrap items-center gap-x-4 gap-y-3">
-              {/* Category pills */}
-              <div className="flex flex-wrap gap-2 flex-1 min-w-0">
-                {cats.map((cat) => {
+              {/* Category pills — soft organic pebble shape */}
+              <div className="flex flex-wrap gap-2.5 flex-1 min-w-0">
+                {cats.map((cat, i) => {
                   const active = catParam === cat.val;
                   const col = CAT_COLORS[cat.val] ?? CAT_COLORS.all;
+                  /* Per-pill organic radii — gives a hand-drawn pebble feel without being chaotic */
+                  const radii = [
+                    "62% 38% 55% 45% / 60% 50% 50% 40%",
+                    "40% 60% 45% 55% / 50% 60% 40% 50%",
+                    "55% 45% 60% 40% / 45% 55% 45% 55%",
+                    "45% 55% 40% 60% / 55% 45% 55% 45%",
+                    "60% 40% 50% 50% / 40% 50% 50% 60%",
+                    "50% 50% 45% 55% / 60% 45% 55% 40%",
+                    "45% 55% 55% 45% / 50% 60% 40% 50%",
+                  ];
+                  const radius = radii[i % radii.length];
                   return (
                     <motion.button
                       key={cat.val}
                       onClick={() => setParam("category", cat.val)}
-                      whileTap={{ scale: 0.97 }}
-                      transition={{ duration: 0.12 }}
+                      whileHover={{ y: -2 }}
+                      whileTap={{ scale: 0.96 }}
+                      transition={{ duration: 0.18 }}
                       style={{
                         fontFamily: FRAUNCES,
                         fontWeight: 600,
@@ -475,16 +487,19 @@ export default function ShopClient({ lang, dictionary, products }: ShopClientPro
                         display: "inline-flex",
                         alignItems: "center",
                         gap: 7,
-                        padding: "9px 18px",
-                        borderRadius: 999,
-                        background: active ? col.bg : "transparent",
+                        padding: "11px 22px",
+                        borderRadius: radius,
+                        background: active ? col.bg : "rgba(255,255,255,0.55)",
                         color: active ? col.text : C.ink,
                         border: active
                           ? `1.5px solid ${col.bg}`
-                          : `1.5px solid rgba(42,29,20,0.14)`,
+                          : `1.5px solid rgba(42,29,20,0.10)`,
+                        boxShadow: active
+                          ? `0 4px 14px ${col.bg}40`
+                          : "0 1px 3px rgba(42,29,20,0.05)",
                         cursor: "pointer",
                         whiteSpace: "nowrap",
-                        transition: "background 0.18s ease, border-color 0.18s ease, color 0.18s ease",
+                        transition: "background 0.22s ease, border-color 0.22s ease, color 0.22s ease, box-shadow 0.22s ease",
                       }}
                     >
                       <span style={{ fontSize: 13, opacity: active ? 1 : 0.7 }}>{CAT_BOTANICAL[cat.val]}</span>

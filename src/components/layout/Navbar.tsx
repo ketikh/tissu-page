@@ -112,11 +112,12 @@ export function Navbar({ lang, dictionary }: NavbarProps) {
         marginBottom: -17,
       }}
     >
-      {/* Inner band — warm cream with subtle 70s dot pattern, masked into a wavy bottom shape */}
+      {/* Masked background layer — only the cream + dots get the wavy clip; content (incl. dropdown) renders on top, unmasked */}
       <div
+        aria-hidden="true"
         style={{
-          position: "relative",
-          paddingBottom: 14,
+          position: "absolute",
+          inset: 0,
           background: [
             "radial-gradient(circle, rgba(213,104,38,0.085) 1.1px, transparent 1.6px) 0 0/22px 22px",
             "radial-gradient(circle, rgba(196,132,154,0.075) 1.1px, transparent 1.6px) 11px 11px/22px 22px",
@@ -128,6 +129,17 @@ export function Navbar({ lang, dictionary }: NavbarProps) {
           maskSize: "100% 100%",
           WebkitMaskRepeat: "no-repeat",
           maskRepeat: "no-repeat",
+          pointerEvents: "none",
+          zIndex: 0,
+        }}
+      />
+
+      {/* Content layer — sits above the masked bg, dropdown/popovers can overflow without being clipped */}
+      <div
+        style={{
+          position: "relative",
+          paddingBottom: 14,
+          zIndex: 1,
         }}
       >
       {/* ── Top accent stripe ── */}
