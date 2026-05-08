@@ -587,11 +587,11 @@ export function ProductDetailsClient({ product, related, lang }: ProductDetailsC
                           flex: "1 1 0", minWidth: 150,
                           padding: "12px 16px",
                           border: active
-                            ? `1.5px solid ${C.ink}`
+                            ? `1.5px solid ${catColor.bg}`
                             : `1.5px solid rgba(42,29,20,0.14)`,
                           borderRadius: 14,
-                          background: active ? C.ink : "transparent",
-                          color: active ? "white" : disabled ? "rgba(42,29,20,0.32)" : C.ink,
+                          background: active ? catColor.bg : "transparent",
+                          color: active ? catColor.text : disabled ? "rgba(42,29,20,0.32)" : C.ink,
                           cursor: disabled ? "not-allowed" : "pointer",
                           textAlign: "left",
                           textDecoration: disabled ? "line-through" : "none",
@@ -647,8 +647,8 @@ export function ProductDetailsClient({ product, related, lang }: ProductDetailsC
                   disabled={!inStock}
                   style={{
                     flex: "1 1 0", minWidth: 180,
-                    background: inStock ? C.ink : "rgba(42,29,20,0.18)",
-                    color: inStock ? "white" : "rgba(42,29,20,0.55)",
+                    background: inStock ? catColor.bg : "rgba(201,168,108,0.22)",
+                    color: inStock ? catColor.text : "rgba(42,29,20,0.55)",
                     border: "none", borderRadius: 14,
                     padding: "0 22px", height: 44,
                     fontFamily: FRAUNCES, fontWeight: 600,
