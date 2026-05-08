@@ -99,13 +99,20 @@ export function Navbar({ lang, dictionary }: NavbarProps) {
   return (
     <header
       className="sticky top-0 z-40"
-      style={{
-        background: "white",
-        boxShadow: "0 1px 6px rgba(42,29,20,0.08)",
-        position: "relative",
-        paddingBottom: 0,
-      }}
+      style={{ position: "relative" }}
     >
+      {/* Inner band — warm cream with subtle 70s dot pattern */}
+      <div
+        style={{
+          position: "relative",
+          background: [
+            "radial-gradient(circle, rgba(213,104,38,0.085) 1.1px, transparent 1.6px) 0 0/22px 22px",
+            "radial-gradient(circle, rgba(196,132,154,0.075) 1.1px, transparent 1.6px) 11px 11px/22px 22px",
+            "linear-gradient(to bottom, #fff8e9 0%, #fdeed1 100%)",
+          ].join(", "),
+          boxShadow: "0 1px 6px rgba(42,29,20,0.08)",
+        }}
+      >
       {/* ── Top accent stripe ── */}
       <div
         style={{
@@ -296,10 +303,24 @@ export function Navbar({ lang, dictionary }: NavbarProps) {
         </button>
       </div>
 
-      {/* Wavy bottom border */}
-      <div style={{ height: 10, lineHeight: 0, overflow: "hidden" }}>
-        <svg viewBox="0 0 1440 10" preserveAspectRatio="none" style={{ width: "100%", height: "100%", display: "block" }}>
-          <path d="M0,5 Q40,0 80,5 Q120,10 160,5 Q200,0 240,5 Q280,10 320,5 Q360,0 400,5 Q440,10 480,5 Q520,0 560,5 Q600,10 640,5 Q680,0 720,5 Q760,10 800,5 Q840,0 880,5 Q920,10 960,5 Q1000,0 1040,5 Q1080,10 1120,5 Q1160,0 1200,5 Q1240,10 1280,5 Q1320,0 1360,5 Q1400,10 1440,5" fill="none" stroke="#f3b62b" strokeWidth="2.5" strokeLinecap="round" />
+      </div>
+      {/* Wavy bottom edge — cream fill above wave, transparent below; mustard stroke marks the boundary */}
+      <div style={{ height: 14, lineHeight: 0, position: "relative", marginTop: -1 }}>
+        <svg viewBox="0 0 1440 14" preserveAspectRatio="none" style={{ width: "100%", height: "100%", display: "block" }}>
+          <defs>
+            <linearGradient id="navbarFill" x1="0" y1="0" x2="0" y2="1">
+              <stop offset="0" stopColor="#fdeed1" />
+              <stop offset="1" stopColor="#fdeed1" />
+            </linearGradient>
+          </defs>
+          <path
+            d="M0,0 L1440,0 L1440,7 Q1400,12 1360,7 Q1320,2 1280,7 Q1240,12 1200,7 Q1160,2 1120,7 Q1080,12 1040,7 Q1000,2 960,7 Q920,12 880,7 Q840,2 800,7 Q760,12 720,7 Q680,2 640,7 Q600,12 560,7 Q520,2 480,7 Q440,12 400,7 Q360,2 320,7 Q280,12 240,7 Q200,2 160,7 Q120,12 80,7 Q40,2 0,7 Z"
+            fill="url(#navbarFill)"
+          />
+          <path
+            d="M0,7 Q40,2 80,7 Q120,12 160,7 Q200,2 240,7 Q280,12 320,7 Q360,2 400,7 Q440,12 480,7 Q520,2 560,7 Q600,12 640,7 Q680,2 720,7 Q760,12 800,7 Q840,2 880,7 Q920,12 960,7 Q1000,2 1040,7 Q1080,12 1120,7 Q1160,2 1200,7 Q1240,12 1280,7 Q1320,2 1360,7 Q1400,12 1440,7"
+            fill="none" stroke="#f3b62b" strokeWidth="2.5" strokeLinecap="round"
+          />
         </svg>
       </div>
 

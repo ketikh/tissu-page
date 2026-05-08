@@ -267,7 +267,7 @@ export function ProductDetailsClient({ product, related, lang }: ProductDetailsC
     <div style={{ background: "#ffffff", minHeight: "100vh" }}>
 
       {/* ══ HERO — dynamic category colour + soft drip bottom ══ */}
-      <section className="relative overflow-hidden" style={{ background: catColor.bg, paddingBottom: 140 }}>
+      <section className="relative overflow-hidden" style={{ background: catColor.bg, paddingBottom: 190 }}>
 
         {/* Floating sparkles & botanicals */}
         <div aria-hidden="true" className="absolute inset-0 pointer-events-none">
