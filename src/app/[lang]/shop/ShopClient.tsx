@@ -30,15 +30,33 @@ const C = {
   blue:        "#5a9fd4",
 };
 
-/* ── Scalloped hero bottom — fewer, bigger soft bumps ─────────────── */
-const SCALLOP_VB_H = 140;
+/* ── Scalloped hero bottom — varied, asymmetric soft bumps ────────── */
+const SCALLOP_VB_H = 150;
 const SCALLOP_PATH = (() => {
-  const n = 8, w = 1440, sw = w / n, H = 90;
-  let d = `M 0 ${SCALLOP_VB_H} L 0 ${H}`;
-  for (let i = 0; i < n; i++) {
-    d += ` Q ${Math.round(i * sw + sw / 2)} 0 ${Math.round((i + 1) * sw)} ${H}`;
+  /* width = how wide the bump is; peakY = how far up it reaches (smaller = taller);
+     apexShift = horizontal offset of the apex from centre (negative = left-leaning).
+     Sum of widths must equal 1440. */
+  const bumps = [
+    { w: 230, peakY:  6, apexShift: -18 },
+    { w: 130, peakY: 52, apexShift:  10 },
+    { w: 210, peakY: 14, apexShift:  -6 },
+    { w: 160, peakY: 38, apexShift:  14 },
+    { w: 250, peakY:  0, apexShift: -22 },
+    { w: 140, peakY: 58, apexShift:   8 },
+    { w: 180, peakY: 12, apexShift: -10 },
+    { w: 140, peakY: 44, apexShift:   4 },
+  ];
+  const baseY = 100;
+  let d = `M 0 ${SCALLOP_VB_H} L 0 ${baseY}`;
+  let x = 0;
+  for (const b of bumps) {
+    const apexX = Math.round(x + b.w / 2 + b.apexShift);
+    const endX = x + b.w;
+    d += ` Q ${apexX} ${b.peakY} ${endX} ${baseY}`;
+    x = endX;
   }
-  return d + ` L ${w} ${SCALLOP_VB_H} Z`;
+  d += ` L 1440 ${SCALLOP_VB_H} Z`;
+  return d;
 })();
 
 /* ── Shape helpers ───────────────────────────────────────────────── */
@@ -386,7 +404,7 @@ export default function ShopClient({ lang, dictionary, products }: ShopClientPro
           </motion.p>
         </div>
 
-        <div className="absolute bottom-0 left-0 w-full" style={{ height: 130, lineHeight: 0 }}>
+        <div className="absolute bottom-0 left-0 w-full" style={{ height: 140, lineHeight: 0 }}>
           <svg viewBox={`0 0 1440 ${SCALLOP_VB_H}`} preserveAspectRatio="none" className="w-full h-full block">
             <path d={SCALLOP_PATH} fill={C.cream} />
           </svg>
