@@ -37,14 +37,14 @@ const SCALLOP_PATH = (() => {
      apexShift = horizontal offset of the apex from centre (negative = left-leaning).
      Sum of widths must equal 1440. */
   const bumps = [
-    { w: 230, peakY:  6, apexShift: -18 },
-    { w: 130, peakY: 52, apexShift:  10 },
-    { w: 210, peakY: 14, apexShift:  -6 },
-    { w: 160, peakY: 38, apexShift:  14 },
-    { w: 250, peakY:  0, apexShift: -22 },
-    { w: 140, peakY: 58, apexShift:   8 },
-    { w: 180, peakY: 12, apexShift: -10 },
-    { w: 140, peakY: 44, apexShift:   4 },
+    { w: 230, peakY: 50, apexShift: -18 },
+    { w: 130, peakY: 78, apexShift:  10 },
+    { w: 210, peakY: 56, apexShift:  -6 },
+    { w: 160, peakY: 70, apexShift:  14 },
+    { w: 250, peakY: 46, apexShift: -22 },
+    { w: 140, peakY: 82, apexShift:   8 },
+    { w: 180, peakY: 54, apexShift: -10 },
+    { w: 140, peakY: 74, apexShift:   4 },
   ];
   const baseY = 100;
   let d = `M 0 ${SCALLOP_VB_H} L 0 ${baseY}`;
