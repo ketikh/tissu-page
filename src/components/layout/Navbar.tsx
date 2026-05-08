@@ -142,13 +142,6 @@ export function Navbar({ lang, dictionary }: NavbarProps) {
           zIndex: 1,
         }}
       >
-      {/* ── Top accent stripe ── */}
-      <div
-        style={{
-          height: 3,
-          background: "linear-gradient(to right, #f3b62b, #d56826, #c4849a, #f3b62b)",
-        }}
-      />
 
       {/* ── Desktop: 3-column centred-logo layout ── */}
       <div className="hidden md:grid grid-cols-3 items-center px-6 py-3">
