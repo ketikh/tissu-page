@@ -38,6 +38,13 @@ const CAT_DOT: Record<string, string> = {
   necklace:     "#c9a86c",
 };
 
+/* Wavy bottom mask — clips the navbar bg so its bottom edge IS the wavy shape itself.
+   viewBox stretches with the navbar so the wave always sits at the bottom ~12% of the height. */
+const WAVE_MASK_URL = (() => {
+  const svg = `<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 1440 100' preserveAspectRatio='none'><path fill='white' d='M0 0 H1440 V88 Q1400 100 1360 88 Q1320 76 1280 88 Q1240 100 1200 88 Q1160 76 1120 88 Q1080 100 1040 88 Q1000 76 960 88 Q920 100 880 88 Q840 76 800 88 Q760 100 720 88 Q680 76 640 88 Q600 100 560 88 Q520 76 480 88 Q440 100 400 88 Q360 76 320 88 Q280 100 240 88 Q200 76 160 88 Q120 100 80 88 Q40 76 0 88 Z'/></svg>`;
+  return `url("data:image/svg+xml,${encodeURIComponent(svg)}")`;
+})();
+
 const TISSU_PATHS = [
   "M223.3,341.6c-17.2,0-29.8-4.6-37.7-13.7-8-9.1-11.9-22.4-11.9-39.8s.4-17.9,1.3-25.2c.9-7.3,1.8-14.4,2.7-21.4.9-6.9,1.8-14.1,2.7-21.4.9-7.3,1.3-15.7,1.3-25.2s0-7.2-.2-11c-.1-3.7-.5-7.1-1.2-10.2-.6-3.1-1.7-5.6-3.3-7.7-1.5-2.1-3.7-3.1-6.5-3.1-4.4,0-8.2,0-11.4.2-3.2.1-6.4.3-9.4.4-3.1.1-6.5.3-10.2.4-3.7.1-8.3.2-13.7.2s-6.7-2.2-9.4-6.5c-2.7-4.4-4.9-9.4-6.7-15.2-1.8-5.8-3.1-11.4-4-16.9-.9-5.5-1.3-9.6-1.3-12.1s0-3.1-.2-4.8c-.1-1.7,0-3.3.6-4.8,1.5-7.7,5.6-14.1,12.3-19.1,6.7-5,15.2-8.9,25.6-11.5,10.4-2.7,22.3-4.6,35.6-5.6,13.3-1,27.5-1.5,42.3-1.5s29.4.5,43.5,1.5c14.1,1,26.6,3.3,37.5,6.9,10.9,3.6,19.7,8.7,26.4,15.2,6.7,6.5,10,15.5,10,26.8s-.2,9.9-.6,15.8c-.4,5.9-1.3,11.5-2.7,16.9-1.4,5.4-3.3,9.9-5.8,13.5-2.4,3.6-5.6,5.4-9.4,5.4s-11.2-.8-18.3-2.3c-7.1-1.5-14.6-2.3-22.5-2.3s-7.3.5-9.6,1.5c-2.3,1-4,2.5-5,4.4-1,1.9-1.6,4.2-1.7,6.9-.1,2.7-.2,5.6-.2,8.7,0,10.3.6,19.8,1.9,28.5,1.3,8.7,2.7,17.3,4.2,25.8,1.5,8.5,2.9,17.3,4.2,26.4,1.3,9.1,1.9,19.3,1.9,30.6s-1.4,14.4-4.2,20.2c-2.8,5.8-6.6,10.5-11.4,14.2-4.8,3.7-10.2,6.5-16.4,8.3-6.2,1.8-12.6,2.7-19.2,2.7Z",
   "M405.8,334.7c-17.2,0-30.2-4.8-39.1-14.4-8.9-9.6-14.3-23-16.4-40.2-3.6-31.6-4.9-62.8-4-93.5.9-30.8,3.5-61.7,7.9-92.8.8-5.4,3-9.9,6.7-13.7,3.7-3.7,8.1-6.6,13.1-8.7,5-2.1,10.1-3.5,15.4-4.4,5.3-.9,9.9-1.3,14.1-1.3,9.8,0,18.5,2.3,26.4,6.9,7.8,4.6,12.8,13,14.8,25,2.3,13.3,4.2,28.6,5.8,45.6,1.5,17.1,2.9,34.5,4,52.4,1.2,17.8,2,35.4,2.5,52.7.5,17.3.8,32.9.8,46.8s-1.7,12.9-5,17.9c-3.3,5-7.5,9.1-12.5,12.3-5,3.2-10.6,5.6-16.7,7.1-6.2,1.5-12.1,2.3-17.7,2.3Z",
@@ -99,18 +106,24 @@ export function Navbar({ lang, dictionary }: NavbarProps) {
   return (
     <header
       className="sticky top-0 z-40"
-      style={{ position: "relative" }}
+      style={{ position: "relative", filter: "drop-shadow(0 2px 6px rgba(42,29,20,0.10))" }}
     >
-      {/* Inner band — warm cream with subtle 70s dot pattern */}
+      {/* Inner band — warm cream with subtle 70s dot pattern, masked into a wavy bottom shape */}
       <div
         style={{
           position: "relative",
+          paddingBottom: 14,
           background: [
             "radial-gradient(circle, rgba(213,104,38,0.085) 1.1px, transparent 1.6px) 0 0/22px 22px",
             "radial-gradient(circle, rgba(196,132,154,0.075) 1.1px, transparent 1.6px) 11px 11px/22px 22px",
             "linear-gradient(to bottom, #fff8e9 0%, #fdeed1 100%)",
           ].join(", "),
-          boxShadow: "0 1px 6px rgba(42,29,20,0.08)",
+          WebkitMaskImage: WAVE_MASK_URL,
+          maskImage: WAVE_MASK_URL,
+          WebkitMaskSize: "100% 100%",
+          maskSize: "100% 100%",
+          WebkitMaskRepeat: "no-repeat",
+          maskRepeat: "no-repeat",
         }}
       >
       {/* ── Top accent stripe ── */}
@@ -303,23 +316,20 @@ export function Navbar({ lang, dictionary }: NavbarProps) {
         </button>
       </div>
 
-      </div>
-      {/* Wavy bottom edge — cream fill above wave, transparent below; mustard stroke marks the boundary */}
-      <div style={{ height: 14, lineHeight: 0, position: "relative", marginTop: -1 }}>
-        <svg viewBox="0 0 1440 14" preserveAspectRatio="none" style={{ width: "100%", height: "100%", display: "block" }}>
-          <defs>
-            <linearGradient id="navbarFill" x1="0" y1="0" x2="0" y2="1">
-              <stop offset="0" stopColor="#fdeed1" />
-              <stop offset="1" stopColor="#fdeed1" />
-            </linearGradient>
-          </defs>
+        {/* Mustard stroke that follows the same wavy mask edge */}
+        <svg
+          aria-hidden="true"
+          viewBox="0 0 1440 100"
+          preserveAspectRatio="none"
+          style={{ position: "absolute", left: 0, right: 0, bottom: 0, top: 0, width: "100%", height: "100%", pointerEvents: "none" }}
+        >
           <path
-            d="M0,0 L1440,0 L1440,7 Q1400,12 1360,7 Q1320,2 1280,7 Q1240,12 1200,7 Q1160,2 1120,7 Q1080,12 1040,7 Q1000,2 960,7 Q920,12 880,7 Q840,2 800,7 Q760,12 720,7 Q680,2 640,7 Q600,12 560,7 Q520,2 480,7 Q440,12 400,7 Q360,2 320,7 Q280,12 240,7 Q200,2 160,7 Q120,12 80,7 Q40,2 0,7 Z"
-            fill="url(#navbarFill)"
-          />
-          <path
-            d="M0,7 Q40,2 80,7 Q120,12 160,7 Q200,2 240,7 Q280,12 320,7 Q360,2 400,7 Q440,12 480,7 Q520,2 560,7 Q600,12 640,7 Q680,2 720,7 Q760,12 800,7 Q840,2 880,7 Q920,12 960,7 Q1000,2 1040,7 Q1080,12 1120,7 Q1160,2 1200,7 Q1240,12 1280,7 Q1320,2 1360,7 Q1400,12 1440,7"
-            fill="none" stroke="#f3b62b" strokeWidth="2.5" strokeLinecap="round"
+            d="M0 88 Q40 76 80 88 Q120 100 160 88 Q200 76 240 88 Q280 100 320 88 Q360 76 400 88 Q440 100 480 88 Q520 76 560 88 Q600 100 640 88 Q680 76 720 88 Q760 100 800 88 Q840 76 880 88 Q920 100 960 88 Q1000 76 1040 88 Q1080 100 1120 88 Q1160 76 1200 88 Q1240 100 1280 88 Q1320 76 1360 88 Q1400 100 1440 88"
+            fill="none"
+            stroke="#f3b62b"
+            strokeWidth="2.5"
+            strokeLinecap="round"
+            vectorEffect="non-scaling-stroke"
           />
         </svg>
       </div>

@@ -302,25 +302,24 @@ export function ProductDetailsClient({ product, related, lang }: ProductDetailsC
             <span>{categoryLabel || product.category}</span>
           </motion.div>
 
-          {/* Product name — slides up */}
-          <div style={{ overflow: "hidden" }}>
-            <motion.h1
-              initial={{ opacity: 0, y: 40 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.75, ease: [0.215, 0.61, 0.355, 1], delay: 0.15 }}
-              style={{
-                fontFamily: isKa ? ALK_LIFE : FRAUNCES,
-                fontStyle: isKa ? "normal" : "italic",
-                fontWeight: 900,
-                fontSize: "clamp(32px, 5.5vw, 72px)",
-                color: catColor.text,
-                lineHeight: 1.0,
-                margin: 0,
-              }}
-            >
-              {name}
-            </motion.h1>
-          </div>
+          {/* Product name — fades up (no overflow wrapper so descenders aren't clipped) */}
+          <motion.h1
+            initial={{ opacity: 0, y: 24 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.75, ease: [0.215, 0.61, 0.355, 1], delay: 0.15 }}
+            style={{
+              fontFamily: isKa ? ALK_LIFE : FRAUNCES,
+              fontStyle: isKa ? "normal" : "italic",
+              fontWeight: 900,
+              fontSize: "clamp(32px, 5.5vw, 72px)",
+              color: catColor.text,
+              lineHeight: 1.18,
+              margin: 0,
+              padding: "0.08em 0",
+            }}
+          >
+            {name}
+          </motion.h1>
 
           {sub && (
             <motion.p
