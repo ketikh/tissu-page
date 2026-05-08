@@ -199,6 +199,7 @@ export default function RetroHero({
         )}
 
         <h1
+          className="font-retro-display"
           style={{
             fontFamily: lang === "ka" ? ALK_LIFE : FRAUNCES,
             fontWeight: 900,

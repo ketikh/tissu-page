@@ -177,7 +177,7 @@ export default function RetroNecklaces({
             whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: true }}
             transition={{ duration: 0.85, delay: 0.1, ease: [0.215, 0.61, 0.355, 1] }}
-            className="leading-[0.95]"
+            className="font-retro-display leading-[0.95]"
             style={{
               fontFamily: isKa ? ALK_LIFE : FRAUNCES,
               fontStyle: isKa ? "normal" : "italic",

@@ -29,6 +29,15 @@ const C = {
   border: "rgba(42,29,20,0.18)",
 };
 
+const CAT_DOT: Record<string, string> = {
+  tote:         "#7aaa8a",
+  pouch:        "#d56826",
+  laptop:       "#9e8abf",
+  kidsbackpack: "#f3b62b",
+  apron:        "#3f6f56",
+  necklace:     "#c9a86c",
+};
+
 const TISSU_PATHS = [
   "M223.3,341.6c-17.2,0-29.8-4.6-37.7-13.7-8-9.1-11.9-22.4-11.9-39.8s.4-17.9,1.3-25.2c.9-7.3,1.8-14.4,2.7-21.4.9-6.9,1.8-14.1,2.7-21.4.9-7.3,1.3-15.7,1.3-25.2s0-7.2-.2-11c-.1-3.7-.5-7.1-1.2-10.2-.6-3.1-1.7-5.6-3.3-7.7-1.5-2.1-3.7-3.1-6.5-3.1-4.4,0-8.2,0-11.4.2-3.2.1-6.4.3-9.4.4-3.1.1-6.5.3-10.2.4-3.7.1-8.3.2-13.7.2s-6.7-2.2-9.4-6.5c-2.7-4.4-4.9-9.4-6.7-15.2-1.8-5.8-3.1-11.4-4-16.9-.9-5.5-1.3-9.6-1.3-12.1s0-3.1-.2-4.8c-.1-1.7,0-3.3.6-4.8,1.5-7.7,5.6-14.1,12.3-19.1,6.7-5,15.2-8.9,25.6-11.5,10.4-2.7,22.3-4.6,35.6-5.6,13.3-1,27.5-1.5,42.3-1.5s29.4.5,43.5,1.5c14.1,1,26.6,3.3,37.5,6.9,10.9,3.6,19.7,8.7,26.4,15.2,6.7,6.5,10,15.5,10,26.8s-.2,9.9-.6,15.8c-.4,5.9-1.3,11.5-2.7,16.9-1.4,5.4-3.3,9.9-5.8,13.5-2.4,3.6-5.6,5.4-9.4,5.4s-11.2-.8-18.3-2.3c-7.1-1.5-14.6-2.3-22.5-2.3s-7.3.5-9.6,1.5c-2.3,1-4,2.5-5,4.4-1,1.9-1.6,4.2-1.7,6.9-.1,2.7-.2,5.6-.2,8.7,0,10.3.6,19.8,1.9,28.5,1.3,8.7,2.7,17.3,4.2,25.8,1.5,8.5,2.9,17.3,4.2,26.4,1.3,9.1,1.9,19.3,1.9,30.6s-1.4,14.4-4.2,20.2c-2.8,5.8-6.6,10.5-11.4,14.2-4.8,3.7-10.2,6.5-16.4,8.3-6.2,1.8-12.6,2.7-19.2,2.7Z",
   "M405.8,334.7c-17.2,0-30.2-4.8-39.1-14.4-8.9-9.6-14.3-23-16.4-40.2-3.6-31.6-4.9-62.8-4-93.5.9-30.8,3.5-61.7,7.9-92.8.8-5.4,3-9.9,6.7-13.7,3.7-3.7,8.1-6.6,13.1-8.7,5-2.1,10.1-3.5,15.4-4.4,5.3-.9,9.9-1.3,14.1-1.3,9.8,0,18.5,2.3,26.4,6.9,7.8,4.6,12.8,13,14.8,25,2.3,13.3,4.2,28.6,5.8,45.6,1.5,17.1,2.9,34.5,4,52.4,1.2,17.8,2,35.4,2.5,52.7.5,17.3.8,32.9.8,46.8s-1.7,12.9-5,17.9c-3.3,5-7.5,9.1-12.5,12.3-5,3.2-10.6,5.6-16.7,7.1-6.2,1.5-12.1,2.3-17.7,2.3Z",
@@ -60,7 +69,6 @@ export function Navbar({ lang, dictionary }: NavbarProps) {
 
   const isHome = pathname === `/${lang}` || pathname === `/${lang}/`;
   const isHidden = isHome || HIDE_ON_ROUTES.some((p) => pathname?.includes(p));
-  const isProductPage = !!pathname?.includes(`/${lang}/product/`);
 
   useEffect(() => {
     function handler(e: MouseEvent) {
@@ -75,13 +83,13 @@ export function Navbar({ lang, dictionary }: NavbarProps) {
   if (isHidden) return null;
 
   const categories = [
-    { label: lang === "ka" ? "ყველა პროდუქტი" : "All products", href: `/${lang}/shop` },
-    { label: copy.shop.filters.bag, href: `/${lang}/shop?category=tote` },
-    { label: copy.shop.filters.pouch, href: `/${lang}/shop?category=pouch` },
-    { label: copy.shop.filters.laptop, href: `/${lang}/shop?category=laptop` },
-    { label: copy.shop.filters.kidsbackpack, href: `/${lang}/shop?category=kidsbackpack` },
-    { label: copy.shop.filters.apron, href: `/${lang}/shop?category=apron` },
-    { label: copy.shop.filters.necklace, href: `/${lang}/shop?category=necklace` },
+    { label: lang === "ka" ? "ყველა პროდუქტი" : "All products", href: `/${lang}/shop`,                       key: "all" },
+    { label: copy.shop.filters.bag,          href: `/${lang}/shop?category=tote`,         key: "tote" },
+    { label: copy.shop.filters.pouch,        href: `/${lang}/shop?category=pouch`,        key: "pouch" },
+    { label: copy.shop.filters.laptop,       href: `/${lang}/shop?category=laptop`,       key: "laptop" },
+    { label: copy.shop.filters.kidsbackpack, href: `/${lang}/shop?category=kidsbackpack`, key: "kidsbackpack" },
+    { label: copy.shop.filters.apron,        href: `/${lang}/shop?category=apron`,        key: "apron" },
+    { label: copy.shop.filters.necklace,     href: `/${lang}/shop?category=necklace`,     key: "necklace" },
   ];
 
   const rightLinks = [
@@ -92,62 +100,95 @@ export function Navbar({ lang, dictionary }: NavbarProps) {
     <header
       className="sticky top-0 z-40"
       style={{
-        background: isProductPage ? "transparent" : "white",
-        boxShadow: isProductPage ? "none" : "0 1px 6px rgba(42,29,20,0.08)",
+        background: "white",
+        boxShadow: "0 1px 6px rgba(42,29,20,0.08)",
         position: "relative",
         paddingBottom: 0,
       }}
     >
-      {/* ── Top accent stripe (hidden on product page) ── */}
-      {!isProductPage && (
-        <div
-          style={{
-            height: 3,
-            background: "linear-gradient(to right, #f3b62b, #d56826, #c4849a, #f3b62b)",
-          }}
-        />
-      )}
+      {/* ── Top accent stripe ── */}
+      <div
+        style={{
+          height: 3,
+          background: "linear-gradient(to right, #f3b62b, #d56826, #c4849a, #f3b62b)",
+        }}
+      />
 
       {/* ── Desktop: 3-column centred-logo layout ── */}
       <div className="hidden md:grid grid-cols-3 items-center px-6 py-3">
 
         {/* LEFT — Shop dropdown + extra links */}
-        <div className="flex items-center gap-1">
+        <div className="flex items-center gap-2">
           {/* Shop with dropdown */}
           <div className="relative" ref={shopRef}>
             <button
               type="button"
               onClick={() => setShopOpen((v) => !v)}
-              className="flex items-center gap-1 px-3 py-2 text-[12px] font-extrabold uppercase tracking-[0.14em] rounded-full transition-colors"
-              style={{ fontFamily: FRAUNCES, color: shopOpen ? C.burnt : C.ink, background: shopOpen ? "rgba(213,104,38,0.08)" : "transparent" }}
+              className="flex items-center gap-1.5 px-3.5 py-2 text-[14px] rounded-full transition-colors"
+              style={{
+                fontFamily: FRAUNCES,
+                fontWeight: 600,
+                letterSpacing: "0.01em",
+                color: shopOpen ? C.burnt : C.ink,
+              }}
             >
-              {copy.nav.shop}
+              <span>{copy.nav.shop}</span>
               <motion.span animate={{ rotate: shopOpen ? 180 : 0 }} transition={{ duration: 0.22 }}>
-                <ChevronDown className="w-3 h-3" />
+                <ChevronDown className="w-3.5 h-3.5" />
               </motion.span>
             </button>
 
             <AnimatePresence>
               {shopOpen && (
                 <motion.div
-                  initial={{ opacity: 0, y: 6, scale: 0.97 }}
-                  animate={{ opacity: 1, y: 0, scale: 1 }}
-                  exit={{ opacity: 0, y: 4, scale: 0.97 }}
-                  transition={{ duration: 0.16 }}
-                  className="absolute left-0 top-full mt-2 min-w-[200px] z-50 rounded-2xl overflow-hidden"
-                  style={{ background: C.cream, border: `1.5px solid rgba(201,168,108,0.4)`, boxShadow: `0 8px 32px rgba(196,132,154,0.18)` }}
+                  initial={{ opacity: 0, y: 8 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  exit={{ opacity: 0, y: 6 }}
+                  transition={{ duration: 0.18, ease: [0.215, 0.61, 0.355, 1] }}
+                  className="absolute left-0 top-full mt-3 z-50 overflow-hidden"
+                  style={{
+                    width: 360,
+                    background: "white",
+                    borderRadius: 18,
+                    border: "1px solid rgba(42,29,20,0.08)",
+                    boxShadow: "0 14px 40px rgba(42,29,20,0.10), 0 2px 8px rgba(42,29,20,0.04)",
+                  }}
                 >
-                  {categories.map((cat) => (
-                    <Link
-                      key={cat.href}
-                      href={cat.href}
-                      onClick={() => setShopOpen(false)}
-                      className="block px-5 py-2.5 text-[12px] font-bold uppercase tracking-[0.1em] transition-colors hover:bg-[#d56826] hover:text-[#fef0d6]"
-                      style={{ fontFamily: FRAUNCES, color: C.ink, borderBottom: `1px solid ${C.border}` }}
-                    >
-                      {cat.label}
-                    </Link>
-                  ))}
+                  <div className="grid grid-cols-2 gap-1 p-2">
+                    {categories.map((cat) => {
+                      const dot = CAT_DOT[cat.key];
+                      const isAll = cat.key === "all";
+                      return (
+                        <Link
+                          key={cat.href}
+                          href={cat.href}
+                          onClick={() => setShopOpen(false)}
+                          className="group flex items-center gap-2.5 px-3 py-2.5 rounded-xl transition-colors"
+                          style={{
+                            fontFamily: FRAUNCES,
+                            fontWeight: 500,
+                            fontSize: 14,
+                            color: C.ink,
+                            gridColumn: isAll ? "span 2" : undefined,
+                          }}
+                        >
+                          {dot ? (
+                            <span
+                              aria-hidden="true"
+                              className="inline-block rounded-full transition-transform group-hover:scale-110"
+                              style={{ width: 8, height: 8, background: dot, flexShrink: 0 }}
+                            />
+                          ) : (
+                            <span aria-hidden="true" className="inline-block" style={{ width: 8, height: 8, flexShrink: 0 }}>
+                              <span className="block w-full h-full rounded-full" style={{ background: "linear-gradient(135deg,#d56826,#c4849a,#9e8abf)" }} />
+                            </span>
+                          )}
+                          <span className="flex-1 group-hover:text-[#d56826] transition-colors">{cat.label}</span>
+                          <span className="opacity-0 group-hover:opacity-60 transition-opacity" style={{ fontSize: 12 }}>→</span>
+                        </Link>
+                      );
+                    })}
+                  </div>
                 </motion.div>
               )}
             </AnimatePresence>
@@ -157,8 +198,13 @@ export function Navbar({ lang, dictionary }: NavbarProps) {
             <Link
               key={link.href}
               href={link.href}
-              className="px-3 py-2 text-[12px] font-extrabold uppercase tracking-[0.14em] rounded-full transition-colors hover:text-[#d56826] after:content-[''] after:block after:w-1 after:h-1 after:rounded-full after:bg-[#d56826] after:mx-auto after:mt-0.5 after:opacity-0 hover:after:opacity-100"
-              style={{ fontFamily: FRAUNCES, color: pathname === link.href ? C.burnt : C.ink }}
+              className="px-3.5 py-2 text-[14px] rounded-full transition-colors hover:text-[#d56826]"
+              style={{
+                fontFamily: FRAUNCES,
+                fontWeight: 600,
+                letterSpacing: "0.01em",
+                color: pathname === link.href ? C.burnt : C.ink,
+              }}
             >
               {link.name}
             </Link>

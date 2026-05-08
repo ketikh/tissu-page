@@ -101,7 +101,7 @@ export default function RetroAbout({
               whileInView={{ opacity: 1, y: 0 }}
               viewport={{ once: true }}
               transition={{ duration: 0.85, delay: 0.1, ease: [0.215, 0.61, 0.355, 1] }}
-              className="mt-4 leading-[0.92]"
+              className="font-retro-display mt-4 leading-[0.92]"
               style={{
                 fontFamily: isKa ? ALK_LIFE : PACIFICO,
                 color: C.green,

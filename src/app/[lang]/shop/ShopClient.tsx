@@ -453,14 +453,11 @@ export default function ShopClient({ lang, dictionary, products }: ShopClientPro
         {/* ── PRODUCT GRID ── */}
         <main className="px-6 md:px-14 lg:px-20 pt-0 pb-24">
 
-          {/* ── Filter + Sort bar ── */}
-          <div
-            className="sticky z-10 py-5"
-            style={{ top: 64, background: C.cream, borderBottom: `1.5px solid rgba(201,168,108,0.22)` }}
-          >
-            <div className="flex flex-wrap items-center gap-3">
+          {/* ── Filter + Sort bar (clean, non-sticky) ── */}
+          <div className="py-6 mb-2">
+            <div className="flex flex-wrap items-center gap-x-4 gap-y-3">
               {/* Category pills */}
-              <div className="flex flex-wrap gap-2 flex-1">
+              <div className="flex flex-wrap gap-2 flex-1 min-w-0">
                 {cats.map((cat) => {
                   const active = catParam === cat.val;
                   const col = CAT_COLORS[cat.val] ?? CAT_COLORS.all;
@@ -468,31 +465,29 @@ export default function ShopClient({ lang, dictionary, products }: ShopClientPro
                     <motion.button
                       key={cat.val}
                       onClick={() => setParam("category", cat.val)}
-                      animate={{ y: active ? 2 : 0 }}
-                      whileTap={{ scale: 0.96 }}
-                      transition={{ duration: 0.1 }}
+                      whileTap={{ scale: 0.97 }}
+                      transition={{ duration: 0.12 }}
                       style={{
                         fontFamily: FRAUNCES,
-                        fontStyle: "italic",
-                        fontWeight: 700,
+                        fontWeight: 600,
                         fontSize: 13,
+                        letterSpacing: "0.02em",
                         display: "inline-flex",
                         alignItems: "center",
-                        gap: 6,
-                        padding: "8px 18px",
-                        borderRadius: active ? "14px 20px 16px 18px" : "20px 14px 18px 16px",
-                        background: active ? col.bg : C.cream,
+                        gap: 7,
+                        padding: "9px 18px",
+                        borderRadius: 999,
+                        background: active ? col.bg : "transparent",
                         color: active ? col.text : C.ink,
-                        border: `2px solid ${active ? col.bg : "rgba(201,168,108,0.4)"}`,
-                        boxShadow: active
-                          ? `0 3px 0 ${col.shadow}`
-                          : `0 2px 0 rgba(201,168,108,0.25)`,
+                        border: active
+                          ? `1.5px solid ${col.bg}`
+                          : `1.5px solid rgba(42,29,20,0.14)`,
                         cursor: "pointer",
                         whiteSpace: "nowrap",
-                        transition: "border-radius 0.3s ease",
+                        transition: "background 0.18s ease, border-color 0.18s ease, color 0.18s ease",
                       }}
                     >
-                      <span style={{ fontSize: 14 }}>{CAT_BOTANICAL[cat.val]}</span>
+                      <span style={{ fontSize: 13, opacity: active ? 1 : 0.7 }}>{CAT_BOTANICAL[cat.val]}</span>
                       {cat.label}
                     </motion.button>
                   );
@@ -506,17 +501,17 @@ export default function ShopClient({ lang, dictionary, products }: ShopClientPro
                   onChange={(e) => setParam("sort", e.target.value)}
                   style={{
                     fontFamily: FRAUNCES,
-                    fontWeight: 700,
+                    fontWeight: 600,
                     fontSize: 12,
+                    letterSpacing: "0.04em",
                     color: C.ink,
-                    background: C.cream,
-                    border: `2px solid rgba(201,168,108,0.4)`,
-                    borderRadius: "16px 12px 14px 18px",
-                    padding: "8px 36px 8px 14px",
+                    background: "transparent",
+                    border: `1.5px solid rgba(42,29,20,0.14)`,
+                    borderRadius: 999,
+                    padding: "9px 36px 9px 16px",
                     cursor: "pointer",
                     appearance: "none",
                     WebkitAppearance: "none",
-                    boxShadow: `0 2px 0 rgba(201,168,108,0.25)`,
                     outline: "none",
                   }}
                 >
@@ -527,9 +522,9 @@ export default function ShopClient({ lang, dictionary, products }: ShopClientPro
                   ))}
                 </select>
                 <span style={{
-                  position: "absolute", right: 12, top: "50%", transform: "translateY(-50%)",
-                  pointerEvents: "none", fontSize: 10, color: C.champagne,
-                }}>▾</span>
+                  position: "absolute", right: 14, top: "50%", transform: "translateY(-50%)",
+                  pointerEvents: "none", fontSize: 9, color: C.ink, opacity: 0.55,
+                }}>▼</span>
               </div>
             </div>
           </div>

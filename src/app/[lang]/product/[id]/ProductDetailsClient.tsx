@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useMemo, useEffect } from "react";
+import { useState, useMemo } from "react";
 import Image from "next/image";
 import Link from "next/link";
 import { motion } from "framer-motion";
@@ -242,13 +242,6 @@ export function ProductDetailsClient({ product, related, lang }: ProductDetailsC
   const categoryLabel = copy.shop.filters[product.category === "tote" ? "bag" : product.category];
   const catColor  = CAT_COLORS[product.category] ?? { bg: C.rose, text: C.cream, shadow: "#9c6078" };
 
-  /* Sync body bg with hero color so the transparent navbar shows the same colour above the hero */
-  useEffect(() => {
-    const prev = document.body.style.backgroundColor;
-    document.body.style.backgroundColor = catColor.bg;
-    return () => { document.body.style.backgroundColor = prev; };
-  }, [catColor.bg]);
-
   const onAddToCart = () => {
     if (!inStock) return;
     try {
@@ -273,8 +266,8 @@ export function ProductDetailsClient({ product, related, lang }: ProductDetailsC
   return (
     <div style={{ background: "#ffffff", minHeight: "100vh" }}>
 
-      {/* ══ HERO — dynamic category colour + zigzag bottom ══ */}
-      <section className="relative overflow-hidden" style={{ background: catColor.bg, paddingBottom: 72 }}>
+      {/* ══ HERO — dynamic category colour + soft drip bottom ══ */}
+      <section className="relative overflow-hidden" style={{ background: catColor.bg, paddingBottom: 140 }}>
 
         {/* Floating sparkles & botanicals */}
         <div aria-hidden="true" className="absolute inset-0 pointer-events-none">
