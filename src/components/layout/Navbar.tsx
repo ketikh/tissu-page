@@ -60,6 +60,7 @@ export function Navbar({ lang, dictionary }: NavbarProps) {
 
   const isHome = pathname === `/${lang}` || pathname === `/${lang}/`;
   const isHidden = isHome || HIDE_ON_ROUTES.some((p) => pathname?.includes(p));
+  const isProductPage = !!pathname?.includes(`/${lang}/product/`);
 
   useEffect(() => {
     function handler(e: MouseEvent) {
@@ -91,19 +92,21 @@ export function Navbar({ lang, dictionary }: NavbarProps) {
     <header
       className="sticky top-0 z-40"
       style={{
-        background: "white",
-        boxShadow: "0 1px 6px rgba(42,29,20,0.08)",
+        background: isProductPage ? "transparent" : "white",
+        boxShadow: isProductPage ? "none" : "0 1px 6px rgba(42,29,20,0.08)",
         position: "relative",
         paddingBottom: 0,
       }}
     >
-      {/* ── Top accent stripe ── */}
-      <div
-        style={{
-          height: 3,
-          background: "linear-gradient(to right, #f3b62b, #d56826, #c4849a, #f3b62b)",
-        }}
-      />
+      {/* ── Top accent stripe (hidden on product page) ── */}
+      {!isProductPage && (
+        <div
+          style={{
+            height: 3,
+            background: "linear-gradient(to right, #f3b62b, #d56826, #c4849a, #f3b62b)",
+          }}
+        />
+      )}
 
       {/* ── Desktop: 3-column centred-logo layout ── */}
       <div className="hidden md:grid grid-cols-3 items-center px-6 py-3">

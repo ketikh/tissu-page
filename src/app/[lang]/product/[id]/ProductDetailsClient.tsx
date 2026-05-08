@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useMemo } from "react";
+import { useState, useMemo, useEffect } from "react";
 import Image from "next/image";
 import Link from "next/link";
 import { motion } from "framer-motion";
@@ -33,14 +33,31 @@ const C = {
   lilac:       "#b89bd9",
 };
 
-/* Zigzag SVG bottom for hero — very different from scalloped shop hero */
-const ZIGZAG_PATH = (() => {
-  const n = 36, w = 1440, sw = w / n, H = 44;
-  let d = `M 0 ${H}`;
-  for (let i = 0; i < n; i++) {
-    d += ` L ${Math.round(i * sw + sw / 2)} 0 L ${Math.round((i + 1) * sw)} ${H}`;
+/* Soft melting drip bottom for hero — hero color "drips" down into white */
+const DRIP_PATH = (() => {
+  const w = 1440;
+  const SVG_H = 120;
+  const baseY = 22;
+  const drips = [
+    { cx:   95, hw: 70, depth: 78 },
+    { cx:  290, hw: 78, depth: 58 },
+    { cx:  500, hw: 90, depth: 96 },
+    { cx:  710, hw: 70, depth: 64 },
+    { cx:  920, hw: 92, depth: 90 },
+    { cx: 1140, hw: 76, depth: 70 },
+    { cx: 1350, hw: 82, depth: 102 },
+  ];
+  let d = `M 0 ${baseY}`;
+  for (const dr of drips) {
+    const lEdge = dr.cx - dr.hw;
+    const rEdge = dr.cx + dr.hw;
+    d += ` L ${lEdge - 18} ${baseY}`;
+    // smooth blob: slope down to depth, rounded bottom, slope back up
+    d += ` C ${lEdge + 6} ${baseY + 6}, ${lEdge + 14} ${dr.depth}, ${dr.cx} ${dr.depth}`;
+    d += ` C ${rEdge - 14} ${dr.depth}, ${rEdge - 6} ${baseY + 6}, ${rEdge + 18} ${baseY}`;
   }
-  return d + ` L ${w} 80 L 0 80 Z`;
+  d += ` L ${w} ${baseY} L ${w} ${SVG_H} L 0 ${SVG_H} Z`;
+  return d;
 })();
 
 const CAT_COLORS: Record<string, { bg: string; text: string; shadow: string }> = {
@@ -225,6 +242,13 @@ export function ProductDetailsClient({ product, related, lang }: ProductDetailsC
   const categoryLabel = copy.shop.filters[product.category === "tote" ? "bag" : product.category];
   const catColor  = CAT_COLORS[product.category] ?? { bg: C.rose, text: C.cream, shadow: "#9c6078" };
 
+  /* Sync body bg with hero color so the transparent navbar shows the same colour above the hero */
+  useEffect(() => {
+    const prev = document.body.style.backgroundColor;
+    document.body.style.backgroundColor = catColor.bg;
+    return () => { document.body.style.backgroundColor = prev; };
+  }, [catColor.bg]);
+
   const onAddToCart = () => {
     if (!inStock) return;
     try {
@@ -317,10 +341,10 @@ export function ProductDetailsClient({ product, related, lang }: ProductDetailsC
           )}
         </div>
 
-        {/* Zigzag bottom cut */}
-        <div className="absolute bottom-0 left-0 w-full" style={{ height: 64, lineHeight: 0 }}>
-          <svg viewBox="0 0 1440 80" preserveAspectRatio="none" className="w-full h-full block">
-            <path d={ZIGZAG_PATH} fill="#ffffff" />
+        {/* Soft melting drip bottom — hero color drips down into white */}
+        <div className="absolute bottom-0 left-0 w-full" style={{ height: 96, lineHeight: 0 }}>
+          <svg viewBox="0 0 1440 120" preserveAspectRatio="none" className="w-full h-full block">
+            <path d={DRIP_PATH} fill="#ffffff" />
           </svg>
         </div>
       </section>
