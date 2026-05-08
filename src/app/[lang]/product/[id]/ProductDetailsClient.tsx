@@ -227,6 +227,14 @@ export function ProductDetailsClient({ product, related, lang }: ProductDetailsC
   const [activeSide, setActiveSide] = useState<"front" | "back">("front");
   const [quantity,   setQuantity]   = useState(1);
   const [wishlisted, setWishlisted] = useState(false);
+  const [selectedSize, setSelectedSize] = useState<"small" | "large">("large");
+
+  /* Two fixed sizes Tissu offers. `enabled` flips off when stock for that size is gone. */
+  const SIZES = [
+    { id: "small" as const, dim: "33×25", price: 69, enabled: true },
+    { id: "large" as const, dim: "37×27", price: 74, enabled: true },
+  ];
+  const activeSizePrice = SIZES.find((s) => s.id === selectedSize)?.price ?? product.price;
 
   const addItem  = useCartStore((s) => s.addItem);
   const openCart = useUIStore((s) => s.openCart);
@@ -244,6 +252,16 @@ export function ProductDetailsClient({ product, related, lang }: ProductDetailsC
 
   const onAddToCart = () => {
     if (!inStock) return;
+    const sizeMeta = SIZES.find((s) => s.id === selectedSize)!;
+    const sizeLabelKa = sizeMeta.id === "small" ? `პატარა (${sizeMeta.dim}სმ)` : `დიდი (${sizeMeta.dim}სმ)`;
+    const sizeLabelEn = sizeMeta.id === "small" ? `Small (${sizeMeta.dim}cm)` : `Large (${sizeMeta.dim}cm)`;
+    const variant = {
+      id: `${product.id}-${sizeMeta.id}`,
+      size: sizeMeta.id,
+      colorName: { en: sizeLabelEn, ka: sizeLabelKa },
+      colorCode: catColor.bg,
+      inStock: true,
+    };
     try {
       addItem(
         {
@@ -251,12 +269,12 @@ export function ProductDetailsClient({ product, related, lang }: ProductDetailsC
           name:        { en: name, ka: name },
           subtitle:    { en: sub,  ka: sub  },
           description: { en: "",   ka: ""   },
-          price:       product.price,
+          price:       sizeMeta.price,
           images:      [product.image_front, product.image_back].filter(Boolean) as string[],
-          variants: [{ id: `${product.id}-default`, size: "one", colorName: { en: product.color || "default", ka: product.color || "default" }, colorCode: catColor.bg, inStock: true }],
+          variants: [variant],
           category: product.category as any, featured: true, badges: [],
         } as any,
-        { id: `${product.id}-default`, size: "one", colorName: { en: product.color || "default", ka: product.color || "default" }, colorCode: catColor.bg, inStock: true } as any,
+        variant as any,
         quantity
       );
       openCart();
@@ -475,22 +493,43 @@ export function ProductDetailsClient({ product, related, lang }: ProductDetailsC
                 </span>
               </motion.div>
 
-              {/* Price */}
+              {/* Price — big number with small currency in the corner */}
               <motion.div
                 initial={{ opacity: 0, x: -10 }}
                 animate={{ opacity: 1, x: 0 }}
                 transition={{ duration: 0.5, delay: 0.28 }}
-                style={{ display: "flex", alignItems: "baseline", gap: 12, marginBottom: 22 }}
+                style={{ display: "flex", alignItems: "flex-start", gap: 4, marginBottom: 22 }}
               >
-                <span style={{ fontFamily: PACIFICO, fontSize: 44, color: C.burnt, lineHeight: 1 }}>
-                  {product.price}{curr}
+                <span style={{ fontFamily: PACIFICO, fontSize: 48, color: C.burnt, lineHeight: 0.9 }}>
+                  {activeSizePrice}
+                </span>
+                <span style={{ fontFamily: FRAUNCES, fontStyle: "italic", fontWeight: 700, fontSize: 14, color: C.burnt, marginTop: 4, opacity: 0.75 }}>
+                  {curr.trim()}
                 </span>
                 {isOnSale && product.original_price && (
-                  <span style={{ fontFamily: FRAUNCES, fontSize: 20, color: C.champagne, textDecoration: "line-through" }}>
+                  <span style={{ fontFamily: FRAUNCES, fontSize: 16, color: C.champagne, textDecoration: "line-through", marginLeft: 10, marginTop: 8 }}>
                     {product.original_price}{curr}
                   </span>
                 )}
               </motion.div>
+
+              {/* Reversible tagline — playful "two looks, one bag" line */}
+              <motion.p
+                initial={{ opacity: 0, y: 6 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.45, delay: 0.30 }}
+                style={{
+                  display: "inline-flex", alignItems: "center", gap: 8,
+                  fontFamily: FRAUNCES, fontStyle: "italic", fontWeight: 600,
+                  fontSize: 13, color: catColor.bg,
+                  margin: "0 0 22px 0",
+                }}
+              >
+                <span style={{ fontSize: 16, lineHeight: 1 }}>↻</span>
+                {isKa
+                  ? "ორი სახე — ერთ ჩანთაში. გადააბრუნე და ახალია."
+                  : "Two looks — one bag. Flip inside-out for a fresh face."}
+              </motion.p>
 
               {/* Description — clean modern style, no italic serif */}
               {product.description && (
@@ -499,7 +538,7 @@ export function ProductDetailsClient({ product, related, lang }: ProductDetailsC
                   animate={{ opacity: 1 }}
                   transition={{ duration: 0.5, delay: 0.32 }}
                   style={{
-                    marginBottom: 22,
+                    marginBottom: 24,
                     padding: "12px 16px",
                     background: "rgba(42,29,20,0.03)",
                     borderRadius: 12,
@@ -518,133 +557,166 @@ export function ProductDetailsClient({ product, related, lang }: ProductDetailsC
                 </motion.div>
               )}
 
-              {/* Feature pills */}
-              <motion.div
-                initial={{ opacity: 0, y: 8 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ duration: 0.45, delay: 0.36 }}
-                style={{ display: "flex", flexWrap: "wrap", gap: 8, marginBottom: 28 }}
-              >
-                {[
-                  isKa ? "ხელნაკეთი"   : "Handmade",
-                  isKa ? "წყალგამძლე" : "Water-resistant",
-                  isKa ? "ორმხრივი"   : "Reversible",
-                ].map((label, i) => (
-                  <motion.span
-                    key={label}
-                    initial={{ opacity: 0, scale: 0.88 }}
-                    animate={{ opacity: 1, scale: 1 }}
-                    transition={{ delay: 0.36 + i * 0.07, duration: 0.3 }}
-                    style={{
-                      fontFamily: FRAUNCES, fontStyle: "italic", fontWeight: 700,
-                      fontSize: 12, color: C.ink,
-                      background: "#f9f4eb",
-                      border: `1.5px solid rgba(201,168,108,0.32)`,
-                      borderRadius: "20px 14px 18px 16px",
-                      padding: "7px 16px",
-                      boxShadow: `0 2px 0 rgba(201,168,108,0.20)`,
-                    }}
-                  >
-                    {label}
-                  </motion.span>
-                ))}
-              </motion.div>
-
-              {/* Quantity */}
-              <div style={{ display: "flex", alignItems: "center", gap: 14, marginBottom: 22 }}>
-                <span style={{ fontFamily: FRAUNCES, fontStyle: "italic", fontSize: 11, color: C.champagne, letterSpacing: "0.12em", textTransform: "uppercase" }}>
-                  {isKa ? "რაოდ." : "Qty"}
-                </span>
+              {/* Size selector */}
+              <div style={{ marginBottom: 22 }}>
                 <div style={{
-                  display: "flex", alignItems: "center",
-                  border: `1.5px solid rgba(201,168,108,0.30)`,
-                  borderRadius: "20px 14px 18px 16px",
-                  background: "#f9f4eb",
-                  boxShadow: `0 2px 0 rgba(201,168,108,0.18)`,
+                  fontFamily: FRAUNCES, fontStyle: "italic", fontSize: 11, color: C.champagne,
+                  letterSpacing: "0.16em", textTransform: "uppercase", marginBottom: 10,
                 }}>
-                  <button onClick={() => setQuantity((q) => Math.max(1, q - 1))} aria-label="decrease"
-                    style={{ width: 38, height: 38, border: "none", background: "transparent", cursor: "pointer", display: "flex", alignItems: "center", justifyContent: "center", color: C.ink }}>
-                    <Minus size={13} />
-                  </button>
-                  <span style={{ width: 34, textAlign: "center", fontFamily: FRAUNCES, fontWeight: 700, fontSize: 15, color: C.ink }}>{quantity}</span>
-                  <button onClick={() => setQuantity((q) => q + 1)} aria-label="increase"
-                    style={{ width: 38, height: 38, border: "none", background: "transparent", cursor: "pointer", display: "flex", alignItems: "center", justifyContent: "center", color: C.ink }}>
-                    <Plus size={13} />
-                  </button>
+                  {isKa ? "ზომა" : "Size"}
+                </div>
+                <div style={{ display: "flex", gap: 10, flexWrap: "wrap" }}>
+                  {SIZES.map((s) => {
+                    const active = selectedSize === s.id;
+                    const disabled = !s.enabled;
+                    const labelKa = s.id === "small" ? "პატარა" : "დიდი";
+                    const labelEn = s.id === "small" ? "Small" : "Large";
+                    return (
+                      <motion.button
+                        key={s.id}
+                        type="button"
+                        onClick={() => !disabled && setSelectedSize(s.id)}
+                        disabled={disabled}
+                        whileTap={{ scale: disabled ? 1 : 0.97 }}
+                        style={{
+                          flex: "1 1 0", minWidth: 150,
+                          padding: "12px 16px",
+                          border: active
+                            ? `1.5px solid ${C.ink}`
+                            : `1.5px solid rgba(42,29,20,0.14)`,
+                          borderRadius: 14,
+                          background: active ? C.ink : "transparent",
+                          color: active ? "white" : disabled ? "rgba(42,29,20,0.32)" : C.ink,
+                          cursor: disabled ? "not-allowed" : "pointer",
+                          textAlign: "left",
+                          textDecoration: disabled ? "line-through" : "none",
+                          opacity: disabled ? 0.55 : 1,
+                          transition: "background 0.18s, border-color 0.18s, color 0.18s",
+                        }}
+                      >
+                        <div style={{
+                          fontFamily: FRAUNCES, fontWeight: 700, fontSize: 14,
+                          display: "flex", justifyContent: "space-between", alignItems: "baseline", gap: 8,
+                        }}>
+                          <span>{isKa ? labelKa : labelEn}</span>
+                          <span style={{ fontSize: 13, opacity: active ? 0.95 : 0.7 }}>
+                            {s.price}{curr.trim()}
+                          </span>
+                        </div>
+                        <div style={{
+                          fontSize: 11, opacity: active ? 0.7 : 0.55,
+                          marginTop: 2, fontFamily: "system-ui, sans-serif",
+                        }}>
+                          {s.dim} {isKa ? "სმ" : "cm"}
+                          {disabled && (isKa ? " · არ არის" : " · sold out")}
+                        </div>
+                      </motion.button>
+                    );
+                  })}
                 </div>
               </div>
 
-              {/* Buttons */}
-              <motion.div
-                initial={{ opacity: 0, y: 8 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ duration: 0.45, delay: 0.44 }}
-                style={{ display: "flex", gap: 12, flexWrap: "wrap", marginBottom: 16 }}
-              >
+              {/* Quantity + Add-to-bag — clean modern row */}
+              <div style={{ display: "flex", alignItems: "stretch", gap: 10, marginBottom: 24, flexWrap: "wrap" }}>
+                <div style={{
+                  display: "flex", alignItems: "center",
+                  border: `1.5px solid rgba(42,29,20,0.14)`,
+                  borderRadius: 14,
+                  background: "white",
+                }}>
+                  <button onClick={() => setQuantity((q) => Math.max(1, q - 1))} aria-label="decrease"
+                    style={{ width: 40, height: 44, border: "none", background: "transparent", cursor: "pointer", display: "flex", alignItems: "center", justifyContent: "center", color: C.ink }}>
+                    <Minus size={14} />
+                  </button>
+                  <span style={{ width: 30, textAlign: "center", fontFamily: FRAUNCES, fontWeight: 700, fontSize: 15, color: C.ink }}>{quantity}</span>
+                  <button onClick={() => setQuantity((q) => q + 1)} aria-label="increase"
+                    style={{ width: 40, height: 44, border: "none", background: "transparent", cursor: "pointer", display: "flex", alignItems: "center", justifyContent: "center", color: C.ink }}>
+                    <Plus size={14} />
+                  </button>
+                </div>
+
                 <motion.button
-                  whileHover={{ y: -2, transition: { duration: 0.14 } }}
-                  whileTap={{ y: 3 }}
+                  whileHover={{ scale: inStock ? 1.01 : 1 }}
+                  whileTap={{ scale: inStock ? 0.98 : 1 }}
                   onClick={onAddToCart}
                   disabled={!inStock}
                   style={{
-                    flex: "1 1 0", minWidth: 160,
-                    background: inStock ? C.mustard : C.champagne,
-                    color: C.ink, border: "none",
-                    borderRadius: "20px 14px 18px 16px",
-                    padding: "14px 24px",
-                    fontFamily: FRAUNCES, fontStyle: "italic",
-                    fontSize: 15, fontWeight: 700,
+                    flex: "1 1 0", minWidth: 180,
+                    background: inStock ? C.ink : "rgba(42,29,20,0.18)",
+                    color: inStock ? "white" : "rgba(42,29,20,0.55)",
+                    border: "none", borderRadius: 14,
+                    padding: "0 22px", height: 44,
+                    fontFamily: FRAUNCES, fontWeight: 600,
+                    fontSize: 14, letterSpacing: "0.02em",
                     cursor: inStock ? "pointer" : "not-allowed",
-                    boxShadow: inStock ? `0 5px 0 ${C.mustardDeep}` : "none",
-                    display: "flex", alignItems: "center", justifyContent: "center", gap: 8,
+                    display: "inline-flex", alignItems: "center", justifyContent: "center", gap: 8,
+                    transition: "background 0.18s, transform 0.18s",
                   }}
                 >
-                  <ShoppingBag size={16} />
-                  {isKa ? "კალათში დამატება" : "Add to bag"}
+                  <ShoppingBag size={15} />
+                  {inStock
+                    ? (isKa ? "კალათში დამატება" : "Add to bag")
+                    : (isKa ? "გაყიდულია" : "Sold out")}
                 </motion.button>
-
-                <motion.button
-                  whileHover={{ y: -2, transition: { duration: 0.14 } }}
-                  whileTap={{ y: 3 }}
-                  onClick={() => { window.location.href = `/${lang}/shop`; }}
-                  style={{
-                    flexShrink: 0,
-                    background: "white", color: C.ink,
-                    border: `1.5px solid rgba(42,29,20,0.15)`,
-                    borderRadius: "14px 20px 16px 18px",
-                    padding: "14px 22px",
-                    fontFamily: FRAUNCES, fontStyle: "italic",
-                    fontSize: 15, fontWeight: 700, cursor: "pointer",
-                    boxShadow: `0 5px 0 rgba(42,29,20,0.07)`,
-                  }}
-                >
-                  {isKa ? "მაღაზია" : "Shop"}
-                </motion.button>
-              </motion.div>
-
-              <p style={{ fontFamily: FRAUNCES, fontStyle: "italic", fontSize: 12, color: C.champagne, opacity: 0.85, margin: 0 }}>
-                ✦ {isKa ? "ხელნაკეთი თბილისში · სწრაფი მიტანა საქართველოში" : "Handmade in Tbilisi · Fast delivery across Georgia"}
-              </p>
-            </motion.div>
-          </div>
-        </div>
-      </div>
-
-      {/* ══ FEATURES STRIP — 3 items, no free shipping ══ */}
-      <div style={{ background: "#f9f4eb", borderTop: `1px solid rgba(201,168,108,0.22)` }}>
-        <div className="max-w-4xl mx-auto px-5 sm:px-8">
-          <div className="grid grid-cols-3" style={{ padding: "24px 0", gap: 8 }}>
-            {[
-              { icon: "✦",  title: isKa ? "ხელნაკეთი"  : "Handmade",       sub: isKa ? "ჩვენს სახელოსნოში"     : "In our Tbilisi studio"    },
-              { icon: "↺",  title: isKa ? "ორმხრივი"   : "Reversible",      sub: isKa ? "ორი მხარე, ერთი ჩანთა" : "Two sides, one bag"       },
-              { icon: "💧", title: isKa ? "წყალგამძლე" : "Water-resistant", sub: isKa ? "სანვარე ტილო"          : "Canvas that handles rain" },
-            ].map(({ icon, title, sub: fsub }) => (
-              <div key={title} style={{ textAlign: "center" }}>
-                <div style={{ fontSize: 22, marginBottom: 5 }}>{icon}</div>
-                <div style={{ fontFamily: FRAUNCES, fontStyle: "italic", fontSize: 13, color: C.burnt, fontWeight: 700, marginBottom: 2 }}>{title}</div>
-                <div style={{ fontSize: 11, color: C.champagne, lineHeight: 1.4 }}>{fsub}</div>
               </div>
-            ))}
+
+              {/* Care & Material */}
+              <div style={{
+                marginTop: 8,
+                padding: "16px 18px",
+                background: "#f9f4eb",
+                border: `1px solid rgba(201,168,108,0.28)`,
+                borderRadius: 14,
+              }}>
+                <div style={{
+                  fontFamily: FRAUNCES, fontStyle: "italic", fontWeight: 700,
+                  fontSize: 13, color: C.ink,
+                  letterSpacing: "0.04em",
+                  marginBottom: 10,
+                  display: "flex", alignItems: "center", gap: 6,
+                }}>
+                  <span style={{ color: catColor.bg }}>✦</span>
+                  {isKa ? "მოვლა და მასალა" : "Care & Material"}
+                </div>
+                <ul style={{
+                  margin: 0, padding: 0, listStyle: "none",
+                  display: "flex", flexDirection: "column", gap: 5,
+                  fontFamily: "system-ui, -apple-system, 'Segoe UI', sans-serif",
+                  fontSize: 13, lineHeight: 1.55, color: C.ink, opacity: 0.78,
+                }}>
+                  {(isKa
+                    ? [
+                        "გაიწმინდე ნოტიო ნაჭრით",
+                        "ნაზი რეცხვა 30°C-ზე",
+                        "მათეთრებლების გარეშე",
+                        "ჰაერზე გაშრობა რეკომენდებულია",
+                        "უთო შიგნიდან, დაბალ ცეცხლზე",
+                      ]
+                    : [
+                        "Wipe clean with damp cloth",
+                        "Gentle wash at 30°C",
+                        "Do not bleach",
+                        "Air dry recommended",
+                        "Iron inside out on low heat",
+                      ]
+                  ).map((line) => (
+                    <li key={line} style={{ display: "flex", gap: 8, alignItems: "flex-start" }}>
+                      <span style={{ color: C.champagne, marginTop: 1 }}>•</span>
+                      <span>{line}</span>
+                    </li>
+                  ))}
+                </ul>
+                <div style={{
+                  marginTop: 12, paddingTop: 10,
+                  borderTop: `1px dashed rgba(201,168,108,0.36)`,
+                  fontFamily: "system-ui, -apple-system, 'Segoe UI', sans-serif",
+                  fontSize: 13, color: C.ink, opacity: 0.78,
+                }}>
+                  <span style={{ fontWeight: 600 }}>{isKa ? "მასალა: " : "Material: "}</span>
+                  {isKa ? "წყალგამძლე საღებავიანი ტილო (Duck Canvas)" : "Water-Repellent Duck Canvas"}
+                </div>
+              </div>
+            </motion.div>
           </div>
         </div>
       </div>
