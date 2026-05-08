@@ -106,7 +106,11 @@ export function Navbar({ lang, dictionary }: NavbarProps) {
   return (
     <header
       className="sticky top-0 z-40"
-      style={{ position: "relative", filter: "drop-shadow(0 2px 6px rgba(42,29,20,0.10))" }}
+      style={{
+        position: "relative",
+        filter: "drop-shadow(0 2px 6px rgba(42,29,20,0.10))",
+        marginBottom: -17,
+      }}
     >
       {/* Inner band — warm cream with subtle 70s dot pattern, masked into a wavy bottom shape */}
       <div
