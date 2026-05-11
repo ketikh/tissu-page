@@ -81,15 +81,21 @@ export default function CheckoutClient({ lang, dictionary }: CheckoutClientProps
     setIsSubmitting(true);
     
     try {
-      const orderPayloadItems = items.map(i => ({
-        productId: i.productId,
-        variantId: i.variantId,
-        quantity: i.quantity,
-        price: i.variant.price || i.product.price,
-        productName: i.product.name,
-        variantName: i.variant.color,
-        image: i.product.images[0]
-      }));
+      const orderPayloadItems = items.map(i => {
+        const variantField =
+          (i.variant as any)?.color ??
+          (i.variant as any)?.colorName ??
+          { ka: "", en: "" };
+        return {
+          productId: i.productId,
+          variantId: i.variantId,
+          quantity: i.quantity,
+          price: i.variant?.price || i.product.price,
+          productName: i.product.name,
+          variantName: variantField,
+          image: i.product.images[0]
+        };
+      });
 
       const payload = {
         items: orderPayloadItems,
@@ -178,30 +184,42 @@ export default function CheckoutClient({ lang, dictionary }: CheckoutClientProps
               <h2 className="text-2xl font-serif font-medium text-brand-dark mb-8">{dictionary.checkout.summary}</h2>
               
               <div className="flex flex-col gap-6 mb-10 max-h-[45vh] overflow-y-auto pr-3 custom-scrollbar">
-                {items.map((item) => (
-                  <div key={item.id} className="flex gap-5 items-center">
-                    <div className="relative w-20 h-24 bg-brand-soft rounded-2xl overflow-hidden shrink-0 border border-border/40">
-                      <Image 
-                        src={item.product.images[0] || "/placeholder.jpg"} 
-                        alt={item.product.name[lang] || item.product.name['ka']} 
-                        fill 
-                        className="object-cover" 
-                      />
-                      <div className="absolute -top-1 -right-1 bg-brand-dark text-white text-[10px] w-6 h-6 flex items-center justify-center rounded-full font-bold border-2 border-white shadow-sm">
-                        {item.quantity}
+                {items.map((item) => {
+                  const productName = item.product?.name?.[lang] || item.product?.name?.["ka"] || "";
+                  const variantField =
+                    (item.variant as any)?.color ??
+                    (item.variant as any)?.colorName ??
+                    null;
+                  const variantLabel = variantField?.[lang] || variantField?.["ka"] || "";
+                  const size = item.variant?.size;
+                  const meta = [size && size !== "one" ? size : null, variantLabel || null].filter(Boolean).join(" • ");
+                  return (
+                    <div key={item.id} className="flex gap-5 items-center">
+                      <div className="relative w-20 h-24 bg-brand-soft rounded-2xl overflow-hidden shrink-0 border border-border/40">
+                        <Image
+                          src={item.product.images[0] || "/placeholder.jpg"}
+                          alt={productName}
+                          fill
+                          className="object-cover"
+                        />
+                        <div className="absolute -top-1 -right-1 bg-brand-dark text-white text-[10px] w-6 h-6 flex items-center justify-center rounded-full font-bold border-2 border-white shadow-sm">
+                          {item.quantity}
+                        </div>
+                      </div>
+                      <div className="flex-1 min-w-0">
+                        <h3 className="text-sm font-bold text-brand-dark line-clamp-1">{productName}</h3>
+                        {meta && (
+                          <p className="text-xs font-medium text-muted-foreground mt-1 bg-brand-soft/50 w-fit px-2 py-0.5 rounded-md">
+                            {meta}
+                          </p>
+                        )}
+                      </div>
+                      <div className="text-sm font-bold text-brand-dark">
+                        {formatPrice((item.variant?.price || item.product.price) * item.quantity)}
                       </div>
                     </div>
-                    <div className="flex-1 min-w-0">
-                      <h3 className="text-sm font-bold text-brand-dark line-clamp-1">{item.product.name[lang] || item.product.name['ka']}</h3>
-                      <p className="text-xs font-medium text-muted-foreground mt-1 bg-brand-soft/50 w-fit px-2 py-0.5 rounded-md">
-                        {item.variant.size} • {item.variant.color[lang] || item.variant.color['ka']}
-                      </p>
-                    </div>
-                    <div className="text-sm font-bold text-brand-dark">
-                      {formatPrice((item.variant.price || item.product.price) * item.quantity)}
-                    </div>
-                  </div>
-                ))}
+                  );
+                })}
               </div>
 
               <div className="space-y-4 pt-8 border-t border-border/60 text-sm font-semibold">
