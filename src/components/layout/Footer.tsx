@@ -47,7 +47,6 @@ export function Footer({ dictionary, lang = "ka" }: { dictionary?: any; lang?: L
         color: C.cream,
         position: "relative",
         overflow: "hidden",
-        marginTop: 40,
         padding: "72px 0 36px",
       }}
     >
