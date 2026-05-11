@@ -8,7 +8,6 @@ import RetroProducts from "@/components/landing/RetroProducts";
 import RetroNecklaces from "@/components/landing/RetroNecklaces";
 import RetroAbout from "@/components/landing/RetroAbout";
 import RetroReviews from "@/components/landing/RetroReviews";
-import RetroNewsletter from "@/components/landing/RetroNewsletter";
 
 interface HomeProps {
   lang: Locale;
@@ -46,7 +45,6 @@ export default function HomeClient({ lang, products: rawProducts }: HomeProps) {
 
       <RetroAbout isKa={lang === "ka"} shopHref={`/${lang}/shop`} />
       <RetroReviews isKa={lang === "ka"} />
-      <RetroNewsletter isKa={lang === "ka"} />
     </div>
   );
 }

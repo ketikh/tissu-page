@@ -7,19 +7,101 @@ import { useCartStore } from "@/store/useCartStore";
 import { useAuthStore } from "@/store/useAuthStore";
 import { useStoreHydration } from "@/store/useHydration";
 import { formatPrice } from "@/lib/utils";
-import { Button } from "@/components/ui/Button";
-import { Input } from "@/components/ui/Input";
-import { ChevronLeft, Lock, User as UserIcon, CheckCircle2, CreditCard, Wallet, AlertCircle, Loader2 } from "lucide-react";
+import { ChevronLeft, Lock, User as UserIcon, CheckCircle2, CreditCard, Wallet, ShoppingBag, Loader2 } from "lucide-react";
 import Image from "next/image";
 import { Locale } from "@/i18n/config";
 import { Order } from "@/lib/types";
+import type { StorefrontProduct } from "@/lib/admin-api";
+
+const FRAUNCES = "var(--font-fraunces), 'Fraunces', Georgia, serif";
+const PRICE_FONT = "system-ui, -apple-system, 'Segoe UI', sans-serif";
+
+const C = {
+  cream: "#fef0d6",
+  softCream: "#f9f4eb",
+  ink: "#2a1d14",
+  burnt: "#d56826",
+  mustard: "#f3b62b",
+  green: "#3f6f56",
+  rose: "#c4849a",
+};
+
+function Star({ size = 14, color = C.mustard, style = {} }: { size?: number; color?: string; style?: React.CSSProperties }) {
+  return (
+    <svg
+      width={size}
+      height={size}
+      viewBox="0 0 24 24"
+      aria-hidden="true"
+      style={{ display: "inline-block", flexShrink: 0, ...style }}
+    >
+      <path
+        d="M12 2 L13.8 10.2 L22 12 L13.8 13.8 L12 22 L10.2 13.8 L2 12 L10.2 10.2 Z"
+        fill={color}
+      />
+    </svg>
+  );
+}
+
+function Price({ value, big = false }: { value: number; big?: boolean }) {
+  return (
+    <span style={{ display: "inline-flex", alignItems: "flex-end", gap: 3, fontFamily: FRAUNCES, color: C.ink, lineHeight: 1 }}>
+      <span style={{ fontWeight: 700, fontSize: big ? 32 : 16, letterSpacing: "-0.02em" }}>{value}</span>
+      <span style={{ fontFamily: PRICE_FONT, fontWeight: 500, fontSize: big ? 12 : 11, color: C.ink, opacity: 0.55, marginBottom: big ? 4 : 2 }}>₾</span>
+    </span>
+  );
+}
+
+const sectionTitleStyle: React.CSSProperties = {
+  fontFamily: FRAUNCES,
+  fontWeight: 700,
+  fontSize: 22,
+  color: C.ink,
+  letterSpacing: "-0.01em",
+  display: "flex",
+  alignItems: "center",
+  gap: 10,
+  margin: 0,
+};
+
+const labelStyle: React.CSSProperties = {
+  fontFamily: PRICE_FONT,
+  fontSize: 11,
+  fontWeight: 600,
+  letterSpacing: "0.12em",
+  textTransform: "uppercase",
+  color: C.ink,
+  opacity: 0.55,
+  marginLeft: 4,
+};
+
+const inputStyle: React.CSSProperties = {
+  fontFamily: PRICE_FONT,
+  width: "100%",
+  height: 48,
+  padding: "0 16px",
+  background: "white",
+  border: `1.5px solid rgba(42,29,20,0.14)`,
+  borderRadius: 12,
+  color: C.ink,
+  fontSize: 14,
+  outline: "none",
+  transition: "border-color 0.18s ease, box-shadow 0.18s ease",
+};
+
+const inputErrorStyle: React.CSSProperties = {
+  ...inputStyle,
+  borderColor: C.rose,
+  boxShadow: `0 0 0 3px ${C.rose}22`,
+};
 
 interface CheckoutClientProps {
   lang: Locale;
   dictionary: any;
+  products?: StorefrontProduct[];
 }
 
-export default function CheckoutClient({ lang, dictionary }: CheckoutClientProps) {
+export default function CheckoutClient({ lang, dictionary, products = [] }: CheckoutClientProps) {
   useStoreHydration();
   const router = useRouter();
   const { items, getSummary, clearCart, discount } = useCartStore();
@@ -149,41 +231,165 @@ export default function CheckoutClient({ lang, dictionary }: CheckoutClientProps
     setIsSubmitting(false);
   };
 
+  const isKa = lang === "ka";
+
   if (items.length === 0) {
     return (
-      <div className="container min-h-[60vh] flex flex-col items-center justify-center py-16 px-4">
-        <div className="w-24 h-24 bg-brand-soft rounded-full flex items-center justify-center text-brand-primary mb-8">
-          <AlertCircle className="w-10 h-10" />
+      <div style={{ background: "white", minHeight: "80vh" }}>
+        <div className="container py-20 md:py-28 flex flex-col items-center text-center gap-7 max-w-xl">
+          <span
+            aria-hidden="true"
+            style={{
+              display: "inline-flex", alignItems: "center", justifyContent: "center",
+              width: 88, height: 88, borderRadius: "50%",
+              background: C.softCream,
+              color: C.burnt,
+            }}
+          >
+            <ShoppingBag size={36} strokeWidth={1.6} />
+          </span>
+          <h1
+            style={{
+              fontFamily: FRAUNCES, fontWeight: 700,
+              fontSize: "clamp(28px, 4vw, 44px)",
+              color: C.ink, lineHeight: 1.1, letterSpacing: "-0.01em",
+              margin: 0,
+            }}
+          >
+            {dictionary.checkout.empty}
+          </h1>
+          <Link
+            href={`/${lang}/shop`}
+            style={{
+              fontFamily: FRAUNCES, fontWeight: 600, fontSize: 14, letterSpacing: "0.02em",
+              background: C.burnt, color: C.cream,
+              borderRadius: 999,
+              padding: "12px 28px",
+              display: "inline-flex", alignItems: "center", gap: 8,
+              textDecoration: "none",
+              transition: "transform 0.18s ease",
+            }}
+            className="hover:-translate-y-0.5"
+          >
+            {dictionary.checkout.returnShop} <span aria-hidden="true">→</span>
+          </Link>
         </div>
-        <h1 className="text-3xl font-serif text-brand-dark mb-4">{dictionary.checkout.empty}</h1>
-        <Button asChild variant="premium" size="lg" className="mt-8 rounded-2xl h-14">
-          <Link href={`/${lang}/shop`}>{dictionary.checkout.returnShop}</Link>
-        </Button>
       </div>
     );
   }
 
-  return (
-    <div className="bg-[#fcfbf9] min-h-screen">
-      <div className="container px-4 py-8 max-w-7xl mx-auto">
-        
-        <header className="flex justify-between items-center mb-12 border-b border-border pb-8">
-          <Link href={`/${lang}`} className="block hover:opacity-80 transition-opacity">
-            <img src="/static/logo.svg" alt="Tissu Logo" className="h-8 md:h-10 w-auto" />
-          </Link>
-          <Link href={`/${lang}/cart`} className="text-sm font-bold text-brand-primary hover:text-brand-dark flex items-center transition-all bg-white px-4 py-2 rounded-xl border border-border/50 shadow-sm">
-            <ChevronLeft className="w-4 h-4 mr-1" /> {dictionary.checkout.returnCart}
-          </Link>
-        </header>
+  const radioOption = (
+    name: "shipping" | "payment",
+    value: string,
+    checked: boolean,
+    onSelect: () => void,
+    title: string,
+    desc: string | null,
+    rightSlot: React.ReactNode,
+    icon?: React.ReactNode,
+  ) => (
+    <label
+      onClick={onSelect}
+      style={{
+        display: "flex", alignItems: "center", justifyContent: "space-between",
+        padding: "16px 18px",
+        background: checked ? C.softCream : "white",
+        border: `1.5px solid ${checked ? C.burnt : "rgba(42,29,20,0.12)"}`,
+        borderRadius: 14,
+        cursor: "pointer",
+        transition: "background 0.18s ease, border-color 0.18s ease",
+        gap: 14,
+      }}
+    >
+      <div style={{ display: "flex", alignItems: "center", gap: 14, minWidth: 0, flex: 1 }}>
+        <span style={{
+          width: 18, height: 18, borderRadius: "50%",
+          border: `2px solid ${checked ? C.burnt : "rgba(42,29,20,0.28)"}`,
+          background: "white",
+          display: "inline-flex", alignItems: "center", justifyContent: "center",
+          flexShrink: 0,
+        }}>
+          {checked && <span style={{ width: 8, height: 8, borderRadius: "50%", background: C.burnt }} />}
+        </span>
+        {icon && <span style={{ color: C.ink, opacity: 0.65, display: "inline-flex" }}>{icon}</span>}
+        <div style={{ display: "flex", flexDirection: "column", minWidth: 0 }}>
+          <span style={{ fontFamily: FRAUNCES, fontWeight: 600, fontSize: 15, color: C.ink, lineHeight: 1.25 }}>{title}</span>
+          {desc && (
+            <span style={{ fontFamily: PRICE_FONT, fontSize: 12, color: C.ink, opacity: 0.55, marginTop: 2 }}>{desc}</span>
+          )}
+        </div>
+      </div>
+      <div style={{ flexShrink: 0 }}>{rightSlot}</div>
+    </label>
+  );
 
-        <div className="grid lg:grid-cols-12 gap-x-12 gap-y-16 lg:flex-row-reverse">
-          
+  return (
+    <div style={{ background: "white", minHeight: "100vh", position: "relative", overflow: "hidden" }}>
+      {/* Decorative sprinkled stars */}
+      <span aria-hidden="true" style={{ position: "absolute", top: 120, left: "6%", opacity: 0.8 }}><Star size={18} /></span>
+      <span aria-hidden="true" style={{ position: "absolute", top: 60, right: "8%", opacity: 0.6 }}><Star size={12} /></span>
+      <span aria-hidden="true" style={{ position: "absolute", top: 380, right: "3%", opacity: 0.5 }}><Star size={14} color={C.burnt} /></span>
+      <span aria-hidden="true" style={{ position: "absolute", bottom: 200, left: "4%", opacity: 0.55 }}><Star size={16} /></span>
+
+      <div className="container py-10 md:py-14 max-w-6xl" style={{ position: "relative" }}>
+        {/* Back link */}
+        <Link
+          href={`/${lang}/cart`}
+          style={{
+            display: "inline-flex", alignItems: "center", gap: 6,
+            fontFamily: FRAUNCES, fontWeight: 500, fontSize: 13,
+            color: C.ink, opacity: 0.6, textDecoration: "none",
+            marginBottom: 24,
+          }}
+          className="hover:opacity-100"
+        >
+          <ChevronLeft size={14} /> {dictionary.checkout.returnCart}
+        </Link>
+
+        {/* Heading */}
+        <div className="flex items-baseline gap-4 mb-10 flex-wrap" style={{ position: "relative" }}>
+          <h1
+            style={{
+              fontFamily: FRAUNCES, fontWeight: 700,
+              fontSize: "clamp(28px, 4vw, 44px)",
+              color: C.ink, lineHeight: 1.0,
+              letterSpacing: "-0.01em",
+              margin: 0,
+              position: "relative",
+            }}
+          >
+            {isKa ? "გადახდა" : "Checkout"}
+            <span aria-hidden="true" style={{ position: "absolute", top: -10, right: -22 }}><Star size={16} /></span>
+          </h1>
+          <span style={{ fontFamily: PRICE_FONT, fontSize: 14, color: C.ink, opacity: 0.55 }}>
+            {items.length} {isKa ? "ნივთი" : (items.length === 1 ? "item" : "items")}
+          </span>
+        </div>
+
+        <div className="grid lg:grid-cols-[1fr_380px] gap-10 items-start">
+
           {/* Order Summary Column */}
-          <div className="lg:col-span-5 lg:order-2">
-            <div className="bg-white rounded-[2.5rem] p-8 lg:p-10 shadow-2xl shadow-brand-dark/[0.03] border border-border/40 sticky top-24">
-              <h2 className="text-2xl font-serif font-medium text-brand-dark mb-8">{dictionary.checkout.summary}</h2>
-              
-              <div className="flex flex-col gap-6 mb-10 max-h-[45vh] overflow-y-auto pr-3 custom-scrollbar">
+          <div className="lg:order-2">
+            <div
+              className="p-6 lg:sticky lg:top-24"
+              style={{
+                background: C.softCream,
+                borderRadius: 18,
+                border: `1px solid rgba(42,29,20,0.08)`,
+                position: "relative",
+              }}
+            >
+              <span aria-hidden="true" style={{ position: "absolute", top: -8, right: 18, opacity: 0.9 }}><Star size={16} /></span>
+              <div style={{
+                fontFamily: FRAUNCES, fontWeight: 600,
+                fontSize: 12, letterSpacing: "0.16em", textTransform: "uppercase",
+                color: C.ink, opacity: 0.55,
+                marginBottom: 18,
+              }}>
+                {dictionary.checkout.summary}
+              </div>
+
+              <div className="flex flex-col gap-4 mb-5" style={{ maxHeight: "38vh", overflowY: "auto", paddingRight: 6 }}>
                 {items.map((item) => {
                   const productName = item.product?.name?.[lang] || item.product?.name?.["ka"] || "";
                   const variantField =
@@ -194,322 +400,512 @@ export default function CheckoutClient({ lang, dictionary }: CheckoutClientProps
                   const size = item.variant?.size;
                   const meta = [size && size !== "one" ? size : null, variantLabel || null].filter(Boolean).join(" • ");
                   return (
-                    <div key={item.id} className="flex gap-5 items-center">
-                      <div className="relative w-20 h-24 bg-brand-soft rounded-2xl overflow-hidden shrink-0 border border-border/40">
-                        <Image
-                          src={item.product.images[0] || "/placeholder.jpg"}
-                          alt={productName}
-                          fill
-                          className="object-cover"
-                        />
-                        <div className="absolute -top-1 -right-1 bg-brand-dark text-white text-[10px] w-6 h-6 flex items-center justify-center rounded-full font-bold border-2 border-white shadow-sm">
-                          {item.quantity}
-                        </div>
+                    <div key={item.id} className="flex items-center gap-3">
+                      <div style={{
+                        position: "relative", width: 56, height: 64,
+                        borderRadius: 10, background: "#f5f5f5",
+                        overflow: "hidden", flexShrink: 0,
+                        border: `1px solid rgba(42,29,20,0.08)`,
+                      }}>
+                        <Image src={item.product.images[0] || "/placeholder.jpg"} alt={productName} fill className="object-cover" />
+                        <span style={{
+                          position: "absolute", top: -6, right: -6,
+                          width: 22, height: 22, borderRadius: "50%",
+                          background: C.ink, color: C.cream,
+                          display: "inline-flex", alignItems: "center", justifyContent: "center",
+                          fontFamily: FRAUNCES, fontWeight: 700, fontSize: 11,
+                          border: `2px solid ${C.softCream}`,
+                        }}>{item.quantity}</span>
                       </div>
-                      <div className="flex-1 min-w-0">
-                        <h3 className="text-sm font-bold text-brand-dark line-clamp-1">{productName}</h3>
+                      <div style={{ flex: 1, minWidth: 0 }}>
+                        <div style={{
+                          fontFamily: FRAUNCES, fontWeight: 600, fontSize: 14,
+                          color: C.ink, lineHeight: 1.25,
+                          overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap",
+                        }}>{productName}</div>
                         {meta && (
-                          <p className="text-xs font-medium text-muted-foreground mt-1 bg-brand-soft/50 w-fit px-2 py-0.5 rounded-md">
-                            {meta}
-                          </p>
+                          <div style={{ fontFamily: PRICE_FONT, fontSize: 11, color: C.ink, opacity: 0.55, marginTop: 2 }}>{meta}</div>
                         )}
                       </div>
-                      <div className="text-sm font-bold text-brand-dark">
-                        {formatPrice((item.variant?.price || item.product.price) * item.quantity)}
-                      </div>
+                      <Price value={(item.variant?.price || item.product.price) * item.quantity} />
                     </div>
                   );
                 })}
               </div>
 
-              <div className="space-y-4 pt-8 border-t border-border/60 text-sm font-semibold">
-                <div className="flex justify-between text-muted-foreground">
-                  <span>{dictionary.checkout.subtotal}</span>
-                  <span className="text-brand-dark">{formatPrice(subtotal)}</span>
+              <div className="space-y-3 mb-5" style={{ fontFamily: PRICE_FONT, paddingTop: 14, borderTop: `1px solid rgba(42,29,20,0.10)` }}>
+                <div className="flex justify-between text-[14px]" style={{ color: C.ink }}>
+                  <span style={{ opacity: 0.7 }}>{dictionary.checkout.subtotal}</span>
+                  <Price value={subtotal} />
                 </div>
-                
-                <div className="flex justify-between text-muted-foreground">
-                  <span>{dictionary.checkout.shippingC}</span>
-                  <span className="text-brand-dark">{shipping === 0 ? "FREE" : formatPrice(shipping)}</span>
+                <div className="flex justify-between text-[14px]" style={{ color: C.ink }}>
+                  <span style={{ opacity: 0.7 }}>{dictionary.checkout.shippingC}</span>
+                  <span style={{ color: shipping === 0 ? C.green : C.ink, fontWeight: 600 }}>
+                    {shipping === 0 ? (isKa ? "უფასო" : "Free") : <Price value={shipping} />}
+                  </span>
                 </div>
-
                 {discountAmount > 0 && (
-                  <div className="flex justify-between text-success">
-                    <span>{dictionary.checkout.discount}</span>
-                    <span>-{formatPrice(discountAmount)}</span>
+                  <div className="flex justify-between text-[14px]" style={{ color: C.green }}>
+                    <span style={{ fontWeight: 600 }}>{dictionary.checkout.discount}</span>
+                    <span style={{ fontWeight: 600 }}>−{formatPrice(discountAmount)}</span>
                   </div>
                 )}
               </div>
-              
-              <div className="mt-8 pt-8 border-t border-brand-dark/10 flex justify-between items-center text-2xl md:text-3xl font-serif font-bold text-brand-dark">
-                <span>{dictionary.checkout.total}</span>
-                <span>{formatPrice(total)}</span>
+
+              <div
+                className="flex items-baseline justify-between mb-2 pt-4"
+                style={{ borderTop: `1px solid rgba(42,29,20,0.10)` }}
+              >
+                <span style={{
+                  fontFamily: FRAUNCES, fontWeight: 700, fontSize: 16,
+                  color: C.ink, letterSpacing: "-0.005em",
+                }}>
+                  {dictionary.checkout.total}
+                </span>
+                <Price value={total} big />
               </div>
 
-              <div className="mt-10 bg-brand-soft/30 rounded-[2rem] p-6 flex items-center gap-4 border border-brand-primary/5 shadow-sm">
-                <div className="w-12 h-12 bg-white rounded-full flex items-center justify-center text-success shadow-sm shadow-success/10">
-                  <CheckCircle2 className="w-6 h-6" />
-                </div>
-                <p className="text-[11px] md:text-xs text-brand-dark/70 font-bold leading-relaxed tracking-wide">
-                  {lang === 'ka' ? "შენი შეკვეთა დაზღვეულია Tissu-ს გარანტიით." : "YOUR ORDER IS PROTECTED BY TISSU GUARANTEE."}
+              <div style={{
+                marginTop: 18,
+                display: "flex", alignItems: "center", gap: 10,
+                padding: "10px 14px",
+                background: "white",
+                border: `1px solid rgba(42,29,20,0.08)`,
+                borderRadius: 12,
+              }}>
+                <CheckCircle2 size={16} style={{ color: C.green, flexShrink: 0 }} />
+                <p style={{
+                  fontFamily: PRICE_FONT, fontSize: 11, color: C.ink, opacity: 0.7,
+                  margin: 0, lineHeight: 1.35,
+                }}>
+                  {isKa ? "შენი შეკვეთა დაცულია Tissu-ს გარანტიით." : "Your order is protected by the Tissu guarantee."}
                 </p>
               </div>
             </div>
           </div>
 
           {/* Form Column */}
-          <div className="lg:col-span-7 lg:order-1 flex flex-col gap-12">
-            
+          <div className="lg:order-1 flex flex-col gap-10">
+
             {/* Auth Toggle / Info */}
-            <div className="bg-white rounded-[2rem] p-6 md:p-8 border border-border shadow-sm shadow-brand-dark/[0.02]">
+            <div style={{
+              background: "white",
+              border: `1px solid rgba(42,29,20,0.10)`,
+              borderRadius: 16,
+              padding: "16px 18px",
+            }}>
               {isAuthenticated && user ? (
-                <div className="flex items-center justify-between">
-                  <div className="flex items-center gap-5">
-                    <div className="w-14 h-14 bg-brand-primary/10 rounded-2xl flex items-center justify-center text-brand-primary border border-brand-primary/20">
-                      <UserIcon className="w-6 h-6" />
-                    </div>
+                <div className="flex items-center justify-between gap-4">
+                  <div className="flex items-center gap-3">
+                    <span style={{
+                      width: 40, height: 40, borderRadius: "50%",
+                      background: C.softCream, color: C.burnt,
+                      display: "inline-flex", alignItems: "center", justifyContent: "center",
+                    }}>
+                      <UserIcon size={18} />
+                    </span>
                     <div>
-                      <p className="text-sm font-bold text-brand-dark">{user.firstName} {user.lastName}</p>
-                      <p className="text-xs font-medium text-muted-foreground">{user.email}</p>
+                      <div style={{ fontFamily: FRAUNCES, fontWeight: 600, fontSize: 14, color: C.ink }}>
+                        {user.firstName} {user.lastName}
+                      </div>
+                      <div style={{ fontFamily: PRICE_FONT, fontSize: 12, color: C.ink, opacity: 0.55 }}>
+                        {user.email}
+                      </div>
                     </div>
                   </div>
-                  <button onClick={() => useAuthStore.getState().logout()} className="text-xs font-bold text-brand-primary hover:underline bg-brand-primary/5 px-4 py-2 rounded-xl transition-colors">
+                  <button
+                    onClick={() => useAuthStore.getState().logout()}
+                    style={{
+                      fontFamily: FRAUNCES, fontWeight: 600, fontSize: 12,
+                      letterSpacing: "0.02em",
+                      background: "transparent", color: C.ink,
+                      border: `1.5px solid rgba(42,29,20,0.14)`,
+                      borderRadius: 10,
+                      padding: "8px 14px",
+                      cursor: "pointer",
+                    }}
+                  >
                     {dictionary.account.sidebar.logout}
                   </button>
                 </div>
               ) : (
-                <div className="flex flex-col md:flex-row md:items-center justify-between gap-6">
+                <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
                   <div>
-                    <h3 className="text-sm font-bold text-brand-dark">{dictionary.checkout.loginToContinue}</h3>
-                    <p className="text-xs font-medium text-muted-foreground mt-1">Get exclusive offers and faster delivery.</p>
+                    <div style={{ fontFamily: FRAUNCES, fontWeight: 600, fontSize: 14, color: C.ink }}>
+                      {dictionary.checkout.loginToContinue}
+                    </div>
+                    <div style={{ fontFamily: PRICE_FONT, fontSize: 12, color: C.ink, opacity: 0.55, marginTop: 2 }}>
+                      {isKa ? "გააგრძელე როგორც სტუმარი ან გაიარე ავტორიზაცია." : "Continue as guest or sign in."}
+                    </div>
                   </div>
-                  <div className="flex gap-4">
-                    <Button asChild size="sm" variant="premium" className="h-12 px-6 rounded-xl font-bold">
-                      <Link href={`/${lang}/account/login`}>{dictionary.checkout.login}</Link>
-                    </Button>
-                    <Button onClick={() => setIsGuest(true)} size="sm" variant="outline" className="h-12 px-6 rounded-xl font-bold bg-white">
+                  <div className="flex gap-2 shrink-0">
+                    <Link
+                      href={`/${lang}/account/login`}
+                      style={{
+                        fontFamily: FRAUNCES, fontWeight: 600, fontSize: 13, letterSpacing: "0.02em",
+                        background: C.burnt, color: C.cream,
+                        borderRadius: 10, padding: "10px 16px",
+                        textDecoration: "none",
+                      }}
+                    >
+                      {dictionary.checkout.login}
+                    </Link>
+                    <button
+                      onClick={() => setIsGuest(true)}
+                      style={{
+                        fontFamily: FRAUNCES, fontWeight: 600, fontSize: 13, letterSpacing: "0.02em",
+                        background: "transparent", color: C.ink,
+                        border: `1.5px solid rgba(42,29,20,0.18)`,
+                        borderRadius: 10, padding: "10px 16px",
+                        cursor: "pointer",
+                      }}
+                    >
                       {dictionary.checkout.guestCheckout}
-                    </Button>
+                    </button>
                   </div>
                 </div>
               )}
             </div>
 
-            <section className="space-y-6">
-              <h2 className="text-2xl font-serif font-medium text-brand-dark flex items-center gap-3">
-                <span className="w-8 h-8 rounded-full bg-brand-dark text-white text-xs flex items-center justify-center font-bold">1</span>
+            {/* 1. Contact */}
+            <section style={{ display: "flex", flexDirection: "column", gap: 14 }}>
+              <h2 style={sectionTitleStyle}>
+                <Star size={14} />
+                <span style={{ fontFamily: PRICE_FONT, fontSize: 11, fontWeight: 700, letterSpacing: "0.18em", color: C.burnt }}>01</span>
                 {dictionary.checkout.contact}
               </h2>
-              <div className="grid md:grid-cols-2 gap-6">
-                <div className="space-y-2">
-                  <label className="text-[10px] font-bold uppercase tracking-[0.15em] text-muted-foreground ml-1">{dictionary.checkout.email}</label>
-                  <Input 
-                    type="email" 
-                    placeholder="hello@example.com" 
-                    className={`bg-white h-14 rounded-2xl border-border px-6 focus:ring-brand-primary/10 ${errors.email ? 'border-destructive ring-1 ring-destructive/20' : ''}`} 
+              <div className="grid md:grid-cols-2 gap-4">
+                <div style={{ display: "flex", flexDirection: "column", gap: 6 }}>
+                  <label style={labelStyle}>{dictionary.checkout.email}</label>
+                  <input
+                    type="email"
+                    placeholder="hello@example.com"
+                    style={errors.email ? inputErrorStyle : inputStyle}
                     value={formData.email}
-                    onChange={(e) => setFormData({...formData, email: e.target.value})}
+                    onChange={(e) => setFormData({ ...formData, email: e.target.value })}
                     disabled={isAuthenticated}
                   />
-                  {errors.email && <p className="text-[10px] font-bold text-destructive ml-1">{errors.email}</p>}
+                  {errors.email && <span style={{ fontFamily: PRICE_FONT, fontSize: 11, color: C.rose, marginLeft: 4 }}>{errors.email}</span>}
                 </div>
-                <div className="space-y-2">
-                  <label className="text-[10px] font-bold uppercase tracking-[0.15em] text-muted-foreground ml-1">{dictionary.checkout.phone}</label>
-                  <Input 
-                    type="tel" 
-                    placeholder="+995 5XX XXX XXX" 
-                    className={`bg-white h-14 rounded-2xl border-border px-6 focus:ring-brand-primary/10 ${errors.phone ? 'border-destructive ring-1 ring-destructive/20' : ''}`} 
+                <div style={{ display: "flex", flexDirection: "column", gap: 6 }}>
+                  <label style={labelStyle}>{dictionary.checkout.phone}</label>
+                  <input
+                    type="tel"
+                    placeholder="+995 5XX XXX XXX"
+                    style={errors.phone ? inputErrorStyle : inputStyle}
                     value={formData.phone}
-                    onChange={(e) => setFormData({...formData, phone: e.target.value})}
+                    onChange={(e) => setFormData({ ...formData, phone: e.target.value })}
                   />
-                  {errors.phone && <p className="text-[10px] font-bold text-destructive ml-1">{errors.phone}</p>}
+                  {errors.phone && <span style={{ fontFamily: PRICE_FONT, fontSize: 11, color: C.rose, marginLeft: 4 }}>{errors.phone}</span>}
                 </div>
               </div>
             </section>
 
-            <section className="space-y-6">
-              <h2 className="text-2xl font-serif font-medium text-brand-dark flex items-center gap-3">
-                <span className="w-8 h-8 rounded-full bg-brand-dark text-white text-xs flex items-center justify-center font-bold">2</span>
+            {/* 2. Address */}
+            <section style={{ display: "flex", flexDirection: "column", gap: 14 }}>
+              <h2 style={sectionTitleStyle}>
+                <Star size={14} />
+                <span style={{ fontFamily: PRICE_FONT, fontSize: 11, fontWeight: 700, letterSpacing: "0.18em", color: C.burnt }}>02</span>
                 {dictionary.checkout.address}
               </h2>
-              <div className="grid grid-cols-2 gap-6">
-                <div className="space-y-2">
-                  <label className="text-[10px] font-bold uppercase tracking-[0.15em] text-muted-foreground ml-1">{dictionary.checkout.firstName}</label>
-                  <Input 
-                    placeholder={dictionary.checkout.firstName} 
-                    className={`bg-white h-14 rounded-2xl border-border px-6 focus:ring-brand-primary/10 ${errors.firstName ? 'border-destructive ring-1 ring-destructive/20' : ''}`} 
+              <div className="grid grid-cols-2 gap-4">
+                <div style={{ display: "flex", flexDirection: "column", gap: 6 }}>
+                  <label style={labelStyle}>{dictionary.checkout.firstName}</label>
+                  <input
+                    placeholder={dictionary.checkout.firstName}
+                    style={errors.firstName ? inputErrorStyle : inputStyle}
                     value={formData.firstName}
-                    onChange={(e) => setFormData({...formData, firstName: e.target.value})}
+                    onChange={(e) => setFormData({ ...formData, firstName: e.target.value })}
                   />
                 </div>
-                <div className="space-y-2">
-                  <label className="text-[10px] font-bold uppercase tracking-[0.15em] text-muted-foreground ml-1">{dictionary.checkout.lastName}</label>
-                  <Input 
-                    placeholder={dictionary.checkout.lastName} 
-                    className={`bg-white h-14 rounded-2xl border-border px-6 focus:ring-brand-primary/10 ${errors.lastName ? 'border-destructive ring-1 ring-destructive/20' : ''}`} 
+                <div style={{ display: "flex", flexDirection: "column", gap: 6 }}>
+                  <label style={labelStyle}>{dictionary.checkout.lastName}</label>
+                  <input
+                    placeholder={dictionary.checkout.lastName}
+                    style={errors.lastName ? inputErrorStyle : inputStyle}
                     value={formData.lastName}
-                    onChange={(e) => setFormData({...formData, lastName: e.target.value})}
+                    onChange={(e) => setFormData({ ...formData, lastName: e.target.value })}
                   />
                 </div>
               </div>
-              <div className="space-y-2">
-                <label className="text-[10px] font-bold uppercase tracking-[0.15em] text-muted-foreground ml-1">{dictionary.checkout.street}</label>
-                <Input 
-                  placeholder={dictionary.checkout.street} 
-                  className={`bg-white h-14 rounded-2xl border-border px-6 focus:ring-brand-primary/10 ${errors.street ? 'border-destructive ring-1 ring-destructive/20' : ''}`} 
+              <div style={{ display: "flex", flexDirection: "column", gap: 6 }}>
+                <label style={labelStyle}>{dictionary.checkout.street}</label>
+                <input
+                  placeholder={dictionary.checkout.street}
+                  style={errors.street ? inputErrorStyle : inputStyle}
                   value={formData.street}
-                  onChange={(e) => setFormData({...formData, street: e.target.value})}
+                  onChange={(e) => setFormData({ ...formData, street: e.target.value })}
                 />
               </div>
-              <div className="grid grid-cols-2 gap-6">
-                <div className="space-y-2">
-                  <label className="text-[10px] font-bold uppercase tracking-[0.15em] text-muted-foreground ml-1">{dictionary.checkout.city}</label>
-                  <Input 
-                    placeholder={dictionary.checkout.city} 
-                    className={`bg-white h-14 rounded-2xl border-border px-6 focus:ring-brand-primary/10 ${errors.city ? 'border-destructive ring-1 ring-destructive/20' : ''}`} 
+              <div className="grid grid-cols-2 gap-4">
+                <div style={{ display: "flex", flexDirection: "column", gap: 6 }}>
+                  <label style={labelStyle}>{dictionary.checkout.city}</label>
+                  <input
+                    placeholder={dictionary.checkout.city}
+                    style={errors.city ? inputErrorStyle : inputStyle}
                     value={formData.city}
-                    onChange={(e) => setFormData({...formData, city: e.target.value})}
+                    onChange={(e) => setFormData({ ...formData, city: e.target.value })}
                   />
                 </div>
-                <div className="space-y-2">
-                  <label className="text-[10px] font-bold uppercase tracking-[0.15em] text-muted-foreground ml-1">{dictionary.checkout.postal}</label>
-                  <Input 
-                    placeholder={dictionary.checkout.postal} 
-                    className="bg-white h-14 rounded-2xl border-border px-6 focus:ring-brand-primary/10" 
+                <div style={{ display: "flex", flexDirection: "column", gap: 6 }}>
+                  <label style={labelStyle}>{dictionary.checkout.postal}</label>
+                  <input
+                    placeholder={dictionary.checkout.postal}
+                    style={inputStyle}
                     value={formData.postal}
-                    onChange={(e) => setFormData({...formData, postal: e.target.value})}
+                    onChange={(e) => setFormData({ ...formData, postal: e.target.value })}
                   />
                 </div>
               </div>
             </section>
 
-            <section className="space-y-6">
-              <h2 className="text-2xl font-serif font-medium text-brand-dark flex items-center gap-3">
-                <span className="w-8 h-8 rounded-full bg-brand-dark text-white text-xs flex items-center justify-center font-bold">3</span>
+            {/* 3. Shipping */}
+            <section style={{ display: "flex", flexDirection: "column", gap: 14 }}>
+              <h2 style={sectionTitleStyle}>
+                <Star size={14} />
+                <span style={{ fontFamily: PRICE_FONT, fontSize: 11, fontWeight: 700, letterSpacing: "0.18em", color: C.burnt }}>03</span>
                 {dictionary.checkout.shippingMethod}
               </h2>
-              <div className="grid gap-5">
-                <label className={`flex justify-between items-center p-6 border rounded-[1.5rem] cursor-pointer transition-all duration-500 shadow-sm ${shippingMethod === 'standard' ? 'border-brand-primary bg-brand-primary/5 ring-1 ring-brand-primary/20' : 'border-border/60 bg-white hover:border-brand-primary/40'}`}>
-                  <div className="flex items-center gap-5">
-                    <div className={`w-5 h-5 rounded-full border-2 flex items-center justify-center transition-colors ${shippingMethod === 'standard' ? 'border-brand-primary' : 'border-border/60'}`}>
-                      {shippingMethod === 'standard' && <div className="w-2.5 h-2.5 rounded-full bg-brand-primary" />}
-                    </div>
-                    <input type="radio" name="shipping" className="hidden" checked={shippingMethod === 'standard'} onChange={() => setShippingMethod('standard')} />
-                    <div className="flex flex-col">
-                      <span className="font-bold text-sm text-brand-dark">{dictionary.checkout.standard}</span>
-                      <span className="text-xs font-medium text-muted-foreground mt-0.5">{dictionary.checkout.standardDesc}</span>
-                    </div>
-                  </div>
-                  <span className="font-bold text-sm text-brand-dark">{formatPrice(5)}</span>
-                </label>
-
-                <label className={`flex justify-between items-center p-6 border rounded-[1.5rem] cursor-pointer transition-all duration-500 shadow-sm ${shippingMethod === 'express' ? 'border-brand-primary bg-brand-primary/5 ring-1 ring-brand-primary/20' : 'border-border/60 bg-white hover:border-brand-primary/40'}`}>
-                  <div className="flex items-center gap-5">
-                    <div className={`w-5 h-5 rounded-full border-2 flex items-center justify-center transition-colors ${shippingMethod === 'express' ? 'border-brand-primary' : 'border-border/60'}`}>
-                      {shippingMethod === 'express' && <div className="w-2.5 h-2.5 rounded-full bg-brand-primary" />}
-                    </div>
-                    <input type="radio" name="shipping" className="hidden" checked={shippingMethod === 'express'} onChange={() => setShippingMethod('express')} />
-                    <div className="flex flex-col">
-                      <span className="font-bold text-sm text-brand-dark">{dictionary.checkout.express}</span>
-                      <span className="text-xs font-medium text-muted-foreground mt-0.5">{dictionary.checkout.expressDesc}</span>
-                    </div>
-                  </div>
-                  <span className="font-bold text-sm text-brand-dark">{formatPrice(15)}</span>
-                </label>
+              <div style={{ display: "flex", flexDirection: "column", gap: 10 }}>
+                {radioOption(
+                  "shipping", "standard", shippingMethod === "standard",
+                  () => setShippingMethod("standard"),
+                  dictionary.checkout.standard, dictionary.checkout.standardDesc,
+                  <Price value={5} />,
+                )}
+                {radioOption(
+                  "shipping", "express", shippingMethod === "express",
+                  () => setShippingMethod("express"),
+                  dictionary.checkout.express, dictionary.checkout.expressDesc,
+                  <Price value={15} />,
+                )}
               </div>
             </section>
 
-            <section className="space-y-6">
-              <h2 className="text-2xl font-serif font-medium text-brand-dark flex items-center gap-3">
-                <span className="w-8 h-8 rounded-full bg-brand-dark text-white text-xs flex items-center justify-center font-bold">4</span>
+            {/* 4. Payment */}
+            <section style={{ display: "flex", flexDirection: "column", gap: 14 }}>
+              <h2 style={sectionTitleStyle}>
+                <Star size={14} />
+                <span style={{ fontFamily: PRICE_FONT, fontSize: 11, fontWeight: 700, letterSpacing: "0.18em", color: C.burnt }}>04</span>
                 {dictionary.checkout.payment}
               </h2>
-              <p className="text-xs font-medium text-muted-foreground pl-11">{dictionary.checkout.secureMsg}</p>
-              
-              <div className="grid gap-0 border border-border/60 rounded-[2rem] bg-white overflow-hidden shadow-sm shadow-brand-dark/[0.03]">
-                
-                <div 
-                  className={`flex items-center gap-4 p-6 cursor-pointer transition-colors border-b border-border/60 ${paymentMethod === 'card' ? 'bg-brand-primary/5' : 'hover:bg-brand-soft/20'}`}
-                  onClick={() => setPaymentMethod('card')}
-                >
-                  <div className={`w-5 h-5 rounded-full border-2 flex items-center justify-center transition-colors ${paymentMethod === 'card' ? 'border-brand-primary' : 'border-border/60'}`}>
-                    {paymentMethod === 'card' && <div className="w-2.5 h-2.5 rounded-full bg-brand-primary" />}
-                  </div>
-                  <div className="flex items-center gap-3 flex-1">
-                    <CreditCard className="w-5 h-5 text-brand-dark/70" />
-                    <span className="font-bold text-sm text-brand-dark">{dictionary.checkout.card}</span>
-                  </div>
-                  <div className="flex gap-2">
-                    <div className="w-8 h-5 bg-muted rounded-md" />
-                    <div className="w-8 h-5 bg-muted rounded-md" />
-                  </div>
-                </div>
-                
-                {paymentMethod === 'card' && (
-                  <div className="p-8 md:p-10 bg-brand-soft/10 grid gap-6 border-b border-border/60 animate-in slide-in-from-top-4 duration-500">
-                    <div className="space-y-2">
-                      <label className="text-[10px] font-bold uppercase tracking-widest text-muted-foreground ml-1">{dictionary.checkout.cardNumber}</label>
-                      <Input placeholder="0000 0000 0000 0000" className="bg-white h-14 rounded-2xl border-border font-mono tracking-widest px-6" />
+              <p style={{ fontFamily: PRICE_FONT, fontSize: 12, color: C.ink, opacity: 0.55, margin: 0, marginLeft: 4 }}>
+                {dictionary.checkout.secureMsg}
+              </p>
+
+              <div style={{ display: "flex", flexDirection: "column", gap: 10 }}>
+                {radioOption(
+                  "payment", "card", paymentMethod === "card",
+                  () => setPaymentMethod("card"),
+                  dictionary.checkout.card, null,
+                  <div style={{ display: "flex", gap: 6 }}>
+                    <div style={{ width: 30, height: 18, background: "#e9e2d4", borderRadius: 4 }} />
+                    <div style={{ width: 30, height: 18, background: "#e9e2d4", borderRadius: 4 }} />
+                  </div>,
+                  <CreditCard size={18} />,
+                )}
+
+                {paymentMethod === "card" && (
+                  <div style={{
+                    background: C.softCream,
+                    border: `1px solid rgba(42,29,20,0.08)`,
+                    borderRadius: 14,
+                    padding: 18,
+                    display: "grid",
+                    gap: 14,
+                  }}>
+                    <div style={{ display: "flex", flexDirection: "column", gap: 6 }}>
+                      <label style={labelStyle}>{dictionary.checkout.cardNumber}</label>
+                      <input placeholder="0000 0000 0000 0000" style={{ ...inputStyle, fontFamily: "ui-monospace, SFMono-Regular, monospace", letterSpacing: "0.08em" }} />
                     </div>
-                    <div className="grid grid-cols-2 gap-6">
-                      <div className="space-y-2">
-                        <label className="text-[10px] font-bold uppercase tracking-widest text-muted-foreground ml-1">{dictionary.checkout.expiryDate}</label>
-                        <Input placeholder="MM / YY" className="bg-white h-14 rounded-2xl border-border px-6" />
+                    <div className="grid grid-cols-2 gap-4">
+                      <div style={{ display: "flex", flexDirection: "column", gap: 6 }}>
+                        <label style={labelStyle}>{dictionary.checkout.expiryDate}</label>
+                        <input placeholder="MM / YY" style={inputStyle} />
                       </div>
-                      <div className="space-y-2">
-                        <label className="text-[10px] font-bold uppercase tracking-widest text-muted-foreground ml-1">{dictionary.checkout.cvc}</label>
-                        <Input placeholder="CVC" className="bg-white h-14 rounded-2xl border-border px-6" />
+                      <div style={{ display: "flex", flexDirection: "column", gap: 6 }}>
+                        <label style={labelStyle}>{dictionary.checkout.cvc}</label>
+                        <input placeholder="CVC" style={inputStyle} />
                       </div>
                     </div>
-                    <div className="space-y-2">
-                      <label className="text-[10px] font-bold uppercase tracking-widest text-muted-foreground ml-1">{dictionary.checkout.nameCard}</label>
-                      <Input placeholder="ANNA SMITH" className="bg-white h-14 rounded-2xl border-border px-6 uppercase" />
+                    <div style={{ display: "flex", flexDirection: "column", gap: 6 }}>
+                      <label style={labelStyle}>{dictionary.checkout.nameCard}</label>
+                      <input placeholder="ANNA SMITH" style={{ ...inputStyle, textTransform: "uppercase" }} />
                     </div>
                   </div>
                 )}
 
-                <div 
-                  className={`flex items-center gap-4 p-6 cursor-pointer transition-colors ${paymentMethod === 'cash' ? 'bg-brand-primary/5' : 'hover:bg-brand-soft/20'}`}
-                  onClick={() => setPaymentMethod('cash')}
-                >
-                  <div className={`w-5 h-5 rounded-full border-2 flex items-center justify-center transition-colors ${paymentMethod === 'cash' ? 'border-brand-primary' : 'border-border/60'}`}>
-                    {paymentMethod === 'cash' && <div className="w-2.5 h-2.5 rounded-full bg-brand-primary" />}
-                  </div>
-                  <Wallet className="w-5 h-5 text-brand-dark/70" />
-                  <span className="font-bold text-sm text-brand-dark">{dictionary.checkout.cash}</span>
-                </div>
-
+                {radioOption(
+                  "payment", "cash", paymentMethod === "cash",
+                  () => setPaymentMethod("cash"),
+                  dictionary.checkout.cash, null,
+                  null,
+                  <Wallet size={18} />,
+                )}
               </div>
             </section>
 
-            <div className="pt-8">
-              <Button 
+            {/* Pay button */}
+            <div style={{ paddingTop: 8 }}>
+              <button
+                type="button"
                 onClick={handlePay}
                 disabled={isSubmitting}
-                size="lg" 
-                variant="premium" 
-                className="w-full h-20 text-xl font-serif tracking-wide shadow-2xl shadow-brand-primary/20 flex items-center justify-center gap-4 rounded-[1.5rem] disabled:opacity-70 disabled:cursor-not-allowed group transition-all duration-500"
+                style={{
+                  width: "100%",
+                  background: C.burnt, color: C.cream,
+                  fontFamily: FRAUNCES, fontWeight: 700, fontSize: 16, letterSpacing: "0.02em",
+                  border: "none",
+                  borderRadius: 14,
+                  padding: "18px 22px",
+                  display: "flex", alignItems: "center", justifyContent: "center", gap: 10,
+                  cursor: isSubmitting ? "not-allowed" : "pointer",
+                  opacity: isSubmitting ? 0.7 : 1,
+                  transition: "transform 0.18s ease",
+                }}
+                className="hover:-translate-y-0.5"
               >
                 {isSubmitting ? (
-                  <Loader2 className="w-6 h-6 animate-spin" />
+                  <Loader2 size={20} className="animate-spin" />
                 ) : (
                   <>
-                    <Lock className="w-6 h-6 group-hover:scale-110 transition-transform" /> 
-                    {dictionary.checkout.pay} {formatPrice(total)}
+                    <Lock size={16} />
+                    {dictionary.checkout.pay} · <Price value={total} />
                   </>
                 )}
-              </Button>
+              </button>
+
+              <p style={{
+                fontFamily: PRICE_FONT, fontSize: 12, color: C.ink, opacity: 0.5,
+                textAlign: "center", marginTop: 14, marginBottom: 0,
+              }}>
+                {isKa ? "უსაფრთხო გადახდა · ხელნაკეთი თბილისში" : "Secure checkout · Handmade in Tbilisi"}
+              </p>
             </div>
 
-            <div className="flex flex-wrap justify-center gap-x-10 gap-y-6 text-[10px] font-bold uppercase tracking-[0.2em] text-muted-foreground border-t border-border pt-12 pb-20 w-full mt-10">
-              <Link href={`/${lang}/terms`} className="hover:text-brand-dark transition-colors">{dictionary.checkout.policies.refund}</Link>
-              <Link href={`/${lang}/privacy`} className="hover:text-brand-dark transition-colors">{dictionary.checkout.policies.privacy}</Link>
-              <Link href={`/${lang}/terms`} className="hover:text-brand-dark transition-colors">{dictionary.checkout.policies.terms}</Link>
+            {/* Policies */}
+            <div style={{
+              display: "flex", flexWrap: "wrap", justifyContent: "center",
+              gap: "10px 28px",
+              fontFamily: FRAUNCES, fontWeight: 500, fontSize: 12,
+              letterSpacing: "0.06em",
+              color: C.ink, opacity: 0.5,
+              borderTop: `1px dashed rgba(42,29,20,0.18)`,
+              paddingTop: 24, paddingBottom: 40,
+            }}>
+              <Link href={`/${lang}/terms`} style={{ color: "inherit", textDecoration: "none" }} className="hover:opacity-80">{dictionary.checkout.policies.refund}</Link>
+              <Link href={`/${lang}/privacy`} style={{ color: "inherit", textDecoration: "none" }} className="hover:opacity-80">{dictionary.checkout.policies.privacy}</Link>
+              <Link href={`/${lang}/terms`} style={{ color: "inherit", textDecoration: "none" }} className="hover:opacity-80">{dictionary.checkout.policies.terms}</Link>
             </div>
-            
+
           </div>
         </div>
       </div>
+
+      {/* You may also like — auto-scrolling row */}
+      <YouMayAlsoLike products={products} lang={lang} excludedIds={items.map(i => i.product.id)} isKa={isKa} />
     </div>
+  );
+}
+
+function YouMayAlsoLike({
+  products,
+  lang,
+  excludedIds,
+  isKa,
+}: {
+  products: StorefrontProduct[];
+  lang: Locale;
+  excludedIds: string[];
+  isKa: boolean;
+}) {
+  const pool = (products || []).filter(p => !excludedIds.includes(p.id) && p.in_stock).slice(0, 12);
+  if (pool.length === 0) return null;
+
+  // Duplicate the list so the marquee loops seamlessly
+  const loop = [...pool, ...pool];
+
+  return (
+    <section style={{
+      background: C.softCream,
+      borderTop: `1px solid rgba(42,29,20,0.08)`,
+      padding: "56px 0 64px",
+      position: "relative",
+      overflow: "hidden",
+    }}>
+      <style>{`
+        @keyframes tissu-marquee {
+          from { transform: translateX(0); }
+          to   { transform: translateX(-50%); }
+        }
+        .tissu-marquee-track:hover { animation-play-state: paused; }
+      `}</style>
+
+      <div className="container" style={{ marginBottom: 28, position: "relative" }}>
+        <div style={{ display: "flex", alignItems: "baseline", gap: 14, flexWrap: "wrap" }}>
+          <h2 style={{
+            fontFamily: FRAUNCES, fontWeight: 700,
+            fontSize: "clamp(24px, 3vw, 36px)",
+            color: C.ink, letterSpacing: "-0.01em",
+            lineHeight: 1, margin: 0,
+            display: "inline-flex", alignItems: "baseline", gap: 10,
+          }}>
+            <Star size={14} />
+            {isKa ? "შეიძლება მოგეწონოს" : "You may also like"}
+          </h2>
+          <span style={{ fontFamily: PRICE_FONT, fontSize: 13, color: C.ink, opacity: 0.55 }}>
+            {isKa ? "ხელით ნაკერი თბილისში" : "Handmade in Tbilisi"}
+          </span>
+        </div>
+      </div>
+
+      <div
+        className="tissu-marquee-track"
+        style={{
+          display: "flex",
+          gap: 20,
+          width: "max-content",
+          animation: `tissu-marquee ${Math.max(40, pool.length * 6)}s linear infinite`,
+          willChange: "transform",
+        }}
+      >
+        {loop.map((p, i) => (
+          <Link
+            key={`${p.id}-${i}`}
+            href={`/${lang}/product/${p.id}`}
+            style={{
+              flex: "0 0 auto",
+              width: 220,
+              textDecoration: "none",
+              color: "inherit",
+            }}
+          >
+            <div style={{
+              position: "relative",
+              width: "100%",
+              aspectRatio: "4/5",
+              borderRadius: 16,
+              overflow: "hidden",
+              background: "white",
+              border: `1px solid rgba(42,29,20,0.08)`,
+            }}>
+              {p.image_front && (
+                <Image src={p.image_front} alt={p.name} fill className="object-cover" />
+              )}
+            </div>
+            <div style={{
+              fontFamily: FRAUNCES, fontWeight: 600, fontSize: 14,
+              color: C.ink, marginTop: 10, lineHeight: 1.3,
+              overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap",
+            }}>
+              {p.name}
+            </div>
+            <div style={{ marginTop: 4 }}>
+              <Price value={p.price} />
+            </div>
+          </Link>
+        ))}
+      </div>
+    </section>
   );
 }

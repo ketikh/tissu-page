@@ -104,7 +104,7 @@ export default async function RootLayout({
         <main className="flex-1 flex flex-col">
           {children}
         </main>
-        <Footer dictionary={dictionary} />
+        <Footer dictionary={dictionary} lang={locale} />
       </body>
     </html>
   );
