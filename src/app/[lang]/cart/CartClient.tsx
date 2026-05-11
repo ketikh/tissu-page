@@ -7,20 +7,16 @@ import { motion, AnimatePresence } from "framer-motion";
 import { useCartStore } from "@/store/useCartStore";
 import { useStoreHydration } from "@/store/useHydration";
 import { formatPrice } from "@/lib/utils";
-import { Minus, Plus, Trash2, Tag } from "lucide-react";
+import { Minus, Plus, Trash2, Tag, ShoppingBag } from "lucide-react";
 import { Locale } from "@/i18n/config";
 
-const PACIFICO = "var(--font-pacifico), 'Pacifico', cursive";
 const FRAUNCES = "var(--font-fraunces), 'Fraunces', Georgia, serif";
-const ALK_LIFE = "var(--font-alk-life), serif";
 
 const C = {
   cream: "#fef0d6",
-  beige: "#f5e3c2",
   ink: "#2a1d14",
-  mustard: "#f3b62b",
-  mustardDeep: "#d99820",
   burnt: "#d56826",
+  mustard: "#f3b62b",
   green: "#3f6f56",
   champagne: "#c9a86c",
   rose: "#c4849a",
@@ -29,6 +25,22 @@ const C = {
 interface CartClientProps {
   dictionary: any;
   lang: Locale;
+}
+
+const PRICE_FONT = "system-ui, -apple-system, 'Segoe UI', sans-serif";
+
+function Price({ value, big = false }: { value: number; big?: boolean }) {
+  return (
+    <span style={{ display: "inline-flex", alignItems: "flex-end", gap: 3, fontFamily: FRAUNCES, color: C.ink, lineHeight: 1 }}>
+      <span style={{ fontWeight: 700, fontSize: big ? 32 : 16, letterSpacing: "-0.02em" }}>{value}</span>
+      <span style={{
+        fontFamily: PRICE_FONT, fontWeight: 500,
+        fontSize: big ? 12 : 11,
+        color: C.ink, opacity: 0.55,
+        marginBottom: big ? 4 : 2,
+      }}>₾</span>
+    </span>
+  );
 }
 
 export default function CartClient({ dictionary, lang }: CartClientProps) {
@@ -48,52 +60,53 @@ export default function CartClient({ dictionary, lang }: CartClientProps) {
 
   if (items.length === 0) {
     return (
-      <div style={{ background: C.cream, minHeight: "80vh" }}>
-        <div
-          className="h-2 w-full"
-          style={{ background: "repeating-linear-gradient(90deg, #c4849a 0 18px, #fef0d6 18px 36px)" }}
-          aria-hidden="true"
-        />
-        <div className="container py-24 flex flex-col items-center text-center gap-8">
-          <motion.span
-            initial={{ scale: 0.6, opacity: 0 }}
-            animate={{ scale: 1, opacity: 1 }}
-            transition={{ duration: 0.6, type: "spring", stiffness: 200, damping: 14 }}
-            style={{ fontSize: 64, lineHeight: 1 }}
+      <div style={{ background: "white", minHeight: "80vh" }}>
+        <div className="container py-20 md:py-28 flex flex-col items-center text-center gap-7 max-w-xl">
+          <span
             aria-hidden="true"
+            style={{
+              display: "inline-flex", alignItems: "center", justifyContent: "center",
+              width: 88, height: 88, borderRadius: "50%",
+              background: "#f9f4eb",
+              color: C.burnt,
+            }}
           >
-            🛒
-          </motion.span>
+            <ShoppingBag size={36} strokeWidth={1.6} />
+          </span>
           <h1
             style={{
-              fontFamily: isKa ? ALK_LIFE : FRAUNCES,
-              fontStyle: isKa ? "normal" : "italic",
-              fontWeight: 900,
-              fontSize: "clamp(32px, 5vw, 60px)",
+              fontFamily: FRAUNCES,
+              fontWeight: 700,
+              fontSize: "clamp(28px, 4vw, 44px)",
               color: C.ink,
-              lineHeight: 1.0,
+              lineHeight: 1.1,
+              letterSpacing: "-0.01em",
+              margin: 0,
             }}
           >
             {isKa ? "კალათა ცარიელია" : "Your basket is empty"}
           </h1>
-          <p style={{ fontFamily: FRAUNCES, fontStyle: "italic", fontSize: 17, color: C.champagne, maxWidth: 380 }}>
-            {isKa ? "ჯერ კიდევ არ გამოგიყვანია ის ჩანთა." : "You haven't picked a bag yet."}
+          <p style={{
+            fontFamily: PRICE_FONT,
+            fontSize: 15, color: C.ink, opacity: 0.6, margin: 0,
+          }}>
+            {isKa ? "ჯერ კიდევ არ აგირჩევია ჩანთა." : "You haven't picked a bag yet."}
           </p>
           <Link
             href={`/${lang}/shop`}
-            className="inline-flex items-center gap-2.5 font-extrabold text-[13px] uppercase tracking-[0.2em] transition-transform hover:-translate-y-0.5 active:translate-y-0.5"
             style={{
-              fontFamily: FRAUNCES,
-              fontWeight: 800,
-              background: C.ink,
-              color: C.cream,
+              fontFamily: FRAUNCES, fontWeight: 600, fontSize: 14,
+              letterSpacing: "0.02em",
+              background: C.burnt, color: C.cream,
               borderRadius: 999,
-              padding: "14px 32px",
-              boxShadow: `0 5px 0 ${C.mustardDeep}`,
+              padding: "12px 28px",
+              display: "inline-flex", alignItems: "center", gap: 8,
+              textDecoration: "none",
+              transition: "transform 0.18s ease",
             }}
+            className="hover:-translate-y-0.5"
           >
-            {isKa ? "მაღაზიაში გადასვლა" : "Go to shop"}
-            <span aria-hidden="true">→</span>
+            {isKa ? "მაღაზიაში" : "Go to shop"} <span aria-hidden="true">→</span>
           </Link>
         </div>
       </div>
@@ -101,142 +114,156 @@ export default function CartClient({ dictionary, lang }: CartClientProps) {
   }
 
   return (
-    <div style={{ background: C.cream, minHeight: "100vh" }}>
-      {/* Top stripe */}
-      <div
-        className="h-2 w-full"
-        style={{ background: "repeating-linear-gradient(90deg, #c4849a 0 18px, #fef0d6 18px 36px)" }}
-        aria-hidden="true"
-      />
-
+    <div style={{ background: "white", minHeight: "100vh" }}>
       <div className="container py-10 md:py-14 max-w-6xl">
         {/* Back link */}
         <Link
           href={`/${lang}/shop`}
-          className="inline-flex items-center gap-1.5 mb-8 hover:underline underline-offset-4"
-          style={{ fontFamily: FRAUNCES, fontWeight: 700, fontSize: 12, letterSpacing: "0.2em", textTransform: "uppercase", color: C.champagne }}
+          style={{
+            display: "inline-flex", alignItems: "center", gap: 6,
+            fontFamily: FRAUNCES, fontWeight: 500, fontSize: 13,
+            color: C.ink, opacity: 0.6, textDecoration: "none",
+            marginBottom: 24,
+          }}
+          className="hover:opacity-100"
         >
           ← {isKa ? "მაღაზიაში დაბრუნება" : "Back to shop"}
         </Link>
 
         {/* Heading */}
-        <h1
-          className="mb-10"
-          style={{
-            fontFamily: isKa ? ALK_LIFE : FRAUNCES,
-            fontStyle: isKa ? "normal" : "italic",
-            fontWeight: 900,
-            fontSize: "clamp(32px, 5vw, 58px)",
-            color: C.ink,
-            lineHeight: 1.0,
-          }}
-        >
-          {isKa ? "კალათა" : dictionary.cartDrawer?.title ?? "Your basket"}
-        </h1>
+        <div className="flex items-baseline gap-4 mb-10 flex-wrap">
+          <h1
+            style={{
+              fontFamily: FRAUNCES, fontWeight: 700,
+              fontSize: "clamp(28px, 4vw, 44px)",
+              color: C.ink, lineHeight: 1.0,
+              letterSpacing: "-0.01em",
+              margin: 0,
+            }}
+          >
+            {isKa ? "კალათა" : "Your basket"}
+          </h1>
+          <span style={{
+            fontFamily: PRICE_FONT, fontSize: 14, color: C.ink, opacity: 0.55,
+          }}>
+            {items.length} {isKa ? (items.length === 1 ? "ნივთი" : "ნივთი") : (items.length === 1 ? "item" : "items")}
+          </span>
+        </div>
 
-        <div className="grid lg:grid-cols-[1fr_380px] gap-12 items-start">
+        <div className="grid lg:grid-cols-[1fr_360px] gap-10 items-start">
           {/* ── Items ── */}
-          <div className="flex flex-col gap-6">
+          <div className="flex flex-col gap-3">
             <AnimatePresence>
               {items.map((item) => {
                 const name = item.product.name[lang] || item.product.name["ka"];
-                const color = item.variant.color[lang] || item.variant.color["ka"];
-                const linePrice = (item.variant.price || item.product.price) * item.quantity;
+                const variantLabel = item.variant.color[lang] || item.variant.color["ka"];
+                const unitPrice = item.variant.price || item.product.price;
+                const linePrice = unitPrice * item.quantity;
 
                 return (
                   <motion.div
                     key={item.id}
                     layout
-                    initial={{ opacity: 0, y: 16 }}
+                    initial={{ opacity: 0, y: 12 }}
                     animate={{ opacity: 1, y: 0 }}
-                    exit={{ opacity: 0, x: -40 }}
-                    transition={{ duration: 0.4 }}
-                    className="flex gap-5 p-4 md:p-5"
+                    exit={{ opacity: 0, x: -30 }}
+                    transition={{ duration: 0.32 }}
+                    className="flex gap-4 md:gap-5 p-4 md:p-5"
                     style={{
-                      background: C.beige,
-                      borderRadius: 24,
-                      border: `1.5px solid ${C.champagne}`,
+                      background: "white",
+                      borderRadius: 16,
+                      border: `1px solid rgba(42,29,20,0.10)`,
                     }}
                   >
                     {/* Photo */}
-                    <div
-                      className="relative shrink-0 overflow-hidden"
-                      style={{ width: 100, height: 120, borderRadius: 16, boxShadow: "0 6px 0 #d99820" }}
+                    <Link
+                      href={`/${lang}/product/${item.product.id}`}
+                      className="relative shrink-0 overflow-hidden block"
+                      style={{ width: 96, height: 110, borderRadius: 12, background: "#f5f5f5" }}
                     >
                       <Image
                         src={item.product.images[0] || "/placeholder.jpg"}
                         alt={name}
                         fill
                         className="object-cover"
-                        style={{ filter: "saturate(0.95) sepia(0.03)" }}
                       />
-                    </div>
+                    </Link>
 
                     {/* Details */}
-                    <div className="flex-1 flex flex-col justify-between py-1">
-                      <div>
-                        <Link
-                          href={`/${lang}/product/${item.product.id}`}
-                          className="hover:underline underline-offset-3"
-                          style={{ fontFamily: FRAUNCES, fontStyle: "italic", fontWeight: 700, fontSize: 19, color: C.ink, display: "block" }}
-                        >
-                          {name}
-                        </Link>
-                        {color && (
-                          <span
-                            className="inline-block mt-1 px-3 py-0.5 text-[11px] font-bold uppercase tracking-[0.18em]"
-                            style={{ fontFamily: FRAUNCES, color: C.champagne, background: C.cream, borderRadius: 999 }}
-                          >
-                            {color}
-                          </span>
-                        )}
-                      </div>
+                    <div className="flex-1 min-w-0 flex flex-col">
+                      <Link
+                        href={`/${lang}/product/${item.product.id}`}
+                        style={{
+                          fontFamily: FRAUNCES, fontWeight: 600,
+                          fontSize: 16, color: C.ink, lineHeight: 1.2,
+                          textDecoration: "none",
+                          letterSpacing: "-0.005em",
+                        }}
+                        className="hover:opacity-80"
+                      >
+                        {name}
+                      </Link>
+                      {variantLabel && (
+                        <span style={{
+                          fontFamily: PRICE_FONT,
+                          fontSize: 12, color: C.ink, opacity: 0.55,
+                          marginTop: 4,
+                        }}>
+                          {variantLabel}
+                        </span>
+                      )}
 
-                      <div className="flex items-center justify-between mt-3 gap-3 flex-wrap">
+                      <div className="flex items-center justify-between mt-auto pt-3 gap-3 flex-wrap">
                         {/* Qty stepper */}
-                        <div
-                          className="inline-flex items-center gap-1 p-1"
-                          style={{ background: C.cream, borderRadius: 999, border: `1.5px solid ${C.champagne}` }}
-                        >
+                        <div style={{
+                          display: "inline-flex", alignItems: "center",
+                          border: `1.5px solid rgba(42,29,20,0.14)`,
+                          borderRadius: 12,
+                          background: "white",
+                        }}>
                           <button
                             type="button"
                             onClick={() => updateQuantity(item.id, item.quantity - 1)}
                             aria-label="Decrease"
-                            className="w-8 h-8 rounded-full inline-flex items-center justify-center"
-                            style={{ color: C.ink }}
+                            style={{ width: 34, height: 36, border: "none", background: "transparent", cursor: "pointer", display: "flex", alignItems: "center", justifyContent: "center", color: C.ink }}
                           >
-                            <Minus className="w-3.5 h-3.5" />
+                            <Minus size={13} />
                           </button>
-                          <span
-                            className="min-w-6 text-center"
-                            style={{ fontFamily: FRAUNCES, fontWeight: 700, fontSize: 14, color: C.ink }}
-                          >
+                          <span style={{
+                            minWidth: 24, textAlign: "center",
+                            fontFamily: FRAUNCES, fontWeight: 700, fontSize: 14, color: C.ink,
+                          }}>
                             {item.quantity}
                           </span>
                           <button
                             type="button"
                             onClick={() => updateQuantity(item.id, item.quantity + 1)}
                             aria-label="Increase"
-                            className="w-8 h-8 rounded-full inline-flex items-center justify-center"
-                            style={{ color: C.ink }}
+                            style={{ width: 34, height: 36, border: "none", background: "transparent", cursor: "pointer", display: "flex", alignItems: "center", justifyContent: "center", color: C.ink }}
                           >
-                            <Plus className="w-3.5 h-3.5" />
+                            <Plus size={13} />
                           </button>
                         </div>
 
-                        {/* Price + delete */}
+                        {/* Line price + remove */}
                         <div className="flex items-center gap-3">
-                          <span style={{ fontFamily: PACIFICO, fontSize: 22, color: C.burnt }}>
-                            {formatPrice(linePrice)}
-                          </span>
+                          <Price value={linePrice} />
                           <button
                             type="button"
                             onClick={() => removeItem(item.id)}
                             aria-label="Remove"
-                            className="w-9 h-9 rounded-full inline-flex items-center justify-center transition-colors"
-                            style={{ background: C.cream, color: C.rose, border: `1.5px solid ${C.rose}` }}
+                            style={{
+                              width: 34, height: 34,
+                              border: "none", background: "transparent",
+                              borderRadius: 999,
+                              display: "inline-flex", alignItems: "center", justifyContent: "center",
+                              color: C.ink, opacity: 0.45,
+                              cursor: "pointer",
+                              transition: "opacity 0.18s ease, color 0.18s ease",
+                            }}
+                            className="hover:opacity-100 hover:!text-[#c4849a]"
                           >
-                            <Trash2 className="w-4 h-4" />
+                            <Trash2 size={15} />
                           </button>
                         </div>
                       </div>
@@ -249,76 +276,73 @@ export default function CartClient({ dictionary, lang }: CartClientProps) {
 
           {/* ── Summary panel ── */}
           <div
-            className="p-7 sticky top-24"
+            className="p-6 lg:sticky lg:top-24"
             style={{
-              background: C.beige,
-              borderRadius: 28,
-              border: `2px solid ${C.champagne}`,
-              boxShadow: "0 12px 32px rgba(42,29,20,0.10)",
+              background: "#f9f4eb",
+              borderRadius: 18,
+              border: `1px solid rgba(42,29,20,0.08)`,
             }}
           >
-            <h2
-              className="mb-6 pb-4"
-              style={{
-                fontFamily: isKa ? ALK_LIFE : FRAUNCES,
-                fontStyle: isKa ? "normal" : "italic",
-                fontWeight: 800,
-                fontSize: 22,
-                color: C.ink,
-                borderBottom: `1.5px dashed ${C.champagne}`,
-              }}
-            >
-              {isKa ? "შეკვეთის შეჯამება" : "Order summary"}
-            </h2>
+            <div style={{
+              fontFamily: FRAUNCES, fontWeight: 600,
+              fontSize: 12, letterSpacing: "0.16em", textTransform: "uppercase",
+              color: C.ink, opacity: 0.55,
+              marginBottom: 18,
+            }}>
+              {isKa ? "შეჯამება" : "Order summary"}
+            </div>
 
-            <div className="space-y-4 mb-6" style={{ fontFamily: FRAUNCES }}>
-              <div className="flex justify-between text-[13px] font-semibold" style={{ color: C.champagne }}>
-                <span>{isKa ? "სულ ფასი" : "Subtotal"}</span>
-                <span style={{ color: C.ink }}>{formatPrice(subtotal)}</span>
+            <div className="space-y-3 mb-5" style={{ fontFamily: PRICE_FONT }}>
+              <div className="flex justify-between text-[14px]" style={{ color: C.ink }}>
+                <span style={{ opacity: 0.7 }}>{isKa ? "სულ" : "Subtotal"}</span>
+                <Price value={subtotal} />
               </div>
-              <div className="flex justify-between text-[13px] font-semibold" style={{ color: C.champagne }}>
-                <span>{isKa ? "მიწოდება" : "Shipping"}</span>
-                <span style={{ color: shipping === 0 ? C.green : C.ink, fontWeight: 700 }}>
-                  {shipping === 0 ? (isKa ? "უფასო" : "FREE") : formatPrice(shipping)}
+              <div className="flex justify-between text-[14px]" style={{ color: C.ink }}>
+                <span style={{ opacity: 0.7 }}>{isKa ? "მიწოდება" : "Shipping"}</span>
+                <span style={{ color: shipping === 0 ? C.green : C.ink, fontWeight: 600 }}>
+                  {shipping === 0
+                    ? (isKa ? "უფასო" : "Free")
+                    : <Price value={shipping} />}
                 </span>
               </div>
               {discount > 0 && (
-                <div
-                  className="flex justify-between text-[13px] font-bold px-3 py-2"
-                  style={{ color: C.green, background: C.cream, borderRadius: 12, border: `1px solid ${C.green}` }}
-                >
-                  <span className="flex items-center gap-1.5"><Tag className="w-3.5 h-3.5" /> {discount}%</span>
-                  <span>-{formatPrice(discountAmount)}</span>
+                <div className="flex justify-between text-[14px]" style={{ color: C.green }}>
+                  <span className="flex items-center gap-1.5" style={{ fontWeight: 600 }}>
+                    <Tag size={13} /> {discount}%
+                  </span>
+                  <span style={{ fontWeight: 600 }}>−{formatPrice(discountAmount)}</span>
                 </div>
               )}
-              <div
-                className="flex justify-between pt-4"
-                style={{ borderTop: `1.5px dashed ${C.champagne}` }}
-              >
-                <span style={{ fontFamily: isKa ? ALK_LIFE : FRAUNCES, fontStyle: isKa ? "normal" : "italic", fontWeight: 900, fontSize: 20, color: C.ink }}>
-                  {isKa ? "სულ" : "Total"}
-                </span>
-                <span style={{ fontFamily: PACIFICO, fontSize: 26, color: C.burnt }}>
-                  {formatPrice(total)}
-                </span>
-              </div>
+            </div>
+
+            <div
+              className="flex items-baseline justify-between mb-6 pt-4"
+              style={{ borderTop: `1px solid rgba(42,29,20,0.10)` }}
+            >
+              <span style={{
+                fontFamily: FRAUNCES, fontWeight: 700, fontSize: 16,
+                color: C.ink, letterSpacing: "-0.005em",
+              }}>
+                {isKa ? "სულ ჯამი" : "Total"}
+              </span>
+              <Price value={total} big />
             </div>
 
             {/* Promo code */}
-            <div className="flex gap-2 mb-6">
+            <div className="flex gap-2 mb-2">
               <div className="relative flex-1">
-                <Tag className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4" style={{ color: C.champagne }} />
+                <Tag size={14} className="absolute left-3 top-1/2 -translate-y-1/2" style={{ color: C.ink, opacity: 0.4 }} />
                 <input
                   type="text"
                   placeholder={isKa ? "პრომო კოდი" : "Promo code"}
                   value={promoCode}
                   onChange={(e) => setPromoCode(e.target.value)}
-                  className="w-full h-11 pl-10 pr-4 text-[13px] font-bold outline-none"
+                  className="w-full h-11 pl-9 pr-3 text-[13px] outline-none"
                   style={{
-                    fontFamily: FRAUNCES,
-                    background: C.cream,
-                    border: `1.5px solid ${promoError ? C.rose : C.champagne}`,
-                    borderRadius: 999,
+                    fontFamily: PRICE_FONT,
+                    background: "white",
+                    border: `1.5px solid ${promoError ? C.rose : "rgba(42,29,20,0.14)"}`,
+                    borderRadius: 12,
                     color: C.ink,
                   }}
                 />
@@ -326,19 +350,28 @@ export default function CartClient({ dictionary, lang }: CartClientProps) {
               <button
                 type="button"
                 onClick={handleApplyPromo}
-                className="px-4 h-11 text-[12px] font-extrabold uppercase tracking-[0.15em] transition-transform hover:-translate-y-0.5"
-                style={{ fontFamily: FRAUNCES, background: C.ink, color: C.cream, borderRadius: 999 }}
+                style={{
+                  fontFamily: FRAUNCES, fontWeight: 600, fontSize: 13,
+                  letterSpacing: "0.02em",
+                  background: "transparent", color: C.ink,
+                  border: `1.5px solid rgba(42,29,20,0.18)`,
+                  borderRadius: 12,
+                  padding: "0 18px", height: 44,
+                  cursor: "pointer",
+                  transition: "background 0.18s ease",
+                }}
+                className="hover:bg-[rgba(42,29,20,0.05)]"
               >
                 {isKa ? "გამოყენება" : "Apply"}
               </button>
             </div>
             {promoError && (
-              <p className="text-[11px] font-bold mb-3" style={{ color: C.rose, fontFamily: FRAUNCES }}>
+              <p style={{ fontFamily: PRICE_FONT, fontSize: 12, color: C.rose, margin: "4px 4px 0", opacity: 0.9 }}>
                 {isKa ? "კოდი არასწორია" : "Invalid promo code"}
               </p>
             )}
             {promoSuccess && (
-              <p className="text-[11px] font-bold mb-3" style={{ color: C.green, fontFamily: FRAUNCES }}>
+              <p style={{ fontFamily: PRICE_FONT, fontSize: 12, color: C.green, margin: "4px 4px 0", opacity: 0.9 }}>
                 {isKa ? "კოდი გამოყენებულია ✓" : "Code applied ✓"}
               </p>
             )}
@@ -346,38 +379,33 @@ export default function CartClient({ dictionary, lang }: CartClientProps) {
             {/* Checkout CTA */}
             <Link
               href={`/${lang}/checkout`}
-              className="flex items-center justify-center gap-2.5 w-full font-extrabold text-[13px] uppercase tracking-[0.2em] transition-transform hover:-translate-y-0.5 active:translate-y-0.5"
               style={{
-                fontFamily: FRAUNCES,
-                fontWeight: 800,
-                background: C.ink,
-                color: C.cream,
-                borderRadius: 999,
-                padding: "15px 24px",
-                boxShadow: `0 5px 0 ${C.mustardDeep}`,
+                marginTop: 18,
+                display: "flex", alignItems: "center", justifyContent: "center", gap: 8,
+                fontFamily: FRAUNCES, fontWeight: 600, fontSize: 14,
+                letterSpacing: "0.02em",
+                background: C.burnt, color: C.cream,
+                borderRadius: 14,
+                padding: "14px 22px",
+                textDecoration: "none",
+                transition: "transform 0.18s ease, background 0.18s ease",
               }}
+              className="hover:-translate-y-0.5"
             >
               {isKa ? "გადახდა" : "Checkout"}
               <span aria-hidden="true">→</span>
             </Link>
 
             {/* Trust note */}
-            <p
-              className="mt-5 text-center text-[11px] font-semibold"
-              style={{ fontFamily: FRAUNCES, color: C.champagne, letterSpacing: "0.1em" }}
-            >
-              ✦ {isKa ? "უსაფრთხო გადახდა" : "Secure checkout"} ✦
+            <p style={{
+              fontFamily: PRICE_FONT, fontSize: 12, color: C.ink, opacity: 0.5,
+              textAlign: "center", marginTop: 14, marginBottom: 0,
+            }}>
+              {isKa ? "უსაფრთხო გადახდა · ხელნაკეთი თბილისში" : "Secure checkout · Handmade in Tbilisi"}
             </p>
           </div>
         </div>
       </div>
-
-      {/* Bottom stripe */}
-      <div
-        className="h-2 w-full mt-16"
-        style={{ background: "repeating-linear-gradient(90deg, #c4849a 0 18px, #fef0d6 18px 36px)" }}
-        aria-hidden="true"
-      />
     </div>
   );
 }

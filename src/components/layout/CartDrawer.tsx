@@ -2,17 +2,41 @@
 
 import { useUIStore } from "@/store/useUIStore";
 import { useCartStore } from "@/store/useCartStore";
-import { X, Trash2, ShoppingBag } from "lucide-react";
+import { X, Trash2, ShoppingBag, Minus, Plus } from "lucide-react";
 import Image from "next/image";
 import Link from "next/link";
-import { formatPrice } from "@/lib/utils";
-import { Button } from "../ui/Button";
 import { Locale } from "@/i18n/config";
 import { useStoreHydration } from "@/store/useHydration";
+import { motion, AnimatePresence } from "framer-motion";
 
 interface CartDrawerProps {
   dictionary: any;
   lang: Locale;
+}
+
+const FRAUNCES = "var(--font-fraunces), 'Fraunces', Georgia, serif";
+const PRICE_FONT = "system-ui, -apple-system, 'Segoe UI', sans-serif";
+
+const C = {
+  cream: "#fef0d6",
+  ink: "#2a1d14",
+  burnt: "#d56826",
+  green: "#3f6f56",
+  rose: "#c4849a",
+};
+
+function Price({ value, big = false }: { value: number; big?: boolean }) {
+  return (
+    <span style={{ display: "inline-flex", alignItems: "flex-end", gap: 3, fontFamily: FRAUNCES, color: C.ink, lineHeight: 1 }}>
+      <span style={{ fontWeight: 700, fontSize: big ? 26 : 15, letterSpacing: "-0.02em" }}>{value}</span>
+      <span style={{
+        fontFamily: PRICE_FONT, fontWeight: 500,
+        fontSize: big ? 12 : 11,
+        color: C.ink, opacity: 0.55,
+        marginBottom: big ? 3 : 1,
+      }}>₾</span>
+    </span>
+  );
 }
 
 export function CartDrawer({ dictionary, lang }: CartDrawerProps) {
@@ -20,118 +44,239 @@ export function CartDrawer({ dictionary, lang }: CartDrawerProps) {
   const { isCartOpen, closeCart } = useUIStore();
   const { items, removeItem, updateQuantity, getSummary } = useCartStore();
   const { subtotal } = getSummary();
-
-  if (!isCartOpen) return null;
+  const isKa = lang === "ka";
 
   return (
-    <>
-      {/* Backdrop */}
-      <div 
-        className="fixed inset-0 z-50 bg-black/40 backdrop-blur-sm transition-opacity"
-        onClick={closeCart}
-      />
-      
-      {/* Drawer */}
-      <div className="fixed inset-y-0 right-0 z-50 w-full max-w-md bg-background shadow-2xl flex flex-col transform transition-transform duration-300 translate-x-0">
-        <div className="flex items-center justify-between p-6 border-b border-border">
-          <h2 className="text-xl font-serif font-semibold tracking-wide">{dictionary.cartDrawer.title}</h2>
-          <button 
+    <AnimatePresence>
+      {isCartOpen && (
+        <>
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            transition={{ duration: 0.2 }}
+            className="fixed inset-0 z-50"
+            style={{ background: "rgba(42,29,20,0.45)", backdropFilter: "blur(3px)" }}
             onClick={closeCart}
-            className="p-2 -mr-2 text-muted-foreground hover:text-foreground transition-colors rounded-full hover:bg-muted"
-          >
-            <X className="w-5 h-5" />
-          </button>
-        </div>
+          />
 
-        <div className="flex-1 overflow-y-auto p-6 flex flex-col gap-6">
-          {items.length === 0 ? (
-            <div className="flex flex-col items-center justify-center flex-1 text-center space-y-6">
-              <div className="w-20 h-20 rounded-full bg-muted flex items-center justify-center text-muted-foreground">
-                <ShoppingBag className="w-8 h-8" />
-              </div>
-              <div className="space-y-2">
-                <p className="text-lg font-serif">{dictionary.cartDrawer.empty}</p>
-                <p className="text-sm text-muted-foreground max-w-[250px] mx-auto text-balance">
-                  {dictionary.cartDrawer.discover}
-                </p>
-              </div>
-              <Button onClick={closeCart} asChild variant="premium">
-                <Link href={`/${lang}/shop`}>{dictionary.cartDrawer.continue}</Link>
-              </Button>
+          <motion.div
+            initial={{ x: "100%" }}
+            animate={{ x: 0 }}
+            exit={{ x: "100%" }}
+            transition={{ type: "spring", damping: 28, stiffness: 220 }}
+            className="fixed inset-y-0 right-0 z-50 w-full max-w-md flex flex-col"
+            style={{ background: "white", boxShadow: "-8px 0 32px rgba(42,29,20,0.14)" }}
+          >
+            {/* Header */}
+            <div className="flex items-center justify-between px-6 py-5" style={{ borderBottom: `1px solid rgba(42,29,20,0.08)` }}>
+              <h2 style={{
+                fontFamily: FRAUNCES, fontWeight: 700, fontSize: 18,
+                color: C.ink, letterSpacing: "-0.005em",
+                margin: 0,
+              }}>
+                {isKa ? "კალათა" : dictionary.cartDrawer.title}
+              </h2>
+              <button
+                onClick={closeCart}
+                aria-label="Close"
+                style={{
+                  width: 36, height: 36, border: "none", background: "transparent",
+                  borderRadius: 999, color: C.ink, opacity: 0.55,
+                  display: "inline-flex", alignItems: "center", justifyContent: "center",
+                  cursor: "pointer",
+                  transition: "opacity 0.18s ease, background 0.18s ease",
+                }}
+                className="hover:!opacity-100 hover:bg-[rgba(42,29,20,0.05)]"
+              >
+                <X size={18} />
+              </button>
             </div>
-          ) : (
-            items.map((item) => (
-              <div key={item.id} className="flex gap-4 p-4 rounded-xl border border-border bg-card">
-                <div className="relative w-20 h-24 rounded-md overflow-hidden bg-muted flex-shrink-0">
-                  <Image 
-                    src={item.product.images[0] || "/placeholder.jpg"} 
-                    alt={item.product.name[lang] || item.product.name['ka']}
-                    fill
-                    className="object-cover"
-                  />
-                </div>
-                <div className="flex flex-1 flex-col justify-between">
-                  <div>
-                    <div className="flex justify-between items-start gap-2">
-                      <h3 className="font-medium text-sm leading-tight text-foreground pr-4">
-                        {item.product.name[lang] || item.product.name['ka']}
-                      </h3>
-                      <button 
-            onClick={() => removeItem(item.id)}
-                        className="text-muted-foreground hover:text-destructive flex-shrink-0"
-                      >
-                        <Trash2 className="w-4 h-4" />
-                      </button>
-                    </div>
-                    <p className="text-xs text-muted-foreground mt-1">
-                      {item.variant.color[lang] || item.variant.color['ka']} / {item.variant.size}
+
+            <div className="flex-1 overflow-y-auto px-5 py-5 flex flex-col gap-3">
+              {items.length === 0 ? (
+                <div className="flex flex-col items-center justify-center flex-1 text-center gap-5 px-6">
+                  <span style={{
+                    display: "inline-flex", alignItems: "center", justifyContent: "center",
+                    width: 80, height: 80, borderRadius: "50%",
+                    background: "#f9f4eb", color: C.burnt,
+                  }}>
+                    <ShoppingBag size={30} strokeWidth={1.6} />
+                  </span>
+                  <div className="space-y-2">
+                    <p style={{ fontFamily: FRAUNCES, fontWeight: 700, fontSize: 18, color: C.ink, margin: 0 }}>
+                      {dictionary.cartDrawer.empty}
+                    </p>
+                    <p style={{ fontFamily: PRICE_FONT, fontSize: 13, color: C.ink, opacity: 0.6, margin: 0, maxWidth: 260 }}>
+                      {dictionary.cartDrawer.discover}
                     </p>
                   </div>
-                  
-                  <div className="flex items-center justify-between mt-3">
-                    <div className="flex items-center border border-border rounded-md px-2 py-1 bg-background">
-                      <button 
-                        className="w-5 h-5 flex items-center justify-center text-muted-foreground hover:text-foreground text-lg"
-                        onClick={() => updateQuantity(item.id, item.quantity - 1)}
-                      >
-                        -
-                      </button>
-                      <span className="text-xs font-medium w-6 text-center">{item.quantity}</span>
-                      <button 
-                        className="w-5 h-5 flex items-center justify-center text-muted-foreground hover:text-foreground text-lg"
-                        onClick={() => updateQuantity(item.id, item.quantity + 1)}
-                      >
-                        +
-                      </button>
-                    </div>
-                    <span className="font-medium text-sm text-foreground">
-                      {formatPrice((item.variant.price || item.product.price) * item.quantity)}
-                    </span>
-                  </div>
+                  <Link
+                    href={`/${lang}/shop`}
+                    onClick={closeCart}
+                    style={{
+                      fontFamily: FRAUNCES, fontWeight: 600, fontSize: 14,
+                      letterSpacing: "0.02em",
+                      background: C.burnt, color: C.cream,
+                      borderRadius: 999,
+                      padding: "11px 24px",
+                      display: "inline-flex", alignItems: "center", gap: 8,
+                      textDecoration: "none",
+                      transition: "transform 0.18s ease",
+                    }}
+                    className="hover:-translate-y-0.5"
+                  >
+                    {dictionary.cartDrawer.continue}
+                  </Link>
                 </div>
-              </div>
-            ))
-          )}
-        </div>
+              ) : (
+                <AnimatePresence>
+                  {items.map((item) => {
+                    const name = item.product.name[lang] || item.product.name['ka'];
+                    const variantLabel = item.variant.color[lang] || item.variant.color['ka'];
+                    const linePrice = (item.variant.price || item.product.price) * item.quantity;
 
-        {items.length > 0 && (
-          <div className="p-6 border-t border-border bg-card/50 backdrop-blur-sm space-y-4">
-            <div className="flex justify-between items-center mb-1">
-              <span className="text-sm text-muted-foreground font-medium">{dictionary.cartDrawer.subtotal}</span>
-              <span className="text-lg font-serif font-bold text-foreground">{formatPrice(subtotal)}</span>
+                    return (
+                      <motion.div
+                        key={item.id}
+                        layout
+                        initial={{ opacity: 0, y: 8 }}
+                        animate={{ opacity: 1, y: 0 }}
+                        exit={{ opacity: 0, x: -20 }}
+                        transition={{ duration: 0.28 }}
+                        className="flex gap-4 p-4"
+                        style={{
+                          background: "white",
+                          borderRadius: 14,
+                          border: `1px solid rgba(42,29,20,0.10)`,
+                        }}
+                      >
+                        <div className="relative shrink-0 overflow-hidden" style={{ width: 70, height: 84, borderRadius: 10, background: "#f5f5f5" }}>
+                          <Image
+                            src={item.product.images[0] || "/placeholder.jpg"}
+                            alt={name}
+                            fill
+                            className="object-cover"
+                          />
+                        </div>
+
+                        <div className="flex-1 min-w-0 flex flex-col">
+                          <div className="flex justify-between items-start gap-2">
+                            <h3 style={{
+                              fontFamily: FRAUNCES, fontWeight: 600, fontSize: 14,
+                              color: C.ink, lineHeight: 1.25,
+                              margin: 0,
+                              letterSpacing: "-0.005em",
+                            }}>
+                              {name}
+                            </h3>
+                            <button
+                              onClick={() => removeItem(item.id)}
+                              aria-label="Remove"
+                              style={{
+                                border: "none", background: "transparent",
+                                color: C.ink, opacity: 0.45, padding: 0,
+                                cursor: "pointer",
+                                transition: "opacity 0.18s ease, color 0.18s ease",
+                              }}
+                              className="hover:opacity-100 hover:!text-[#c4849a]"
+                            >
+                              <Trash2 size={14} />
+                            </button>
+                          </div>
+                          {variantLabel && (
+                            <p style={{
+                              fontFamily: PRICE_FONT, fontSize: 11.5, color: C.ink, opacity: 0.55,
+                              margin: "3px 0 0 0",
+                            }}>
+                              {variantLabel}
+                            </p>
+                          )}
+
+                          <div className="flex items-center justify-between mt-auto pt-2.5">
+                            <div style={{
+                              display: "inline-flex", alignItems: "center",
+                              border: `1.5px solid rgba(42,29,20,0.14)`,
+                              borderRadius: 10,
+                              background: "white",
+                            }}>
+                              <button
+                                onClick={() => updateQuantity(item.id, item.quantity - 1)}
+                                aria-label="Decrease"
+                                style={{ width: 28, height: 30, border: "none", background: "transparent", cursor: "pointer", display: "flex", alignItems: "center", justifyContent: "center", color: C.ink }}
+                              >
+                                <Minus size={12} />
+                              </button>
+                              <span style={{
+                                minWidth: 20, textAlign: "center",
+                                fontFamily: FRAUNCES, fontWeight: 700, fontSize: 13, color: C.ink,
+                              }}>
+                                {item.quantity}
+                              </span>
+                              <button
+                                onClick={() => updateQuantity(item.id, item.quantity + 1)}
+                                aria-label="Increase"
+                                style={{ width: 28, height: 30, border: "none", background: "transparent", cursor: "pointer", display: "flex", alignItems: "center", justifyContent: "center", color: C.ink }}
+                              >
+                                <Plus size={12} />
+                              </button>
+                            </div>
+                            <Price value={linePrice} />
+                          </div>
+                        </div>
+                      </motion.div>
+                    );
+                  })}
+                </AnimatePresence>
+              )}
             </div>
-            <p className="text-xs text-muted-foreground text-center">
-              {dictionary.cartDrawer.shipping}
-            </p>
-            <Button asChild onClick={closeCart} className="w-full h-12 text-base font-medium rounded-xl shadow-xl shadow-brand-primary/10">
-              <Link href={`/${lang}/checkout`}>{dictionary.cartDrawer.checkout}</Link>
-            </Button>
-            <p className="text-[10px] text-muted-foreground text-center uppercase tracking-widest pt-2">
-              • {dictionary.cartDrawer.secure} •
-            </p>
-          </div>
-        )}
-      </div>
-    </>
+
+            {items.length > 0 && (
+              <div className="px-6 py-5" style={{ borderTop: `1px solid rgba(42,29,20,0.08)`, background: "#fdfaf2" }}>
+                <div className="flex items-baseline justify-between mb-1">
+                  <span style={{
+                    fontFamily: FRAUNCES, fontWeight: 700, fontSize: 15,
+                    color: C.ink, letterSpacing: "-0.005em",
+                  }}>
+                    {dictionary.cartDrawer.subtotal}
+                  </span>
+                  <Price value={subtotal} big />
+                </div>
+                <p style={{
+                  fontFamily: PRICE_FONT, fontSize: 12, color: C.ink, opacity: 0.5,
+                  margin: "0 0 14px 0",
+                }}>
+                  {dictionary.cartDrawer.shipping}
+                </p>
+                <Link
+                  href={`/${lang}/checkout`}
+                  onClick={closeCart}
+                  style={{
+                    display: "flex", alignItems: "center", justifyContent: "center", gap: 8,
+                    fontFamily: FRAUNCES, fontWeight: 600, fontSize: 14,
+                    letterSpacing: "0.02em",
+                    background: C.burnt, color: C.cream,
+                    borderRadius: 14,
+                    padding: "13px 22px",
+                    textDecoration: "none",
+                    transition: "transform 0.18s ease",
+                  }}
+                  className="hover:-translate-y-0.5"
+                >
+                  {dictionary.cartDrawer.checkout}
+                  <span aria-hidden="true">→</span>
+                </Link>
+                <p style={{
+                  fontFamily: PRICE_FONT, fontSize: 11, color: C.ink, opacity: 0.45,
+                  textAlign: "center", margin: "12px 0 0 0",
+                }}>
+                  {dictionary.cartDrawer.secure}
+                </p>
+              </div>
+            )}
+          </motion.div>
+        </>
+      )}
+    </AnimatePresence>
   );
 }
