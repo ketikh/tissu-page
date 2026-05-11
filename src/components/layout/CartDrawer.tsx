@@ -132,9 +132,13 @@ export function CartDrawer({ dictionary, lang }: CartDrawerProps) {
               ) : (
                 <AnimatePresence>
                   {items.map((item) => {
-                    const name = item.product.name[lang] || item.product.name['ka'];
-                    const variantLabel = item.variant.color[lang] || item.variant.color['ka'];
-                    const linePrice = (item.variant.price || item.product.price) * item.quantity;
+                    const name = item.product?.name?.[lang] || item.product?.name?.['ka'] || "";
+                    const variantField =
+                      (item.variant as any)?.color ??
+                      (item.variant as any)?.colorName ??
+                      null;
+                    const variantLabel = variantField?.[lang] || variantField?.['ka'] || "";
+                    const linePrice = (item.variant?.price || item.product?.price || 0) * item.quantity;
 
                     return (
                       <motion.div
@@ -248,24 +252,44 @@ export function CartDrawer({ dictionary, lang }: CartDrawerProps) {
                 }}>
                   {dictionary.cartDrawer.shipping}
                 </p>
-                <Link
-                  href={`/${lang}/checkout`}
-                  onClick={closeCart}
-                  style={{
-                    display: "flex", alignItems: "center", justifyContent: "center", gap: 8,
-                    fontFamily: FRAUNCES, fontWeight: 600, fontSize: 14,
-                    letterSpacing: "0.02em",
-                    background: C.burnt, color: C.cream,
-                    borderRadius: 14,
-                    padding: "13px 22px",
-                    textDecoration: "none",
-                    transition: "transform 0.18s ease",
-                  }}
-                  className="hover:-translate-y-0.5"
-                >
-                  {dictionary.cartDrawer.checkout}
-                  <span aria-hidden="true">→</span>
-                </Link>
+                <div style={{ display: "flex", flexDirection: "column", gap: 8 }}>
+                  <Link
+                    href={`/${lang}/cart`}
+                    onClick={closeCart}
+                    style={{
+                      display: "flex", alignItems: "center", justifyContent: "center", gap: 8,
+                      fontFamily: FRAUNCES, fontWeight: 600, fontSize: 14,
+                      letterSpacing: "0.02em",
+                      background: "transparent", color: C.ink,
+                      border: `1.5px solid rgba(42,29,20,0.18)`,
+                      borderRadius: 14,
+                      padding: "11px 22px",
+                      textDecoration: "none",
+                      transition: "background 0.18s ease",
+                    }}
+                    className="hover:bg-[rgba(42,29,20,0.05)]"
+                  >
+                    {isKa ? "კალათაზე გადასვლა" : "View basket"}
+                  </Link>
+                  <Link
+                    href={`/${lang}/checkout`}
+                    onClick={closeCart}
+                    style={{
+                      display: "flex", alignItems: "center", justifyContent: "center", gap: 8,
+                      fontFamily: FRAUNCES, fontWeight: 600, fontSize: 14,
+                      letterSpacing: "0.02em",
+                      background: C.burnt, color: C.cream,
+                      borderRadius: 14,
+                      padding: "13px 22px",
+                      textDecoration: "none",
+                      transition: "transform 0.18s ease",
+                    }}
+                    className="hover:-translate-y-0.5"
+                  >
+                    {dictionary.cartDrawer.checkout}
+                    <span aria-hidden="true">→</span>
+                  </Link>
+                </div>
                 <p style={{
                   fontFamily: PRICE_FONT, fontSize: 11, color: C.ink, opacity: 0.45,
                   textAlign: "center", margin: "12px 0 0 0",

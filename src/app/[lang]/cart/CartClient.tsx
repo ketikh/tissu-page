@@ -29,6 +29,14 @@ interface CartClientProps {
 
 const PRICE_FONT = "system-ui, -apple-system, 'Segoe UI', sans-serif";
 
+function CartStar({ size = 14, color = C.mustard }: { size?: number; color?: string }) {
+  return (
+    <svg width={size} height={size} viewBox="0 0 24 24" aria-hidden="true" style={{ display: "inline-block", flexShrink: 0 }}>
+      <path d="M12 2 L13.8 10.2 L22 12 L13.8 13.8 L12 22 L10.2 13.8 L2 12 L10.2 10.2 Z" fill={color} />
+    </svg>
+  );
+}
+
 function Price({ value, big = false }: { value: number; big?: boolean }) {
   return (
     <span style={{ display: "inline-flex", alignItems: "flex-end", gap: 3, fontFamily: FRAUNCES, color: C.ink, lineHeight: 1 }}>
@@ -60,8 +68,19 @@ export default function CartClient({ dictionary, lang }: CartClientProps) {
 
   if (items.length === 0) {
     return (
-      <div style={{ background: "white", minHeight: "80vh" }}>
-        <div className="container py-20 md:py-28 flex flex-col items-center text-center gap-7 max-w-xl">
+      <div style={{
+        background: "#fffcf5",
+        minHeight: "60vh",
+        position: "relative",
+        overflow: "hidden",
+        backgroundImage: "radial-gradient(rgba(243,182,43,0.10) 1.4px, transparent 1.4px)",
+        backgroundSize: "26px 26px",
+      }}>
+        <span aria-hidden="true" style={{ position: "absolute", top: 60, left: "8%", opacity: 0.7 }}><CartStar size={16} /></span>
+        <span aria-hidden="true" style={{ position: "absolute", top: 40, right: "10%", opacity: 0.55 }}><CartStar size={12} color={C.burnt} /></span>
+        <span aria-hidden="true" style={{ position: "absolute", bottom: 80, left: "12%", opacity: 0.5 }}><CartStar size={14} /></span>
+        <span aria-hidden="true" style={{ position: "absolute", bottom: 60, right: "10%", opacity: 0.55 }}><CartStar size={18} /></span>
+        <div className="container py-20 md:py-28 flex flex-col items-center text-center gap-7 max-w-xl" style={{ position: "relative" }}>
           <span
             aria-hidden="true"
             style={{
@@ -114,8 +133,22 @@ export default function CartClient({ dictionary, lang }: CartClientProps) {
   }
 
   return (
-    <div style={{ background: "white", minHeight: "100vh" }}>
-      <div className="container py-10 md:py-14 max-w-6xl">
+    <div style={{
+      background: "#fffcf5",
+      minHeight: "60vh",
+      position: "relative",
+      overflow: "hidden",
+      backgroundImage: "radial-gradient(rgba(243,182,43,0.10) 1.4px, transparent 1.4px)",
+      backgroundSize: "26px 26px",
+    }}>
+      {/* Sprinkled decorative stars */}
+      <span aria-hidden="true" style={{ position: "absolute", top: 80, left: "5%", opacity: 0.75 }}><CartStar size={18} /></span>
+      <span aria-hidden="true" style={{ position: "absolute", top: 40, right: "8%", opacity: 0.55 }}><CartStar size={12} /></span>
+      <span aria-hidden="true" style={{ position: "absolute", top: 360, right: "4%", opacity: 0.5 }}><CartStar size={14} color={C.burnt} /></span>
+      <span aria-hidden="true" style={{ position: "absolute", bottom: 120, left: "8%", opacity: 0.5 }}><CartStar size={16} /></span>
+      <span aria-hidden="true" style={{ position: "absolute", bottom: 60, right: "12%", opacity: 0.45 }}><CartStar size={11} color={C.burnt} /></span>
+
+      <div className="container py-10 md:py-14 max-w-6xl" style={{ position: "relative" }}>
         {/* Back link */}
         <Link
           href={`/${lang}/shop`}
@@ -155,9 +188,13 @@ export default function CartClient({ dictionary, lang }: CartClientProps) {
           <div className="flex flex-col gap-3">
             <AnimatePresence>
               {items.map((item) => {
-                const name = item.product.name[lang] || item.product.name["ka"];
-                const variantLabel = item.variant.color[lang] || item.variant.color["ka"];
-                const unitPrice = item.variant.price || item.product.price;
+                const name = item.product?.name?.[lang] || item.product?.name?.["ka"] || "";
+                const variantField =
+                  (item.variant as any)?.color ??
+                  (item.variant as any)?.colorName ??
+                  null;
+                const variantLabel = variantField?.[lang] || variantField?.["ka"] || "";
+                const unitPrice = item.variant?.price || item.product?.price || 0;
                 const linePrice = unitPrice * item.quantity;
 
                 return (
