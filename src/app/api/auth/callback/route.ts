@@ -6,17 +6,25 @@ export async function GET(request: Request) {
   const { searchParams, origin } = new URL(request.url);
   const code = searchParams.get("code");
   const next = searchParams.get("next") ?? "/account";
+  const locale = request.headers.get("cookie")?.match(/NEXT_LOCALE=(\w+)/)?.[1] || "ka";
 
-  if (code) {
+  if (!code) {
+    return NextResponse.redirect(`${origin}/${locale}/account/login?error=auth`);
+  }
+
+  try {
     const supabase = await createClient();
-    const { error } = await supabase.auth.exchangeCodeForSession(code);
+    const { error: exchangeError } = await supabase.auth.exchangeCodeForSession(code);
 
-    if (!error) {
-      // Get the authenticated user
+    if (exchangeError) {
+      console.error("[auth/callback] exchangeCodeForSession failed:", exchangeError.message);
+      return NextResponse.redirect(`${origin}/${locale}/account/login?error=auth`);
+    }
+
+    // Auto-create profile if it doesn't exist — non-fatal: if this fails, still let the user in
+    try {
       const { data: { user } } = await supabase.auth.getUser();
-
       if (user) {
-        // Auto-create profile if it doesn't exist (Google OAuth, etc.)
         const existing = await prisma.user.findUnique({ where: { id: user.id } });
         if (!existing) {
           const meta = user.user_metadata;
@@ -30,11 +38,13 @@ export async function GET(request: Request) {
           });
         }
       }
-
-      const locale = request.headers.get("cookie")?.match(/NEXT_LOCALE=(\w+)/)?.[1] || "ka";
-      return NextResponse.redirect(`${origin}/${locale}${next}`);
+    } catch (profileErr) {
+      console.error("[auth/callback] profile sync failed (non-fatal):", profileErr);
     }
-  }
 
-  return NextResponse.redirect(`${origin}/ka/account/login?error=auth`);
+    return NextResponse.redirect(`${origin}/${locale}${next}`);
+  } catch (err) {
+    console.error("[auth/callback] unexpected error:", err);
+    return NextResponse.redirect(`${origin}/${locale}/account/login?error=auth`);
+  }
 }

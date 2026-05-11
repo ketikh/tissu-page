@@ -3,13 +3,14 @@
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
-import { Button } from "@/components/ui/Button";
-import { Input } from "@/components/ui/Input";
 import { useAuthStore } from "@/store/useAuthStore";
 import { Locale } from "@/i18n/config";
 import { Loader2, AlertCircle } from "lucide-react";
 import { SocialAuth } from "@/components/auth/SocialAuth";
 import { useStoreHydration } from "@/store/useHydration";
+import { AuthShell, authStyles } from "@/components/auth/AuthShell";
+
+const { C, FRAUNCES, SANS, input, label, primaryButton } = authStyles;
 
 interface RegisterClientProps {
   dictionary: any;
@@ -17,7 +18,7 @@ interface RegisterClientProps {
 }
 
 export default function RegisterClient({ dictionary, lang }: RegisterClientProps) {
-  const hydrated = useStoreHydration();
+  useStoreHydration();
   const router = useRouter();
   const { register, isLoading, error, clearError } = useAuthStore();
 
@@ -42,98 +43,105 @@ export default function RegisterClient({ dictionary, lang }: RegisterClientProps
   };
 
   return (
-    <div className="flex-1 flex flex-col items-center justify-center p-4 py-20 bg-brand-soft/20">
-      <div className="w-full max-w-md space-y-8 bg-card p-10 rounded-3xl shadow-xl shadow-brand-dark/5 border border-border relative overflow-hidden">
-        <div className="absolute top-0 inset-x-0 h-1.5 bg-brand-primary/20" />
+    <AuthShell title={dictionary.auth.register.title} subtitle={dictionary.auth.register.subtitle} maxWidth={500}>
+      {error && (
+        <div style={{
+          background: `${C.rose}1a`,
+          border: `1px solid ${C.rose}33`,
+          color: C.rose,
+          fontFamily: SANS, fontSize: 12,
+          padding: "10px 12px",
+          borderRadius: 10,
+          display: "flex", alignItems: "center", gap: 8,
+          marginBottom: 18,
+        }}>
+          <AlertCircle size={14} />
+          <span>{error}</span>
+        </div>
+      )}
 
-        <div className="text-center space-y-2">
-          <h1 className="text-3xl font-serif text-brand-dark font-medium">{dictionary.auth.register.title}</h1>
-          <p className="text-sm text-muted-foreground">{dictionary.auth.register.subtitle}</p>
+      <form onSubmit={handleSubmit} style={{ display: "flex", flexDirection: "column", gap: 16 }}>
+        <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 12 }}>
+          <div style={{ display: "flex", flexDirection: "column", gap: 6 }}>
+            <label style={label}>{dictionary.auth.register.firstName}</label>
+            <input
+              name="firstName"
+              placeholder={dictionary.auth.register.firstName}
+              required
+              style={input}
+              value={formData.firstName}
+              onChange={handleChange}
+              disabled={isLoading}
+            />
+          </div>
+          <div style={{ display: "flex", flexDirection: "column", gap: 6 }}>
+            <label style={label}>{dictionary.auth.register.lastName}</label>
+            <input
+              name="lastName"
+              placeholder={dictionary.auth.register.lastName}
+              required
+              style={input}
+              value={formData.lastName}
+              onChange={handleChange}
+              disabled={isLoading}
+            />
+          </div>
         </div>
 
-        {error && (
-          <div className="bg-destructive/10 border border-destructive/20 text-destructive text-xs p-3 rounded-lg flex items-center gap-2">
-            <AlertCircle className="w-4 h-4" />
-            <span>{error}</span>
-          </div>
-        )}
+        <div style={{ display: "flex", flexDirection: "column", gap: 6 }}>
+          <label style={label}>{dictionary.auth.register.email}</label>
+          <input
+            name="email"
+            type="email"
+            placeholder="hello@example.com"
+            required
+            style={input}
+            value={formData.email}
+            onChange={handleChange}
+            disabled={isLoading}
+          />
+        </div>
 
-        <form onSubmit={handleSubmit} className="space-y-6">
-          <div className="space-y-4">
-            <div className="grid grid-cols-2 gap-4">
-              <div className="space-y-2">
-                <label className="text-sm font-medium text-brand-dark">{dictionary.auth.register.firstName}</label>
-                <Input
-                  name="firstName"
-                  placeholder={dictionary.auth.register.firstName}
-                  required
-                  className="h-12"
-                  value={formData.firstName}
-                  onChange={handleChange}
-                  disabled={isLoading}
-                />
-              </div>
-              <div className="space-y-2">
-                <label className="text-sm font-medium text-brand-dark">{dictionary.auth.register.lastName}</label>
-                <Input
-                  name="lastName"
-                  placeholder={dictionary.auth.register.lastName}
-                  required
-                  className="h-12"
-                  value={formData.lastName}
-                  onChange={handleChange}
-                  disabled={isLoading}
-                />
-              </div>
-            </div>
+        <div style={{ display: "flex", flexDirection: "column", gap: 6 }}>
+          <label style={label}>{dictionary.auth.register.password}</label>
+          <input
+            name="password"
+            type="password"
+            placeholder="••••••••"
+            required
+            style={input}
+            value={formData.password}
+            onChange={handleChange}
+            disabled={isLoading}
+          />
+        </div>
 
-            <div className="space-y-2">
-              <label className="text-sm font-medium text-brand-dark">{dictionary.auth.register.email}</label>
-              <Input
-                name="email"
-                type="email"
-                placeholder="hello@example.com"
-                required
-                className="h-12"
-                value={formData.email}
-                onChange={handleChange}
-                disabled={isLoading}
-              />
-            </div>
+        <button
+          type="submit"
+          disabled={isLoading}
+          style={{ ...primaryButton, marginTop: 6, opacity: isLoading ? 0.7 : 1, cursor: isLoading ? "not-allowed" : "pointer" }}
+          className="hover:-translate-y-0.5"
+        >
+          {isLoading ? <Loader2 size={18} className="animate-spin" /> : (
+            <>{dictionary.auth.register.submit}<span aria-hidden="true">→</span></>
+          )}
+        </button>
+      </form>
 
-            <div className="space-y-2">
-              <label className="text-sm font-medium text-brand-dark">{dictionary.auth.register.password}</label>
-              <Input
-                name="password"
-                type="password"
-                placeholder="••••••••"
-                required
-                className="h-12"
-                value={formData.password}
-                onChange={handleChange}
-                disabled={isLoading}
-              />
-            </div>
-          </div>
-
-          <Button type="submit" variant="premium" className="w-full h-12 text-base" disabled={isLoading}>
-            {isLoading ? (
-              <Loader2 className="w-5 h-5 animate-spin" />
-            ) : (
-              dictionary.auth.register.submit
-            )}
-          </Button>
-        </form>
-
+      <div style={{ marginTop: 20 }}>
         <SocialAuth lang={lang} dictionary={dictionary} />
-
-        <div className="text-center text-sm text-muted-foreground mt-6">
-          <span className="mr-1">{dictionary.auth.register.haveAccount}</span>
-          <Link href={`/${lang}/account/login`} className="text-brand-primary font-medium hover:underline hover:text-brand-dark transition-colors">
-            {dictionary.auth.register.login}
-          </Link>
-        </div>
       </div>
-    </div>
+
+      <div style={{ textAlign: "center", fontFamily: SANS, fontSize: 13, color: C.ink, opacity: 0.65, marginTop: 22 }}>
+        <span style={{ marginRight: 6 }}>{dictionary.auth.register.haveAccount}</span>
+        <Link
+          href={`/${lang}/account/login`}
+          style={{ fontFamily: FRAUNCES, fontWeight: 600, color: C.burnt, textDecoration: "none" }}
+          className="hover:underline"
+        >
+          {dictionary.auth.register.login}
+        </Link>
+      </div>
+    </AuthShell>
   );
 }
