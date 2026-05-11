@@ -773,9 +773,17 @@ export function ProductDetailsClient({ product, related, lang }: ProductDetailsC
         </div>
       </div>
 
-      {/* ══ RELATED — burnt background exactly like RetroProducts ══ */}
+      {/* ══ RELATED — auto-scrolling carousel ══ */}
       {related.length > 0 && (
-        <section style={{ background: C.burnt, position: "relative", padding: "64px 0 72px" }}>
+        <section style={{ background: C.burnt, position: "relative", padding: "64px 0 72px", overflow: "hidden" }}>
+          <style>{`
+            @keyframes tissu-related-marquee {
+              from { transform: translateX(0); }
+              to   { transform: translateX(-50%); }
+            }
+            .tissu-related-track:hover { animation-play-state: paused; }
+          `}</style>
+
           <div style={{ position: "absolute", top: 0, left: 0, right: 0, height: 3, background: "repeating-linear-gradient(90deg, #f3b62b 0 18px, #fef0d6 18px 36px)" }} aria-hidden="true" />
 
           <div className="container relative">
@@ -798,12 +806,24 @@ export function ProductDetailsClient({ product, related, lang }: ProductDetailsC
                 {isKa ? "შეიძლება მოგეწონოს" : "You might also love"}
               </h2>
             </div>
+          </div>
 
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-x-10 gap-y-4 max-w-2xl mx-auto">
-              {related.slice(0, 4).map((rp, idx) => (
-                <DripCard key={rp.id} product={rp} lang={lang} isKa={isKa} index={idx} />
-              ))}
-            </div>
+          <div
+            className="tissu-related-track"
+            style={{
+              display: "flex",
+              gap: 32,
+              width: "max-content",
+              padding: "0 24px",
+              animation: `tissu-related-marquee ${Math.max(50, related.length * 10)}s linear infinite`,
+              willChange: "transform",
+            }}
+          >
+            {[...related, ...related].map((rp, idx) => (
+              <div key={`${rp.id}-${idx}`} style={{ flex: "0 0 auto", width: 280 }}>
+                <DripCard product={rp} lang={lang} isKa={isKa} index={idx} />
+              </div>
+            ))}
           </div>
 
           <div style={{ position: "absolute", bottom: 0, left: 0, right: 0, height: 3, background: "repeating-linear-gradient(90deg, #f3b62b 0 18px, #fef0d6 18px 36px)" }} aria-hidden="true" />

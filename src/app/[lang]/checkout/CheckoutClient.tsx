@@ -11,7 +11,6 @@ import { ChevronLeft, Lock, User as UserIcon, CheckCircle2, CreditCard, Wallet, 
 import Image from "next/image";
 import { Locale } from "@/i18n/config";
 import { Order } from "@/lib/types";
-import type { StorefrontProduct } from "@/lib/admin-api";
 
 const FRAUNCES = "var(--font-fraunces), 'Fraunces', Georgia, serif";
 const PRICE_FONT = "system-ui, -apple-system, 'Segoe UI', sans-serif";
@@ -98,10 +97,9 @@ const inputErrorStyle: React.CSSProperties = {
 interface CheckoutClientProps {
   lang: Locale;
   dictionary: any;
-  products?: StorefrontProduct[];
 }
 
-export default function CheckoutClient({ lang, dictionary, products = [] }: CheckoutClientProps) {
+export default function CheckoutClient({ lang, dictionary }: CheckoutClientProps) {
   useStoreHydration();
   const router = useRouter();
   const { items, getSummary, clearCart, discount } = useCartStore();
@@ -802,110 +800,6 @@ export default function CheckoutClient({ lang, dictionary, products = [] }: Chec
         </div>
       </div>
 
-      {/* You may also like — auto-scrolling row */}
-      <YouMayAlsoLike products={products} lang={lang} excludedIds={items.map(i => i.product.id)} isKa={isKa} />
     </div>
-  );
-}
-
-function YouMayAlsoLike({
-  products,
-  lang,
-  excludedIds,
-  isKa,
-}: {
-  products: StorefrontProduct[];
-  lang: Locale;
-  excludedIds: string[];
-  isKa: boolean;
-}) {
-  const pool = (products || []).filter(p => !excludedIds.includes(p.id) && p.in_stock).slice(0, 12);
-  if (pool.length === 0) return null;
-
-  // Duplicate the list so the marquee loops seamlessly
-  const loop = [...pool, ...pool];
-
-  return (
-    <section style={{
-      background: C.softCream,
-      borderTop: `1px solid rgba(42,29,20,0.08)`,
-      padding: "56px 0 64px",
-      position: "relative",
-      overflow: "hidden",
-    }}>
-      <style>{`
-        @keyframes tissu-marquee {
-          from { transform: translateX(0); }
-          to   { transform: translateX(-50%); }
-        }
-        .tissu-marquee-track:hover { animation-play-state: paused; }
-      `}</style>
-
-      <div className="container" style={{ marginBottom: 28, position: "relative" }}>
-        <div style={{ display: "flex", alignItems: "baseline", gap: 14, flexWrap: "wrap" }}>
-          <h2 style={{
-            fontFamily: FRAUNCES, fontWeight: 700,
-            fontSize: "clamp(24px, 3vw, 36px)",
-            color: C.ink, letterSpacing: "-0.01em",
-            lineHeight: 1, margin: 0,
-            display: "inline-flex", alignItems: "baseline", gap: 10,
-          }}>
-            <Star size={14} />
-            {isKa ? "შეიძლება მოგეწონოს" : "You may also like"}
-          </h2>
-          <span style={{ fontFamily: PRICE_FONT, fontSize: 13, color: C.ink, opacity: 0.55 }}>
-            {isKa ? "ხელით ნაკერი თბილისში" : "Handmade in Tbilisi"}
-          </span>
-        </div>
-      </div>
-
-      <div
-        className="tissu-marquee-track"
-        style={{
-          display: "flex",
-          gap: 20,
-          width: "max-content",
-          animation: `tissu-marquee ${Math.max(40, pool.length * 6)}s linear infinite`,
-          willChange: "transform",
-        }}
-      >
-        {loop.map((p, i) => (
-          <Link
-            key={`${p.id}-${i}`}
-            href={`/${lang}/product/${p.id}`}
-            style={{
-              flex: "0 0 auto",
-              width: 220,
-              textDecoration: "none",
-              color: "inherit",
-            }}
-          >
-            <div style={{
-              position: "relative",
-              width: "100%",
-              aspectRatio: "4/5",
-              borderRadius: 16,
-              overflow: "hidden",
-              background: "white",
-              border: `1px solid rgba(42,29,20,0.08)`,
-            }}>
-              {p.image_front && (
-                <Image src={p.image_front} alt={p.name} fill className="object-cover" />
-              )}
-            </div>
-            <div style={{
-              fontFamily: FRAUNCES, fontWeight: 600, fontSize: 14,
-              color: C.ink, marginTop: 10, lineHeight: 1.3,
-              overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap",
-            }}>
-              {p.name}
-            </div>
-            <div style={{ marginTop: 4 }}>
-              <Price value={p.price} />
-            </div>
-          </Link>
-        ))}
-      </div>
-    </section>
   );
 }
