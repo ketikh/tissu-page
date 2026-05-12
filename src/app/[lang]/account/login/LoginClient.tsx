@@ -32,7 +32,9 @@ export default function LoginClient({ dictionary, lang }: LoginClientProps) {
     e.preventDefault();
     await login({ email, password });
     if (useAuthStore.getState().isAuthenticated) {
-      router.push(callbackUrl);
+      // Hard navigation so middleware sees the freshly-set Supabase cookies
+      // on the next request — router.push() can race the cookie write.
+      window.location.assign(callbackUrl);
     }
   };
 

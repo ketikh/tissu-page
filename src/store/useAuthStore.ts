@@ -102,7 +102,10 @@ export const useAuthStore = create<AuthState>()(
           const user = await authService.fetchProfile();
           set({ user, isAuthenticated: true, isLoading: false });
         } catch {
-          set({ user: null, isAuthenticated: false, isLoading: false });
+          // Non-fatal: keep whatever user we already have in the store. A
+          // transient network blip or cookie sync race shouldn't sign people
+          // out — middleware is the source of truth for protected routes.
+          set({ isLoading: false });
         }
       },
 

@@ -14,7 +14,7 @@ interface CartDrawerProps {
   lang: Locale;
 }
 
-const FRAUNCES = "var(--font-fraunces), 'Fraunces', Georgia, serif";
+const FRAUNCES = "var(--font-noto-sans), var(--font-nunito), 'Inter', system-ui, -apple-system, sans-serif";
 const PRICE_FONT = "system-ui, -apple-system, 'Segoe UI', sans-serif";
 
 const C = {

@@ -2,7 +2,7 @@ import Link from "next/link";
 import Image from "next/image";
 import { Locale } from "@/i18n/config";
 
-const FRAUNCES = "var(--font-fraunces), 'Fraunces', Georgia, serif";
+const FRAUNCES = "var(--font-noto-sans), var(--font-nunito), 'Inter', system-ui, -apple-system, sans-serif";
 
 const C = {
   cream: "#fef0d6",

@@ -38,7 +38,7 @@ export default function RegisterClient({ dictionary, lang }: RegisterClientProps
     e.preventDefault();
     await register(formData);
     if (useAuthStore.getState().isAuthenticated) {
-      router.push(`/${lang}/account`);
+      window.location.assign(`/${lang}/account`);
     }
   };
 

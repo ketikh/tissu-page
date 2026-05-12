@@ -2,7 +2,9 @@
 
 import { ReactNode } from "react";
 
-const FRAUNCES = "var(--font-fraunces), 'Fraunces', Georgia, serif";
+// Modern title/body font — Noto Sans Georgian renders Georgian cleanly without
+// the dated retro feel. Latin falls back to Nunito and system sans.
+const FRAUNCES = "var(--font-noto-sans), var(--font-nunito), 'Inter', system-ui, -apple-system, sans-serif";
 
 const C = {
   cream: "#fef0d6",

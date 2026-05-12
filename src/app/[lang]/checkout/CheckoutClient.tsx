@@ -12,7 +12,7 @@ import Image from "next/image";
 import { Locale } from "@/i18n/config";
 import { Order } from "@/lib/types";
 
-const FRAUNCES = "var(--font-fraunces), 'Fraunces', Georgia, serif";
+const FRAUNCES = "var(--font-noto-sans), var(--font-nunito), 'Inter', system-ui, -apple-system, sans-serif";
 const PRICE_FONT = "system-ui, -apple-system, 'Segoe UI', sans-serif";
 
 const C = {
@@ -322,12 +322,72 @@ export default function CheckoutClient({ lang, dictionary }: CheckoutClientProps
   );
 
   return (
-    <div style={{ background: "white", minHeight: "100vh", position: "relative", overflow: "hidden" }}>
-      {/* Decorative sprinkled stars */}
-      <span aria-hidden="true" style={{ position: "absolute", top: 120, left: "6%", opacity: 0.8 }}><Star size={18} /></span>
-      <span aria-hidden="true" style={{ position: "absolute", top: 60, right: "8%", opacity: 0.6 }}><Star size={12} /></span>
-      <span aria-hidden="true" style={{ position: "absolute", top: 380, right: "3%", opacity: 0.5 }}><Star size={14} color={C.burnt} /></span>
-      <span aria-hidden="true" style={{ position: "absolute", bottom: 200, left: "4%", opacity: 0.55 }}><Star size={16} /></span>
+    <div style={{
+      background: "#fffcf5",
+      backgroundImage: "radial-gradient(rgba(243,182,43,0.10) 1.4px, transparent 1.4px)",
+      backgroundSize: "26px 26px",
+      minHeight: "60vh", position: "relative", overflow: "hidden",
+    }}>
+      {/* Sprinkled stars in brand colors */}
+      <span aria-hidden="true" style={{ position: "absolute", top: 120, left: "6%", opacity: 0.85 }}><Star size={18} /></span>
+      <span aria-hidden="true" style={{ position: "absolute", top: 60, right: "8%", opacity: 0.7 }}><Star size={12} color={C.burnt} /></span>
+      <span aria-hidden="true" style={{ position: "absolute", top: 380, right: "3%", opacity: 0.65 }}><Star size={14} color={C.rose} /></span>
+      <span aria-hidden="true" style={{ position: "absolute", top: "55%", left: "3%", opacity: 0.6 }}><Star size={14} color={C.green} /></span>
+      <span aria-hidden="true" style={{ position: "absolute", bottom: 200, left: "4%", opacity: 0.7 }}><Star size={16} /></span>
+      <span aria-hidden="true" style={{ position: "absolute", bottom: 320, right: "8%", opacity: 0.6 }}><Star size={13} color={C.burnt} /></span>
+
+      {/* Vibrant floating pebbles */}
+      <div aria-hidden="true" style={{
+        position: "absolute", top: 180, left: "-3%",
+        width: 120, height: 120,
+        background: C.burnt, opacity: 0.28,
+        borderRadius: "60% 40% 55% 45% / 50% 60% 40% 50%",
+        transform: "rotate(-12deg)",
+      }} />
+      <div aria-hidden="true" style={{
+        position: "absolute", top: 80, right: "-2%",
+        width: 90, height: 90,
+        background: C.mustard, opacity: 0.4,
+        borderRadius: "55% 45% 50% 50% / 50% 55% 45% 50%",
+        transform: "rotate(18deg)",
+      }} />
+      <div aria-hidden="true" style={{
+        position: "absolute", top: "44%", left: "-2%",
+        width: 70, height: 70,
+        background: C.green, opacity: 0.26,
+        borderRadius: "50%",
+      }} />
+      <div aria-hidden="true" style={{
+        position: "absolute", top: "50%", right: "-3%",
+        width: 110, height: 110,
+        background: C.rose, opacity: 0.28,
+        borderRadius: "45% 55% 50% 50% / 55% 45% 55% 45%",
+        transform: "rotate(-6deg)",
+      }} />
+      <div aria-hidden="true" style={{
+        position: "absolute", bottom: 80, right: "-3%",
+        width: 140, height: 140,
+        background: C.mustard, opacity: 0.32,
+        borderRadius: "45% 55% 50% 50% / 55% 45% 55% 45%",
+        transform: "rotate(10deg)",
+      }} />
+      <div aria-hidden="true" style={{
+        position: "absolute", bottom: 160, left: "-2%",
+        width: 80, height: 80,
+        background: C.burnt, opacity: 0.24,
+        borderRadius: "50%",
+      }} />
+
+      {/* Squiggly wavy lines */}
+      <svg aria-hidden="true" style={{ position: "absolute", top: 230, right: "12%", opacity: 0.55, pointerEvents: "none" }} width="100" height="20" viewBox="0 0 100 20">
+        <path d="M 2 10 Q 11 1 20 10 T 38 10 T 56 10 T 74 10 T 92 10 T 98 10" stroke={C.burnt} strokeWidth="2.5" fill="none" strokeLinecap="round" />
+      </svg>
+      <svg aria-hidden="true" style={{ position: "absolute", top: "48%", left: "10%", opacity: 0.55, pointerEvents: "none", transform: "rotate(-8deg)" }} width="90" height="20" viewBox="0 0 90 20">
+        <path d="M 2 10 Q 10 1 18 10 T 34 10 T 50 10 T 66 10 T 82 10" stroke={C.green} strokeWidth="2.5" fill="none" strokeLinecap="round" />
+      </svg>
+      <svg aria-hidden="true" style={{ position: "absolute", bottom: 280, left: "16%", opacity: 0.6, pointerEvents: "none" }} width="100" height="20" viewBox="0 0 100 20">
+        <path d="M 2 10 Q 11 1 20 10 T 38 10 T 56 10 T 74 10 T 92 10 T 98 10" stroke={C.mustard} strokeWidth="2.5" fill="none" strokeLinecap="round" />
+      </svg>
 
       <div className="container py-10 md:py-14 max-w-6xl" style={{ position: "relative" }}>
         {/* Back link */}
@@ -401,11 +461,16 @@ export default function CheckoutClient({ lang, dictionary }: CheckoutClientProps
                     <div key={item.id} className="flex items-center gap-3">
                       <div style={{
                         position: "relative", width: 56, height: 64,
-                        borderRadius: 10, background: "#f5f5f5",
-                        overflow: "hidden", flexShrink: 0,
-                        border: `1px solid rgba(42,29,20,0.08)`,
+                        flexShrink: 0,
                       }}>
-                        <Image src={item.product.images[0] || "/placeholder.jpg"} alt={productName} fill className="object-cover" />
+                        <div style={{
+                          position: "absolute", inset: 0,
+                          borderRadius: 10, background: "#f5f5f5",
+                          overflow: "hidden",
+                          border: `1px solid rgba(42,29,20,0.08)`,
+                        }}>
+                          <Image src={item.product.images[0] || "/placeholder.jpg"} alt={productName} fill className="object-cover" />
+                        </div>
                         <span style={{
                           position: "absolute", top: -6, right: -6,
                           width: 22, height: 22, borderRadius: "50%",
@@ -413,6 +478,7 @@ export default function CheckoutClient({ lang, dictionary }: CheckoutClientProps
                           display: "inline-flex", alignItems: "center", justifyContent: "center",
                           fontFamily: FRAUNCES, fontWeight: 700, fontSize: 11,
                           border: `2px solid ${C.softCream}`,
+                          zIndex: 2,
                         }}>{item.quantity}</span>
                       </div>
                       <div style={{ flex: 1, minWidth: 0 }}>

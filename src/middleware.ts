@@ -44,6 +44,20 @@ export async function middleware(request: NextRequest) {
   const locale = i18n.locales.find(loc => pathname.startsWith(`/${loc}/`) || pathname === `/${loc}`) || i18n.defaultLocale;
   const pathWithoutLocale = pathname.replace(new RegExp(`^/${locale}`), "") || "/";
 
+  // Friendly redirects for common typed URLs that don't have their own route.
+  const ALIAS_REDIRECTS: Record<string, string> = {
+    "/login": "/account/login",
+    "/register": "/account/register",
+    "/signin": "/account/login",
+    "/signup": "/account/register",
+    "/forgot-password": "/account/forgot-password",
+    "/reset-password": "/account/reset-password",
+  };
+  const aliasTarget = ALIAS_REDIRECTS[pathWithoutLocale];
+  if (aliasTarget) {
+    return NextResponse.redirect(new URL(`/${locale}${aliasTarget}`, request.url));
+  }
+
   const isAuthRoute = AUTH_ROUTES.some(route => pathWithoutLocale.startsWith(route));
   const isProtected = !isAuthRoute && PROTECTED_PATHS.some(path =>
     pathWithoutLocale === path || pathWithoutLocale.startsWith(`${path}/`)
