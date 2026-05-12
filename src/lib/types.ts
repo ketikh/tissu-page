@@ -59,6 +59,8 @@ export interface Product {
   badges: BilingualText[]; // e.g., "Best Seller", "New", "Limited"
   reviews: Review[];
   featured?: boolean;
+  /** Free-form tags from the admin (e.g. "color:rose", "#d56826"). */
+  tags?: string[];
 }
 
 export interface CartItem {

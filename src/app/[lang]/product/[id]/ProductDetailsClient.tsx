@@ -315,6 +315,7 @@ export function ProductDetailsClient({ product, related, lang }: ProductDetailsC
           images:      [product.image_front, product.image_back].filter(Boolean) as string[],
           variants: [variant],
           category: product.category as any, featured: true, badges: [],
+          tags: product.tags ?? [],
         } as any,
         variant as any,
         quantity
@@ -853,7 +854,7 @@ function DripCard({ product, lang, isKa, index }: { product: StorefrontProduct; 
         { id: product.id, slug: product.id, name: { en: name, ka: name }, subtitle: { en: "", ka: "" }, description: { en: "", ka: "" },
           price: product.price, images: [product.image_front, product.image_back].filter(Boolean) as string[],
           variants: [{ id: `${product.id}-d`, size: "one", colorName: { en: "default", ka: "default" }, colorCode: "#c9a86c", inStock: true }],
-          category: product.category as any, featured: true, badges: [] } as any,
+          category: product.category as any, featured: true, badges: [], tags: product.tags ?? [] } as any,
         { id: `${product.id}-d`, size: "one", colorName: { en: "default", ka: "default" }, colorCode: "#c9a86c", inStock: true } as any,
         1
       );

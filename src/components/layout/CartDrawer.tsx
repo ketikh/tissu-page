@@ -41,6 +41,27 @@ const CAT_BG: Record<string, string> = {
   necklace: C.champagne,
 };
 
+const NAMED_COLORS: Record<string, string> = {
+  rose: C.rose, burnt: C.burnt, mustard: C.mustard, sage: C.sage,
+  lavender: C.lavender, green: C.green, champagne: C.champagne,
+  cream: C.cream, ink: C.ink,
+};
+
+function colorFromTags(tags?: string[]): string | null {
+  if (!tags) return null;
+  for (const raw of tags) {
+    const t = raw.trim().toLowerCase();
+    if (!t) continue;
+    if (t.startsWith("color:")) {
+      const v = t.slice(6).trim();
+      if (/^#[0-9a-f]{3,8}$/i.test(v)) return v;
+      if (NAMED_COLORS[v]) return NAMED_COLORS[v];
+    }
+    if (/^#[0-9a-f]{3,8}$/i.test(t)) return t;
+  }
+  return null;
+}
+
 const TINT_ROTATION: string[] = [C.burnt, C.mustard, C.green, C.rose, C.champagne, C.sage, C.lavender];
 
 function hashStr(s: string): number {
@@ -49,10 +70,11 @@ function hashStr(s: string): number {
   return h;
 }
 
-function rowBg(productId: string, category?: string): string {
+function rowBg(productId: string, category?: string, tags?: string[]): string {
+  const fromTag = colorFromTags(tags);
   const fromCat = category && CAT_BG[category];
   const fromHash = TINT_ROTATION[hashStr(productId) % TINT_ROTATION.length];
-  const base = fromHash || fromCat || C.champagne;
+  const base = fromTag || fromCat || fromHash || C.champagne;
   return `${base}80`; // 50% alpha
 }
 
@@ -170,7 +192,11 @@ export function CartDrawer({ dictionary, lang }: CartDrawerProps) {
                       null;
                     const variantLabel = variantField?.[lang] || variantField?.['ka'] || "";
                     const linePrice = (item.variant?.price || item.product?.price || 0) * item.quantity;
-                    const tint = rowBg(String(item.product?.id || item.id), item.product?.category);
+                    const tint = rowBg(
+                      String(item.product?.id || item.id),
+                      item.product?.category,
+                      (item.product as any)?.tags,
+                    );
 
                     return (
                       <motion.div

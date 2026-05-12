@@ -90,6 +90,7 @@ export function AdminProductCard({ product, lang, localized, labels }: AdminProd
           category: product.category as any,
           featured: true,
           badges: [],
+          tags: product.tags ?? [],
         } as any,
         {
           id: `${product.id}-default`,

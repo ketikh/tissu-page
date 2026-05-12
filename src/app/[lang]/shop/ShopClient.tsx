@@ -646,7 +646,7 @@ function ShopCard({ product, index, lang, isKa, copy }: {
           variants: [{ id: `${product.id}-d`, size: "one",
             colorName: { en: product.color || "default", ka: product.color || "default" },
             colorCode: "#264ba0", inStock: true }],
-          category: product.category as any, featured: true, badges: [] } as any,
+          category: product.category as any, featured: true, badges: [], tags: product.tags ?? [] } as any,
         { id: `${product.id}-d`, size: "one",
           colorName: { en: product.color || "default", ka: product.color || "default" },
           colorCode: "#264ba0", inStock: true } as any,
