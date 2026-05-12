@@ -249,9 +249,9 @@ export default function AccountClient({ dictionary, lang }: AccountClientProps) 
           <div>
             <span style={{
               display: "inline-flex", alignItems: "center", gap: 8,
-              fontFamily: SANS, fontSize: 11, fontWeight: 700,
-              letterSpacing: "0.18em", textTransform: "uppercase",
-              color: C.ink, opacity: 0.55,
+              fontFamily: FRAUNCES, fontSize: 13, fontWeight: 600,
+              letterSpacing: "0.06em",
+              color: C.ink, opacity: 0.7,
               background: "white",
               border: `1px solid rgba(42,29,20,0.10)`,
               borderRadius: 999,
@@ -644,6 +644,7 @@ function OrdersTab({ user, dictionary, lang }: { user: any; dictionary: any; lan
 /* ────────── Addresses ────────── */
 function AddressesTab({ user, dictionary, lang, onAdd, onRemove, onSetDefault, isLoading }: any) {
   const [showAddForm, setShowAddForm] = useState(false);
+  const [addError, setAddError] = useState<string | null>(null);
   const [newAddr, setNewAddr] = useState({
     firstName: user.firstName,
     lastName: user.lastName,
@@ -656,9 +657,21 @@ function AddressesTab({ user, dictionary, lang, onAdd, onRemove, onSetDefault, i
 
   const handleSubmit = async (e: any) => {
     e.preventDefault();
+    setAddError(null);
+    const before = useAuthStore.getState().user?.addresses.length ?? 0;
     await onAdd(newAddr);
-    setShowAddForm(false);
-    setNewAddr({ ...newAddr, streetAddress: "", isDefault: false });
+    const after = useAuthStore.getState().user?.addresses.length ?? 0;
+    const storeError = useAuthStore.getState().error;
+
+    if (after > before) {
+      setShowAddForm(false);
+      setNewAddr({ ...newAddr, streetAddress: "", isDefault: false });
+    } else {
+      setAddError(
+        storeError ||
+          (isKa ? "მისამართის შენახვა ვერ მოხერხდა — სცადე თავიდან." : "Couldn't save the address. Try again."),
+      );
+    }
   };
 
   return (
@@ -695,8 +708,18 @@ function AddressesTab({ user, dictionary, lang, onAdd, onRemove, onSetDefault, i
                 {isKa ? "დააყენე ნაგულისხმევ მისამართად" : "Set as default address"}
               </span>
             </label>
+            {addError && (
+              <p style={{
+                fontFamily: SANS, fontSize: 12, color: C.rose,
+                background: `${C.rose}14`, border: `1px solid ${C.rose}33`,
+                padding: "8px 12px", borderRadius: 10,
+                margin: 0,
+              }}>
+                {addError}
+              </p>
+            )}
             <div style={{ display: "flex", gap: 12, paddingTop: 6 }}>
-              <button type="button" onClick={() => setShowAddForm(false)} style={{ ...outlineButton, flex: 1 }} className="hover:bg-[rgba(42,29,20,0.05)]">
+              <button type="button" onClick={() => { setShowAddForm(false); setAddError(null); }} style={{ ...outlineButton, flex: 1 }} className="hover:bg-[rgba(42,29,20,0.05)]">
                 {dictionary.common.cancel}
               </button>
               <button type="submit" disabled={isLoading} style={{ ...primaryButton, flex: 1, opacity: isLoading ? 0.7 : 1 }} className="hover:-translate-y-0.5">

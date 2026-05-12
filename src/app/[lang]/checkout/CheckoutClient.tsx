@@ -634,7 +634,7 @@ export default function CheckoutClient({ lang, dictionary }: CheckoutClientProps
             <section style={{ display: "flex", flexDirection: "column", gap: 14 }}>
               <h2 style={sectionTitleStyle}>
                 <Star size={14} />
-                <span style={{ fontFamily: PRICE_FONT, fontSize: 11, fontWeight: 700, letterSpacing: "0.18em", color: C.burnt }}>01</span>
+                <span style={{ fontFamily: FRAUNCES, fontSize: 13, fontWeight: 700, letterSpacing: "0.06em", color: C.burnt }}>01</span>
                 {dictionary.checkout.contact}
               </h2>
               <div className="grid md:grid-cols-2 gap-4">
@@ -668,7 +668,7 @@ export default function CheckoutClient({ lang, dictionary }: CheckoutClientProps
             <section style={{ display: "flex", flexDirection: "column", gap: 14 }}>
               <h2 style={sectionTitleStyle}>
                 <Star size={14} />
-                <span style={{ fontFamily: PRICE_FONT, fontSize: 11, fontWeight: 700, letterSpacing: "0.18em", color: C.burnt }}>02</span>
+                <span style={{ fontFamily: FRAUNCES, fontSize: 13, fontWeight: 700, letterSpacing: "0.06em", color: C.burnt }}>02</span>
                 {dictionary.checkout.address}
               </h2>
               <div className="grid grid-cols-2 gap-4">
@@ -726,7 +726,7 @@ export default function CheckoutClient({ lang, dictionary }: CheckoutClientProps
             <section style={{ display: "flex", flexDirection: "column", gap: 14 }}>
               <h2 style={sectionTitleStyle}>
                 <Star size={14} />
-                <span style={{ fontFamily: PRICE_FONT, fontSize: 11, fontWeight: 700, letterSpacing: "0.18em", color: C.burnt }}>03</span>
+                <span style={{ fontFamily: FRAUNCES, fontSize: 13, fontWeight: 700, letterSpacing: "0.06em", color: C.burnt }}>03</span>
                 {dictionary.checkout.shippingMethod}
               </h2>
               <div style={{ display: "flex", flexDirection: "column", gap: 10 }}>
@@ -749,7 +749,7 @@ export default function CheckoutClient({ lang, dictionary }: CheckoutClientProps
             <section style={{ display: "flex", flexDirection: "column", gap: 14 }}>
               <h2 style={sectionTitleStyle}>
                 <Star size={14} />
-                <span style={{ fontFamily: PRICE_FONT, fontSize: 11, fontWeight: 700, letterSpacing: "0.18em", color: C.burnt }}>04</span>
+                <span style={{ fontFamily: FRAUNCES, fontSize: 13, fontWeight: 700, letterSpacing: "0.06em", color: C.burnt }}>04</span>
                 {dictionary.checkout.payment}
               </h2>
               <p style={{ fontFamily: PRICE_FONT, fontSize: 12, color: C.ink, opacity: 0.55, margin: 0, marginLeft: 4 }}>

@@ -24,8 +24,9 @@ const C = {
   rose: "#c4849a",
 };
 
-/* Category palette mirrors the product details hero, so each cart row gets
-   its own soft 50% tint matching the bag's category. */
+/* Category palette mirrors the product details hero. When every bag falls in
+   the same category (e.g. all pouches), we add an extra rotating-by-id
+   palette so each row still looks distinctly colourful. */
 const CAT_BG: Record<string, string> = {
   pouch: C.burnt,
   laptop: C.lavender,
@@ -35,8 +36,21 @@ const CAT_BG: Record<string, string> = {
   necklace: C.champagne,
 };
 
-function categoryBg(category?: string): string {
-  const base = (category && CAT_BG[category]) || C.champagne;
+const TINT_ROTATION: string[] = [C.burnt, C.mustard, C.green, C.rose, C.champagne, C.sage, C.lavender];
+
+function hashStr(s: string): number {
+  let h = 0;
+  for (let i = 0; i < s.length; i++) h = (h * 31 + s.charCodeAt(i)) >>> 0;
+  return h;
+}
+
+function rowBg(productId: string, category?: string): string {
+  // Single-category catalogues (e.g. all pouches) get rotated so neighbouring
+  // bags read differently. When categories actually vary, the category colour
+  // wins so the row matches the product page hero.
+  const fromCat = category && CAT_BG[category];
+  const fromHash = TINT_ROTATION[hashStr(productId) % TINT_ROTATION.length];
+  const base = fromHash || fromCat || C.champagne;
   return `${base}80`; // 0x80 = 50% alpha
 }
 
@@ -267,7 +281,7 @@ export default function CartClient({ dictionary, lang }: CartClientProps) {
                 const variantLabel = variantField?.[lang] || variantField?.["ka"] || "";
                 const unitPrice = item.variant?.price || item.product?.price || 0;
                 const linePrice = unitPrice * item.quantity;
-                const tint = categoryBg(item.product?.category);
+                const tint = rowBg(String(item.product?.id || item.id), item.product?.category);
 
                 return (
                   <motion.div
@@ -370,7 +384,7 @@ export default function CartClient({ dictionary, lang }: CartClientProps) {
                               cursor: "pointer",
                               transition: "opacity 0.18s ease, color 0.18s ease",
                             }}
-                            className="hover:opacity-100 hover:!text-[#c4849a]"
+                            className="hover:opacity-100 hover:text-[#c4849a]!"
                           >
                             <Trash2 size={15} />
                           </button>

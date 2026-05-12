@@ -29,8 +29,9 @@ const C = {
   rose: "#c4849a",
 };
 
-/* Same category palette used on the product details hero. Each cart item
-   gets a soft 50%-opacity wash of its category colour for visual variety. */
+/* Same category palette used on the product details hero. Falls back to a
+   rotating-by-id palette so single-category carts (e.g. all pouches) still
+   read as a row of distinct colours instead of all the same shade. */
 const CAT_BG: Record<string, string> = {
   pouch: C.burnt,
   laptop: C.lavender,
@@ -40,10 +41,19 @@ const CAT_BG: Record<string, string> = {
   necklace: C.champagne,
 };
 
-function categoryBg(category?: string): string {
-  const base = (category && CAT_BG[category]) || C.champagne;
-  // 80 hex == 50% alpha
-  return `${base}80`;
+const TINT_ROTATION: string[] = [C.burnt, C.mustard, C.green, C.rose, C.champagne, C.sage, C.lavender];
+
+function hashStr(s: string): number {
+  let h = 0;
+  for (let i = 0; i < s.length; i++) h = (h * 31 + s.charCodeAt(i)) >>> 0;
+  return h;
+}
+
+function rowBg(productId: string, category?: string): string {
+  const fromCat = category && CAT_BG[category];
+  const fromHash = TINT_ROTATION[hashStr(productId) % TINT_ROTATION.length];
+  const base = fromHash || fromCat || C.champagne;
+  return `${base}80`; // 50% alpha
 }
 
 function Price({ value, big = false }: { value: number; big?: boolean }) {
@@ -108,7 +118,7 @@ export function CartDrawer({ dictionary, lang }: CartDrawerProps) {
                   cursor: "pointer",
                   transition: "opacity 0.18s ease, background 0.18s ease",
                 }}
-                className="hover:!opacity-100 hover:bg-[rgba(42,29,20,0.05)]"
+                className="hover:opacity-100! hover:bg-[rgba(42,29,20,0.05)]"
               >
                 <X size={18} />
               </button>
@@ -160,7 +170,7 @@ export function CartDrawer({ dictionary, lang }: CartDrawerProps) {
                       null;
                     const variantLabel = variantField?.[lang] || variantField?.['ka'] || "";
                     const linePrice = (item.variant?.price || item.product?.price || 0) * item.quantity;
-                    const tint = categoryBg(item.product?.category);
+                    const tint = rowBg(String(item.product?.id || item.id), item.product?.category);
 
                     return (
                       <motion.div
@@ -205,7 +215,7 @@ export function CartDrawer({ dictionary, lang }: CartDrawerProps) {
                                 cursor: "pointer",
                                 transition: "opacity 0.18s ease, color 0.18s ease",
                               }}
-                              className="hover:opacity-100 hover:!text-[#c4849a]"
+                              className="hover:opacity-100 hover:text-[#c4849a]!"
                             >
                               <Trash2 size={14} />
                             </button>
