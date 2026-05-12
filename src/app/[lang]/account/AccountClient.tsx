@@ -34,8 +34,26 @@ function Star({ size = 14, color = C.mustard, style = {} }: { size?: number; col
   );
 }
 
-/* Reusable card shell with optional star accent */
-function Card({ children, padding = 24, style = {} }: { children: React.ReactNode; padding?: number; style?: React.CSSProperties }) {
+/* Reusable card shell with a colored corner accent (modernist touch) */
+function Card({
+  children,
+  padding = 24,
+  accent = "burnt",
+  style = {},
+}: {
+  children: React.ReactNode;
+  padding?: number;
+  accent?: "burnt" | "mustard" | "green" | "rose" | "cream";
+  style?: React.CSSProperties;
+}) {
+  const accentMap: Record<string, string> = {
+    burnt: C.burnt,
+    mustard: C.mustard,
+    green: C.green,
+    rose: C.rose,
+    cream: C.cream,
+  };
+  const accentColor = accentMap[accent];
   return (
     <div style={{
       background: "white",
@@ -43,14 +61,32 @@ function Card({ children, padding = 24, style = {} }: { children: React.ReactNod
       borderRadius: 18,
       padding,
       position: "relative",
+      overflow: "hidden",
       ...style,
     }}>
-      {children}
+      {/* Top stripe — modernist colorful accent */}
+      <span aria-hidden="true" style={{
+        position: "absolute", top: 0, left: 0, right: 0,
+        height: 4,
+        background: accentColor,
+        opacity: 0.95,
+      }} />
+      {/* Top-right corner blob — organic counter to the geometric stripe */}
+      <span aria-hidden="true" style={{
+        position: "absolute", top: -22, right: -22,
+        width: 70, height: 70,
+        background: accentColor, opacity: 0.18,
+        borderRadius: "55% 45% 50% 50% / 50% 55% 45% 50%",
+        transform: "rotate(-12deg)",
+      }} />
+      <div style={{ position: "relative", zIndex: 1 }}>
+        {children}
+      </div>
     </div>
   );
 }
 
-function SectionTitle({ children, num }: { children: React.ReactNode; num?: string }) {
+function SectionTitle({ children, num, color = C.burnt }: { children: React.ReactNode; num?: string; color?: string }) {
   return (
     <h2 style={{
       fontFamily: FRAUNCES, fontWeight: 700,
@@ -58,8 +94,8 @@ function SectionTitle({ children, num }: { children: React.ReactNode; num?: stri
       margin: 0,
       display: "flex", alignItems: "center", gap: 10,
     }}>
-      <Star size={14} />
-      {num && <span style={{ fontFamily: SANS, fontSize: 11, fontWeight: 700, letterSpacing: "0.18em", color: C.burnt }}>{num}</span>}
+      <Star size={14} color={color} />
+      {num && <span style={{ fontFamily: SANS, fontSize: 11, fontWeight: 700, letterSpacing: "0.18em", color }}>{num}</span>}
       {children}
     </h2>
   );
@@ -103,12 +139,12 @@ export default function AccountClient({ dictionary, lang }: AccountClientProps) 
     );
   }
 
-  const sidebarItems: { id: Tab; icon: any; label: string }[] = [
-    { id: "overview", icon: UserIcon, label: dictionary.account.sidebar.profile },
-    { id: "orders", icon: Package, label: dictionary.account.sidebar.orders },
-    { id: "addresses", icon: MapPin, label: dictionary.account.sidebar.addresses },
-    { id: "wishlist", icon: Heart, label: dictionary.account.sidebar.wishlist },
-    { id: "settings", icon: Settings, label: dictionary.account.sidebar.settings },
+  const sidebarItems: { id: Tab; icon: any; label: string; color: string }[] = [
+    { id: "overview", icon: UserIcon, label: dictionary.account.sidebar.profile, color: C.burnt },
+    { id: "orders", icon: Package, label: dictionary.account.sidebar.orders, color: C.mustard },
+    { id: "addresses", icon: MapPin, label: dictionary.account.sidebar.addresses, color: C.green },
+    { id: "wishlist", icon: Heart, label: dictionary.account.sidebar.wishlist, color: C.rose },
+    { id: "settings", icon: Settings, label: dictionary.account.sidebar.settings, color: C.ink },
   ];
 
   const handleLogout = async () => {
@@ -250,58 +286,103 @@ export default function AccountClient({ dictionary, lang }: AccountClientProps) 
             background: "white",
             border: `1px solid rgba(42,29,20,0.10)`,
             borderRadius: 18,
-            padding: 8,
+            padding: 10,
             position: "sticky",
             top: 96,
+            overflow: "hidden",
           }}>
-            {sidebarItems.map(item => {
-              const Icon = item.icon;
-              const active = activeTab === item.id;
-              return (
-                <button
-                  key={item.id}
-                  onClick={() => setActiveTab(item.id)}
-                  style={{
-                    width: "100%",
-                    display: "flex", alignItems: "center", gap: 10,
-                    padding: "12px 14px",
-                    fontFamily: FRAUNCES, fontWeight: 600, fontSize: 14,
-                    color: active ? C.cream : C.ink,
-                    background: active ? C.burnt : "transparent",
-                    border: "none",
-                    borderRadius: 12,
-                    cursor: "pointer",
-                    transition: "background 0.18s ease, color 0.18s ease",
-                    textAlign: "left",
-                  }}
-                  className={active ? "" : "hover:bg-[rgba(42,29,20,0.04)]"}
-                >
-                  <Icon size={16} />
-                  {item.label}
-                </button>
-              );
-            })}
-            <div style={{ height: 1, background: "rgba(42,29,20,0.10)", margin: "8px 14px" }} />
-            <button
-              onClick={handleLogout}
-              style={{
-                width: "100%",
-                display: "flex", alignItems: "center", gap: 10,
-                padding: "12px 14px",
-                fontFamily: FRAUNCES, fontWeight: 600, fontSize: 14,
-                color: C.rose,
-                background: "transparent",
-                border: "none",
-                borderRadius: 12,
-                cursor: "pointer",
-                textAlign: "left",
-                transition: "background 0.18s ease",
-              }}
-              className="hover:bg-[rgba(196,132,154,0.08)]"
-            >
-              <LogOut size={16} />
-              {dictionary.account.sidebar.logout}
-            </button>
+            {/* Decorative blobs in the sidebar background */}
+            <span aria-hidden="true" style={{
+              position: "absolute", top: -20, right: -20,
+              width: 80, height: 80,
+              background: C.mustard, opacity: 0.18,
+              borderRadius: "55% 45% 50% 50% / 50% 55% 45% 50%",
+            }} />
+            <span aria-hidden="true" style={{
+              position: "absolute", bottom: -30, left: -20,
+              width: 70, height: 70,
+              background: C.green, opacity: 0.15,
+              borderRadius: "50%",
+            }} />
+
+            <div style={{ position: "relative", zIndex: 1, display: "flex", flexDirection: "column", gap: 4 }}>
+              {sidebarItems.map(item => {
+                const Icon = item.icon;
+                const active = activeTab === item.id;
+                return (
+                  <button
+                    key={item.id}
+                    onClick={() => setActiveTab(item.id)}
+                    style={{
+                      position: "relative",
+                      width: "100%",
+                      display: "flex", alignItems: "center", gap: 12,
+                      padding: "12px 14px",
+                      fontFamily: FRAUNCES, fontWeight: 600, fontSize: 14,
+                      color: active ? C.cream : C.ink,
+                      background: active ? item.color : "transparent",
+                      border: "none",
+                      borderRadius: 12,
+                      cursor: "pointer",
+                      transition: "background 0.18s ease, color 0.18s ease",
+                      textAlign: "left",
+                      overflow: "hidden",
+                    }}
+                    className={active ? "" : "hover:bg-[rgba(42,29,20,0.04)]"}
+                  >
+                    {/* Left color bar when not active (always shows the color) */}
+                    {!active && (
+                      <span aria-hidden="true" style={{
+                        position: "absolute", left: 0, top: 8, bottom: 8,
+                        width: 3,
+                        background: item.color,
+                        borderRadius: 999,
+                        opacity: 0.85,
+                      }} />
+                    )}
+                    <span style={{
+                      width: 28, height: 28, borderRadius: 8,
+                      background: active ? "rgba(254,240,214,0.22)" : `${item.color}1f`,
+                      color: active ? C.cream : item.color,
+                      display: "inline-flex", alignItems: "center", justifyContent: "center",
+                      flexShrink: 0,
+                    }}>
+                      <Icon size={15} />
+                    </span>
+                    {item.label}
+                  </button>
+                );
+              })}
+
+              <div style={{ height: 1, background: "rgba(42,29,20,0.10)", margin: "8px 14px" }} />
+
+              <button
+                onClick={handleLogout}
+                style={{
+                  width: "100%",
+                  display: "flex", alignItems: "center", gap: 12,
+                  padding: "12px 14px",
+                  fontFamily: FRAUNCES, fontWeight: 600, fontSize: 14,
+                  color: C.rose,
+                  background: "transparent",
+                  border: "none",
+                  borderRadius: 12,
+                  cursor: "pointer",
+                  textAlign: "left",
+                  transition: "background 0.18s ease",
+                }}
+                className="hover:bg-[rgba(196,132,154,0.08)]"
+              >
+                <span style={{
+                  width: 28, height: 28, borderRadius: 8,
+                  background: `${C.rose}1f`, color: C.rose,
+                  display: "inline-flex", alignItems: "center", justifyContent: "center",
+                }}>
+                  <LogOut size={15} />
+                </span>
+                {dictionary.account.sidebar.logout}
+              </button>
+            </div>
           </aside>
 
           {/* Main content */}
@@ -334,7 +415,7 @@ function OverviewTab({ user, dictionary, lang, onEdit }: { user: any; dictionary
   return (
     <div style={{ display: "flex", flexDirection: "column", gap: 24 }}>
       {/* Welcome card with burnt-accent behind avatar */}
-      <Card padding={24}>
+      <Card padding={24} accent="burnt">
         <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-5">
           <div className="flex items-center gap-5">
             <div style={{ position: "relative", width: 76, height: 76 }}>
@@ -381,9 +462,9 @@ function OverviewTab({ user, dictionary, lang, onEdit }: { user: any; dictionary
 
       <div className="grid md:grid-cols-2 gap-6">
         {/* Recent Order */}
-        <Card>
+        <Card accent="mustard">
           <div className="flex justify-between items-center mb-5">
-            <SectionTitle>{dictionary.account.recentOrder}</SectionTitle>
+            <SectionTitle color={C.mustard}>{dictionary.account.recentOrder}</SectionTitle>
           </div>
 
           {user.orders && user.orders.length > 0 ? (
@@ -458,9 +539,9 @@ function OverviewTab({ user, dictionary, lang, onEdit }: { user: any; dictionary
         </Card>
 
         {/* Default Address */}
-        <Card>
+        <Card accent="green">
           <div className="mb-5">
-            <SectionTitle>{dictionary.account.defaultShipping}</SectionTitle>
+            <SectionTitle color={C.green}>{dictionary.account.defaultShipping}</SectionTitle>
           </div>
 
           {user.addresses.find((a: any) => a.isDefault) ? (
@@ -504,10 +585,10 @@ function OrdersTab({ user, dictionary, lang }: { user: any; dictionary: any; lan
   const isKa = lang === "ka";
   return (
     <div style={{ display: "flex", flexDirection: "column", gap: 18 }}>
-      <SectionTitle>{dictionary.account.orders.title}</SectionTitle>
+      <SectionTitle color={C.mustard}>{dictionary.account.orders.title}</SectionTitle>
 
       {user.orders.length === 0 ? (
-        <Card padding={48}>
+        <Card padding={48} accent="mustard">
           <div style={{ textAlign: "center", display: "flex", flexDirection: "column", alignItems: "center", gap: 14 }}>
             <span style={{
               width: 72, height: 72, borderRadius: "50%",
@@ -526,8 +607,8 @@ function OrdersTab({ user, dictionary, lang }: { user: any; dictionary: any; lan
         </Card>
       ) : (
         <div style={{ display: "flex", flexDirection: "column", gap: 12 }}>
-          {user.orders.map((order: any) => (
-            <Card key={order.id} padding={18}>
+          {user.orders.map((order: any, idx: number) => (
+            <Card key={order.id} padding={18} accent={(["mustard", "burnt", "green", "rose"] as const)[idx % 4]}>
               <div className="flex flex-wrap items-center justify-between gap-3">
                 <div>
                   <p style={{ fontFamily: FRAUNCES, fontWeight: 700, fontSize: 14, color: C.ink, margin: 0 }}>#{String(order.id).slice(0, 8).toUpperCase()}</p>
@@ -583,7 +664,7 @@ function AddressesTab({ user, dictionary, lang, onAdd, onRemove, onSetDefault, i
   return (
     <div style={{ display: "flex", flexDirection: "column", gap: 18 }}>
       <div className="flex justify-between items-center flex-wrap gap-3">
-        <SectionTitle>{dictionary.account.addresses.title}</SectionTitle>
+        <SectionTitle color={C.green}>{dictionary.account.addresses.title}</SectionTitle>
         {!showAddForm && (
           <button onClick={() => setShowAddForm(true)} style={{ ...primaryButton, width: "auto", padding: "10px 18px", fontSize: 13 }} className="hover:-translate-y-0.5">
             <Plus size={14} /> {dictionary.account.addresses.add}
@@ -592,7 +673,7 @@ function AddressesTab({ user, dictionary, lang, onAdd, onRemove, onSetDefault, i
       </div>
 
       {showAddForm && (
-        <Card padding={24}>
+        <Card padding={24} accent="green">
           <form onSubmit={handleSubmit} style={{ display: "flex", flexDirection: "column", gap: 14 }}>
             <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 12 }}>
               <input style={input} placeholder={dictionary.checkout.firstName} required value={newAddr.firstName} onChange={e => setNewAddr({ ...newAddr, firstName: e.target.value })} />
@@ -628,10 +709,11 @@ function AddressesTab({ user, dictionary, lang, onAdd, onRemove, onSetDefault, i
 
       {user.addresses.length > 0 && (
         <div className="grid md:grid-cols-2 gap-5">
-          {user.addresses.map((addr: any) => (
+          {user.addresses.map((addr: any, idx: number) => (
             <Card
               key={addr.id}
               padding={20}
+              accent={addr.isDefault ? "burnt" : (["green", "mustard", "rose"] as const)[idx % 3]}
               style={addr.isDefault ? { border: `1.5px solid ${C.burnt}`, background: `${C.burnt}05` } : {}}
             >
               <div className="flex justify-between items-start mb-4">
@@ -693,7 +775,7 @@ function AddressesTab({ user, dictionary, lang, onAdd, onRemove, onSetDefault, i
       )}
 
       {user.addresses.length === 0 && !showAddForm && (
-        <Card padding={56}>
+        <Card padding={56} accent="green">
           <div style={{ textAlign: "center", display: "flex", flexDirection: "column", alignItems: "center", gap: 14 }}>
             <span style={{
               width: 64, height: 64, borderRadius: "50%",
@@ -735,9 +817,9 @@ function SettingsTab({ user, dictionary, lang, onUpdate, isLoading }: any) {
 
   return (
     <div style={{ display: "flex", flexDirection: "column", gap: 18 }}>
-      <SectionTitle>{dictionary.account.profile.title}</SectionTitle>
+      <SectionTitle color={C.burnt}>{dictionary.account.profile.title}</SectionTitle>
 
-      <Card padding={24}>
+      <Card padding={24} accent="burnt">
         <form onSubmit={handleSubmit} style={{ display: "flex", flexDirection: "column", gap: 16 }}>
           <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 14 }}>
             <div style={{ display: "flex", flexDirection: "column", gap: 6 }}>
@@ -772,7 +854,7 @@ function SettingsTab({ user, dictionary, lang, onUpdate, isLoading }: any) {
         </form>
       </Card>
 
-      <Card padding={24} style={{ background: C.softCream }}>
+      <Card padding={24} accent="rose" style={{ background: C.softCream }}>
         <div className="flex flex-col gap-3">
           <h3 style={{ fontFamily: FRAUNCES, fontWeight: 700, fontSize: 18, color: C.ink, margin: 0 }}>
             {isKa ? "პაროლი და უსაფრთხოება" : "Password & security"}
@@ -793,7 +875,7 @@ function SettingsTab({ user, dictionary, lang, onUpdate, isLoading }: any) {
 function WishlistTab({ dictionary, lang }: { dictionary: any; lang: Locale }) {
   const isKa = lang === "ka";
   return (
-    <Card padding={56}>
+    <Card padding={56} accent="rose">
       <div style={{ textAlign: "center", display: "flex", flexDirection: "column", alignItems: "center", gap: 14 }}>
         <span style={{
           width: 64, height: 64, borderRadius: "50%",
