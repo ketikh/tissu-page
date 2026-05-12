@@ -128,26 +128,84 @@ export default function AccountClient({ dictionary, lang }: AccountClientProps) 
       }}
     >
       {/* Decorative sprinkled stars */}
-      <span aria-hidden="true" style={{ position: "absolute", top: 60, left: "5%", opacity: 0.75 }}><Star size={16} /></span>
-      <span aria-hidden="true" style={{ position: "absolute", top: 90, right: "8%", opacity: 0.6 }}><Star size={12} color={C.burnt} /></span>
-      <span aria-hidden="true" style={{ position: "absolute", top: "45%", right: "3%", opacity: 0.5 }}><Star size={14} /></span>
-      <span aria-hidden="true" style={{ position: "absolute", bottom: 200, left: "4%", opacity: 0.55 }}><Star size={14} color={C.green} /></span>
+      <span aria-hidden="true" style={{ position: "absolute", top: 60, left: "5%", opacity: 0.85 }}><Star size={16} /></span>
+      <span aria-hidden="true" style={{ position: "absolute", top: 90, right: "8%", opacity: 0.75 }}><Star size={12} color={C.burnt} /></span>
+      <span aria-hidden="true" style={{ position: "absolute", top: "32%", right: "3%", opacity: 0.65 }}><Star size={14} color={C.rose} /></span>
+      <span aria-hidden="true" style={{ position: "absolute", top: "60%", left: "2%", opacity: 0.65 }}><Star size={14} color={C.green} /></span>
+      <span aria-hidden="true" style={{ position: "absolute", bottom: 200, left: "8%", opacity: 0.7 }}><Star size={15} /></span>
+      <span aria-hidden="true" style={{ position: "absolute", bottom: 320, right: "10%", opacity: 0.65 }}><Star size={13} color={C.burnt} /></span>
 
-      {/* Floating pebbles */}
+      {/* Vibrant floating pebbles in all brand colors */}
       <div aria-hidden="true" style={{
-        position: "absolute", top: 220, left: "-2%",
-        width: 110, height: 110,
-        background: C.burnt, opacity: 0.14,
+        position: "absolute", top: 180, left: "-3%",
+        width: 130, height: 130,
+        background: C.burnt, opacity: 0.32,
         borderRadius: "60% 40% 55% 45% / 50% 60% 40% 50%",
         transform: "rotate(-12deg)",
       }} />
       <div aria-hidden="true" style={{
-        position: "absolute", bottom: 80, right: "-3%",
-        width: 130, height: 130,
-        background: C.mustard, opacity: 0.16,
+        position: "absolute", top: 80, right: "-2%",
+        width: 90, height: 90,
+        background: C.mustard, opacity: 0.45,
+        borderRadius: "55% 45% 50% 50% / 50% 55% 45% 50%",
+        transform: "rotate(18deg)",
+      }} />
+      <div aria-hidden="true" style={{
+        position: "absolute", top: "40%", left: "-2%",
+        width: 70, height: 70,
+        background: C.green, opacity: 0.3,
+        borderRadius: "50%",
+      }} />
+      <div aria-hidden="true" style={{
+        position: "absolute", top: "55%", right: "-3%",
+        width: 100, height: 100,
+        background: C.rose, opacity: 0.32,
+        borderRadius: "45% 55% 50% 50% / 55% 45% 55% 45%",
+        transform: "rotate(-6deg)",
+      }} />
+      <div aria-hidden="true" style={{
+        position: "absolute", bottom: 60, right: "-3%",
+        width: 140, height: 140,
+        background: C.mustard, opacity: 0.38,
         borderRadius: "45% 55% 50% 50% / 55% 45% 55% 45%",
         transform: "rotate(10deg)",
       }} />
+      <div aria-hidden="true" style={{
+        position: "absolute", bottom: 160, left: "-2%",
+        width: 80, height: 80,
+        background: C.burnt, opacity: 0.28,
+        borderRadius: "50%",
+      }} />
+
+      {/* Squiggly wavy lines */}
+      <svg
+        aria-hidden="true"
+        style={{ position: "absolute", top: 230, right: "12%", opacity: 0.55, pointerEvents: "none" }}
+        width="120" height="22" viewBox="0 0 120 22"
+      >
+        <path d="M 2 11 Q 12 1 22 11 T 42 11 T 62 11 T 82 11 T 102 11 T 118 11" stroke={C.burnt} strokeWidth="2.5" fill="none" strokeLinecap="round" />
+      </svg>
+      <svg
+        aria-hidden="true"
+        style={{ position: "absolute", top: "48%", left: "10%", opacity: 0.55, pointerEvents: "none", transform: "rotate(-8deg)" }}
+        width="90" height="20" viewBox="0 0 90 20"
+      >
+        <path d="M 2 10 Q 10 1 18 10 T 34 10 T 50 10 T 66 10 T 82 10 T 88 10" stroke={C.green} strokeWidth="2.5" fill="none" strokeLinecap="round" />
+      </svg>
+      <svg
+        aria-hidden="true"
+        style={{ position: "absolute", bottom: 280, left: "16%", opacity: 0.6, pointerEvents: "none" }}
+        width="100" height="20" viewBox="0 0 100 20"
+      >
+        <path d="M 2 10 Q 11 1 20 10 T 38 10 T 56 10 T 74 10 T 92 10 T 98 10" stroke={C.mustard} strokeWidth="2.5" fill="none" strokeLinecap="round" />
+      </svg>
+      <svg
+        aria-hidden="true"
+        style={{ position: "absolute", bottom: 80, right: "20%", opacity: 0.5, pointerEvents: "none", transform: "rotate(12deg)" }}
+        width="110" height="22" viewBox="0 0 110 22"
+      >
+        <path d="M 2 11 Q 12 1 22 11 T 42 11 T 62 11 T 82 11 T 102 11 T 108 11" stroke={C.rose} strokeWidth="2.5" fill="none" strokeLinecap="round" />
+      </svg>
 
       <div className="container max-w-6xl" style={{ position: "relative" }}>
         {/* Heading */}

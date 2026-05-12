@@ -60,8 +60,8 @@ export default function CartClient({ dictionary, lang }: CartClientProps) {
   const [promoSuccess, setPromoSuccess] = useState(false);
   const isKa = lang === "ka";
 
-  const handleApplyPromo = () => {
-    const success = applyPromoCode(promoCode);
+  const handleApplyPromo = async () => {
+    const success = await applyPromoCode(promoCode);
     setPromoSuccess(success);
     setPromoError(!success);
   };

@@ -9,13 +9,13 @@ interface CartState {
   removeItem: (itemId: string) => void;
   updateQuantity: (itemId: string, quantity: number) => void;
   clearCart: () => void;
-  applyPromoCode: (code: string) => boolean;
-  getSummary: () => { 
-    subtotal: number; 
-    itemsCount: number; 
-    shipping: number; 
-    discountAmount: number; 
-    total: number 
+  applyPromoCode: (code: string) => Promise<boolean>;
+  getSummary: () => {
+    subtotal: number;
+    itemsCount: number;
+    shipping: number;
+    discountAmount: number;
+    total: number
   };
 }
 
@@ -58,17 +58,22 @@ export const useCartStore = create<CartState>()(
 
       clearCart: () => set({ items: [], discount: 0 }),
 
-      applyPromoCode: (code: string) => {
-        const uppercaseCode = code.toUpperCase();
-        if (uppercaseCode === "TISSU10") {
-          set({ discount: 10 });
+      applyPromoCode: async (code: string) => {
+        const trimmed = code.trim().toUpperCase();
+        if (!trimmed) return false;
+
+        try {
+          const res = await fetch("/api/promo-codes", { cache: "no-store" });
+          if (!res.ok) return false;
+          const data = await res.json();
+          const codes: Array<{ code: string; discount: number }> = data?.promo_codes ?? [];
+          const match = codes.find(c => c.code.toUpperCase() === trimmed);
+          if (!match) return false;
+          set({ discount: Math.max(0, Math.min(100, match.discount)) });
           return true;
+        } catch {
+          return false;
         }
-        if (uppercaseCode === "WELCOME20") {
-          set({ discount: 20 });
-          return true;
-        }
-        return false;
       },
 
       getSummary: () => {
