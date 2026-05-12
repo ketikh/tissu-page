@@ -24,18 +24,6 @@ const C = {
   rose: "#c4849a",
 };
 
-/* Category palette mirrors the product details hero. When every bag falls in
-   the same category (e.g. all pouches), we add an extra rotating-by-id
-   palette so each row still looks distinctly colourful. */
-const CAT_BG: Record<string, string> = {
-  pouch: C.burnt,
-  laptop: C.lavender,
-  tote: C.sage,
-  kidsbackpack: C.mustard,
-  apron: C.green,
-  necklace: C.champagne,
-};
-
 const NAMED_COLORS: Record<string, string> = {
   rose: C.rose, burnt: C.burnt, mustard: C.mustard, sage: C.sage,
   lavender: C.lavender, green: C.green, champagne: C.champagne,
@@ -43,39 +31,52 @@ const NAMED_COLORS: Record<string, string> = {
 };
 
 /** Read an admin colour override from a tags array — same syntax used on the
- *  product details hero. Accepts `color:#abcdef`, `color:rose`, or `#abcdef`. */
+ *  product details hero. Accepts `color:#abcdef`, `color:rose`, `color:rgb(…)`,
+ *  or a bare `#abcdef` / `rgb(…)` tag. */
 function colorFromTags(tags?: string[]): string | null {
   if (!tags) return null;
+  const isHex = (v: string) => /^#[0-9a-f]{3,8}$/i.test(v);
+  const isRgb = (v: string) => /^rgba?\(\s*\d+/i.test(v);
   for (const raw of tags) {
-    const t = raw.trim().toLowerCase();
+    const t = raw.trim();
     if (!t) continue;
-    if (t.startsWith("color:")) {
+    if (t.toLowerCase().startsWith("color:")) {
       const v = t.slice(6).trim();
-      if (/^#[0-9a-f]{3,8}$/i.test(v)) return v;
-      if (NAMED_COLORS[v]) return NAMED_COLORS[v];
+      if (isHex(v) || isRgb(v)) return v;
+      const named = NAMED_COLORS[v.toLowerCase()];
+      if (named) return named;
     }
-    if (/^#[0-9a-f]{3,8}$/i.test(t)) return t;
+    if (isHex(t) || isRgb(t)) return t;
   }
   return null;
 }
 
-const TINT_ROTATION: string[] = [C.burnt, C.mustard, C.green, C.rose, C.champagne, C.sage, C.lavender];
-
-function hashStr(s: string): number {
-  let h = 0;
-  for (let i = 0; i < s.length; i++) h = (h * 31 + s.charCodeAt(i)) >>> 0;
-  return h;
+/** Convert any colour expression (hex or rgb(…)) to the same colour with the
+ *  given alpha so we can show it at 50% over a white card. */
+function withAlpha(color: string, alpha = 0.5): string {
+  const c = color.trim();
+  if (/^rgba?\(/i.test(c)) {
+    // strip existing alpha (if any), re-apply
+    const nums = c.match(/[\d.]+/g) || [];
+    const [r = "0", g = "0", b = "0"] = nums;
+    return `rgba(${r}, ${g}, ${b}, ${alpha})`;
+  }
+  // hex (#rgb, #rgba, #rrggbb, #rrggbbaa)
+  let h = c.replace("#", "");
+  if (h.length === 3) h = h.split("").map(x => x + x).join("");
+  if (h.length === 4) h = h.slice(0, 3).split("").map(x => x + x).join("") + (h[3] + h[3]);
+  if (h.length !== 6 && h.length !== 8) return color;
+  const r = parseInt(h.slice(0, 2), 16);
+  const g = parseInt(h.slice(2, 4), 16);
+  const b = parseInt(h.slice(4, 6), 16);
+  return `rgba(${r}, ${g}, ${b}, ${alpha})`;
 }
 
-function rowBg(productId: string, category?: string, tags?: string[]): string {
-  // 1) Explicit admin override via tags wins (color:rose, color:#hex, #hex)
-  // 2) Else, the category palette (matches product details hero)
-  // 3) Else, a rotating-by-id palette for visual variety in single-cat carts
+/** Row background: admin tag → use it at 50%, else white. */
+function rowBg(tags?: string[]): string {
   const fromTag = colorFromTags(tags);
-  const fromCat = category && CAT_BG[category];
-  const fromHash = TINT_ROTATION[hashStr(productId) % TINT_ROTATION.length];
-  const base = fromTag || fromCat || fromHash || C.champagne;
-  return `${base}80`; // 50% alpha
+  if (!fromTag) return "white";
+  return withAlpha(fromTag, 0.5);
 }
 
 interface CartClientProps {
@@ -305,11 +306,7 @@ export default function CartClient({ dictionary, lang }: CartClientProps) {
                 const variantLabel = variantField?.[lang] || variantField?.["ka"] || "";
                 const unitPrice = item.variant?.price || item.product?.price || 0;
                 const linePrice = unitPrice * item.quantity;
-                const tint = rowBg(
-                  String(item.product?.id || item.id),
-                  item.product?.category,
-                  (item.product as any)?.tags,
-                );
+                const tint = rowBg((item.product as any)?.tags);
 
                 return (
                   <motion.div
