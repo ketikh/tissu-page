@@ -5,11 +5,13 @@ import { CartItem, Product, ProductVariant } from "../lib/types";
 interface CartState {
   items: CartItem[];
   discount: number; // Percentage (0-100)
+  promoCode: string | null;
   addItem: (product: Product, variant: ProductVariant, quantity: number) => void;
   removeItem: (itemId: string) => void;
   updateQuantity: (itemId: string, quantity: number) => void;
   clearCart: () => void;
   applyPromoCode: (code: string) => Promise<boolean>;
+  clearPromoCode: () => void;
   getSummary: () => {
     subtotal: number;
     itemsCount: number;
@@ -24,6 +26,7 @@ export const useCartStore = create<CartState>()(
     (set, get) => ({
       items: [],
       discount: 0,
+      promoCode: null,
       
       addItem: (product, variant, quantity) => {
         set((state) => {
@@ -56,7 +59,7 @@ export const useCartStore = create<CartState>()(
         }));
       },
 
-      clearCart: () => set({ items: [], discount: 0 }),
+      clearCart: () => set({ items: [], discount: 0, promoCode: null }),
 
       applyPromoCode: async (code: string) => {
         const trimmed = code.trim().toUpperCase();
@@ -69,12 +72,17 @@ export const useCartStore = create<CartState>()(
           const codes: Array<{ code: string; discount: number }> = data?.promo_codes ?? [];
           const match = codes.find(c => c.code.toUpperCase() === trimmed);
           if (!match) return false;
-          set({ discount: Math.max(0, Math.min(100, match.discount)) });
+          set({
+            discount: Math.max(0, Math.min(100, match.discount)),
+            promoCode: match.code.toUpperCase(),
+          });
           return true;
         } catch {
           return false;
         }
       },
+
+      clearPromoCode: () => set({ discount: 0, promoCode: null }),
 
       getSummary: () => {
         const { items, discount } = get();

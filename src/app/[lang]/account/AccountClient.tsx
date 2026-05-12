@@ -90,7 +90,7 @@ function SectionTitle({ children, num, color = C.burnt }: { children: React.Reac
   return (
     <h2 style={{
       fontFamily: FRAUNCES, fontWeight: 700,
-      fontSize: 24, color: C.ink, letterSpacing: "-0.01em",
+      fontSize: 19, color: C.ink, letterSpacing: "-0.005em",
       margin: 0,
       display: "flex", alignItems: "center", gap: 10,
     }}>
@@ -263,9 +263,9 @@ export default function AccountClient({ dictionary, lang }: AccountClientProps) 
             </span>
             <h1 style={{
               fontFamily: FRAUNCES, fontWeight: 700,
-              fontSize: "clamp(34px, 5vw, 52px)",
-              color: C.ink, letterSpacing: "-0.02em",
-              lineHeight: 1.05,
+              fontSize: "clamp(26px, 3.5vw, 38px)",
+              color: C.ink, letterSpacing: "-0.01em",
+              lineHeight: 1.1,
               margin: 0,
             }}>
               {dictionary.account.title}

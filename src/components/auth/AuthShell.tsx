@@ -2,9 +2,9 @@
 
 import { ReactNode } from "react";
 
-// Modern title/body font — Noto Sans Georgian renders Georgian cleanly without
-// the dated retro feel. Latin falls back to Nunito and system sans.
-const FRAUNCES = "var(--font-noto-sans), var(--font-nunito), 'Inter', system-ui, -apple-system, sans-serif";
+// Retro display font used for headings — ALK Life on Georgian, Fraunces on
+// Latin. Same look as the `font-retro-display` utility in globals.css.
+const FRAUNCES = "var(--font-alk-life), var(--font-fraunces), 'Fraunces', Georgia, serif";
 
 const C = {
   cream: "#fef0d6",
@@ -189,8 +189,8 @@ export function AuthShell({ title, subtitle, maxWidth = 440, children }: AuthShe
           <div style={{ textAlign: "center", marginBottom: 26 }}>
             <h1 style={{
               fontFamily: FRAUNCES, fontWeight: 700,
-              fontSize: 32, color: C.ink,
-              letterSpacing: "-0.01em", lineHeight: 1.1,
+              fontSize: 26, color: C.ink,
+              letterSpacing: "-0.005em", lineHeight: 1.15,
               margin: 0,
             }}>
               {title}

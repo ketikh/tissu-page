@@ -10,7 +10,7 @@ import { formatPrice } from "@/lib/utils";
 import { Minus, Plus, Trash2, Tag, ShoppingBag } from "lucide-react";
 import { Locale } from "@/i18n/config";
 
-const FRAUNCES = "var(--font-noto-sans), var(--font-nunito), 'Inter', system-ui, -apple-system, sans-serif";
+const FRAUNCES = "var(--font-alk-life), var(--font-fraunces), 'Fraunces', Georgia, serif";
 
 const C = {
   cream: "#fef0d6",
@@ -53,7 +53,7 @@ function Price({ value, big = false }: { value: number; big?: boolean }) {
 
 export default function CartClient({ dictionary, lang }: CartClientProps) {
   useStoreHydration();
-  const { items, removeItem, updateQuantity, getSummary, applyPromoCode, discount } = useCartStore();
+  const { items, removeItem, updateQuantity, getSummary, applyPromoCode, clearPromoCode, discount, promoCode: appliedCode } = useCartStore();
   const { subtotal, total, discountAmount, shipping } = getSummary();
   const [promoCode, setPromoCode] = useState("");
   const [promoError, setPromoError] = useState(false);
@@ -64,6 +64,14 @@ export default function CartClient({ dictionary, lang }: CartClientProps) {
     const success = await applyPromoCode(promoCode);
     setPromoSuccess(success);
     setPromoError(!success);
+    if (success) setPromoCode("");
+  };
+
+  const handleRemovePromo = () => {
+    clearPromoCode();
+    setPromoSuccess(false);
+    setPromoError(false);
+    setPromoCode("");
   };
 
   if (items.length === 0) {
@@ -96,7 +104,7 @@ export default function CartClient({ dictionary, lang }: CartClientProps) {
             style={{
               fontFamily: FRAUNCES,
               fontWeight: 700,
-              fontSize: "clamp(28px, 4vw, 44px)",
+              fontSize: "clamp(24px, 3vw, 32px)",
               color: C.ink,
               lineHeight: 1.1,
               letterSpacing: "-0.01em",
@@ -213,7 +221,7 @@ export default function CartClient({ dictionary, lang }: CartClientProps) {
           <h1
             style={{
               fontFamily: FRAUNCES, fontWeight: 700,
-              fontSize: "clamp(28px, 4vw, 44px)",
+              fontSize: "clamp(24px, 3vw, 32px)",
               color: C.ink, lineHeight: 1.0,
               letterSpacing: "-0.01em",
               margin: 0,
@@ -411,51 +419,89 @@ export default function CartClient({ dictionary, lang }: CartClientProps) {
             </div>
 
             {/* Promo code */}
-            <div className="flex gap-2 mb-2">
-              <div className="relative flex-1">
-                <Tag size={14} className="absolute left-3 top-1/2 -translate-y-1/2" style={{ color: C.ink, opacity: 0.4 }} />
-                <input
-                  type="text"
-                  placeholder={isKa ? "პრომო კოდი" : "Promo code"}
-                  value={promoCode}
-                  onChange={(e) => setPromoCode(e.target.value)}
-                  className="w-full h-11 pl-9 pr-3 text-[13px] outline-none"
-                  style={{
-                    fontFamily: PRICE_FONT,
-                    background: "white",
-                    border: `1.5px solid ${promoError ? C.rose : "rgba(42,29,20,0.14)"}`,
-                    borderRadius: 12,
-                    color: C.ink,
-                  }}
-                />
-              </div>
-              <button
-                type="button"
-                onClick={handleApplyPromo}
+            {appliedCode && discount > 0 ? (
+              <div
                 style={{
-                  fontFamily: FRAUNCES, fontWeight: 600, fontSize: 13,
-                  letterSpacing: "0.02em",
-                  background: "transparent", color: C.ink,
-                  border: `1.5px solid rgba(42,29,20,0.18)`,
+                  display: "flex", alignItems: "center", gap: 10,
+                  padding: "10px 12px",
+                  background: `${C.green}14`,
+                  border: `1.5px solid ${C.green}40`,
                   borderRadius: 12,
-                  padding: "0 18px", height: 44,
-                  cursor: "pointer",
-                  transition: "background 0.18s ease",
+                  marginBottom: 8,
                 }}
-                className="hover:bg-[rgba(42,29,20,0.05)]"
               >
-                {isKa ? "გამოყენება" : "Apply"}
-              </button>
-            </div>
-            {promoError && (
-              <p style={{ fontFamily: PRICE_FONT, fontSize: 12, color: C.rose, margin: "4px 4px 0", opacity: 0.9 }}>
-                {isKa ? "კოდი არასწორია" : "Invalid promo code"}
-              </p>
-            )}
-            {promoSuccess && (
-              <p style={{ fontFamily: PRICE_FONT, fontSize: 12, color: C.green, margin: "4px 4px 0", opacity: 0.9 }}>
-                {isKa ? "კოდი გამოყენებულია ✓" : "Code applied ✓"}
-              </p>
+                <Tag size={14} style={{ color: C.green, flexShrink: 0 }} />
+                <div style={{ flex: 1, minWidth: 0 }}>
+                  <span style={{ fontFamily: FRAUNCES, fontWeight: 700, fontSize: 13, color: C.green, letterSpacing: "0.04em" }}>
+                    {appliedCode}
+                  </span>
+                  <span style={{ fontFamily: PRICE_FONT, fontSize: 12, color: C.green, opacity: 0.8, marginLeft: 8 }}>
+                    −{discount}%
+                  </span>
+                </div>
+                <button
+                  type="button"
+                  onClick={handleRemovePromo}
+                  aria-label={isKa ? "კოდის წაშლა" : "Remove code"}
+                  style={{
+                    fontFamily: PRICE_FONT, fontSize: 12, fontWeight: 600,
+                    background: "transparent", color: C.green,
+                    border: "none", cursor: "pointer", padding: "4px 8px",
+                  }}
+                  className="hover:underline"
+                >
+                  {isKa ? "წაშლა" : "Remove"}
+                </button>
+              </div>
+            ) : (
+              <>
+                <div className="flex gap-2 mb-2">
+                  <div className="relative flex-1">
+                    <Tag size={14} className="absolute left-3 top-1/2 -translate-y-1/2" style={{ color: C.ink, opacity: 0.4 }} />
+                    <input
+                      type="text"
+                      placeholder={isKa ? "პრომო კოდი" : "Promo code"}
+                      value={promoCode}
+                      onChange={(e) => setPromoCode(e.target.value)}
+                      className="w-full h-11 pl-9 pr-3 text-[13px] outline-none"
+                      style={{
+                        fontFamily: PRICE_FONT,
+                        background: "white",
+                        border: `1.5px solid ${promoError ? C.rose : "rgba(42,29,20,0.14)"}`,
+                        borderRadius: 12,
+                        color: C.ink,
+                      }}
+                    />
+                  </div>
+                  <button
+                    type="button"
+                    onClick={handleApplyPromo}
+                    style={{
+                      fontFamily: FRAUNCES, fontWeight: 600, fontSize: 13,
+                      letterSpacing: "0.02em",
+                      background: "transparent", color: C.ink,
+                      border: `1.5px solid rgba(42,29,20,0.18)`,
+                      borderRadius: 12,
+                      padding: "0 18px", height: 44,
+                      cursor: "pointer",
+                      transition: "background 0.18s ease",
+                    }}
+                    className="hover:bg-[rgba(42,29,20,0.05)]"
+                  >
+                    {isKa ? "გამოყენება" : "Apply"}
+                  </button>
+                </div>
+                {promoError && (
+                  <p style={{ fontFamily: PRICE_FONT, fontSize: 12, color: C.rose, margin: "4px 4px 0", opacity: 0.9 }}>
+                    {isKa ? "კოდი არასწორია" : "Invalid promo code"}
+                  </p>
+                )}
+                {promoSuccess && (
+                  <p style={{ fontFamily: PRICE_FONT, fontSize: 12, color: C.green, margin: "4px 4px 0", opacity: 0.9 }}>
+                    {isKa ? "კოდი გამოყენებულია ✓" : "Code applied ✓"}
+                  </p>
+                )}
+              </>
             )}
 
             {/* Checkout CTA */}

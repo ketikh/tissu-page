@@ -12,7 +12,7 @@ import Image from "next/image";
 import { Locale } from "@/i18n/config";
 import { Order } from "@/lib/types";
 
-const FRAUNCES = "var(--font-noto-sans), var(--font-nunito), 'Inter', system-ui, -apple-system, sans-serif";
+const FRAUNCES = "var(--font-alk-life), var(--font-fraunces), 'Fraunces', Georgia, serif";
 const PRICE_FONT = "system-ui, -apple-system, 'Segoe UI', sans-serif";
 
 const C = {
@@ -249,7 +249,7 @@ export default function CheckoutClient({ lang, dictionary }: CheckoutClientProps
           <h1
             style={{
               fontFamily: FRAUNCES, fontWeight: 700,
-              fontSize: "clamp(28px, 4vw, 44px)",
+              fontSize: "clamp(24px, 3vw, 32px)",
               color: C.ink, lineHeight: 1.1, letterSpacing: "-0.01em",
               margin: 0,
             }}
@@ -409,7 +409,7 @@ export default function CheckoutClient({ lang, dictionary }: CheckoutClientProps
           <h1
             style={{
               fontFamily: FRAUNCES, fontWeight: 700,
-              fontSize: "clamp(28px, 4vw, 44px)",
+              fontSize: "clamp(24px, 3vw, 32px)",
               color: C.ink, lineHeight: 1.0,
               letterSpacing: "-0.01em",
               margin: 0,
@@ -461,24 +461,23 @@ export default function CheckoutClient({ lang, dictionary }: CheckoutClientProps
                     <div key={item.id} className="flex items-center gap-3">
                       <div style={{
                         position: "relative", width: 56, height: 64,
-                        flexShrink: 0,
+                        borderRadius: 10, background: "#f5f5f5",
+                        overflow: "hidden", flexShrink: 0,
+                        border: `1px solid rgba(42,29,20,0.08)`,
                       }}>
-                        <div style={{
-                          position: "absolute", inset: 0,
-                          borderRadius: 10, background: "#f5f5f5",
-                          overflow: "hidden",
-                          border: `1px solid rgba(42,29,20,0.08)`,
-                        }}>
-                          <Image src={item.product.images[0] || "/placeholder.jpg"} alt={productName} fill className="object-cover" />
-                        </div>
+                        <Image src={item.product.images[0] || "/placeholder.jpg"} alt={productName} fill className="object-cover" />
+                        {/* Quantity badge sits inside the box so the scroll
+                            container can't clip it. */}
                         <span style={{
-                          position: "absolute", top: -6, right: -6,
-                          width: 22, height: 22, borderRadius: "50%",
+                          position: "absolute", top: 4, right: 4,
+                          minWidth: 20, height: 20, padding: "0 6px",
+                          borderRadius: 999,
                           background: C.ink, color: C.cream,
                           display: "inline-flex", alignItems: "center", justifyContent: "center",
-                          fontFamily: FRAUNCES, fontWeight: 700, fontSize: 11,
-                          border: `2px solid ${C.softCream}`,
+                          fontFamily: PRICE_FONT, fontWeight: 700, fontSize: 11,
+                          lineHeight: 1,
                           zIndex: 2,
+                          boxShadow: "0 1px 3px rgba(0,0,0,0.18)",
                         }}>{item.quantity}</span>
                       </div>
                       <div style={{ flex: 1, minWidth: 0 }}>
