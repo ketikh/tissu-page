@@ -418,8 +418,9 @@ export default function CartClient({ dictionary, lang }: CartClientProps) {
               <Price value={total} big />
             </div>
 
-            {/* Promo code */}
-            {appliedCode && discount > 0 ? (
+            {/* Promo code — show applied state whenever a discount is active,
+                 even if the code name was lost on an older session. */}
+            {discount > 0 ? (
               <div
                 style={{
                   display: "flex", alignItems: "center", gap: 10,
@@ -433,7 +434,7 @@ export default function CartClient({ dictionary, lang }: CartClientProps) {
                 <Tag size={14} style={{ color: C.green, flexShrink: 0 }} />
                 <div style={{ flex: 1, minWidth: 0 }}>
                   <span style={{ fontFamily: FRAUNCES, fontWeight: 700, fontSize: 13, color: C.green, letterSpacing: "0.04em" }}>
-                    {appliedCode}
+                    {appliedCode || (isKa ? "კოდი გამოყენებულია" : "Code applied")}
                   </span>
                   <span style={{ fontFamily: PRICE_FONT, fontSize: 12, color: C.green, opacity: 0.8, marginLeft: 8 }}>
                     −{discount}%

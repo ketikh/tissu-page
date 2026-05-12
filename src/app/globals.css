@@ -191,6 +191,21 @@ html[lang="ka"] .font-retro-display {
   line-height: 1.05 !important;
 }
 
+/* Site-wide title look: every page heading (Tailwind's `.font-serif`) renders
+   in the same retro display family used on the home page — ALK Life on
+   Georgian, Fraunces on Latin — so titles read as one consistent voice
+   across cart, checkout, account, info pages, etc. */
+.font-serif {
+  font-family: var(--font-alk-life), var(--font-fraunces), 'Fraunces', Georgia, serif !important;
+  letter-spacing: -0.005em;
+}
+html[lang="ka"] .font-serif {
+  font-family: var(--font-alk-life), serif !important;
+  font-weight: 400 !important;
+  font-style: normal !important;
+  letter-spacing: 0 !important;
+}
+
 @layer utilities {
   .text-balance {
     text-wrap: balance;
