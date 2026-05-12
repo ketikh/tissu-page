@@ -53,7 +53,7 @@ function colorFromTags(tags?: string[]): string | null {
 
 /** Convert any colour expression (hex or rgb(…)) to the same colour with the
  *  given alpha so we can show it at 50% over a white card. */
-function withAlpha(color: string, alpha = 0.5): string {
+function withAlpha(color: string, alpha = 0.7): string {
   const c = color.trim();
   if (/^rgba?\(/i.test(c)) {
     // strip existing alpha (if any), re-apply
@@ -76,7 +76,7 @@ function withAlpha(color: string, alpha = 0.5): string {
 function rowBg(tags?: string[]): string {
   const fromTag = colorFromTags(tags);
   if (!fromTag) return "white";
-  return withAlpha(fromTag, 0.5);
+  return withAlpha(fromTag, 0.7);
 }
 
 interface CartClientProps {

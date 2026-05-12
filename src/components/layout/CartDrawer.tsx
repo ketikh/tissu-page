@@ -54,7 +54,7 @@ function colorFromTags(tags?: string[]): string | null {
   return null;
 }
 
-function withAlpha(color: string, alpha = 0.5): string {
+function withAlpha(color: string, alpha = 0.7): string {
   const c = color.trim();
   if (/^rgba?\(/i.test(c)) {
     const nums = c.match(/[\d.]+/g) || [];
@@ -75,7 +75,7 @@ function withAlpha(color: string, alpha = 0.5): string {
 function rowBg(tags?: string[]): string {
   const fromTag = colorFromTags(tags);
   if (!fromTag) return "white";
-  return withAlpha(fromTag, 0.5);
+  return withAlpha(fromTag, 0.7);
 }
 
 function Price({ value, big = false }: { value: number; big?: boolean }) {
