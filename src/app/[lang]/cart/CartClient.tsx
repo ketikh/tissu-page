@@ -19,8 +19,26 @@ const C = {
   mustard: "#f3b62b",
   green: "#3f6f56",
   champagne: "#c9a86c",
+  lavender: "#9e8abf",
+  sage: "#7aaa8a",
   rose: "#c4849a",
 };
+
+/* Category palette mirrors the product details hero, so each cart row gets
+   its own soft 50% tint matching the bag's category. */
+const CAT_BG: Record<string, string> = {
+  pouch: C.burnt,
+  laptop: C.lavender,
+  tote: C.sage,
+  kidsbackpack: C.mustard,
+  apron: C.green,
+  necklace: C.champagne,
+};
+
+function categoryBg(category?: string): string {
+  const base = (category && CAT_BG[category]) || C.champagne;
+  return `${base}80`; // 0x80 = 50% alpha
+}
 
 interface CartClientProps {
   dictionary: any;
@@ -249,6 +267,7 @@ export default function CartClient({ dictionary, lang }: CartClientProps) {
                 const variantLabel = variantField?.[lang] || variantField?.["ka"] || "";
                 const unitPrice = item.variant?.price || item.product?.price || 0;
                 const linePrice = unitPrice * item.quantity;
+                const tint = categoryBg(item.product?.category);
 
                 return (
                   <motion.div
@@ -260,9 +279,9 @@ export default function CartClient({ dictionary, lang }: CartClientProps) {
                     transition={{ duration: 0.32 }}
                     className="flex gap-4 md:gap-5 p-4 md:p-5"
                     style={{
-                      background: "white",
+                      background: tint,
                       borderRadius: 16,
-                      border: `1px solid rgba(42,29,20,0.10)`,
+                      border: `1px solid rgba(42,29,20,0.08)`,
                     }}
                   >
                     {/* Photo */}

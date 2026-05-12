@@ -21,9 +21,30 @@ const C = {
   cream: "#fef0d6",
   ink: "#2a1d14",
   burnt: "#d56826",
+  mustard: "#f3b62b",
   green: "#3f6f56",
+  champagne: "#c9a86c",
+  lavender: "#9e8abf",
+  sage: "#7aaa8a",
   rose: "#c4849a",
 };
+
+/* Same category palette used on the product details hero. Each cart item
+   gets a soft 50%-opacity wash of its category colour for visual variety. */
+const CAT_BG: Record<string, string> = {
+  pouch: C.burnt,
+  laptop: C.lavender,
+  tote: C.sage,
+  kidsbackpack: C.mustard,
+  apron: C.green,
+  necklace: C.champagne,
+};
+
+function categoryBg(category?: string): string {
+  const base = (category && CAT_BG[category]) || C.champagne;
+  // 80 hex == 50% alpha
+  return `${base}80`;
+}
 
 function Price({ value, big = false }: { value: number; big?: boolean }) {
   return (
@@ -139,6 +160,7 @@ export function CartDrawer({ dictionary, lang }: CartDrawerProps) {
                       null;
                     const variantLabel = variantField?.[lang] || variantField?.['ka'] || "";
                     const linePrice = (item.variant?.price || item.product?.price || 0) * item.quantity;
+                    const tint = categoryBg(item.product?.category);
 
                     return (
                       <motion.div
@@ -150,9 +172,9 @@ export function CartDrawer({ dictionary, lang }: CartDrawerProps) {
                         transition={{ duration: 0.28 }}
                         className="flex gap-4 p-4"
                         style={{
-                          background: "white",
+                          background: tint,
                           borderRadius: 14,
-                          border: `1px solid rgba(42,29,20,0.10)`,
+                          border: `1px solid rgba(42,29,20,0.08)`,
                         }}
                       >
                         <div className="relative shrink-0 overflow-hidden" style={{ width: 70, height: 84, borderRadius: 10, background: "#f5f5f5" }}>
