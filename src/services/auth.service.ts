@@ -11,7 +11,7 @@ class AuthService {
   async login(credentials: { email: string; password: string }): Promise<{ user: User }> {
     const supabase = this.getSupabase();
 
-    const { error } = await supabase.auth.signInWithPassword({
+    const { data, error } = await supabase.auth.signInWithPassword({
       email: credentials.email,
       password: credentials.password,
     });
@@ -27,8 +27,32 @@ class AuthService {
       throw new Error(error.message);
     }
 
-    const profile = await this.fetchProfile();
-    return { user: profile };
+    // Try to fetch the full profile. If cookies haven't synced to the server
+    // yet, retry once after a short delay. If it still fails, fall back to a
+    // minimal user built from the supabase auth response so login still
+    // succeeds — the full profile can load on next request.
+    try {
+      const profile = await this.fetchProfile();
+      return { user: profile };
+    } catch {
+      await new Promise(r => setTimeout(r, 250));
+      try {
+        const profile = await this.fetchProfile();
+        return { user: profile };
+      } catch {
+        const authUser = data?.user;
+        const meta = authUser?.user_metadata || {};
+        const fallback: User = {
+          id: authUser?.id || "",
+          email: authUser?.email || credentials.email,
+          firstName: meta.first_name || meta.full_name?.split(" ")[0] || "",
+          lastName: meta.last_name || meta.full_name?.split(" ").slice(1).join(" ") || "",
+          addresses: [],
+          orders: [],
+        };
+        return { user: fallback };
+      }
+    }
   }
 
   async register(data: {
