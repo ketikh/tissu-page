@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import Link from "next/link";
 import Image from "next/image";
 import { motion, AnimatePresence } from "framer-motion";
@@ -115,7 +115,17 @@ export default function CartClient({ dictionary, lang }: CartClientProps) {
   const [promoCode, setPromoCode] = useState("");
   const [promoError, setPromoError] = useState(false);
   const [promoSuccess, setPromoSuccess] = useState(false);
+  const [tagMap, setTagMap] = useState<Record<string, string[]>>({});
   const isKa = lang === "ka";
+
+  // Fetch tags map once so we can colour rows even if items were added before
+  // tags started getting persisted alongside the product.
+  useEffect(() => {
+    fetch("/api/products/tags", { cache: "no-store" })
+      .then(r => (r.ok ? r.json() : { tags: {} }))
+      .then(d => setTagMap(d?.tags ?? {}))
+      .catch(() => setTagMap({}));
+  }, []);
 
   const handleApplyPromo = async () => {
     const success = await applyPromoCode(promoCode);
@@ -306,7 +316,10 @@ export default function CartClient({ dictionary, lang }: CartClientProps) {
                 const variantLabel = variantField?.[lang] || variantField?.["ka"] || "";
                 const unitPrice = item.variant?.price || item.product?.price || 0;
                 const linePrice = unitPrice * item.quantity;
-                const tint = rowBg((item.product as any)?.tags);
+                const tags = (item.product as any)?.tags?.length
+                  ? (item.product as any).tags
+                  : tagMap[String(item.product?.id)] ?? [];
+                const tint = rowBg(tags);
 
                 return (
                   <motion.div

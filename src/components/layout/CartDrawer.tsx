@@ -1,5 +1,6 @@
 "use client";
 
+import { useEffect, useState } from "react";
 import { useUIStore } from "@/store/useUIStore";
 import { useCartStore } from "@/store/useCartStore";
 import { X, Trash2, ShoppingBag, Minus, Plus } from "lucide-react";
@@ -98,6 +99,15 @@ export function CartDrawer({ dictionary, lang }: CartDrawerProps) {
   const { subtotal } = getSummary();
   const isKa = lang === "ka";
 
+  const [tagMap, setTagMap] = useState<Record<string, string[]>>({});
+  useEffect(() => {
+    if (!isCartOpen) return;
+    fetch("/api/products/tags", { cache: "no-store" })
+      .then(r => (r.ok ? r.json() : { tags: {} }))
+      .then(d => setTagMap(d?.tags ?? {}))
+      .catch(() => setTagMap({}));
+  }, [isCartOpen]);
+
   return (
     <AnimatePresence>
       {isCartOpen && (
@@ -191,7 +201,10 @@ export function CartDrawer({ dictionary, lang }: CartDrawerProps) {
                       null;
                     const variantLabel = variantField?.[lang] || variantField?.['ka'] || "";
                     const linePrice = (item.variant?.price || item.product?.price || 0) * item.quantity;
-                    const tint = rowBg((item.product as any)?.tags);
+                    const tags = (item.product as any)?.tags?.length
+                      ? (item.product as any).tags
+                      : tagMap[String(item.product?.id)] ?? [];
+                    const tint = rowBg(tags);
 
                     return (
                       <motion.div
