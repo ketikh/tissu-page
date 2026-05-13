@@ -8,7 +8,17 @@ import { useAuthStore } from "@/store/useAuthStore";
 import { useStoreHydration } from "@/store/useHydration";
 import { formatPrice } from "@/lib/utils";
 import { ChevronLeft, User as UserIcon, CheckCircle2, ShoppingBag, Loader2, Phone, MessageCircle, Mail, Truck, Send } from "lucide-react";
-import { DELIVERY_ZONES, DEFAULT_ZONE_ID, findDeliveryZone, REGION_ORDER, type DeliveryRegion } from "@/lib/delivery-zones";
+import {
+  REGION_OPTIONS,
+  TBILISI_SUB_LABELS,
+  TBILISI_SUB_FEE,
+  PLACE_TYPE_FEE,
+  computeDelivery,
+  type TopArea,
+  type TbilisiSub,
+  type PlaceType,
+  type DeliveryRegion,
+} from "@/lib/delivery-zones";
 import Image from "next/image";
 import { Locale } from "@/i18n/config";
 import { Order } from "@/lib/types";
@@ -107,9 +117,21 @@ export default function CheckoutClient({ lang, dictionary }: CheckoutClientProps
   const { user, isAuthenticated, addOrder } = useAuthStore();
   const { subtotal, total, discountAmount, shipping } = getSummary();
   
-  const [deliveryZoneId, setDeliveryZoneId] = useState<string>(DEFAULT_ZONE_ID);
-  const selectedZone = findDeliveryZone(deliveryZoneId);
-  const deliveryFee = selectedZone?.fee ?? 6;
+  const [deliveryArea, setDeliveryArea] = useState<TopArea>("tbilisi");
+  const [tbilisiSub, setTbilisiSub] = useState<TbilisiSub>("center");
+  const [regionId, setRegionId] = useState<Exclude<DeliveryRegion, "tbilisi" | "rustavi" | "other">>("shida-kartli");
+  const [placeName, setPlaceName] = useState<string>("");
+  const [placeType, setPlaceType] = useState<PlaceType>("city");
+
+  const computedDelivery = computeDelivery({
+    area: deliveryArea,
+    tbilisiSub,
+    regionId,
+    placeName,
+    placeType,
+  });
+  const deliveryFee = computedDelivery.fee;
+
   const [contactMethod, setContactMethod] = useState<"phone" | "whatsapp" | "viber">("phone");
   const [termsAccepted, setTermsAccepted] = useState(false);
   const [isGuest, setIsGuest] = useState(!isAuthenticated);
@@ -157,6 +179,7 @@ export default function CheckoutClient({ lang, dictionary }: CheckoutClientProps
     if (!formData.street) newErrors.street = dictionary.validation.required;
     if (!formData.city) newErrors.city = dictionary.validation.required;
     if (!termsAccepted) newErrors.terms = dictionary.validation.required;
+    if (deliveryArea === "region" && !placeName.trim()) newErrors.placeName = dictionary.validation.required;
 
     setErrors(newErrors);
     return Object.keys(newErrors).length === 0;
@@ -203,11 +226,13 @@ export default function CheckoutClient({ lang, dictionary }: CheckoutClientProps
         },
         contactMethod,
         deliveryMethod: "courier",
-        deliveryZone: selectedZone ? {
-          id: selectedZone.id,
-          label: selectedZone.label,
-          fee: selectedZone.fee,
-        } : null,
+        deliveryZone: {
+          id: deliveryArea === "tbilisi" ? `tbilisi-${tbilisiSub}`
+            : deliveryArea === "rustavi" ? "rustavi"
+            : `${regionId}-${placeType}`,
+          label: computedDelivery.label,
+          fee: computedDelivery.fee,
+        },
         notes: formData.notes || undefined,
         termsAccepted,
         isGuest,
@@ -753,58 +778,212 @@ export default function CheckoutClient({ lang, dictionary }: CheckoutClientProps
                 <span style={{ fontFamily: FRAUNCES, fontSize: 13, fontWeight: 700, letterSpacing: "0.06em", color: C.burnt }}>03</span>
                 {isKa ? "მიწოდების ზონა" : "Delivery zone"}
               </h2>
-              <p style={{ fontFamily: PRICE_FONT, fontSize: 12, color: C.ink, opacity: 0.6, margin: 0, marginLeft: 4 }}>
-                {isKa
-                  ? "აირჩიე უახლოესი ადგილი — საკურიერო ფასი ავტომატურად დაითვლება."
-                  : "Pick the closest place — courier fee is set automatically."}
-              </p>
 
-              <div style={{ display: "flex", flexDirection: "column", gap: 6 }}>
-                <label style={labelStyle}>{isKa ? "ქალაქი / დასახლება" : "City / area"}</label>
-                <select
-                  value={deliveryZoneId}
-                  onChange={(e) => setDeliveryZoneId(e.target.value)}
-                  style={{
-                    ...inputStyle,
-                    padding: "0 16px",
-                    appearance: "auto",
-                    cursor: "pointer",
-                  }}
-                >
-                  {REGION_ORDER.map(region => {
-                    const zonesInRegion = DELIVERY_ZONES.filter(z => z.region === region);
-                    if (zonesInRegion.length === 0) return null;
-                    const groupLabel = zonesInRegion[0].regionLabel[isKa ? "ka" : "en"];
-                    return (
-                      <optgroup key={region} label={groupLabel}>
-                        {zonesInRegion.map(z => (
-                          <option key={z.id} value={z.id}>
-                            {z.label[isKa ? "ka" : "en"]} — {z.fee} ₾
-                          </option>
-                        ))}
-                      </optgroup>
-                    );
-                  })}
-                </select>
+              {/* Top-level area cards */}
+              <div style={{ display: "flex", flexDirection: "column", gap: 10 }}>
+                {(["tbilisi", "rustavi", "region"] as const).map(area => {
+                  const checked = deliveryArea === area;
+                  const title =
+                    area === "tbilisi" ? (isKa ? "თბილისი" : "Tbilisi") :
+                    area === "rustavi" ? (isKa ? "რუსთავი" : "Rustavi") :
+                    (isKa ? "სხვა რეგიონი" : "Another region");
+                  const desc =
+                    area === "tbilisi" ? (isKa ? "6 ₾-დან · უბნის მიხედვით" : "from 6 ₾ · depending on district") :
+                    area === "rustavi" ? "8 ₾" :
+                    (isKa ? "8 / 10 / 12 ₾ · ქალაქი / დაბა / სოფელი" : "8 / 10 / 12 ₾ · city / town / village");
+                  return (
+                    <label
+                      key={area}
+                      onClick={() => setDeliveryArea(area)}
+                      style={{
+                        display: "flex", alignItems: "center", gap: 14,
+                        padding: "14px 16px",
+                        background: checked ? C.softCream : "white",
+                        border: `1.5px solid ${checked ? C.burnt : "rgba(42,29,20,0.12)"}`,
+                        borderRadius: 14, cursor: "pointer",
+                        transition: "background 0.18s ease, border-color 0.18s ease",
+                      }}
+                    >
+                      <span style={{
+                        width: 18, height: 18, borderRadius: "50%",
+                        border: `2px solid ${checked ? C.burnt : "rgba(42,29,20,0.28)"}`,
+                        background: "white",
+                        display: "inline-flex", alignItems: "center", justifyContent: "center",
+                        flexShrink: 0,
+                      }}>
+                        {checked && <span style={{ width: 8, height: 8, borderRadius: "50%", background: C.burnt }} />}
+                      </span>
+                      <Truck size={18} style={{ color: C.ink, opacity: 0.65 }} />
+                      <div style={{ flex: 1, minWidth: 0 }}>
+                        <div style={{ fontFamily: FRAUNCES, fontWeight: 600, fontSize: 15, color: C.ink, lineHeight: 1.25 }}>{title}</div>
+                        <div style={{ fontFamily: PRICE_FONT, fontSize: 12, color: C.ink, opacity: 0.6, marginTop: 2 }}>{desc}</div>
+                      </div>
+                    </label>
+                  );
+                })}
               </div>
 
+              {/* Tbilisi sub-zones */}
+              {deliveryArea === "tbilisi" && (
+                <div style={{
+                  background: C.softCream,
+                  border: `1px solid rgba(42,29,20,0.08)`,
+                  borderRadius: 14,
+                  padding: 14,
+                  display: "flex", flexDirection: "column", gap: 8,
+                }}>
+                  <div style={labelStyle}>{isKa ? "თბილისის ზონა" : "Tbilisi zone"}</div>
+                  {(["center", "outskirts", "villages"] as const).map(sub => {
+                    const checked = tbilisiSub === sub;
+                    const labels = TBILISI_SUB_LABELS[sub];
+                    return (
+                      <label
+                        key={sub}
+                        onClick={() => setTbilisiSub(sub)}
+                        style={{
+                          display: "flex", alignItems: "flex-start", gap: 12,
+                          padding: "10px 12px",
+                          background: checked ? "white" : "transparent",
+                          border: `1.5px solid ${checked ? C.burnt : "rgba(42,29,20,0.10)"}`,
+                          borderRadius: 12, cursor: "pointer",
+                        }}
+                      >
+                        <span style={{
+                          width: 16, height: 16, borderRadius: "50%", marginTop: 2,
+                          border: `2px solid ${checked ? C.burnt : "rgba(42,29,20,0.28)"}`,
+                          background: "white",
+                          display: "inline-flex", alignItems: "center", justifyContent: "center",
+                          flexShrink: 0,
+                        }}>
+                          {checked && <span style={{ width: 7, height: 7, borderRadius: "50%", background: C.burnt }} />}
+                        </span>
+                        <div style={{ flex: 1, minWidth: 0 }}>
+                          <div style={{ fontFamily: FRAUNCES, fontWeight: 600, fontSize: 14, color: C.ink }}>
+                            {labels[isKa ? "ka" : "en"]}
+                          </div>
+                          {labels.hint && (
+                            <div style={{ fontFamily: PRICE_FONT, fontSize: 11, color: C.ink, opacity: 0.55, marginTop: 2, lineHeight: 1.4 }}>
+                              {labels.hint[isKa ? "ka" : "en"]}
+                            </div>
+                          )}
+                        </div>
+                        <span style={{ fontFamily: FRAUNCES, fontWeight: 700, fontSize: 15, color: C.burnt }}>
+                          {TBILISI_SUB_FEE[sub]} ₾
+                        </span>
+                      </label>
+                    );
+                  })}
+                </div>
+              )}
+
+              {/* Region selector — chip row + free-text place + type */}
+              {deliveryArea === "region" && (
+                <div style={{
+                  background: C.softCream,
+                  border: `1px solid rgba(42,29,20,0.08)`,
+                  borderRadius: 14,
+                  padding: 14,
+                  display: "flex", flexDirection: "column", gap: 12,
+                }}>
+                  <div>
+                    <div style={{ ...labelStyle, marginBottom: 8 }}>{isKa ? "რეგიონი" : "Region"}</div>
+                    <div style={{ display: "flex", flexWrap: "wrap", gap: 6 }}>
+                      {REGION_OPTIONS.map(r => {
+                        const active = regionId === r.id;
+                        return (
+                          <button
+                            key={r.id}
+                            type="button"
+                            onClick={() => setRegionId(r.id)}
+                            style={{
+                              fontFamily: FRAUNCES, fontWeight: 600, fontSize: 13,
+                              padding: "8px 14px", borderRadius: 999, cursor: "pointer",
+                              background: active ? C.burnt : "white",
+                              color: active ? C.cream : C.ink,
+                              border: `1.5px solid ${active ? C.burnt : "rgba(42,29,20,0.14)"}`,
+                              transition: "background 0.18s ease, color 0.18s ease",
+                            }}
+                          >
+                            {r.label[isKa ? "ka" : "en"]}
+                          </button>
+                        );
+                      })}
+                    </div>
+                    {(() => {
+                      const r = REGION_OPTIONS.find(x => x.id === regionId);
+                      return r ? (
+                        <p style={{ fontFamily: PRICE_FONT, fontSize: 11, color: C.ink, opacity: 0.55, margin: "8px 4px 0", lineHeight: 1.5 }}>
+                          {r.hint[isKa ? "ka" : "en"]}
+                        </p>
+                      ) : null;
+                    })()}
+                  </div>
+
+                  <div style={{ display: "flex", flexDirection: "column", gap: 6 }}>
+                    <label style={labelStyle}>{isKa ? "ქალაქი / სოფელი (კონკრეტული)" : "Specific city / village"}</label>
+                    <input
+                      placeholder={isKa ? "მაგ.: გორი, ბაკურიანი, აბაშა ..." : "e.g. Gori, Bakuriani, Abasha ..."}
+                      style={errors.placeName ? inputErrorStyle : inputStyle}
+                      value={placeName}
+                      onChange={(e) => setPlaceName(e.target.value)}
+                    />
+                    {errors.placeName && (
+                      <span style={{ fontFamily: PRICE_FONT, fontSize: 11, color: C.rose, marginLeft: 4 }}>
+                        {isKa ? "შეიყვანე დასახლების სახელი" : "Enter the place name"}
+                      </span>
+                    )}
+                  </div>
+
+                  <div>
+                    <div style={{ ...labelStyle, marginBottom: 6 }}>{isKa ? "ტიპი" : "Type"}</div>
+                    <div style={{ display: "flex", gap: 6 }}>
+                      {(["city", "town", "village"] as const).map(t => {
+                        const active = placeType === t;
+                        const label = t === "city" ? (isKa ? "ქალაქი" : "City") : t === "town" ? (isKa ? "დაბა" : "Town") : (isKa ? "სოფელი" : "Village");
+                        return (
+                          <button
+                            key={t}
+                            type="button"
+                            onClick={() => setPlaceType(t)}
+                            style={{
+                              flex: 1,
+                              fontFamily: FRAUNCES, fontWeight: 600, fontSize: 13,
+                              padding: "10px 12px", borderRadius: 12, cursor: "pointer",
+                              background: active ? C.burnt : "white",
+                              color: active ? C.cream : C.ink,
+                              border: `1.5px solid ${active ? C.burnt : "rgba(42,29,20,0.14)"}`,
+                              transition: "background 0.18s ease, color 0.18s ease",
+                              display: "flex", alignItems: "center", justifyContent: "center", gap: 6,
+                            }}
+                          >
+                            <span>{label}</span>
+                            <span style={{ opacity: 0.75, fontSize: 12 }}>{PLACE_TYPE_FEE[t]} ₾</span>
+                          </button>
+                        );
+                      })}
+                    </div>
+                  </div>
+                </div>
+              )}
+
+              {/* Final fee preview */}
               <div style={{
-                background: C.softCream,
-                border: `1px solid rgba(42,29,20,0.08)`,
+                background: "white",
+                border: `1px solid rgba(42,29,20,0.10)`,
                 borderRadius: 12,
                 padding: "12px 14px",
                 display: "flex", gap: 10, alignItems: "center",
               }}>
                 <Truck size={16} style={{ color: C.burnt, flexShrink: 0 }} />
                 <div style={{ flex: 1, minWidth: 0 }}>
-                  <div style={{ fontFamily: FRAUNCES, fontWeight: 600, fontSize: 13, color: C.ink }}>
-                    {selectedZone?.label[isKa ? "ka" : "en"]}
+                  <div style={{ fontFamily: FRAUNCES, fontWeight: 600, fontSize: 13, color: C.ink, lineHeight: 1.35 }}>
+                    {computedDelivery.label[isKa ? "ka" : "en"]}
                   </div>
-                  <div style={{ fontFamily: PRICE_FONT, fontSize: 11, color: C.ink, opacity: 0.6, marginTop: 1 }}>
+                  <div style={{ fontFamily: PRICE_FONT, fontSize: 11, color: C.ink, opacity: 0.55, marginTop: 1 }}>
                     {isKa ? "კურიერით მისამართზე" : "Courier to address"}
                   </div>
                 </div>
-                <span style={{ fontFamily: FRAUNCES, fontWeight: 700, fontSize: 15, color: C.burnt }}>
+                <span style={{ fontFamily: FRAUNCES, fontWeight: 700, fontSize: 16, color: C.burnt, flexShrink: 0 }}>
                   {deliveryFee} ₾
                 </span>
               </div>

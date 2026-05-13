@@ -16,7 +16,9 @@
  */
 
 const TELEGRAM_BOT_TOKEN = process.env.TELEGRAM_BOT_TOKEN;
-const TELEGRAM_ADMIN_CHAT_ID = process.env.TELEGRAM_ADMIN_CHAT_ID;
+// Accept either TELEGRAM_ADMIN_CHAT_ID (preferred) or the simpler
+// TELEGRAM_CHAT_ID name, whichever the env has set.
+const TELEGRAM_ADMIN_CHAT_ID = process.env.TELEGRAM_ADMIN_CHAT_ID || process.env.TELEGRAM_CHAT_ID;
 // Optional comma-separated extra chat ids (e.g. group chat or co-founder).
 const TELEGRAM_EXTRA_CHAT_IDS = (process.env.TELEGRAM_EXTRA_CHAT_IDS || "")
   .split(",")

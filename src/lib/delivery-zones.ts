@@ -203,3 +203,93 @@ export const REGION_ORDER: DeliveryRegion[] = [
 /** Sensible default — most orders are Tbilisi central. */
 export const DEFAULT_ZONE_ID = "tbilisi-center";
 export const DEFAULT_DELIVERY_FEE = 6;
+
+// ─────────────────────────────────────────────────────────────────────────────
+// Stepped delivery selector — the user picks a top-level area, then either a
+// sub-zone (Tbilisi) or a region + free-text place name + type (city/town/
+// village). The fee is derived from those answers.
+
+export type TopArea = "tbilisi" | "rustavi" | "region";
+export type TbilisiSub = "center" | "outskirts" | "villages";
+export type PlaceType = "city" | "town" | "village";
+
+export const TBILISI_SUB_FEE: Record<TbilisiSub, number> = {
+  center: 6,
+  outskirts: 7,
+  villages: 10,
+};
+
+export const PLACE_TYPE_FEE: Record<PlaceType, number> = {
+  city: 8,
+  town: 10,
+  village: 12,
+};
+
+export const TBILISI_SUB_LABELS: Record<TbilisiSub, { ka: string; en: string; hint?: { ka: string; en: string } }> = {
+  center: {
+    ka: "თბილისი (ცენტრალური უბნები)",
+    en: "Tbilisi (central districts)",
+  },
+  outskirts: {
+    ka: "თბილისის გარეუბანი",
+    en: "Tbilisi outskirts",
+    hint: {
+      ka: "ლილო · ზაჰესი · ორხევი · ფონიჭალა · აეროპორტი · ქოშიგორა",
+      en: "Lilo · Zahesi · Orkhevi · Ponichala · Airport · Khoshigora",
+    },
+  },
+  villages: {
+    ka: "თბილისის სოფლები",
+    en: "Tbilisi villages",
+    hint: {
+      ka: "წყნეთი · შინდისი · ტაბახმელა · წავკისი · ოქროყანა",
+      en: "Tskneti · Shindisi · Tabakhmela · Tsavkisi · Okroyana",
+    },
+  },
+};
+
+export const REGION_OPTIONS: { id: Exclude<DeliveryRegion, "tbilisi" | "rustavi" | "other">; label: { ka: string; en: string }; hint: { ka: string; en: string } }[] = [
+  { id: "shida-kartli",      label: { ka: "შიდა ქართლი",        en: "Shida Kartli" },        hint: { ka: "მცხეთა · გორი · კასპი · ქარელი · ხაშური · სურამი",                                              en: "Mtskheta · Gori · Kaspi · Kareli · Khashuri · Surami" } },
+  { id: "kakheti",           label: { ka: "კახეთი",             en: "Kakheti" },             hint: { ka: "თელავი · გურჯაანი · სიღნაღი · ყვარელი · ლაგოდეხი · საგარეჯო · ახმეტა",                              en: "Telavi · Gurjaani · Sighnaghi · Kvareli · Lagodekhi · Sagarejo · Akhmeta" } },
+  { id: "imereti",           label: { ka: "იმერეთი",            en: "Imereti" },             hint: { ka: "ქუთაისი · ზესტაფონი · ბაღდათი · თერჯოლა · საჩხერე · ჭიათურა · სამტრედია · ხონი · წყალტუბო",       en: "Kutaisi · Zestaponi · Baghdati · Terjola · Sachkhere · Chiatura · Samtredia · Khoni · Tskaltubo" } },
+  { id: "samegrelo",         label: { ka: "სამეგრელო",          en: "Samegrelo" },           hint: { ka: "ზუგდიდი · ფოთი · სენაკი · აბაშა · ხობი · მარტვილი · წალენჯიხა · ჩხოროწყუ",                       en: "Zugdidi · Poti · Senaki · Abasha · Khobi · Martvili · Tsalenjikha · Chkhorotsku" } },
+  { id: "guria",             label: { ka: "გურია",              en: "Guria" },               hint: { ka: "ოზურგეთი · ჩოხატაური · ლანჩხუთი · ქობულეთი",                                                      en: "Ozurgeti · Chokhatauri · Lanchkhuti · Kobuleti" } },
+  { id: "samtskhe-javakheti",label: { ka: "სამცხე-ჯავახეთი",    en: "Samtskhe-Javakheti" },  hint: { ka: "ბორჯომი · ახალციხე · ბაკურიანი · ადიგენი · აბასთუმანი · ვალე",                                  en: "Borjomi · Akhaltsikhe · Bakuriani · Adigeni · Abastumani · Vale" } },
+  { id: "adjara-kvemo",      label: { ka: "აჭარა · ქვემო ქართლი", en: "Adjara · Kvemo Kartli" }, hint: { ka: "ბათუმი · ხელვაჩაური · მარნეული · ბოლნისი · გარდაბანი · თეთრიწყარო",                              en: "Batumi · Khelvachauri · Marneuli · Bolnisi · Gardabani · Tetritskaro" } },
+];
+
+export interface ComputedDeliverySelection {
+  fee: number;
+  label: { ka: string; en: string };
+}
+
+export function computeDelivery(input: {
+  area: TopArea;
+  tbilisiSub?: TbilisiSub;
+  regionId?: DeliveryRegion;
+  placeName?: string;
+  placeType?: PlaceType;
+}): ComputedDeliverySelection {
+  if (input.area === "tbilisi") {
+    const sub = input.tbilisiSub || "center";
+    const labels = TBILISI_SUB_LABELS[sub];
+    return { fee: TBILISI_SUB_FEE[sub], label: { ka: labels.ka, en: labels.en } };
+  }
+  if (input.area === "rustavi") {
+    return { fee: 8, label: { ka: "რუსთავი", en: "Rustavi" } };
+  }
+  // Region — fee comes from place type (city/town/village)
+  const type = input.placeType || "city";
+  const region = REGION_OPTIONS.find(r => r.id === input.regionId);
+  const regionLabel = region?.label || { ka: "სხვა რეგიონი", en: "Other region" };
+  const placeName = (input.placeName || "").trim();
+  const typeLabelKa = type === "city" ? "ქალაქი" : type === "town" ? "დაბა" : "სოფელი";
+  const typeLabelEn = type === "city" ? "city"   : type === "town" ? "town" : "village";
+  return {
+    fee: PLACE_TYPE_FEE[type],
+    label: {
+      ka: `${regionLabel.ka}${placeName ? ` — ${placeName}` : ""} (${typeLabelKa})`,
+      en: `${regionLabel.en}${placeName ? ` — ${placeName}` : ""} (${typeLabelEn})`,
+    },
+  };
+}

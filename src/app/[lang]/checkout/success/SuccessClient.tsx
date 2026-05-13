@@ -83,6 +83,7 @@ export default function SuccessClient({ lang, orderId }: SuccessClientProps) {
   const addr = order?.shippingAddress as any;
   const contactMethod: string | undefined = addr?.contactMethod;
   const deliveryMethod: string | undefined = addr?.deliveryMethod;
+  const deliveryZone: { label?: { ka: string; en: string }; fee?: number } | undefined = addr?.deliveryZone;
   const notes: string | undefined = addr?.notes;
   const email: string | undefined = addr?.email;
 
@@ -344,10 +345,17 @@ export default function SuccessClient({ lang, orderId }: SuccessClientProps) {
                   {isKa ? "დადასტურების მოლოდინში" : "Pending confirmation"}
                 </span>
 
-                {deliveryMethod && (
-                  <p style={{ fontFamily: SANS, fontSize: 13, color: C.ink, opacity: 0.75, margin: "12px 0 0", display: "flex", alignItems: "center", gap: 6 }}>
-                    <Package size={13} />
-                    {DELIVERY_LABEL[deliveryMethod]?.[isKa ? "ka" : "en"] || deliveryMethod}
+                {(deliveryZone || deliveryMethod) && (
+                  <p style={{ fontFamily: SANS, fontSize: 13, color: C.ink, opacity: 0.85, margin: "12px 0 0", display: "flex", alignItems: "flex-start", gap: 6, lineHeight: 1.45 }}>
+                    <Package size={13} style={{ marginTop: 3, flexShrink: 0 }} />
+                    <span>
+                      {deliveryZone?.label?.[isKa ? "ka" : "en"] || (deliveryMethod ? DELIVERY_LABEL[deliveryMethod]?.[isKa ? "ka" : "en"] : "")}
+                      {deliveryZone?.fee != null && (
+                        <span style={{ color: C.burnt, fontWeight: 700, marginLeft: 6 }}>
+                          · {deliveryZone.fee} ₾
+                        </span>
+                      )}
+                    </span>
                   </p>
                 )}
                 {contactMethod && (
@@ -368,16 +376,36 @@ export default function SuccessClient({ lang, orderId }: SuccessClientProps) {
               </div>
             )}
 
-            <div className="flex items-baseline justify-between" style={{ paddingTop: 18, marginTop: 18, borderTop: `1px solid rgba(42,29,20,0.10)` }}>
-              <span style={{ fontFamily: FRAUNCES, fontWeight: 700, fontSize: 16, color: C.ink }}>
-                {isKa ? "სავარაუდო ჯამი" : "Estimated total"}
-              </span>
-              <span style={{ fontFamily: FRAUNCES, fontWeight: 700, fontSize: 24, color: C.ink }}>
-                {formatPrice(order.total)}
-              </span>
+            <div style={{ paddingTop: 18, marginTop: 18, borderTop: `1px solid rgba(42,29,20,0.10)`, display: "flex", flexDirection: "column", gap: 8 }}>
+              <div style={{ display: "flex", justifyContent: "space-between", fontFamily: SANS, fontSize: 13, color: C.ink, opacity: 0.75 }}>
+                <span>{isKa ? "ნივთები" : "Subtotal"}</span>
+                <span style={{ fontWeight: 600 }}>{formatPrice(order.subtotal)}</span>
+              </div>
+              <div style={{ display: "flex", justifyContent: "space-between", fontFamily: SANS, fontSize: 13, color: C.ink, opacity: 0.85 }}>
+                <span>{isKa ? "კურიერი" : "Courier delivery"}</span>
+                <span style={{ fontWeight: 700, color: C.burnt }}>
+                  {formatPrice(order.shipping)}
+                </span>
+              </div>
+              {order.discount > 0 && (
+                <div style={{ display: "flex", justifyContent: "space-between", fontFamily: SANS, fontSize: 13, color: C.green, fontWeight: 600 }}>
+                  <span>{isKa ? "ფასდაკლება" : "Discount"}</span>
+                  <span>−{order.discount}%</span>
+                </div>
+              )}
+              <div className="flex items-baseline justify-between" style={{ paddingTop: 8, borderTop: `1px dashed rgba(42,29,20,0.14)` }}>
+                <span style={{ fontFamily: FRAUNCES, fontWeight: 700, fontSize: 16, color: C.ink }}>
+                  {isKa ? "ჯამი" : "Total"}
+                </span>
+                <span style={{ fontFamily: FRAUNCES, fontWeight: 700, fontSize: 24, color: C.ink }}>
+                  {formatPrice(order.total)}
+                </span>
+              </div>
             </div>
-            <p style={{ fontFamily: SANS, fontSize: 11, color: C.ink, opacity: 0.55, margin: "6px 0 0", textAlign: "right" }}>
-              {isKa ? "საბოლოო თანხა დადასტურდება მიწოდების ფასის შემთანხმების შემდეგ." : "Final total confirmed once delivery is agreed."}
+            <p style={{ fontFamily: SANS, fontSize: 11, color: C.ink, opacity: 0.55, margin: "8px 0 0", textAlign: "right" }}>
+              {isKa
+                ? "გადახდის დეტალები (გადარიცხვა ან ნაღდი) დადასტურდება ჩვენთან დაკავშირებისას."
+                : "Payment details (transfer or cash) confirmed when we get in touch."}
             </p>
           </div>
         )}
