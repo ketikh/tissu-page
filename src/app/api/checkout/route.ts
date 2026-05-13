@@ -2,6 +2,7 @@ import { NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
 import { createClient } from "@/lib/supabase/server";
 import { notifyAdminNewOrder } from "@/lib/notifications";
+import { fetchStorefrontProducts } from "@/lib/admin-api";
 
 /**
  * Manual order intake. No online payment is taken here — Tissu reaches out
@@ -122,28 +123,45 @@ export async function POST(req: Request) {
       include: { items: true },
     });
 
-    // Fire-and-forget admin notification — never block the response on it.
-    notifyAdminNewOrder({
-      orderId: order.id,
-      customer: {
-        firstName: customer.firstName,
-        lastName: customer.lastName,
-        phone: customer.phone,
-        email: customer.email,
-      },
-      contactMethod,
-      deliveryZone: deliveryZone || undefined,
-      address: { city: shippingAddress.city, street: shippingAddress.streetAddress },
-      items: items.map(i => ({
-        name: typeof i.productName === "object" ? (i.productName as any)?.ka || (i.productName as any)?.en || "" : String(i.productName || ""),
-        quantity: i.quantity,
-        price: i.price,
-      })),
-      subtotal: subtotal ?? 0,
-      shipping: shipping ?? 0,
-      total: total ?? 0,
-      notes: notes,
-    }).catch(err => console.error("[checkout] admin notify failed:", err));
+    // Enrich items with admin product code + image so the Telegram message
+    // can show the SKU and a photo of each bag. Lookup is best-effort.
+    (async () => {
+      try {
+        const adminProducts = await fetchStorefrontProducts();
+        const lookup = new Map(adminProducts.map(p => [String(p.id), { code: p.code, image: p.image_front }]));
+
+        await notifyAdminNewOrder({
+          orderId: order.id,
+          customer: {
+            firstName: customer.firstName,
+            lastName: customer.lastName,
+            phone: customer.phone,
+            email: customer.email,
+          },
+          contactMethod,
+          deliveryZone: deliveryZone || undefined,
+          address: { city: shippingAddress.city, street: shippingAddress.streetAddress },
+          items: items.map(i => {
+            const meta = lookup.get(String(i.productId));
+            return {
+              name: typeof i.productName === "object"
+                ? (i.productName as any)?.ka || (i.productName as any)?.en || ""
+                : String(i.productName || ""),
+              code: meta?.code,
+              image: meta?.image || i.image,
+              quantity: i.quantity,
+              price: i.price,
+            };
+          }),
+          subtotal: subtotal ?? 0,
+          shipping: shipping ?? 0,
+          total: total ?? 0,
+          notes: notes,
+        });
+      } catch (err) {
+        console.error("[checkout] admin notify failed:", err);
+      }
+    })();
 
     return NextResponse.json({ order }, { status: 201 });
   } catch (error) {

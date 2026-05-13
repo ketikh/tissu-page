@@ -35,7 +35,7 @@ interface OrderNotification {
   contactMethod: string;
   deliveryZone?: { id: string; label: { ka: string; en: string }; fee: number };
   address: { city: string; street: string };
-  items: { name: string; quantity: number; price: number }[];
+  items: { name: string; code?: string; image?: string; quantity: number; price: number }[];
   subtotal: number;
   shipping: number;
   total: number;
@@ -64,7 +64,8 @@ function buildMessage(o: OrderNotification): string {
   lines.push("");
   lines.push(`🛒 ნივთები`);
   for (const item of o.items) {
-    lines.push(`• ${item.name} × ${item.quantity} — ${item.price * item.quantity} ₾`);
+    const codePart = item.code ? `[${item.code}] ` : "";
+    lines.push(`• ${codePart}${item.name} × ${item.quantity} — ${item.price * item.quantity} ₾`);
   }
   lines.push("");
   lines.push(`Subtotal: ${o.subtotal} ₾`);
@@ -95,6 +96,51 @@ async function sendToTelegram(chatId: string, text: string): Promise<void> {
   }
 }
 
+/** Telegram's sendMediaGroup accepts 2–10 photos. For a single photo we have
+ *  to use sendPhoto instead. */
+async function sendPhotos(chatId: string, photos: { url: string; caption?: string }[]): Promise<void> {
+  if (!TELEGRAM_BOT_TOKEN || photos.length === 0) return;
+  const cleaned = photos.filter(p => /^https?:\/\//i.test(p.url));
+  if (cleaned.length === 0) return;
+
+  if (cleaned.length === 1) {
+    const res = await fetch(`https://api.telegram.org/bot${TELEGRAM_BOT_TOKEN}/sendPhoto`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        chat_id: chatId,
+        photo: cleaned[0].url,
+        caption: cleaned[0].caption || undefined,
+      }),
+    });
+    if (!res.ok) {
+      const detail = await res.text().catch(() => "");
+      throw new Error(`Telegram sendPhoto ${res.status}: ${detail.slice(0, 200)}`);
+    }
+    return;
+  }
+
+  // sendMediaGroup — up to 10 per call
+  const chunks: typeof cleaned[] = [];
+  for (let i = 0; i < cleaned.length; i += 10) chunks.push(cleaned.slice(i, i + 10));
+  for (const chunk of chunks) {
+    const media = chunk.map((p, i) => ({
+      type: "photo",
+      media: p.url,
+      ...(i === 0 && p.caption ? { caption: p.caption } : {}),
+    }));
+    const res = await fetch(`https://api.telegram.org/bot${TELEGRAM_BOT_TOKEN}/sendMediaGroup`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ chat_id: chatId, media }),
+    });
+    if (!res.ok) {
+      const detail = await res.text().catch(() => "");
+      throw new Error(`Telegram sendMediaGroup ${res.status}: ${detail.slice(0, 200)}`);
+    }
+  }
+}
+
 export async function notifyAdminNewOrder(order: OrderNotification): Promise<void> {
   if (!TELEGRAM_BOT_TOKEN || !TELEGRAM_CHAT_ID) {
     console.warn("[notify] Telegram not configured — bot token or chat id missing.");
@@ -103,15 +149,25 @@ export async function notifyAdminNewOrder(order: OrderNotification): Promise<voi
   console.log(`[notify] sending order ${order.orderId} to Telegram chat ${TELEGRAM_CHAT_ID}`);
   const text = buildMessage(order);
   const targets = [TELEGRAM_CHAT_ID, ...TELEGRAM_EXTRA_CHAT_IDS];
-  const results = await Promise.all(
-    targets.map(chatId =>
-      sendToTelegram(chatId, text)
-        .then(() => ({ chatId, ok: true as const }))
-        .catch(err => ({ chatId, ok: false as const, err })),
-    ),
-  );
-  for (const r of results) {
-    if (r.ok) console.log(`[notify] sent to ${r.chatId}`);
-    else console.error(`[notify] send to ${r.chatId} failed:`, r.err);
+
+  // Collect product photos that have a URL — Telegram needs publicly fetchable URLs.
+  const photos = order.items
+    .filter(i => i.image && /^https?:\/\//i.test(i.image))
+    .map(i => ({
+      url: i.image!,
+      caption: `[${i.code || ""}] ${i.name} × ${i.quantity}`.trim(),
+    }));
+
+  for (const chatId of targets) {
+    try {
+      await sendToTelegram(chatId, text);
+      console.log(`[notify] sent text to ${chatId}`);
+      if (photos.length > 0) {
+        await sendPhotos(chatId, photos);
+        console.log(`[notify] sent ${photos.length} photo(s) to ${chatId}`);
+      }
+    } catch (err) {
+      console.error(`[notify] send to ${chatId} failed:`, err);
+    }
   }
 }
