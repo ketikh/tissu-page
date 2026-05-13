@@ -76,12 +76,14 @@ export async function middleware(request: NextRequest) {
     return NextResponse.redirect(loginUrl);
   }
 
-  // Extra check for /admin/* — must be in ADMIN_EMAILS allow-list.
+  // Extra check for /admin/* — must be in ADMIN_EMAILS allow-list. If the
+  // env var isn't configured, deny by default (safer than letting any logged-
+  // in account stumble into the admin).
   const isAdminRoute = pathWithoutLocale === "/admin" || pathWithoutLocale.startsWith("/admin/");
   if (isAdminRoute && user) {
     const email = (user.email || "").toLowerCase();
-    if (ADMIN_EMAILS.length > 0 && !ADMIN_EMAILS.includes(email)) {
-      // Logged in but not an admin — send to the home page.
+    const isAdmin = ADMIN_EMAILS.length > 0 && ADMIN_EMAILS.includes(email);
+    if (!isAdmin) {
       return NextResponse.redirect(new URL(`/${locale}`, request.url));
     }
   }

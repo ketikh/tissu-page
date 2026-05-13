@@ -13,10 +13,8 @@ async function assertAdmin() {
   const { data: { user } } = await supabase.auth.getUser();
   if (!user) return { user: null, ok: false } as const;
   const email = (user.email || "").toLowerCase();
-  if (ADMIN_EMAILS.length > 0 && !ADMIN_EMAILS.includes(email)) {
-    return { user, ok: false } as const;
-  }
-  return { user, ok: true } as const;
+  const isAdmin = ADMIN_EMAILS.length > 0 && ADMIN_EMAILS.includes(email);
+  return { user, ok: isAdmin } as const;
 }
 
 const VALID_STATUSES = new Set([

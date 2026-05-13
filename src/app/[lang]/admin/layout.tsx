@@ -29,7 +29,7 @@ export default async function AdminLayout({
   }
 
   const email = (user.email || "").toLowerCase();
-  const isAdmin = ADMIN_EMAILS.length === 0 || ADMIN_EMAILS.includes(email);
+  const isAdmin = ADMIN_EMAILS.length > 0 && ADMIN_EMAILS.includes(email);
   if (!isAdmin) {
     redirect(`/${locale}`);
   }

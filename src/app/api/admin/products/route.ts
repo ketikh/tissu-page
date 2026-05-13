@@ -12,7 +12,7 @@ async function assertAdmin() {
   const { data: { user } } = await supabase.auth.getUser();
   if (!user) return false;
   const email = (user.email || "").toLowerCase();
-  return ADMIN_EMAILS.length === 0 || ADMIN_EMAILS.includes(email);
+  return ADMIN_EMAILS.length > 0 && ADMIN_EMAILS.includes(email);
 }
 
 /** PATCH /api/admin/products  { id, stock?, price?, tags?, color? }
