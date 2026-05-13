@@ -1,60 +1,95 @@
 "use client";
 
 import Link from "next/link";
-import { Button } from "@/components/ui/Button";
-import { XCircle, ArrowLeft, MessageCircle, AlertTriangle } from "lucide-react";
+import { AlertCircle, ArrowLeft, MessageCircle } from "lucide-react";
 import { Locale } from "@/i18n/config";
+
+const FRAUNCES = "var(--font-alk-life), var(--font-fraunces), 'Fraunces', Georgia, serif";
+const SANS = "system-ui, -apple-system, 'Segoe UI', sans-serif";
+const C = { cream: "#fef0d6", ink: "#2a1d14", burnt: "#d56826", mustard: "#f3b62b", rose: "#c4849a" };
 
 interface FailedClientProps {
   lang: Locale;
-  dictionary: any;
+  dictionary?: any;
 }
 
-export default function FailedClient({ lang, dictionary }: FailedClientProps) {
+export default function FailedClient({ lang }: FailedClientProps) {
+  const isKa = lang === "ka";
   return (
-    <div className="bg-[#fcfbf9] min-h-screen py-16 px-4 flex flex-col items-center justify-center">
-      <div className="container max-w-2xl mx-auto text-center">
-        
-        <div className="animate-in fade-in zoom-in duration-700">
-          <div className="w-24 h-24 bg-destructive shadow-xl shadow-destructive/20 rounded-full flex items-center justify-center text-white mx-auto mb-8">
-            <XCircle className="w-12 h-12" />
-          </div>
-          <h1 className="text-4xl md:text-5xl font-serif text-brand-dark mb-4 tracking-tight">
-            {dictionary.orderStatus.failed.title}
-          </h1>
-          <p className="text-muted-foreground text-lg max-w-lg mx-auto leading-relaxed mb-6">
-            {dictionary.orderStatus.failed.subtitle}
-          </p>
-          
-          <div className="bg-destructive/5 py-4 px-6 rounded-2xl flex items-center gap-3 w-fit mx-auto border border-destructive/10 mb-12">
-            <AlertTriangle className="w-4 h-4 text-destructive" />
-            <p className="text-sm font-bold text-destructive">
-              {dictionary.orderStatus.failed.reason} {lang === 'ka' ? 'ტრანზაქცია უარყოფილია ბანკის მიერ.' : 'Transaction declined by issuer.'}
-            </p>
-          </div>
-        </div>
-
-        {/* Action Buttons */}
-        <div className="flex flex-col sm:flex-row gap-4 justify-center items-center">
-          <Button asChild variant="premium" size="lg" className="h-16 px-10 rounded-2xl shadow-xl shadow-brand-dark/5 w-full sm:w-auto">
-            <Link href={`/${lang}/checkout`} className="flex items-center justify-center gap-2">
-              <ArrowLeft className="w-5 h-5" />
-              {dictionary.orderStatus.failed.retry}
-            </Link>
-          </Button>
-          
-          <Button asChild variant="outline" size="lg" className="h-16 px-10 rounded-2xl bg-white border-border/80 hover:bg-brand-soft/50 w-full sm:w-auto group">
-            <Link href={`/${lang}/contact`} className="flex items-center justify-center gap-2">
-              <MessageCircle className="w-5 h-5" />
-              {dictionary.orderStatus.failed.support}
-            </Link>
-          </Button>
-        </div>
-
-        <p className="mt-12 text-xs font-medium text-muted-foreground">
-          {lang === 'ka' ? 'გჭირდებათ დახმარება? მოგვწერეთ info@tissu.ge' : 'Need help? Email us at info@tissu.ge'}
+    <div
+      style={{
+        background: "#fffcf5",
+        backgroundImage: "radial-gradient(rgba(243,182,43,0.10) 1.4px, transparent 1.4px)",
+        backgroundSize: "26px 26px",
+        position: "relative",
+        overflow: "hidden",
+        padding: "60px 16px 80px",
+        minHeight: "60vh",
+        display: "flex", alignItems: "center", justifyContent: "center",
+      }}
+    >
+      <div className="container max-w-xl mx-auto" style={{ textAlign: "center" }}>
+        <span
+          aria-hidden="true"
+          style={{
+            width: 80, height: 80, borderRadius: "50%",
+            background: `${C.rose}1f`, color: C.rose,
+            display: "inline-flex", alignItems: "center", justifyContent: "center",
+            marginBottom: 22,
+          }}
+        >
+          <AlertCircle size={36} />
+        </span>
+        <h1 style={{
+          fontFamily: FRAUNCES, fontWeight: 700,
+          fontSize: "clamp(26px, 4vw, 38px)",
+          color: C.ink, letterSpacing: "-0.01em",
+          lineHeight: 1.15,
+          margin: "0 0 12px",
+        }}>
+          {isKa ? "შეკვეთის გაგზავნა ვერ მოხერხდა" : "We couldn't send your order"}
+        </h1>
+        <p style={{
+          fontFamily: SANS, fontSize: 15,
+          color: C.ink, opacity: 0.7, lineHeight: 1.6,
+          maxWidth: 440, margin: "0 auto 28px",
+        }}>
+          {isKa
+            ? "შეიძლება ქსელის პრობლემაა. ცადე ხელახლა — შენი მონაცემები არსად არ წავსულა, არცერთი თანხა არ ჩამოგვირიცხავს."
+            : "Probably a network hiccup. Try again — your details weren't sent anywhere yet and no money has been taken."}
         </p>
 
+        <div className="flex flex-col sm:flex-row gap-3 justify-center items-center">
+          <Link
+            href={`/${lang}/checkout`}
+            style={{
+              display: "inline-flex", alignItems: "center", justifyContent: "center", gap: 8,
+              fontFamily: FRAUNCES, fontWeight: 600, fontSize: 14, letterSpacing: "0.02em",
+              background: C.burnt, color: C.cream,
+              borderRadius: 14, padding: "14px 24px",
+              textDecoration: "none",
+            }}
+            className="hover:-translate-y-0.5"
+          >
+            <ArrowLeft size={16} />
+            {isKa ? "ხელახლა ცდა" : "Try again"}
+          </Link>
+          <Link
+            href={`/${lang}/contact`}
+            style={{
+              display: "inline-flex", alignItems: "center", justifyContent: "center", gap: 8,
+              fontFamily: FRAUNCES, fontWeight: 600, fontSize: 14, letterSpacing: "0.02em",
+              background: "transparent", color: C.ink,
+              border: `1.5px solid rgba(42,29,20,0.18)`,
+              borderRadius: 14, padding: "14px 24px",
+              textDecoration: "none",
+            }}
+            className="hover:bg-[rgba(42,29,20,0.04)]"
+          >
+            <MessageCircle size={16} />
+            {isKa ? "მოგვწერე" : "Contact us"}
+          </Link>
+        </div>
       </div>
     </div>
   );

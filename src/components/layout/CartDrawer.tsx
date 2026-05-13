@@ -352,15 +352,17 @@ export function CartDrawer({ dictionary, lang }: CartDrawerProps) {
                     }}
                     className="hover:-translate-y-0.5"
                   >
-                    {dictionary.cartDrawer.checkout}
+                    {isKa ? "შეკვეთის გაგზავნა" : "Place order request"}
                     <span aria-hidden="true">→</span>
                   </Link>
                 </div>
                 <p style={{
-                  fontFamily: PRICE_FONT, fontSize: 11, color: C.ink, opacity: 0.45,
-                  textAlign: "center", margin: "12px 0 0 0",
+                  fontFamily: PRICE_FONT, fontSize: 11, color: C.ink, opacity: 0.55,
+                  textAlign: "center", margin: "12px 0 0 0", lineHeight: 1.5,
                 }}>
-                  {dictionary.cartDrawer.secure}
+                  {isKa
+                    ? "ონლაინ გადახდა არ გჭირდება — დაგიკავშირდებით დასადასტურებლად."
+                    : "No online payment — we'll contact you to confirm."}
                 </p>
               </div>
             )}

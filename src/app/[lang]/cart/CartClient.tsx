@@ -592,16 +592,18 @@ export default function CartClient({ dictionary, lang }: CartClientProps) {
               }}
               className="hover:-translate-y-0.5"
             >
-              {isKa ? "გადახდა" : "Checkout"}
+              {isKa ? "შეკვეთის გაგზავნა" : "Place order request"}
               <span aria-hidden="true">→</span>
             </Link>
 
             {/* Trust note */}
             <p style={{
-              fontFamily: PRICE_FONT, fontSize: 12, color: C.ink, opacity: 0.5,
-              textAlign: "center", marginTop: 14, marginBottom: 0,
+              fontFamily: PRICE_FONT, fontSize: 12, color: C.ink, opacity: 0.55,
+              textAlign: "center", marginTop: 14, marginBottom: 0, lineHeight: 1.5,
             }}>
-              {isKa ? "უსაფრთხო გადახდა · ხელნაკეთი თბილისში" : "Secure checkout · Handmade in Tbilisi"}
+              {isKa
+                ? "ონლაინ გადახდა არ გჭირდება — დაგიკავშირდებით დასადასტურებლად."
+                : "No online payment — we'll contact you to confirm."}
             </p>
           </div>
         </div>

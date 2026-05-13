@@ -7,7 +7,17 @@ import { useCartStore } from "@/store/useCartStore";
 import { useAuthStore } from "@/store/useAuthStore";
 import { useStoreHydration } from "@/store/useHydration";
 import { formatPrice } from "@/lib/utils";
-import { ChevronLeft, Lock, User as UserIcon, CheckCircle2, CreditCard, Wallet, ShoppingBag, Loader2 } from "lucide-react";
+import { ChevronLeft, User as UserIcon, CheckCircle2, ShoppingBag, Loader2, Phone, MessageCircle, Mail, Truck, Store, Send } from "lucide-react";
+
+function InstagramIcon({ size = 18 }: { size?: number }) {
+  return (
+    <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+      <rect x="2" y="2" width="20" height="20" rx="5" ry="5" />
+      <path d="M16 11.37A4 4 0 1 1 12.63 8 4 4 0 0 1 16 11.37z" />
+      <line x1="17.5" y1="6.5" x2="17.5" y2="6.5" />
+    </svg>
+  );
+}
 import Image from "next/image";
 import { Locale } from "@/i18n/config";
 import { Order } from "@/lib/types";
@@ -106,13 +116,15 @@ export default function CheckoutClient({ lang, dictionary }: CheckoutClientProps
   const { user, isAuthenticated, addOrder } = useAuthStore();
   const { subtotal, total, discountAmount, shipping } = getSummary();
   
-  const [shippingMethod, setShippingMethod] = useState("standard");
-  const [paymentMethod, setPaymentMethod] = useState("card");
+  const [deliveryMethod, setDeliveryMethod] = useState<"courier" | "pickup">("courier");
+  const [contactMethod, setContactMethod] = useState<"phone" | "whatsapp" | "messenger" | "instagram">("phone");
+  const [termsAccepted, setTermsAccepted] = useState(false);
   const [isGuest, setIsGuest] = useState(!isAuthenticated);
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [submitError, setSubmitError] = useState<string | null>(null);
   const [errors, setErrors] = useState<Record<string, string>>({});
 
-  // Form State
+  // Form State — email is optional
   const [formData, setFormData] = useState({
     email: "",
     phone: "",
@@ -120,8 +132,7 @@ export default function CheckoutClient({ lang, dictionary }: CheckoutClientProps
     lastName: "",
     street: "",
     city: "Tbilisi",
-    postal: "",
-    notes: ""
+    notes: "",
   });
 
   // Auto-fill if authenticated
@@ -135,8 +146,7 @@ export default function CheckoutClient({ lang, dictionary }: CheckoutClientProps
         lastName: user.lastName,
         street: defaultAddr?.streetAddress || "",
         city: defaultAddr?.city || "Tbilisi",
-        postal: "",
-        notes: ""
+        notes: "",
       });
       setIsGuest(false);
     }
@@ -144,22 +154,23 @@ export default function CheckoutClient({ lang, dictionary }: CheckoutClientProps
 
   const validateForm = () => {
     const newErrors: Record<string, string> = {};
-    if (!formData.email) newErrors.email = dictionary.validation.required;
     if (!formData.phone) newErrors.phone = dictionary.validation.required;
     if (!formData.firstName) newErrors.firstName = dictionary.validation.required;
     if (!formData.lastName) newErrors.lastName = dictionary.validation.required;
     if (!formData.street) newErrors.street = dictionary.validation.required;
     if (!formData.city) newErrors.city = dictionary.validation.required;
-    
+    if (!termsAccepted) newErrors.terms = dictionary.validation.required;
+
     setErrors(newErrors);
     return Object.keys(newErrors).length === 0;
   };
 
-  const handlePay = async () => {
+  const handleSubmitOrder = async () => {
+    setSubmitError(null);
     if (!validateForm()) return;
 
     setIsSubmitting(true);
-    
+
     try {
       const orderPayloadItems = items.map(i => {
         const variantField =
@@ -173,7 +184,7 @@ export default function CheckoutClient({ lang, dictionary }: CheckoutClientProps
           price: i.variant?.price || i.product.price,
           productName: i.product.name,
           variantName: variantField,
-          image: i.product.images[0]
+          image: i.product.images[0],
         };
       });
 
@@ -183,50 +194,53 @@ export default function CheckoutClient({ lang, dictionary }: CheckoutClientProps
         shipping,
         discount,
         total,
-        shippingAddress: {
+        customer: {
           firstName: formData.firstName,
           lastName: formData.lastName,
+          phone: formData.phone,
+          email: formData.email || undefined,
+        },
+        shippingAddress: {
           streetAddress: formData.street,
           city: formData.city,
-          phone: formData.phone
         },
-        paymentMethod: paymentMethod as string,
-        isGuest
+        contactMethod,
+        deliveryMethod,
+        notes: formData.notes || undefined,
+        termsAccepted,
+        isGuest,
       };
 
       const response = await fetch("/api/checkout", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(payload)
+        body: JSON.stringify(payload),
       });
 
-      if (!response.ok) throw new Error("Checkout failed");
+      const data = await response.json().catch(() => ({}));
+      if (!response.ok) {
+        throw new Error(data?.error || (isKa ? "შეკვეთის გაგზავნა ვერ მოხერხდა" : "Could not submit the order"));
+      }
 
-      const data = await response.json();
       const newOrder = data.order;
-      
       const formattedOrder: Order = {
         ...newOrder,
         shippingAddress: JSON.parse(newOrder.shippingAddress),
         items: newOrder.items.map((i: any) => ({
           ...i,
           productName: JSON.parse(i.productName),
-          variantName: JSON.parse(i.variantName)
-        }))
+          variantName: JSON.parse(i.variantName),
+        })),
       };
 
-      if (isAuthenticated) {
-        addOrder(formattedOrder);
-      }
-
+      if (isAuthenticated) addOrder(formattedOrder);
       clearCart();
       router.push(`/${lang}/checkout/success?orderId=${newOrder.id}`);
     } catch (err) {
       console.error(err);
-      router.push(`/${lang}/checkout/failed`);
+      setSubmitError(err instanceof Error ? err.message : (isKa ? "შეცდომა გაგზავნისას" : "Submission error"));
+      setIsSubmitting(false);
     }
-    
-    setIsSubmitting(false);
   };
 
   const isKa = lang === "ka";
@@ -639,19 +653,9 @@ export default function CheckoutClient({ lang, dictionary }: CheckoutClientProps
               </h2>
               <div className="grid md:grid-cols-2 gap-4">
                 <div style={{ display: "flex", flexDirection: "column", gap: 6 }}>
-                  <label style={labelStyle}>{dictionary.checkout.email}</label>
-                  <input
-                    type="email"
-                    placeholder="hello@example.com"
-                    style={errors.email ? inputErrorStyle : inputStyle}
-                    value={formData.email}
-                    onChange={(e) => setFormData({ ...formData, email: e.target.value })}
-                    disabled={isAuthenticated}
-                  />
-                  {errors.email && <span style={{ fontFamily: PRICE_FONT, fontSize: 11, color: C.rose, marginLeft: 4 }}>{errors.email}</span>}
-                </div>
-                <div style={{ display: "flex", flexDirection: "column", gap: 6 }}>
-                  <label style={labelStyle}>{dictionary.checkout.phone}</label>
+                  <label style={labelStyle}>
+                    {dictionary.checkout.phone}
+                  </label>
                   <input
                     type="tel"
                     placeholder="+995 5XX XXX XXX"
@@ -660,6 +664,22 @@ export default function CheckoutClient({ lang, dictionary }: CheckoutClientProps
                     onChange={(e) => setFormData({ ...formData, phone: e.target.value })}
                   />
                   {errors.phone && <span style={{ fontFamily: PRICE_FONT, fontSize: 11, color: C.rose, marginLeft: 4 }}>{errors.phone}</span>}
+                </div>
+                <div style={{ display: "flex", flexDirection: "column", gap: 6 }}>
+                  <label style={labelStyle}>
+                    {dictionary.checkout.email}
+                    <span style={{ marginLeft: 6, fontWeight: 500, opacity: 0.55, textTransform: "none", letterSpacing: 0 }}>
+                      {isKa ? "(არასავალდებულო)" : "(optional)"}
+                    </span>
+                  </label>
+                  <input
+                    type="email"
+                    placeholder="hello@example.com"
+                    style={inputStyle}
+                    value={formData.email}
+                    onChange={(e) => setFormData({ ...formData, email: e.target.value })}
+                    disabled={isAuthenticated}
+                  />
                 </div>
               </div>
             </section>
@@ -700,119 +720,166 @@ export default function CheckoutClient({ lang, dictionary }: CheckoutClientProps
                   onChange={(e) => setFormData({ ...formData, street: e.target.value })}
                 />
               </div>
-              <div className="grid grid-cols-2 gap-4">
-                <div style={{ display: "flex", flexDirection: "column", gap: 6 }}>
-                  <label style={labelStyle}>{dictionary.checkout.city}</label>
-                  <input
-                    placeholder={dictionary.checkout.city}
-                    style={errors.city ? inputErrorStyle : inputStyle}
-                    value={formData.city}
-                    onChange={(e) => setFormData({ ...formData, city: e.target.value })}
-                  />
-                </div>
-                <div style={{ display: "flex", flexDirection: "column", gap: 6 }}>
-                  <label style={labelStyle}>{dictionary.checkout.postal}</label>
-                  <input
-                    placeholder={dictionary.checkout.postal}
-                    style={inputStyle}
-                    value={formData.postal}
-                    onChange={(e) => setFormData({ ...formData, postal: e.target.value })}
-                  />
-                </div>
+              <div style={{ display: "flex", flexDirection: "column", gap: 6 }}>
+                <label style={labelStyle}>{dictionary.checkout.city}</label>
+                <input
+                  placeholder={dictionary.checkout.city}
+                  style={errors.city ? inputErrorStyle : inputStyle}
+                  value={formData.city}
+                  onChange={(e) => setFormData({ ...formData, city: e.target.value })}
+                />
+              </div>
+              <div style={{ display: "flex", flexDirection: "column", gap: 6 }}>
+                <label style={labelStyle}>
+                  {isKa ? "დამატებითი კომენტარი" : "Additional notes"}
+                  <span style={{ marginLeft: 6, fontWeight: 500, opacity: 0.55, textTransform: "none", letterSpacing: 0 }}>
+                    {isKa ? "(არასავალდებულო)" : "(optional)"}
+                  </span>
+                </label>
+                <textarea
+                  placeholder={isKa ? "მაგ.: გთხოვ ზარის გარეშე მოვიდეთ, საჩუქარია ..." : "e.g. please call before delivery, gift wrap ..."}
+                  rows={3}
+                  style={{ ...inputStyle, height: "auto", padding: "12px 16px", lineHeight: 1.5, resize: "vertical" }}
+                  value={formData.notes}
+                  onChange={(e) => setFormData({ ...formData, notes: e.target.value })}
+                />
               </div>
             </section>
 
-            {/* 3. Shipping */}
+            {/* 3. Delivery method */}
             <section style={{ display: "flex", flexDirection: "column", gap: 14 }}>
               <h2 style={sectionTitleStyle}>
                 <Star size={14} />
                 <span style={{ fontFamily: FRAUNCES, fontSize: 13, fontWeight: 700, letterSpacing: "0.06em", color: C.burnt }}>03</span>
-                {dictionary.checkout.shippingMethod}
+                {isKa ? "მიწოდება" : "Delivery"}
               </h2>
               <div style={{ display: "flex", flexDirection: "column", gap: 10 }}>
                 {radioOption(
-                  "shipping", "standard", shippingMethod === "standard",
-                  () => setShippingMethod("standard"),
-                  dictionary.checkout.standard, dictionary.checkout.standardDesc,
-                  <Price value={5} />,
+                  "shipping", "courier", deliveryMethod === "courier",
+                  () => setDeliveryMethod("courier"),
+                  isKa ? "კურიერით მისამართზე" : "Courier to address",
+                  isKa ? "გადასახადი დაზუსტდება დაკავშირებისას" : "Fee confirmed when we contact you",
+                  null,
+                  <Truck size={18} />,
                 )}
                 {radioOption(
-                  "shipping", "express", shippingMethod === "express",
-                  () => setShippingMethod("express"),
-                  dictionary.checkout.express, dictionary.checkout.expressDesc,
-                  <Price value={15} />,
+                  "shipping", "pickup", deliveryMethod === "pickup",
+                  () => setDeliveryMethod("pickup"),
+                  isKa ? "თბილისში თვითგატანა" : "Pickup in Tbilisi",
+                  isKa ? "უფასო · დროზე შევთანხმდებით" : "Free · we'll agree on a time",
+                  null,
+                  <Store size={18} />,
                 )}
               </div>
             </section>
 
-            {/* 4. Payment */}
+            {/* 4. Preferred contact method */}
             <section style={{ display: "flex", flexDirection: "column", gap: 14 }}>
               <h2 style={sectionTitleStyle}>
                 <Star size={14} />
                 <span style={{ fontFamily: FRAUNCES, fontSize: 13, fontWeight: 700, letterSpacing: "0.06em", color: C.burnt }}>04</span>
-                {dictionary.checkout.payment}
+                {isKa ? "როგორ დაგიკავშირდეთ" : "How should we reach you"}
               </h2>
-              <p style={{ fontFamily: PRICE_FONT, fontSize: 12, color: C.ink, opacity: 0.55, margin: 0, marginLeft: 4 }}>
-                {dictionary.checkout.secureMsg}
+              <p style={{ fontFamily: PRICE_FONT, fontSize: 12, color: C.ink, opacity: 0.6, margin: 0, marginLeft: 4 }}>
+                {isKa
+                  ? "შენი მონაცემების მიღების შემდეგ დაგიკავშირდებით, რომ დავადასტუროთ ჩანთის ხელმისაწვდომობა და გადახდის და მიწოდების დეტალები."
+                  : "After we receive your request we will contact you to confirm availability, payment method and delivery details."}
               </p>
 
               <div style={{ display: "flex", flexDirection: "column", gap: 10 }}>
                 {radioOption(
-                  "payment", "card", paymentMethod === "card",
-                  () => setPaymentMethod("card"),
-                  dictionary.checkout.card, null,
-                  <div style={{ display: "flex", gap: 6 }}>
-                    <div style={{ width: 30, height: 18, background: "#e9e2d4", borderRadius: 4 }} />
-                    <div style={{ width: 30, height: 18, background: "#e9e2d4", borderRadius: 4 }} />
-                  </div>,
-                  <CreditCard size={18} />,
+                  "payment", "phone", contactMethod === "phone",
+                  () => setContactMethod("phone"),
+                  isKa ? "ზარი" : "Phone call", null, null, <Phone size={18} />,
                 )}
-
-                {paymentMethod === "card" && (
-                  <div style={{
-                    background: C.softCream,
-                    border: `1px solid rgba(42,29,20,0.08)`,
-                    borderRadius: 14,
-                    padding: 18,
-                    display: "grid",
-                    gap: 14,
-                  }}>
-                    <div style={{ display: "flex", flexDirection: "column", gap: 6 }}>
-                      <label style={labelStyle}>{dictionary.checkout.cardNumber}</label>
-                      <input placeholder="0000 0000 0000 0000" style={{ ...inputStyle, fontFamily: "ui-monospace, SFMono-Regular, monospace", letterSpacing: "0.08em" }} />
-                    </div>
-                    <div className="grid grid-cols-2 gap-4">
-                      <div style={{ display: "flex", flexDirection: "column", gap: 6 }}>
-                        <label style={labelStyle}>{dictionary.checkout.expiryDate}</label>
-                        <input placeholder="MM / YY" style={inputStyle} />
-                      </div>
-                      <div style={{ display: "flex", flexDirection: "column", gap: 6 }}>
-                        <label style={labelStyle}>{dictionary.checkout.cvc}</label>
-                        <input placeholder="CVC" style={inputStyle} />
-                      </div>
-                    </div>
-                    <div style={{ display: "flex", flexDirection: "column", gap: 6 }}>
-                      <label style={labelStyle}>{dictionary.checkout.nameCard}</label>
-                      <input placeholder="ANNA SMITH" style={{ ...inputStyle, textTransform: "uppercase" }} />
-                    </div>
-                  </div>
-                )}
-
                 {radioOption(
-                  "payment", "cash", paymentMethod === "cash",
-                  () => setPaymentMethod("cash"),
-                  dictionary.checkout.cash, null,
-                  null,
-                  <Wallet size={18} />,
+                  "payment", "whatsapp", contactMethod === "whatsapp",
+                  () => setContactMethod("whatsapp"),
+                  "WhatsApp", null, null, <MessageCircle size={18} />,
+                )}
+                {radioOption(
+                  "payment", "messenger", contactMethod === "messenger",
+                  () => setContactMethod("messenger"),
+                  "Messenger", null, null, <MessageCircle size={18} />,
+                )}
+                {radioOption(
+                  "payment", "instagram", contactMethod === "instagram",
+                  () => setContactMethod("instagram"),
+                  "Instagram", null, null, <InstagramIcon size={18} />,
                 )}
               </div>
             </section>
 
-            {/* Pay button */}
-            <div style={{ paddingTop: 8 }}>
+            {/* Manual payment notice */}
+            <section style={{
+              background: C.softCream,
+              border: `1px solid rgba(42,29,20,0.08)`,
+              borderRadius: 14,
+              padding: "16px 18px",
+              display: "flex", gap: 12, alignItems: "flex-start",
+            }}>
+              <Mail size={18} style={{ color: C.burnt, flexShrink: 0, marginTop: 2 }} />
+              <div style={{ fontFamily: PRICE_FONT, fontSize: 13, color: C.ink, lineHeight: 1.55 }}>
+                <div style={{ fontFamily: FRAUNCES, fontWeight: 700, fontSize: 14, color: C.ink, marginBottom: 4 }}>
+                  {isKa ? "ონლაინ გადახდა არ გჭირდება" : "No online payment needed"}
+                </div>
+                <p style={{ margin: 0, opacity: 0.75 }}>
+                  {isKa
+                    ? "გადახდის დეტალები (საბანკო გადარიცხვა ან მიწოდებისას ნაღდით) გაგიზიარდება შეკვეთის დადასტურების შემდეგ."
+                    : "Payment details (bank transfer or cash on delivery) will be shared after we confirm your order."}
+                </p>
+              </div>
+            </section>
+
+            {/* Terms */}
+            <label style={{
+              display: "flex", gap: 10, alignItems: "flex-start",
+              cursor: "pointer", padding: "4px 0",
+            }}>
+              <input
+                type="checkbox"
+                checked={termsAccepted}
+                onChange={(e) => setTermsAccepted(e.target.checked)}
+                style={{ width: 18, height: 18, accentColor: C.burnt, marginTop: 2, flexShrink: 0 }}
+              />
+              <span style={{ fontFamily: PRICE_FONT, fontSize: 13, color: C.ink, opacity: errors.terms ? 0.95 : 0.7, lineHeight: 1.5 }}>
+                {isKa ? (
+                  <>
+                    ვეთანხმები{" "}
+                    <Link href={`/${lang}/terms`} style={{ color: C.burnt, textDecoration: "underline" }}>წესებსა და პირობებს</Link>
+                    {" "}და{" "}
+                    <Link href={`/${lang}/privacy`} style={{ color: C.burnt, textDecoration: "underline" }}>კონფიდენციალურობის პოლიტიკას</Link>.
+                  </>
+                ) : (
+                  <>
+                    I agree to the{" "}
+                    <Link href={`/${lang}/terms`} style={{ color: C.burnt, textDecoration: "underline" }}>terms</Link>
+                    {" "}and{" "}
+                    <Link href={`/${lang}/privacy`} style={{ color: C.burnt, textDecoration: "underline" }}>privacy policy</Link>.
+                  </>
+                )}
+              </span>
+            </label>
+            {errors.terms && (
+              <p style={{ fontFamily: PRICE_FONT, fontSize: 12, color: C.rose, margin: "-6px 0 0 28px" }}>
+                {isKa ? "გთხოვ მონიშნე ეთანხმები" : "Please accept the terms"}
+              </p>
+            )}
+            {submitError && (
+              <p style={{
+                fontFamily: PRICE_FONT, fontSize: 12, color: C.rose,
+                background: `${C.rose}14`, border: `1px solid ${C.rose}33`,
+                borderRadius: 10, padding: "10px 12px", margin: 0,
+              }}>
+                {submitError}
+              </p>
+            )}
+
+            {/* Submit button */}
+            <div style={{ paddingTop: 4 }}>
               <button
                 type="button"
-                onClick={handlePay}
+                onClick={handleSubmitOrder}
                 disabled={isSubmitting}
                 style={{
                   width: "100%",
@@ -832,17 +899,19 @@ export default function CheckoutClient({ lang, dictionary }: CheckoutClientProps
                   <Loader2 size={20} className="animate-spin" />
                 ) : (
                   <>
-                    <Lock size={16} />
-                    {dictionary.checkout.pay} · <Price value={total} />
+                    <Send size={16} />
+                    {isKa ? "შეკვეთის გაგზავნა" : "Submit order"}
                   </>
                 )}
               </button>
 
               <p style={{
-                fontFamily: PRICE_FONT, fontSize: 12, color: C.ink, opacity: 0.5,
-                textAlign: "center", marginTop: 14, marginBottom: 0,
+                fontFamily: PRICE_FONT, fontSize: 12, color: C.ink, opacity: 0.55,
+                textAlign: "center", marginTop: 12, marginBottom: 0, lineHeight: 1.5,
               }}>
-                {isKa ? "უსაფრთხო გადახდა · ხელნაკეთი თბილისში" : "Secure checkout · Handmade in Tbilisi"}
+                {isKa
+                  ? "ჩვენ დაგიკავშირდებით ხელმისაწვდომობის და გადახდის დასადასტურებლად."
+                  : "We'll reach out to confirm availability and payment details."}
               </p>
             </div>
 

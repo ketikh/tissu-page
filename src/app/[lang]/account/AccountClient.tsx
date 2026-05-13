@@ -86,6 +86,24 @@ function Card({
   );
 }
 
+const STATUS_LABELS: Record<string, { ka: string; en: string; color: string }> = {
+  pending_confirmation: { ka: "დადასტურების მოლოდინში", en: "Pending confirmation", color: C.burnt },
+  confirmed:            { ka: "დადასტურებულია",         en: "Confirmed",            color: C.green },
+  awaiting_payment:     { ka: "გადახდის მოლოდინში",     en: "Awaiting payment",     color: C.mustard },
+  paid:                 { ka: "გადახდილია",             en: "Paid",                 color: C.green },
+  preparing:            { ka: "მზადდება",               en: "Preparing",            color: C.burnt },
+  shipped:              { ka: "გაიგზავნა",              en: "Shipped",              color: C.green },
+  completed:            { ka: "დასრულდა",               en: "Completed",            color: C.green },
+  cancelled:            { ka: "გაუქმდა",                en: "Cancelled",            color: C.rose },
+};
+
+function statusInfo(raw: string | undefined, isKa: boolean): { label: string; color: string } {
+  const key = (raw || "pending_confirmation").toLowerCase();
+  const info = STATUS_LABELS[key];
+  if (info) return { label: isKa ? info.ka : info.en, color: info.color };
+  return { label: raw || "—", color: C.ink };
+}
+
 function SectionTitle({ children, num, color = C.burnt }: { children: React.ReactNode; num?: string; color?: string }) {
   return (
     <h2 style={{
@@ -481,14 +499,19 @@ function OverviewTab({ user, dictionary, lang, onEdit }: { user: any; dictionary
                       <p style={{ fontFamily: FRAUNCES, fontWeight: 700, fontSize: 14, color: C.ink, margin: 0 }}>Order #{recent.id.slice(0, 8).toUpperCase()}</p>
                       <p style={{ fontFamily: SANS, fontSize: 12, color: C.ink, opacity: 0.55, margin: "2px 0 0 0" }}>{dictionary.account.placed} {orderDate}</p>
                     </div>
-                    <span style={{
-                      fontFamily: SANS, fontSize: 10, fontWeight: 700,
-                      letterSpacing: "0.14em", textTransform: "uppercase",
-                      color: C.burnt, background: `${C.burnt}14`,
-                      padding: "4px 10px", borderRadius: 999,
-                    }}>
-                      {recent.status}
-                    </span>
+                    {(() => {
+                      const s = statusInfo(recent.status, isKa);
+                      return (
+                        <span style={{
+                          fontFamily: SANS, fontSize: 10, fontWeight: 700,
+                          letterSpacing: "0.14em", textTransform: "uppercase",
+                          color: s.color, background: `${s.color}14`,
+                          padding: "4px 10px", borderRadius: 999,
+                        }}>
+                          {s.label}
+                        </span>
+                      );
+                    })()}
                   </div>
 
                   {firstItem && (
@@ -614,14 +637,19 @@ function OrdersTab({ user, dictionary, lang }: { user: any; dictionary: any; lan
                   <p style={{ fontFamily: FRAUNCES, fontWeight: 700, fontSize: 14, color: C.ink, margin: 0 }}>#{String(order.id).slice(0, 8).toUpperCase()}</p>
                   <p style={{ fontFamily: SANS, fontSize: 12, color: C.ink, opacity: 0.55, margin: "2px 0 0" }}>{order.date}</p>
                 </div>
-                <span style={{
-                  fontFamily: SANS, fontSize: 10, fontWeight: 700,
-                  letterSpacing: "0.14em", textTransform: "uppercase",
-                  color: C.green, background: `${C.green}14`,
-                  padding: "4px 10px", borderRadius: 999,
-                }}>
-                  {order.status}
-                </span>
+                {(() => {
+                  const s = statusInfo(order.status, isKa);
+                  return (
+                    <span style={{
+                      fontFamily: SANS, fontSize: 10, fontWeight: 700,
+                      letterSpacing: "0.14em", textTransform: "uppercase",
+                      color: s.color, background: `${s.color}14`,
+                      padding: "4px 10px", borderRadius: 999,
+                    }}>
+                      {s.label}
+                    </span>
+                  );
+                })()}
                 <span style={{ fontFamily: FRAUNCES, fontWeight: 700, fontSize: 16, color: C.ink }}>
                   {formatPrice(order.total)}
                 </span>

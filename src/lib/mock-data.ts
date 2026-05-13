@@ -157,20 +157,46 @@ export const mockProducts: Product[] = [
 ];
 
 export const mockFAQs: FAQItem[] = [
-  { 
-    question: { ka: "როგორ ავირჩიო სწორი ზომა?", en: "How do I choose the right size?" }, 
-    answer: { ka: "ჩვენი 13/14-დუიმიანი ჩასადებები იდეალურად ერგება MacBook Air M1/M2 და 14-დუიმიან MacBook Pro-ს. შეამოწმეთ პროდუქტის ზომის გზამკვლევი ზუსტი შიდა ზომებისთვის.", en: "Our 13/14-inch sleeves fit perfectly with MacBook Air M1/M2 and 14-inch MacBook Pro. Check our size guide for exact internal dimensions." } 
+  {
+    question: { ka: "როგორ ვაკეთებ შეკვეთას?", en: "How do I place an order?" },
+    answer: {
+      ka: "ჩანთა ვირჩევთ, ვამატებთ კალათში და \"შეკვეთის გაგზავნა\"-ზე ვაჭერთ. შეგვიყვანე საკონტაქტო ინფორმაცია — ჩვენ თვითონ დაგიკავშირდებით ჩანთის ხელმისაწვდომობის, გადახდისა და მიწოდების დასადასტურებლად.",
+      en: "Add a bag to the cart and tap \"Place order request\". Enter your contact details — we'll reach out to confirm availability, payment and delivery.",
+    },
   },
-  { 
-    question: { ka: "შესაძლებელია საერთაშორისო გადაზიდვა?", en: "Is international shipping available?" }, 
-    answer: { ka: "ამჟამად პროდუქციას ვაწვდით მხოლოდ საქართველოს მასშტაბით. წლის ბოლოსთვის ვგეგმავთ საერთაშორისო მიწოდების დამატებას.", en: "Currently, we only ship within Georgia. We plan to add international shipping by the end of the year." } 
+  {
+    question: { ka: "როგორ ვიხდი?", en: "How do I pay?" },
+    answer: {
+      ka: "ონლაინ გადახდა საიტზე არ ხდება. შენი მოთხოვნის მიღების შემდეგ დაგიკავშირდებით და შევთანხმდებით საბანკო გადარიცხვაზე ან მიწოდებისას ნაღდით გადახდაზე.",
+      en: "There is no online payment on the site. After we receive your request we'll get in touch and agree on bank transfer or cash on delivery.",
+    },
   },
-  { 
-    question: { ka: "როგორია დაბრუნების პოლიტიკა?", en: "What is the return policy?" }, 
-    answer: { ka: "თქვენ შეგიძლიათ დააბრუნოთ ნივთი 14 დღის განმავლობაში, თუ ის არის გამოუყენებელი და პირვანდელ მდგომარეობაში.", en: "You can return items within 14 days if they are unused and in their original condition." } 
+  {
+    question: { ka: "რამდენ ხანში დაგიკავშირდებით?", en: "How quickly will you contact me?" },
+    answer: {
+      ka: "ჩვეულებრივ 24 საათში გიპასუხებთ — შენ მიერ მითითებული არხით (ზარი, WhatsApp, Messenger ან Instagram).",
+      en: "Usually within 24 hours via the channel you chose (phone, WhatsApp, Messenger or Instagram).",
+    },
   },
-  { 
-    question: { ka: "შეიძლება ჩასადების სარეცხ მანქანაში გარეცხვა?", en: "Can I machine wash the sleeve?" }, 
-    answer: { ka: "არა, ჩვენი პროდუქტების უმეტესობას აქვს სტრუქტურული შემავსებელი, რომელმაც შეიძლება ფორმა დაკარგოს მანქანაში რეცხვისას. რეკომენდებულია ლაქების მსუბუქი გაწმენდა სველი ქსოვილით.", en: "No, most of our products have structural padding that might lose its shape in the wash. Spot cleaning with a damp cloth is recommended." } 
-  }
+  {
+    question: { ka: "შესაძლებელია საერთაშორისო გადაზიდვა?", en: "Is international shipping available?" },
+    answer: {
+      ka: "ამჟამად ვაწვდით მხოლოდ საქართველოს მასშტაბით. წლის ბოლომდე ვგეგმავთ საერთაშორისო მიწოდების დამატებას.",
+      en: "We currently ship within Georgia only. International shipping is planned later this year.",
+    },
+  },
+  {
+    question: { ka: "როგორია დაბრუნების პოლიტიკა?", en: "What is the return policy?" },
+    answer: {
+      ka: "ნივთის დაბრუნება შესაძლებელია 14 დღის განმავლობაში, თუ ის გამოუყენებელია და თავდაპირველ მდგომარეობაშია.",
+      en: "You can return items within 14 days if they are unused and in their original condition.",
+    },
+  },
+  {
+    question: { ka: "შეიძლება ჩასადების სარეცხ მანქანაში გარეცხვა?", en: "Can I machine wash the sleeve?" },
+    answer: {
+      ka: "არა — ჩვენი ჩანთებს სტრუქტურული შემავსებელი აქვს, რომელიც მანქანაში ფორმას კარგავს. რეკომენდირებულია ლაქების მსუბუქი გაწმენდა სველი ქსოვილით.",
+      en: "No — most of our products have structural padding that loses shape in the wash. Spot cleaning with a damp cloth is recommended.",
+    },
+  },
 ];
