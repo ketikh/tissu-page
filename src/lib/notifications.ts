@@ -9,16 +9,14 @@
  *      to find your chat id.
  *   3. Put both in .env:
  *        TELEGRAM_BOT_TOKEN=123456:ABC...
- *        TELEGRAM_ADMIN_CHAT_ID=987654321
+ *        TELEGRAM_CHAT_ID=987654321
  *
  * If either variable is missing, this module silently no-ops — orders still
  * save, the customer still gets a confirmation, you just don't get a ping.
  */
 
 const TELEGRAM_BOT_TOKEN = process.env.TELEGRAM_BOT_TOKEN;
-// Accept either TELEGRAM_ADMIN_CHAT_ID (preferred) or the simpler
-// TELEGRAM_CHAT_ID name, whichever the env has set.
-const TELEGRAM_ADMIN_CHAT_ID = process.env.TELEGRAM_ADMIN_CHAT_ID || process.env.TELEGRAM_CHAT_ID;
+const TELEGRAM_CHAT_ID = process.env.TELEGRAM_CHAT_ID;
 // Optional comma-separated extra chat ids (e.g. group chat or co-founder).
 const TELEGRAM_EXTRA_CHAT_IDS = (process.env.TELEGRAM_EXTRA_CHAT_IDS || "")
   .split(",")
@@ -102,12 +100,12 @@ async function sendToTelegram(chatId: string, text: string): Promise<void> {
 }
 
 export async function notifyAdminNewOrder(order: OrderNotification): Promise<void> {
-  if (!TELEGRAM_BOT_TOKEN || !TELEGRAM_ADMIN_CHAT_ID) {
+  if (!TELEGRAM_BOT_TOKEN || !TELEGRAM_CHAT_ID) {
     console.warn("[notify] Telegram not configured — skipping admin ping.");
     return;
   }
   const text = buildMessage(order);
-  const targets = [TELEGRAM_ADMIN_CHAT_ID, ...TELEGRAM_EXTRA_CHAT_IDS];
+  const targets = [TELEGRAM_CHAT_ID, ...TELEGRAM_EXTRA_CHAT_IDS];
   await Promise.all(
     targets.map(chatId =>
       sendToTelegram(chatId, text).catch(err => {
