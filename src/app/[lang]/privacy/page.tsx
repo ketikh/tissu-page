@@ -11,7 +11,7 @@ export default async function PrivacyPage({ params }: { params: Promise<{ lang: 
   const isKa = (lang as Locale) === "ka";
 
   return (
-    <div className="bg-[var(--tissu-cream)]">
+    <div style={{ background: "#fffcf5", backgroundImage: "radial-gradient(rgba(243,182,43,0.10) 1.4px, transparent 1.4px)", backgroundSize: "26px 26px" }}>
       <div className="container py-16 md:py-24 max-w-[780px]">
         <span className="inline-flex items-center gap-2.5 px-4 py-2 rounded-full bg-[var(--tissu-white)] border border-[var(--border)] text-[13px] font-bold uppercase tracking-[0.1em] text-[var(--tissu-ink-soft)]">
           <span className="w-2 h-2 rounded-full bg-[var(--tissu-mustard)]" />

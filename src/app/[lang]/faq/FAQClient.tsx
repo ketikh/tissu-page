@@ -41,7 +41,12 @@ export default function FAQClient({ faqs, lang, dictionary }: FAQClientProps) {
   );
 
   return (
-    <div style={{ background: C.cream, minHeight: "100vh" }}>
+    <div style={{
+      background: "#fffcf5",
+      backgroundImage: "radial-gradient(rgba(243,182,43,0.10) 1.4px, transparent 1.4px)",
+      backgroundSize: "26px 26px",
+      minHeight: "100vh",
+    }}>
       {/* Top stripe */}
       <div
         className="h-2 w-full"

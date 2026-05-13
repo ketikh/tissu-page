@@ -73,7 +73,11 @@ export default async function AboutPage({ params }: { params: Promise<{ lang: st
   const isKa = locale === "ka";
 
   return (
-    <div style={{ background: C.cream }}>
+    <div style={{
+      background: "#fffcf5",
+      backgroundImage: "radial-gradient(rgba(243,182,43,0.10) 1.4px, transparent 1.4px)",
+      backgroundSize: "26px 26px",
+    }}>
       {/* Top stripe */}
       <div
         className="h-2 w-full"
