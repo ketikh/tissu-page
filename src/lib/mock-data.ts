@@ -160,8 +160,8 @@ export const mockFAQs: FAQItem[] = [
   {
     question: { ka: "როგორ ვაკეთებ შეკვეთას?", en: "How do I place an order?" },
     answer: {
-      ka: "ჩანთა ვირჩევთ, ვამატებთ კალათში და \"შეკვეთის გაგზავნა\"-ზე ვაჭერთ. შეგვიყვანე საკონტაქტო ინფორმაცია — ჩვენ თვითონ დაგიკავშირდებით ჩანთის ხელმისაწვდომობის, გადახდისა და მიწოდების დასადასტურებლად.",
-      en: "Add a bag to the cart and tap \"Place order request\". Enter your contact details — we'll reach out to confirm availability, payment and delivery.",
+      ka: "ჩანთა ვირჩევთ, ვამატებთ კალათში და \"შეკვეთის გაგზავნა\"-ზე ვაჭერთ. შეგვიყვანე საკონტაქტო ინფორმაცია — ჩვენ თვითონ დაგიკავშირდებით გადახდისა და მიწოდების შესათანხმებლად.",
+      en: "Add a bag to the cart and tap \"Place order request\". Enter your contact details — we'll reach out to agree on payment and delivery.",
     },
   },
   {

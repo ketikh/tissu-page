@@ -1,10 +1,11 @@
 import { NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
 import { createClient } from "@/lib/supabase/server";
+import { notifyAdminNewOrder } from "@/lib/notifications";
 
 /**
  * Manual order intake. No online payment is taken here — Tissu reaches out
- * after submit to confirm availability, payment method and delivery details.
+ * after submit to agree on payment and delivery details.
  *
  * Order is created with status `pending_confirmation` and `paymentMethod` is
  * always `undecided` at submit time. Customer contact preference and notes
@@ -37,21 +38,25 @@ interface CheckoutPayload {
     streetAddress: string;
     city: string;
   };
-  contactMethod: "phone" | "whatsapp" | "messenger" | "instagram" | "email";
-  deliveryMethod: "courier" | "pickup";
+  contactMethod: "phone" | "whatsapp" | "viber";
+  deliveryMethod: "courier";
+  deliveryZone?: {
+    id: string;
+    label: { ka: string; en: string };
+    fee: number;
+  } | null;
   notes?: string;
   termsAccepted: boolean;
 }
 
-const VALID_CONTACT = new Set(["phone", "whatsapp", "messenger", "instagram", "email"]);
-const VALID_DELIVERY = new Set(["courier", "pickup"]);
+const VALID_CONTACT = new Set(["phone", "whatsapp", "viber"]);
 
 export async function POST(req: Request) {
   try {
     const body = (await req.json()) as Partial<CheckoutPayload>;
     const {
       items, subtotal, shipping, discount, total,
-      customer, shippingAddress, contactMethod, deliveryMethod, notes, termsAccepted,
+      customer, shippingAddress, contactMethod, deliveryZone, notes, termsAccepted,
     } = body;
 
     // Validate required pieces
@@ -66,9 +71,6 @@ export async function POST(req: Request) {
     }
     if (!contactMethod || !VALID_CONTACT.has(contactMethod)) {
       return NextResponse.json({ error: "Invalid contact method" }, { status: 400 });
-    }
-    if (!deliveryMethod || !VALID_DELIVERY.has(deliveryMethod)) {
-      return NextResponse.json({ error: "Invalid delivery method" }, { status: 400 });
     }
     if (!termsAccepted) {
       return NextResponse.json({ error: "Terms must be accepted" }, { status: 400 });
@@ -90,7 +92,8 @@ export async function POST(req: Request) {
       phone: customer.phone,
       email: customer.email || "",
       contactMethod,
-      deliveryMethod,
+      deliveryMethod: "courier",
+      deliveryZone: deliveryZone || null,
       notes: notes || "",
     });
 
@@ -118,6 +121,29 @@ export async function POST(req: Request) {
       },
       include: { items: true },
     });
+
+    // Fire-and-forget admin notification — never block the response on it.
+    notifyAdminNewOrder({
+      orderId: order.id,
+      customer: {
+        firstName: customer.firstName,
+        lastName: customer.lastName,
+        phone: customer.phone,
+        email: customer.email,
+      },
+      contactMethod,
+      deliveryZone: deliveryZone || undefined,
+      address: { city: shippingAddress.city, street: shippingAddress.streetAddress },
+      items: items.map(i => ({
+        name: typeof i.productName === "object" ? (i.productName as any)?.ka || (i.productName as any)?.en || "" : String(i.productName || ""),
+        quantity: i.quantity,
+        price: i.price,
+      })),
+      subtotal: subtotal ?? 0,
+      shipping: shipping ?? 0,
+      total: total ?? 0,
+      notes: notes,
+    }).catch(err => console.error("[checkout] admin notify failed:", err));
 
     return NextResponse.json({ order }, { status: 201 });
   } catch (error) {

@@ -131,8 +131,8 @@ export default function SuccessClient({ lang, orderId }: SuccessClientProps) {
             maxWidth: 520, margin: "0 auto", lineHeight: 1.6,
           }}>
             {isKa
-              ? "მალე დაგიკავშირდებით, რათა დავადასტუროთ ჩანთის ხელმისაწვდომობა, გადახდის და მიწოდების დეტალები."
-              : "We will contact you shortly to confirm availability, payment method and delivery details."}
+              ? "მალე დაგიკავშირდებით, რომ შევთანხმდეთ გადახდის და მიწოდების დეტალებზე."
+              : "We will contact you shortly to agree on payment and delivery details."}
           </p>
 
           {orderId && (
@@ -176,8 +176,8 @@ export default function SuccessClient({ lang, orderId }: SuccessClientProps) {
           <ol style={{ margin: 0, padding: 0, listStyle: "none", display: "flex", flexDirection: "column", gap: 14 }}>
             {[
               {
-                ka: "მივიღებთ შენი შეკვეთის მოთხოვნას და ვამოწმებთ ჩანთის ხელმისაწვდომობას.",
-                en: "We receive your request and check the bag's availability.",
+                ka: "მივიღებთ შენი შეკვეთის მოთხოვნას.",
+                en: "We receive your order request.",
               },
               {
                 ka: "დაგიკავშირდებით შენ მიერ მითითებული არხით (ჩვეულებრივ 24 საათში).",

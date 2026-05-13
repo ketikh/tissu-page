@@ -7,17 +7,8 @@ import { useCartStore } from "@/store/useCartStore";
 import { useAuthStore } from "@/store/useAuthStore";
 import { useStoreHydration } from "@/store/useHydration";
 import { formatPrice } from "@/lib/utils";
-import { ChevronLeft, User as UserIcon, CheckCircle2, ShoppingBag, Loader2, Phone, MessageCircle, Mail, Truck, Store, Send } from "lucide-react";
-
-function InstagramIcon({ size = 18 }: { size?: number }) {
-  return (
-    <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
-      <rect x="2" y="2" width="20" height="20" rx="5" ry="5" />
-      <path d="M16 11.37A4 4 0 1 1 12.63 8 4 4 0 0 1 16 11.37z" />
-      <line x1="17.5" y1="6.5" x2="17.5" y2="6.5" />
-    </svg>
-  );
-}
+import { ChevronLeft, User as UserIcon, CheckCircle2, ShoppingBag, Loader2, Phone, MessageCircle, Mail, Truck, Send } from "lucide-react";
+import { DELIVERY_ZONES, DEFAULT_ZONE_ID, findDeliveryZone, REGION_ORDER, type DeliveryRegion } from "@/lib/delivery-zones";
 import Image from "next/image";
 import { Locale } from "@/i18n/config";
 import { Order } from "@/lib/types";
@@ -116,13 +107,19 @@ export default function CheckoutClient({ lang, dictionary }: CheckoutClientProps
   const { user, isAuthenticated, addOrder } = useAuthStore();
   const { subtotal, total, discountAmount, shipping } = getSummary();
   
-  const [deliveryMethod, setDeliveryMethod] = useState<"courier" | "pickup">("courier");
-  const [contactMethod, setContactMethod] = useState<"phone" | "whatsapp" | "messenger" | "instagram">("phone");
+  const [deliveryZoneId, setDeliveryZoneId] = useState<string>(DEFAULT_ZONE_ID);
+  const selectedZone = findDeliveryZone(deliveryZoneId);
+  const deliveryFee = selectedZone?.fee ?? 6;
+  const [contactMethod, setContactMethod] = useState<"phone" | "whatsapp" | "viber">("phone");
   const [termsAccepted, setTermsAccepted] = useState(false);
   const [isGuest, setIsGuest] = useState(!isAuthenticated);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [submitError, setSubmitError] = useState<string | null>(null);
   const [errors, setErrors] = useState<Record<string, string>>({});
+
+  // Final order total uses the zone's delivery fee instead of the cart's
+  // estimate, so the customer sees the actual courier price they picked.
+  const totalWithDelivery = subtotal - discountAmount + deliveryFee;
 
   // Form State — email is optional
   const [formData, setFormData] = useState({
@@ -191,9 +188,9 @@ export default function CheckoutClient({ lang, dictionary }: CheckoutClientProps
       const payload = {
         items: orderPayloadItems,
         subtotal,
-        shipping,
+        shipping: deliveryFee,
         discount,
-        total,
+        total: totalWithDelivery,
         customer: {
           firstName: formData.firstName,
           lastName: formData.lastName,
@@ -205,7 +202,12 @@ export default function CheckoutClient({ lang, dictionary }: CheckoutClientProps
           city: formData.city,
         },
         contactMethod,
-        deliveryMethod,
+        deliveryMethod: "courier",
+        deliveryZone: selectedZone ? {
+          id: selectedZone.id,
+          label: selectedZone.label,
+          fee: selectedZone.fee,
+        } : null,
         notes: formData.notes || undefined,
         termsAccepted,
         isGuest,
@@ -516,10 +518,8 @@ export default function CheckoutClient({ lang, dictionary }: CheckoutClientProps
                   <Price value={subtotal} />
                 </div>
                 <div className="flex justify-between text-[14px]" style={{ color: C.ink }}>
-                  <span style={{ opacity: 0.7 }}>{dictionary.checkout.shippingC}</span>
-                  <span style={{ color: shipping === 0 ? C.green : C.ink, fontWeight: 600 }}>
-                    {shipping === 0 ? (isKa ? "უფასო" : "Free") : <Price value={shipping} />}
-                  </span>
+                  <span style={{ opacity: 0.7 }}>{isKa ? "მიწოდება" : "Delivery"}</span>
+                  <Price value={deliveryFee} />
                 </div>
                 {discountAmount > 0 && (
                   <div className="flex justify-between text-[14px]" style={{ color: C.green }}>
@@ -539,7 +539,7 @@ export default function CheckoutClient({ lang, dictionary }: CheckoutClientProps
                 }}>
                   {dictionary.checkout.total}
                 </span>
-                <Price value={total} big />
+                <Price value={totalWithDelivery} big />
               </div>
 
               <div style={{
@@ -746,30 +746,67 @@ export default function CheckoutClient({ lang, dictionary }: CheckoutClientProps
               </div>
             </section>
 
-            {/* 3. Delivery method */}
+            {/* 3. Delivery zone */}
             <section style={{ display: "flex", flexDirection: "column", gap: 14 }}>
               <h2 style={sectionTitleStyle}>
                 <Star size={14} />
                 <span style={{ fontFamily: FRAUNCES, fontSize: 13, fontWeight: 700, letterSpacing: "0.06em", color: C.burnt }}>03</span>
-                {isKa ? "მიწოდება" : "Delivery"}
+                {isKa ? "მიწოდების ზონა" : "Delivery zone"}
               </h2>
-              <div style={{ display: "flex", flexDirection: "column", gap: 10 }}>
-                {radioOption(
-                  "shipping", "courier", deliveryMethod === "courier",
-                  () => setDeliveryMethod("courier"),
-                  isKa ? "კურიერით მისამართზე" : "Courier to address",
-                  isKa ? "გადასახადი დაზუსტდება დაკავშირებისას" : "Fee confirmed when we contact you",
-                  null,
-                  <Truck size={18} />,
-                )}
-                {radioOption(
-                  "shipping", "pickup", deliveryMethod === "pickup",
-                  () => setDeliveryMethod("pickup"),
-                  isKa ? "თბილისში თვითგატანა" : "Pickup in Tbilisi",
-                  isKa ? "უფასო · დროზე შევთანხმდებით" : "Free · we'll agree on a time",
-                  null,
-                  <Store size={18} />,
-                )}
+              <p style={{ fontFamily: PRICE_FONT, fontSize: 12, color: C.ink, opacity: 0.6, margin: 0, marginLeft: 4 }}>
+                {isKa
+                  ? "აირჩიე უახლოესი ადგილი — საკურიერო ფასი ავტომატურად დაითვლება."
+                  : "Pick the closest place — courier fee is set automatically."}
+              </p>
+
+              <div style={{ display: "flex", flexDirection: "column", gap: 6 }}>
+                <label style={labelStyle}>{isKa ? "ქალაქი / დასახლება" : "City / area"}</label>
+                <select
+                  value={deliveryZoneId}
+                  onChange={(e) => setDeliveryZoneId(e.target.value)}
+                  style={{
+                    ...inputStyle,
+                    padding: "0 16px",
+                    appearance: "auto",
+                    cursor: "pointer",
+                  }}
+                >
+                  {REGION_ORDER.map(region => {
+                    const zonesInRegion = DELIVERY_ZONES.filter(z => z.region === region);
+                    if (zonesInRegion.length === 0) return null;
+                    const groupLabel = zonesInRegion[0].regionLabel[isKa ? "ka" : "en"];
+                    return (
+                      <optgroup key={region} label={groupLabel}>
+                        {zonesInRegion.map(z => (
+                          <option key={z.id} value={z.id}>
+                            {z.label[isKa ? "ka" : "en"]} — {z.fee} ₾
+                          </option>
+                        ))}
+                      </optgroup>
+                    );
+                  })}
+                </select>
+              </div>
+
+              <div style={{
+                background: C.softCream,
+                border: `1px solid rgba(42,29,20,0.08)`,
+                borderRadius: 12,
+                padding: "12px 14px",
+                display: "flex", gap: 10, alignItems: "center",
+              }}>
+                <Truck size={16} style={{ color: C.burnt, flexShrink: 0 }} />
+                <div style={{ flex: 1, minWidth: 0 }}>
+                  <div style={{ fontFamily: FRAUNCES, fontWeight: 600, fontSize: 13, color: C.ink }}>
+                    {selectedZone?.label[isKa ? "ka" : "en"]}
+                  </div>
+                  <div style={{ fontFamily: PRICE_FONT, fontSize: 11, color: C.ink, opacity: 0.6, marginTop: 1 }}>
+                    {isKa ? "კურიერით მისამართზე" : "Courier to address"}
+                  </div>
+                </div>
+                <span style={{ fontFamily: FRAUNCES, fontWeight: 700, fontSize: 15, color: C.burnt }}>
+                  {deliveryFee} ₾
+                </span>
               </div>
             </section>
 
@@ -782,8 +819,8 @@ export default function CheckoutClient({ lang, dictionary }: CheckoutClientProps
               </h2>
               <p style={{ fontFamily: PRICE_FONT, fontSize: 12, color: C.ink, opacity: 0.6, margin: 0, marginLeft: 4 }}>
                 {isKa
-                  ? "შენი მონაცემების მიღების შემდეგ დაგიკავშირდებით, რომ დავადასტუროთ ჩანთის ხელმისაწვდომობა და გადახდის და მიწოდების დეტალები."
-                  : "After we receive your request we will contact you to confirm availability, payment method and delivery details."}
+                  ? "შენი მონაცემების მიღების შემდეგ დაგიკავშირდებით, რომ შევთანხმდეთ გადახდის და მიწოდების დეტალებზე."
+                  : "After we receive your request we will contact you to agree on payment and delivery details."}
               </p>
 
               <div style={{ display: "flex", flexDirection: "column", gap: 10 }}>
@@ -798,14 +835,9 @@ export default function CheckoutClient({ lang, dictionary }: CheckoutClientProps
                   "WhatsApp", null, null, <MessageCircle size={18} />,
                 )}
                 {radioOption(
-                  "payment", "messenger", contactMethod === "messenger",
-                  () => setContactMethod("messenger"),
-                  "Messenger", null, null, <MessageCircle size={18} />,
-                )}
-                {radioOption(
-                  "payment", "instagram", contactMethod === "instagram",
-                  () => setContactMethod("instagram"),
-                  "Instagram", null, null, <InstagramIcon size={18} />,
+                  "payment", "viber", contactMethod === "viber",
+                  () => setContactMethod("viber"),
+                  "Viber", null, null, <MessageCircle size={18} />,
                 )}
               </div>
             </section>
@@ -910,8 +942,8 @@ export default function CheckoutClient({ lang, dictionary }: CheckoutClientProps
                 textAlign: "center", marginTop: 12, marginBottom: 0, lineHeight: 1.5,
               }}>
                 {isKa
-                  ? "ჩვენ დაგიკავშირდებით ხელმისაწვდომობის და გადახდის დასადასტურებლად."
-                  : "We'll reach out to confirm availability and payment details."}
+                  ? "ჩვენ დაგიკავშირდებით გადახდის და მიწოდების შესათანხმებლად."
+                  : "We'll reach out to agree on payment and delivery."}
               </p>
             </div>
 

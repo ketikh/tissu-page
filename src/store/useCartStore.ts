@@ -92,8 +92,9 @@ export const useCartStore = create<CartState>()(
         );
         const itemsCount = items.reduce((sum, item) => sum + item.quantity, 0);
         
-        // Mock shipping logic: 5 GEL, free over 150 GEL
-        const shipping = subtotal > 150 || subtotal === 0 ? 0 : 5;
+        // Cart preview shipping — flat Tbilisi rate. Actual courier price is
+        // picked on the checkout page based on the customer's delivery zone.
+        const shipping = subtotal === 0 ? 0 : 6;
         const discountAmount = (subtotal * discount) / 100;
         const total = subtotal + shipping - discountAmount;
 
