@@ -1,20 +1,14 @@
 import { NextResponse } from "next/server";
-import { createClient } from "@/lib/supabase/server";
-
-const ADMIN_EMAILS = (process.env.ADMIN_EMAILS || "")
-  .split(",")
-  .map(s => s.trim().toLowerCase())
-  .filter(Boolean);
+import { cookies } from "next/headers";
+import { ADMIN_COOKIE_NAME, verifyAdminToken } from "@/lib/admin-session";
 
 const ADMIN_API_URL = process.env.ADMIN_API_URL?.replace(/\/$/, "");
 const ADMIN_API_KEY = process.env.ADMIN_API_KEY;
 
 async function assertAdmin() {
-  const supabase = await createClient();
-  const { data: { user } } = await supabase.auth.getUser();
-  if (!user) return false;
-  const email = (user.email || "").toLowerCase();
-  return ADMIN_EMAILS.length > 0 && ADMIN_EMAILS.includes(email);
+  const jar = await cookies();
+  const token = jar.get(ADMIN_COOKIE_NAME)?.value;
+  return verifyAdminToken(token);
 }
 
 function adminHeaders() {

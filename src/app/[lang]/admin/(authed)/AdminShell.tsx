@@ -29,11 +29,11 @@ const C = {
 export default function AdminShell({
   children,
   lang,
-  email,
+  username,
 }: {
   children: React.ReactNode;
   lang: Locale;
-  email: string;
+  username: string;
 }) {
   const pathname = usePathname();
 
@@ -84,8 +84,8 @@ export default function AdminShell({
               <div style={{ fontFamily: FRAUNCES, fontWeight: 700, fontSize: 18, color: C.ink, lineHeight: 1.2 }}>
                 Tissu
               </div>
-              <div style={{ fontFamily: SANS, fontSize: 12, color: C.ink, opacity: 0.55, marginTop: 2, wordBreak: "break-all" }}>
-                {email}
+              <div style={{ fontFamily: SANS, fontSize: 12, color: C.ink, opacity: 0.55, marginTop: 2 }}>
+                @{username}
               </div>
             </div>
 
@@ -152,8 +152,12 @@ export default function AdminShell({
                 </span>
                 View site
               </Link>
-              <Link
-                href={`/api/auth/logout`}
+              <button
+                type="button"
+                onClick={async () => {
+                  await fetch("/api/admin/auth", { method: "DELETE" });
+                  window.location.assign(`/${lang}/admin/login`);
+                }}
                 style={{
                   display: "flex", alignItems: "center", gap: 12,
                   padding: "10px 12px",
@@ -162,6 +166,8 @@ export default function AdminShell({
                   background: "transparent",
                   borderRadius: 12,
                   textDecoration: "none",
+                  border: "none", cursor: "pointer",
+                  textAlign: "left", width: "100%",
                 }}
                 className="hover:bg-[rgba(196,132,154,0.08)]"
               >
@@ -169,7 +175,7 @@ export default function AdminShell({
                   <LogOut size={15} />
                 </span>
                 Sign out
-              </Link>
+              </button>
             </div>
           </aside>
 

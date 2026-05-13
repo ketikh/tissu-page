@@ -13,7 +13,9 @@ export default async function AdminSettingsPage({
   await _params;
 
   const rows: Array<{ key: string; label: string; hint: string }> = [
-    { key: "ADMIN_EMAILS",       label: "Admin allow-list",  hint: "Comma-separated emails that can reach /admin." },
+    { key: "ADMIN_USERNAME",       label: "Admin username",       hint: "The username typed into /admin/login." },
+    { key: "ADMIN_PASSWORD",       label: "Admin password",       hint: "The password typed into /admin/login. Plain text in env; rotate by changing it and restarting." },
+    { key: "ADMIN_SESSION_SECRET", label: "Admin session secret", hint: "Random string used to sign the admin cookie. Change to invalidate every existing admin session." },
     { key: "TELEGRAM_BOT_TOKEN", label: "Telegram bot",      hint: "BotFather token. Used for the new-order notifier." },
     { key: "TELEGRAM_CHAT_ID",   label: "Telegram chat id",  hint: "Where new-order pings land." },
     { key: "TISSU_BANK_INFO",    label: "Bank info",         hint: "Pre-filled in the customer reply message." },

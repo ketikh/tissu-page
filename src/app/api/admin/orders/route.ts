@@ -1,20 +1,14 @@
 import { NextResponse } from "next/server";
+import { cookies } from "next/headers";
 import { prisma } from "@/lib/prisma";
-import { createClient } from "@/lib/supabase/server";
 import { adjustStock } from "@/lib/admin-inventory";
-
-const ADMIN_EMAILS = (process.env.ADMIN_EMAILS || "")
-  .split(",")
-  .map(s => s.trim().toLowerCase())
-  .filter(Boolean);
+import { ADMIN_COOKIE_NAME, verifyAdminToken } from "@/lib/admin-session";
 
 async function assertAdmin() {
-  const supabase = await createClient();
-  const { data: { user } } = await supabase.auth.getUser();
-  if (!user) return { user: null, ok: false } as const;
-  const email = (user.email || "").toLowerCase();
-  const isAdmin = ADMIN_EMAILS.length > 0 && ADMIN_EMAILS.includes(email);
-  return { user, ok: isAdmin } as const;
+  const jar = await cookies();
+  const token = jar.get(ADMIN_COOKIE_NAME)?.value;
+  const ok = await verifyAdminToken(token);
+  return { ok } as const;
 }
 
 const VALID_STATUSES = new Set([

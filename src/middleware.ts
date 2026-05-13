@@ -2,17 +2,11 @@ import { NextResponse } from 'next/server'
 import type { NextRequest } from 'next/server'
 import { i18n, Locale } from './i18n/config'
 import { updateSession } from './lib/supabase/middleware'
+import { ADMIN_COOKIE_NAME, verifyAdminToken } from './lib/admin-session'
 
-const PROTECTED_PATHS = ["/account", "/checkout", "/admin"];
+const PROTECTED_PATHS = ["/account", "/checkout"];
 const AUTH_ROUTES = ["/account/login", "/account/register", "/account/forgot-password", "/account/reset-password"];
 const LOGIN_PATH = "/account/login";
-
-// Admin gate — only emails listed in ADMIN_EMAILS env can reach /admin/*.
-// Comma-separated, e.g. ADMIN_EMAILS=owner@tissu.ge,team@tissu.ge
-const ADMIN_EMAILS = (process.env.ADMIN_EMAILS || "")
-  .split(",")
-  .map(s => s.trim().toLowerCase())
-  .filter(Boolean);
 
 // Locale redirect must skip these — they live at the site root, not under /en or /ka.
 const LOCALE_EXEMPT_PATHS = ["/sitemap.xml", "/robots.txt", "/manifest.webmanifest"];
@@ -76,15 +70,17 @@ export async function middleware(request: NextRequest) {
     return NextResponse.redirect(loginUrl);
   }
 
-  // Extra check for /admin/* — must be in ADMIN_EMAILS allow-list. If the
-  // env var isn't configured, deny by default (safer than letting any logged-
-  // in account stumble into the admin).
+  // Admin area has its OWN auth (separate username/password, signed cookie)
+  // and is independent of the Supabase user login above.
   const isAdminRoute = pathWithoutLocale === "/admin" || pathWithoutLocale.startsWith("/admin/");
-  if (isAdminRoute && user) {
-    const email = (user.email || "").toLowerCase();
-    const isAdmin = ADMIN_EMAILS.length > 0 && ADMIN_EMAILS.includes(email);
-    if (!isAdmin) {
-      return NextResponse.redirect(new URL(`/${locale}`, request.url));
+  const isAdminLogin = pathWithoutLocale === "/admin/login";
+  if (isAdminRoute && !isAdminLogin) {
+    const adminToken = request.cookies.get(ADMIN_COOKIE_NAME)?.value;
+    const adminOk = await verifyAdminToken(adminToken);
+    if (!adminOk) {
+      const loginUrl = new URL(`/${locale}/admin/login`, request.url);
+      loginUrl.searchParams.set("next", pathname);
+      return NextResponse.redirect(loginUrl);
     }
   }
 

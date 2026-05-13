@@ -1,18 +1,12 @@
 import { NextResponse } from "next/server";
-import { createClient } from "@/lib/supabase/server";
+import { cookies } from "next/headers";
 import { updateInventory, getStorefrontProduct, type InventoryPatch } from "@/lib/admin-inventory";
-
-const ADMIN_EMAILS = (process.env.ADMIN_EMAILS || "")
-  .split(",")
-  .map(s => s.trim().toLowerCase())
-  .filter(Boolean);
+import { ADMIN_COOKIE_NAME, verifyAdminToken } from "@/lib/admin-session";
 
 async function assertAdmin() {
-  const supabase = await createClient();
-  const { data: { user } } = await supabase.auth.getUser();
-  if (!user) return false;
-  const email = (user.email || "").toLowerCase();
-  return ADMIN_EMAILS.length > 0 && ADMIN_EMAILS.includes(email);
+  const jar = await cookies();
+  const token = jar.get(ADMIN_COOKIE_NAME)?.value;
+  return verifyAdminToken(token);
 }
 
 /** PATCH /api/admin/products  { id, stock?, price?, tags?, color? }
