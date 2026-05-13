@@ -23,6 +23,15 @@ const TELEGRAM_EXTRA_CHAT_IDS = (process.env.TELEGRAM_EXTRA_CHAT_IDS || "")
   .map(s => s.trim())
   .filter(Boolean);
 
+// Bank info reused inside the pre-filled WhatsApp / Viber message the admin
+// sends to the customer. Configurable via env so it doesn't live in code.
+const BANK_INFO = process.env.TISSU_BANK_INFO ||
+  "ბანკი: BoG · ანგარიში: GE00XX0000000000000000 · მიმღები: Tissu";
+
+function digitsOnly(s: string): string {
+  return s.replace(/[^\d]/g, "");
+}
+
 const CONTACT_LABEL: Record<string, string> = {
   phone: "📞 Phone call",
   whatsapp: "💬 WhatsApp",
@@ -78,22 +87,79 @@ function buildMessage(o: OrderNotification): string {
   return lines.join("\n");
 }
 
-async function sendToTelegram(chatId: string, text: string): Promise<void> {
+async function sendToTelegram(
+  chatId: string,
+  text: string,
+  inlineKeyboard?: Array<Array<{ text: string; url: string }>>,
+): Promise<void> {
   if (!TELEGRAM_BOT_TOKEN) return;
   const url = `https://api.telegram.org/bot${TELEGRAM_BOT_TOKEN}/sendMessage`;
+  const body: Record<string, unknown> = {
+    chat_id: chatId,
+    text,
+    disable_web_page_preview: true,
+  };
+  if (inlineKeyboard && inlineKeyboard.length > 0) {
+    body.reply_markup = { inline_keyboard: inlineKeyboard };
+  }
   const res = await fetch(url, {
     method: "POST",
     headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({
-      chat_id: chatId,
-      text,
-      disable_web_page_preview: true,
-    }),
+    body: JSON.stringify(body),
   });
   if (!res.ok) {
     const detail = await res.text().catch(() => "");
     throw new Error(`Telegram ${res.status}: ${detail.slice(0, 200)}`);
   }
+}
+
+/** Build the pre-filled message admin will send to customer through whichever
+ *  channel they pick (WhatsApp / Viber / SMS / etc.). The admin can edit it
+ *  before hitting "send". */
+function buildCustomerReply(o: OrderNotification): string {
+  const lines: string[] = [];
+  lines.push(`გამარჯობა${o.customer.firstName ? `, ${o.customer.firstName}` : ""}! 👋`);
+  lines.push("");
+  lines.push(`თქვენი შეკვეთა #${o.orderId.slice(0, 8).toUpperCase()} მივიღეთ ✅`);
+  lines.push("");
+  if (o.items.length > 0) {
+    lines.push("შეკვეთილი ნივთები:");
+    for (const i of o.items) {
+      const codePart = i.code ? `[${i.code}] ` : "";
+      lines.push(`• ${codePart}${i.name} × ${i.quantity}`);
+    }
+    lines.push("");
+  }
+  lines.push(`სულ გადასახდელი: ${o.total} ₾ (კურიერი ${o.shipping} ₾ ჩათვლით)`);
+  lines.push("");
+  lines.push("გადახდის რეკვიზიტები:");
+  lines.push(BANK_INFO);
+  lines.push("");
+  lines.push("გადარიცხვის შემდეგ მოგვწერეთ დასადასტურებლად, რომ შეკვეთა გავგზავნოთ. გმადლობთ! 🧡");
+  return lines.join("\n");
+}
+
+/** Telegram bot links + WhatsApp / Viber deep-links use the customer phone.
+ *  The customer typed it in checkout — we just strip everything but digits. */
+function buildActionButtons(o: OrderNotification): Array<Array<{ text: string; url: string }>> {
+  const phone = digitsOnly(o.customer.phone);
+  if (!phone) return [];
+  const reply = buildCustomerReply(o);
+  const encoded = encodeURIComponent(reply);
+  const rows: Array<Array<{ text: string; url: string }>> = [];
+
+  // Row 1 — primary message channels (WhatsApp / Viber)
+  rows.push([
+    { text: "💬 WhatsApp",         url: `https://wa.me/${phone}?text=${encoded}` },
+    { text: "💜 Viber",            url: `viber://chat?number=%2B${phone}` },
+  ]);
+
+  // Row 2 — phone call + copy-payable text (Telegram lets you tap-and-copy)
+  rows.push([
+    { text: "📞 ზარი",             url: `tel:+${phone}` },
+  ]);
+
+  return rows;
 }
 
 /** Telegram's sendMediaGroup accepts 2–10 photos. For a single photo we have
@@ -148,6 +214,7 @@ export async function notifyAdminNewOrder(order: OrderNotification): Promise<voi
   }
   console.log(`[notify] sending order ${order.orderId} to Telegram chat ${TELEGRAM_CHAT_ID}`);
   const text = buildMessage(order);
+  const keyboard = buildActionButtons(order);
   const targets = [TELEGRAM_CHAT_ID, ...TELEGRAM_EXTRA_CHAT_IDS];
 
   // Collect product photos that have a URL — Telegram needs publicly fetchable URLs.
@@ -158,14 +225,22 @@ export async function notifyAdminNewOrder(order: OrderNotification): Promise<voi
       caption: `[${i.code || ""}] ${i.name} × ${i.quantity}`.trim(),
     }));
 
+  // Pre-filled customer reply — sent as a separate message so admin can long-
+  // press to copy it before hitting WhatsApp / Viber.
+  const customerReplyPreview = `📋 *მესიჯი მომხმარებლისთვის* (გადააკოპირე ან გამოიყენე ღილაკები ზევით):\n\n${buildCustomerReply(order)}`;
+
   for (const chatId of targets) {
     try {
-      await sendToTelegram(chatId, text);
+      await sendToTelegram(chatId, text, keyboard);
       console.log(`[notify] sent text to ${chatId}`);
       if (photos.length > 0) {
         await sendPhotos(chatId, photos);
         console.log(`[notify] sent ${photos.length} photo(s) to ${chatId}`);
       }
+      // Also send the editable plain-text preview so the admin has the copy
+      // ready to paste anywhere (Messenger, Instagram, email, etc.).
+      await sendToTelegram(chatId, customerReplyPreview);
+      console.log(`[notify] sent customer-reply preview to ${chatId}`);
     } catch (err) {
       console.error(`[notify] send to ${chatId} failed:`, err);
     }
