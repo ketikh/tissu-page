@@ -46,15 +46,28 @@ export default function FAQClient({ faqs, lang, dictionary }: FAQClientProps) {
       backgroundImage: "radial-gradient(rgba(243,182,43,0.10) 1.4px, transparent 1.4px)",
       backgroundSize: "26px 26px",
       minHeight: "100vh",
+      position: "relative",
+      overflow: "hidden",
     }}>
-      {/* Top stripe */}
-      <div
-        className="h-2 w-full"
-        style={{ background: "repeating-linear-gradient(90deg, #c4849a 0 18px, #fef0d6 18px 36px)" }}
-        aria-hidden="true"
-      />
+      {/* Sprinkled stars + pebbles — home-page vibe */}
+      <span aria-hidden="true" style={{ position: "absolute", top: 80, left: "5%", opacity: 0.85, color: C.mustard }}>
+        <svg width={18} height={18} viewBox="0 0 24 24"><path d="M12 2 L13.8 10.2 L22 12 L13.8 13.8 L12 22 L10.2 13.8 L2 12 L10.2 10.2 Z" fill="currentColor" /></svg>
+      </span>
+      <span aria-hidden="true" style={{ position: "absolute", top: 60, right: "8%", opacity: 0.7, color: "#d56826" }}>
+        <svg width={12} height={12} viewBox="0 0 24 24"><path d="M12 2 L13.8 10.2 L22 12 L13.8 13.8 L12 22 L10.2 13.8 L2 12 L10.2 10.2 Z" fill="currentColor" /></svg>
+      </span>
+      <span aria-hidden="true" style={{ position: "absolute", top: "40%", right: "3%", opacity: 0.6, color: C.rose }}>
+        <svg width={14} height={14} viewBox="0 0 24 24"><path d="M12 2 L13.8 10.2 L22 12 L13.8 13.8 L12 22 L10.2 13.8 L2 12 L10.2 10.2 Z" fill="currentColor" /></svg>
+      </span>
+      <span aria-hidden="true" style={{ position: "absolute", bottom: 200, left: "8%", opacity: 0.7, color: C.mustard }}>
+        <svg width={16} height={16} viewBox="0 0 24 24"><path d="M12 2 L13.8 10.2 L22 12 L13.8 13.8 L12 22 L10.2 13.8 L2 12 L10.2 10.2 Z" fill="currentColor" /></svg>
+      </span>
+      <div aria-hidden="true" style={{ position: "absolute", top: 200, left: "-3%", width: 120, height: 120, background: "#d56826", opacity: 0.22, borderRadius: "60% 40% 55% 45% / 50% 60% 40% 50%", transform: "rotate(-12deg)" }} />
+      <div aria-hidden="true" style={{ position: "absolute", top: 90, right: "-2%", width: 90, height: 90, background: C.mustard, opacity: 0.34, borderRadius: "55% 45% 50% 50% / 50% 55% 45% 50%", transform: "rotate(18deg)" }} />
+      <div aria-hidden="true" style={{ position: "absolute", top: "50%", left: "-2%", width: 70, height: 70, background: C.green, opacity: 0.22, borderRadius: "50%" }} />
+      <div aria-hidden="true" style={{ position: "absolute", bottom: 80, right: "-3%", width: 130, height: 130, background: C.mustard, opacity: 0.28, borderRadius: "45% 55% 50% 50% / 55% 45% 55% 45%", transform: "rotate(10deg)" }} />
 
-      <div className="container py-14 md:py-22 max-w-215">
+      <div className="container py-14 md:py-22 max-w-215" style={{ position: "relative" }}>
         {/* Header */}
         <div className="mb-12 md:mb-16">
           <span

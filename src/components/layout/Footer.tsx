@@ -91,20 +91,18 @@ export function Footer({ dictionary, lang = "ka" }: { dictionary?: any; lang?: L
             : "Handmade bags — made with love in Tbilisi."}
         </p>
 
-        {/* Social icons */}
+        {/* Social icons — Facebook · TikTok · Instagram */}
         <div style={{ display: "flex", gap: 14 }}>
           <a
-            href="https://instagram.com/thetissushop"
+            href="https://facebook.com/thetissushop"
             target="_blank"
             rel="noopener noreferrer"
-            aria-label="Instagram"
+            aria-label="Facebook"
             style={SOCIAL_CIRCLE}
             className="hover:bg-[rgba(254,240,214,0.15)]"
           >
-            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" aria-hidden="true">
-              <rect x="3" y="3" width="18" height="18" rx="5" />
-              <circle cx="12" cy="12" r="4" />
-              <circle cx="17.5" cy="6.5" r="1" fill="currentColor" />
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
+              <path d="M22 12a10 10 0 1 0-11.56 9.88v-6.99H7.9V12h2.54V9.8c0-2.5 1.49-3.89 3.77-3.89 1.09 0 2.24.2 2.24.2v2.46h-1.26c-1.24 0-1.63.77-1.63 1.56V12h2.77l-.44 2.89h-2.33v6.99A10 10 0 0 0 22 12z" />
             </svg>
           </a>
           <a
@@ -120,15 +118,17 @@ export function Footer({ dictionary, lang = "ka" }: { dictionary?: any; lang?: L
             </svg>
           </a>
           <a
-            href="https://pinterest.com/thetissushop"
+            href="https://instagram.com/thetissushop"
             target="_blank"
             rel="noopener noreferrer"
-            aria-label="Pinterest"
+            aria-label="Instagram"
             style={SOCIAL_CIRCLE}
             className="hover:bg-[rgba(254,240,214,0.15)]"
           >
-            <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
-              <path d="M12 2C6.48 2 2 6.48 2 12c0 4.24 2.65 7.86 6.39 9.29-.09-.78-.17-1.98.04-2.83.18-.77 1.23-5.22 1.23-5.22s-.31-.63-.31-1.56c0-1.46.85-2.56 1.9-2.56.9 0 1.33.67 1.33 1.48 0 .9-.58 2.26-.87 3.51-.25 1.05.52 1.9 1.55 1.9 1.86 0 3.12-2.4 3.12-5.23 0-2.16-1.46-3.67-3.55-3.67-2.42 0-3.84 1.81-3.84 3.69 0 .73.28 1.51.63 1.94.07.09.08.16.06.25-.06.26-.2.84-.23.96-.04.16-.13.19-.3.11-1.12-.52-1.82-2.17-1.82-3.49 0-2.84 2.06-5.44 5.94-5.44 3.12 0 5.55 2.22 5.55 5.19 0 3.1-1.95 5.59-4.65 5.59-.91 0-1.76-.47-2.05-1.03l-.56 2.08c-.2.78-.75 1.75-1.12 2.35.85.26 1.74.4 2.67.4 5.52 0 10-4.48 10-10S17.52 2 12 2z" />
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" aria-hidden="true">
+              <rect x="3" y="3" width="18" height="18" rx="5" />
+              <circle cx="12" cy="12" r="4" />
+              <circle cx="17.5" cy="6.5" r="1" fill="currentColor" />
             </svg>
           </a>
         </div>
