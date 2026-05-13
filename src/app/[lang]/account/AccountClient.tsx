@@ -17,6 +17,9 @@ import {
   Trash2,
   Check,
   Loader2,
+  ChevronDown,
+  Phone,
+  MessageCircle,
 } from "lucide-react";
 import { useAuthStore } from "@/store/useAuthStore";
 import { Locale } from "@/i18n/config";
@@ -604,8 +607,16 @@ function OverviewTab({ user, dictionary, lang, onEdit }: { user: any; dictionary
 }
 
 /* ────────── Orders ────────── */
+const CONTACT_LABEL_LOCAL: Record<string, { ka: string; en: string }> = {
+  phone:    { ka: "ზარი",     en: "Phone call" },
+  whatsapp: { ka: "WhatsApp", en: "WhatsApp" },
+  viber:    { ka: "Viber",    en: "Viber" },
+};
+
 function OrdersTab({ user, dictionary, lang }: { user: any; dictionary: any; lang: Locale }) {
   const isKa = lang === "ka";
+  const [expandedId, setExpandedId] = useState<string | null>(null);
+
   return (
     <div style={{ display: "flex", flexDirection: "column", gap: 18 }}>
       <SectionTitle color={C.mustard}>{dictionary.account.orders.title}</SectionTitle>
@@ -630,39 +641,164 @@ function OrdersTab({ user, dictionary, lang }: { user: any; dictionary: any; lan
         </Card>
       ) : (
         <div style={{ display: "flex", flexDirection: "column", gap: 12 }}>
-          {user.orders.map((order: any, idx: number) => (
-            <Card key={order.id} padding={18} accent={(["mustard", "burnt", "green", "rose"] as const)[idx % 4]}>
-              <div className="flex flex-wrap items-center justify-between gap-3">
-                <div>
-                  <p style={{ fontFamily: FRAUNCES, fontWeight: 700, fontSize: 14, color: C.ink, margin: 0 }}>#{String(order.id).slice(0, 8).toUpperCase()}</p>
-                  <p style={{ fontFamily: SANS, fontSize: 12, color: C.ink, opacity: 0.55, margin: "2px 0 0" }}>{order.date}</p>
-                </div>
-                {(() => {
-                  const s = statusInfo(order.status, isKa);
-                  return (
-                    <span style={{
-                      fontFamily: SANS, fontSize: 10, fontWeight: 700,
-                      letterSpacing: "0.14em", textTransform: "uppercase",
-                      color: s.color, background: `${s.color}14`,
-                      padding: "4px 10px", borderRadius: 999,
-                    }}>
-                      {s.label}
+          {user.orders.map((order: any, idx: number) => {
+            const isOpen = expandedId === order.id;
+            const accent = (["mustard", "burnt", "green", "rose"] as const)[idx % 4];
+            // shippingAddress can be either a parsed object or a JSON string,
+            // depending on where the order was loaded from.
+            const addr: any = typeof order.shippingAddress === "string"
+              ? (() => { try { return JSON.parse(order.shippingAddress); } catch { return {}; } })()
+              : (order.shippingAddress || {});
+            const zone = addr.deliveryZone;
+            const contactMethod = addr.contactMethod;
+            const dateLabel = (() => {
+              try { return new Date(order.date).toLocaleDateString(isKa ? "ka-GE" : "en-US", { year: "numeric", month: "short", day: "numeric" }); }
+              catch { return order.date; }
+            })();
+
+            return (
+              <Card key={order.id} padding={0} accent={accent}>
+                {/* Clickable header row */}
+                <button
+                  type="button"
+                  onClick={() => setExpandedId(isOpen ? null : order.id)}
+                  style={{
+                    width: "100%",
+                    background: "transparent", border: "none", cursor: "pointer",
+                    padding: 18,
+                    textAlign: "left",
+                  }}
+                  className="hover:bg-[rgba(42,29,20,0.02)]"
+                >
+                  <div className="flex flex-wrap items-center justify-between gap-3">
+                    <div style={{ minWidth: 120 }}>
+                      <p style={{ fontFamily: FRAUNCES, fontWeight: 700, fontSize: 14, color: C.ink, margin: 0 }}>#{String(order.id).slice(0, 8).toUpperCase()}</p>
+                      <p style={{ fontFamily: SANS, fontSize: 12, color: C.ink, opacity: 0.55, margin: "2px 0 0" }}>{dateLabel}</p>
+                    </div>
+                    {(() => {
+                      const s = statusInfo(order.status, isKa);
+                      return (
+                        <span style={{
+                          fontFamily: SANS, fontSize: 10, fontWeight: 700,
+                          letterSpacing: "0.14em", textTransform: "uppercase",
+                          color: s.color, background: `${s.color}14`,
+                          padding: "4px 10px", borderRadius: 999,
+                        }}>
+                          {s.label}
+                        </span>
+                      );
+                    })()}
+                    <span style={{ fontFamily: FRAUNCES, fontWeight: 700, fontSize: 16, color: C.ink }}>
+                      {formatPrice(order.total)}
                     </span>
-                  );
-                })()}
-                <span style={{ fontFamily: FRAUNCES, fontWeight: 700, fontSize: 16, color: C.ink }}>
-                  {formatPrice(order.total)}
-                </span>
-                <button style={{
-                  fontFamily: FRAUNCES, fontWeight: 600, fontSize: 13,
-                  color: C.burnt, background: "transparent",
-                  border: "none", cursor: "pointer", padding: "8px 4px",
-                }} className="hover:underline">
-                  {dictionary.account.orders.details} →
+                    <span style={{
+                      display: "inline-flex", alignItems: "center", gap: 4,
+                      fontFamily: FRAUNCES, fontWeight: 600, fontSize: 13,
+                      color: C.burnt,
+                    }}>
+                      {isOpen ? (isKa ? "დახურვა" : "Close") : (isKa ? "დეტალები" : "Details")}
+                      <ChevronDown size={14} style={{ transform: isOpen ? "rotate(180deg)" : "none", transition: "transform 0.18s ease" }} />
+                    </span>
+                  </div>
                 </button>
-              </div>
-            </Card>
-          ))}
+
+                {/* Expanded details */}
+                {isOpen && (
+                  <div style={{ padding: "0 18px 18px", display: "flex", flexDirection: "column", gap: 16 }}>
+                    {/* Items */}
+                    {order.items && order.items.length > 0 && (
+                      <div style={{ paddingTop: 8, borderTop: `1px dashed rgba(42,29,20,0.14)`, display: "flex", flexDirection: "column", gap: 12 }}>
+                        {order.items.map((it: any, i: number) => {
+                          const pname = typeof it.productName === "string" ? (() => { try { return JSON.parse(it.productName); } catch { return { ka: it.productName, en: it.productName }; } })() : it.productName;
+                          const vname = typeof it.variantName === "string" ? (() => { try { return JSON.parse(it.variantName); } catch { return { ka: "", en: "" }; } })() : it.variantName;
+                          const name = pname?.[lang] || pname?.ka || "";
+                          const variant = vname?.[lang] || vname?.ka || "";
+                          return (
+                            <div key={i} className="flex items-center gap-3">
+                              <div style={{ position: "relative", width: 48, height: 56, borderRadius: 10, overflow: "hidden", background: C.softCream, flexShrink: 0 }}>
+                                {it.image && <Image src={it.image} alt={name} fill className="object-cover" />}
+                              </div>
+                              <div style={{ flex: 1, minWidth: 0 }}>
+                                <p style={{ fontFamily: FRAUNCES, fontWeight: 600, fontSize: 13, color: C.ink, margin: 0, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>{name}</p>
+                                <p style={{ fontFamily: SANS, fontSize: 11, color: C.ink, opacity: 0.55, margin: "2px 0 0" }}>{variant ? `${variant} · ` : ""}× {it.quantity}</p>
+                              </div>
+                              <span style={{ fontFamily: FRAUNCES, fontWeight: 700, fontSize: 14, color: C.ink }}>
+                                {formatPrice(it.price * it.quantity)}
+                              </span>
+                            </div>
+                          );
+                        })}
+                      </div>
+                    )}
+
+                    {/* Address + contact + zone */}
+                    <div className="grid md:grid-cols-2 gap-4" style={{ paddingTop: 8, borderTop: `1px dashed rgba(42,29,20,0.14)` }}>
+                      <div>
+                        <div style={{ fontFamily: SANS, fontSize: 10, fontWeight: 700, letterSpacing: "0.18em", textTransform: "uppercase", color: C.ink, opacity: 0.55, marginBottom: 6, display: "flex", alignItems: "center", gap: 6 }}>
+                          <MapPin size={12} /> {isKa ? "მისამართი" : "Address"}
+                        </div>
+                        <p style={{ fontFamily: SANS, fontSize: 13, color: C.ink, opacity: 0.85, margin: 0, lineHeight: 1.55 }}>
+                          {addr.firstName} {addr.lastName}<br />
+                          {addr.streetAddress}, {addr.city}<br />
+                          {addr.phone}
+                          {addr.email && (<><br />{addr.email}</>)}
+                        </p>
+                      </div>
+                      <div>
+                        {zone && (
+                          <div style={{ marginBottom: 10 }}>
+                            <div style={{ fontFamily: SANS, fontSize: 10, fontWeight: 700, letterSpacing: "0.18em", textTransform: "uppercase", color: C.ink, opacity: 0.55, marginBottom: 6, display: "flex", alignItems: "center", gap: 6 }}>
+                              <Truck size={12} /> {isKa ? "კურიერი" : "Courier"}
+                            </div>
+                            <p style={{ fontFamily: SANS, fontSize: 13, color: C.ink, opacity: 0.85, margin: 0 }}>
+                              {zone.label?.[isKa ? "ka" : "en"]}
+                              <span style={{ color: C.burnt, fontWeight: 700, marginLeft: 6 }}>· {zone.fee} ₾</span>
+                            </p>
+                          </div>
+                        )}
+                        {contactMethod && (
+                          <div>
+                            <div style={{ fontFamily: SANS, fontSize: 10, fontWeight: 700, letterSpacing: "0.18em", textTransform: "uppercase", color: C.ink, opacity: 0.55, marginBottom: 6, display: "flex", alignItems: "center", gap: 6 }}>
+                              {contactMethod === "phone" ? <Phone size={12} /> : <MessageCircle size={12} />}
+                              {isKa ? "კონტაქტი" : "Contact"}
+                            </div>
+                            <p style={{ fontFamily: SANS, fontSize: 13, color: C.ink, opacity: 0.85, margin: 0 }}>
+                              {CONTACT_LABEL_LOCAL[contactMethod]?.[isKa ? "ka" : "en"] || contactMethod}
+                            </p>
+                          </div>
+                        )}
+                      </div>
+                    </div>
+
+                    {addr.notes && (
+                      <div style={{ paddingTop: 8, borderTop: `1px dashed rgba(42,29,20,0.14)` }}>
+                        <div style={{ fontFamily: SANS, fontSize: 10, fontWeight: 700, letterSpacing: "0.18em", textTransform: "uppercase", color: C.ink, opacity: 0.55, marginBottom: 6 }}>
+                          {isKa ? "კომენტარი" : "Notes"}
+                        </div>
+                        <p style={{ fontFamily: SANS, fontSize: 13, color: C.ink, opacity: 0.85, margin: 0, lineHeight: 1.55 }}>{addr.notes}</p>
+                      </div>
+                    )}
+
+                    {/* Totals */}
+                    <div style={{ paddingTop: 8, borderTop: `1px dashed rgba(42,29,20,0.14)`, display: "flex", flexDirection: "column", gap: 6 }}>
+                      <div style={{ display: "flex", justifyContent: "space-between", fontFamily: SANS, fontSize: 13, color: C.ink, opacity: 0.75 }}>
+                        <span>{isKa ? "ნივთები" : "Subtotal"}</span>
+                        <span style={{ fontWeight: 600 }}>{formatPrice(order.subtotal)}</span>
+                      </div>
+                      <div style={{ display: "flex", justifyContent: "space-between", fontFamily: SANS, fontSize: 13, color: C.ink, opacity: 0.85 }}>
+                        <span>{isKa ? "კურიერი" : "Courier"}</span>
+                        <span style={{ fontWeight: 700, color: C.burnt }}>{formatPrice(order.shipping)}</span>
+                      </div>
+                      <div style={{ display: "flex", justifyContent: "space-between", fontFamily: FRAUNCES, fontWeight: 700, fontSize: 15, color: C.ink, paddingTop: 6, borderTop: `1px solid rgba(42,29,20,0.10)` }}>
+                        <span>{isKa ? "ჯამი" : "Total"}</span>
+                        <span>{formatPrice(order.total)}</span>
+                      </div>
+                    </div>
+                  </div>
+                )}
+              </Card>
+            );
+          })}
         </div>
       )}
     </div>

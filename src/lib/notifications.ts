@@ -42,40 +42,37 @@ interface OrderNotification {
   notes?: string;
 }
 
-function escapeMd(s: string): string {
-  // MarkdownV2 reserved chars per Telegram docs
-  return s.replace(/[_*[\]()~`>#+\-=|{}.!\\]/g, "\\$&");
-}
-
 function buildMessage(o: OrderNotification): string {
+  // Plain text — no MarkdownV2 escaping headaches. Telegram renders emoji and
+  // line breaks fine, which is all we need.
   const lines: string[] = [];
-  lines.push(`🛍️ *ახალი შეკვეთა — Tissu*`);
+  lines.push(`🛍️ ახალი შეკვეთა — Tissu`);
   lines.push("");
-  lines.push(`*#${escapeMd(o.orderId.slice(0, 8).toUpperCase())}*`);
-  lines.push(`სტატუსი: \`pending_confirmation\``);
+  lines.push(`#${o.orderId.slice(0, 8).toUpperCase()}`);
+  lines.push(`სტატუსი: pending_confirmation`);
   lines.push("");
-  lines.push(`👤 ${escapeMd(`${o.customer.firstName} ${o.customer.lastName}`)}`);
-  lines.push(`📱 ${escapeMd(o.customer.phone)}`);
-  if (o.customer.email) lines.push(`✉️ ${escapeMd(o.customer.email)}`);
-  lines.push(`კონტაქტი: ${escapeMd(CONTACT_LABEL[o.contactMethod] || o.contactMethod)}`);
+  lines.push(`👤 ${o.customer.firstName} ${o.customer.lastName}`);
+  lines.push(`📱 ${o.customer.phone}`);
+  if (o.customer.email) lines.push(`✉️ ${o.customer.email}`);
+  lines.push(`💬 ${CONTACT_LABEL[o.contactMethod] || o.contactMethod}`);
   lines.push("");
-  lines.push(`📦 *მისამართი*`);
-  lines.push(escapeMd(`${o.address.street}, ${o.address.city}`));
+  lines.push(`📦 მისამართი`);
+  lines.push(`${o.address.street}, ${o.address.city}`);
   if (o.deliveryZone) {
-    lines.push(escapeMd(`ზონა: ${o.deliveryZone.label.ka} — ${o.deliveryZone.fee} ₾`));
+    lines.push(`🚚 ${o.deliveryZone.label.ka} — ${o.deliveryZone.fee} ₾`);
   }
   lines.push("");
-  lines.push(`🛒 *ნივთები*`);
+  lines.push(`🛒 ნივთები`);
   for (const item of o.items) {
-    lines.push(escapeMd(`• ${item.name} × ${item.quantity} — ${item.price * item.quantity} ₾`));
+    lines.push(`• ${item.name} × ${item.quantity} — ${item.price * item.quantity} ₾`);
   }
   lines.push("");
-  lines.push(escapeMd(`Subtotal: ${o.subtotal} ₾`));
-  lines.push(escapeMd(`Delivery: ${o.shipping} ₾`));
-  lines.push(`*${escapeMd(`Total: ${o.total} ₾`)}*`);
+  lines.push(`Subtotal: ${o.subtotal} ₾`);
+  lines.push(`Delivery: ${o.shipping} ₾`);
+  lines.push(`Total: ${o.total} ₾`);
   if (o.notes) {
     lines.push("");
-    lines.push(`📝 ${escapeMd(o.notes)}`);
+    lines.push(`📝 ${o.notes}`);
   }
   return lines.join("\n");
 }
@@ -89,7 +86,6 @@ async function sendToTelegram(chatId: string, text: string): Promise<void> {
     body: JSON.stringify({
       chat_id: chatId,
       text,
-      parse_mode: "MarkdownV2",
       disable_web_page_preview: true,
     }),
   });
@@ -101,16 +97,21 @@ async function sendToTelegram(chatId: string, text: string): Promise<void> {
 
 export async function notifyAdminNewOrder(order: OrderNotification): Promise<void> {
   if (!TELEGRAM_BOT_TOKEN || !TELEGRAM_CHAT_ID) {
-    console.warn("[notify] Telegram not configured — skipping admin ping.");
+    console.warn("[notify] Telegram not configured — bot token or chat id missing.");
     return;
   }
+  console.log(`[notify] sending order ${order.orderId} to Telegram chat ${TELEGRAM_CHAT_ID}`);
   const text = buildMessage(order);
   const targets = [TELEGRAM_CHAT_ID, ...TELEGRAM_EXTRA_CHAT_IDS];
-  await Promise.all(
+  const results = await Promise.all(
     targets.map(chatId =>
-      sendToTelegram(chatId, text).catch(err => {
-        console.error(`[notify] send to ${chatId} failed:`, err);
-      }),
+      sendToTelegram(chatId, text)
+        .then(() => ({ chatId, ok: true as const }))
+        .catch(err => ({ chatId, ok: false as const, err })),
     ),
   );
+  for (const r of results) {
+    if (r.ok) console.log(`[notify] sent to ${r.chatId}`);
+    else console.error(`[notify] send to ${r.chatId} failed:`, r.err);
+  }
 }
