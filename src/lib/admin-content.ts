@@ -67,10 +67,12 @@ export async function putCMSSection(
   }
   try {
     const url = `${ADMIN_API_URL}/api/admin/site/${encodeURIComponent(page)}/${encodeURIComponent(section)}`;
+    // The agent expects { payload: { ... } } — the upstream error says so:
+    // {"detail":"payload must be an object"}.
     const res = await fetch(url, {
       method: "PUT",
       headers: { ...headers(), "Content-Type": "application/json" },
-      body: JSON.stringify(payload),
+      body: JSON.stringify({ payload }),
     });
     const body = await res.text();
     return { ok: res.ok, status: res.status, body };

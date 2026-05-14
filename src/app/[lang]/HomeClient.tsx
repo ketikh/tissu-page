@@ -8,6 +8,7 @@ import RetroProducts from "@/components/landing/RetroProducts";
 import RetroNecklaces from "@/components/landing/RetroNecklaces";
 import RetroAbout from "@/components/landing/RetroAbout";
 import RetroReviews from "@/components/landing/RetroReviews";
+import { EditableText } from "@/components/admin/AdminEditProvider";
 
 interface HomeProps {
   lang: Locale;
@@ -30,25 +31,37 @@ export default function HomeClient({ lang, products: rawProducts, heroCMS }: Hom
   const eyebrow      = pickLocalized(heroCMS, "eyebrow",  lang, "");
   const titlePart1   = pickLocalized(heroCMS, "title",    lang, copy.hero.titlePart1);
   const titleItalic  = pickLocalized(heroCMS, "italic",   lang, copy.hero.titleItalic);
-  const titlePart2   = ""; // Single-line headline once CMS is filled in.
   const lead         = pickLocalized(heroCMS, "lead",     lang, copy.hero.lead);
   const ctaText      = pickLocalized(heroCMS, "cta_text", lang, copy.hero.ctaPrimary);
   const ctaLink      = (heroCMS?.cta_link || "").trim() || `/${lang}/shop`;
 
-  // If CMS is filled in we use its title; otherwise the legacy two-line copy.
-  const headlineLine1 = heroCMS
-    ? `${titlePart1} ${titleItalic}`.trim()
-    : copy.hero.titlePart1 + " " + copy.hero.titleItalic;
-  const headlineLine2 = heroCMS ? titlePart2 : copy.hero.titlePart2;
+  // Build the headline as editable nodes. When inline editing is OFF
+  // EditableText just renders the inner text — visual result is identical.
+  const headlineLine1Node = heroCMS ? (
+    <>
+      <EditableText page="home" section="hero" fieldKey={`title_${lang}`} defaultValue={titlePart1} />
+      {" "}
+      <EditableText page="home" section="hero" fieldKey={`italic_${lang}`} defaultValue={titleItalic} />
+    </>
+  ) : (
+    `${copy.hero.titlePart1} ${copy.hero.titleItalic}`
+  );
+  const headlineLine2 = heroCMS ? "" : copy.hero.titlePart2;
 
   return (
     <div style={{ background: "#fef0d6" }}>
       <RetroHero
-        brand={eyebrow || "Tissu"}
-        headlineLine1={headlineLine1}
+        brand={eyebrow ? (
+          <EditableText page="home" section="hero" fieldKey={`eyebrow_${lang}`} defaultValue={eyebrow} />
+        ) : "Tissu"}
+        headlineLine1={headlineLine1Node}
         headlineLine2={headlineLine2}
-        kicker={lead}
-        ctaLabel={ctaText}
+        kicker={
+          <EditableText page="home" section="hero" fieldKey={`lead_${lang}`} defaultValue={lead} multiline />
+        }
+        ctaLabel={
+          <EditableText page="home" section="hero" fieldKey={`cta_text_${lang}`} defaultValue={ctaText} />
+        }
         ctaHref={ctaLink}
         lang={lang}
       />

@@ -6,6 +6,7 @@ import { i18n, Locale } from "@/i18n/config";
 import { Navbar } from "@/components/layout/Navbar";
 import { Footer } from "@/components/layout/Footer";
 import { CartDrawer } from "@/components/layout/CartDrawer";
+import { AdminEditProvider } from "@/components/admin/AdminEditProvider";
 import { getDictionary } from "@/i18n/getDictionary";
 
 const nunito = Nunito({
@@ -99,12 +100,14 @@ export default async function RootLayout({
       className={`${nunito.variable} ${gloock.variable} ${caveat.variable} ${fraunces.variable} ${pacifico.variable} ${alkLife.variable} ${notoSansGeorgian.variable} ${notoSerifGeorgian.variable} scroll-smooth`}
     >
       <body className={`min-h-screen flex flex-col antialiased bg-background text-foreground ${locale === "ka" ? "font-noto-sans" : "font-sans"}`}>
-        <Navbar lang={locale} dictionary={dictionary} />
-        <CartDrawer dictionary={dictionary} lang={locale} />
-        <main className="flex-1 flex flex-col">
-          {children}
-        </main>
-        <Footer dictionary={dictionary} lang={locale} />
+        <AdminEditProvider>
+          <Navbar lang={locale} dictionary={dictionary} />
+          <CartDrawer dictionary={dictionary} lang={locale} />
+          <main className="flex-1 flex flex-col">
+            {children}
+          </main>
+          <Footer dictionary={dictionary} lang={locale} />
+        </AdminEditProvider>
       </body>
     </html>
   );
