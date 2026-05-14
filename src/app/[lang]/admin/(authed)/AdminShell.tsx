@@ -11,6 +11,7 @@ import {
   Settings,
   LogOut,
   ExternalLink,
+  FileText,
 } from "lucide-react";
 
 const FRAUNCES = "var(--font-alk-life), var(--font-fraunces), 'Fraunces', Georgia, serif";
@@ -40,6 +41,7 @@ export default function AdminShell({
   const items = [
     { id: "dashboard", href: `/${lang}/admin`,          icon: LayoutDashboard, label: "Dashboard",  color: C.burnt },
     { id: "orders",    href: `/${lang}/admin/orders`,   icon: ShoppingBag,     label: "Orders",     color: C.mustard },
+    { id: "content",   href: `/${lang}/admin/content`,  icon: FileText,        label: "Content",    color: C.burnt },
     { id: "products",  href: `/${lang}/admin/products`, icon: Package,         label: "Products",   color: C.green },
     { id: "promo",     href: `/${lang}/admin/promo`,    icon: Tag,             label: "Promo",      color: C.rose },
     { id: "settings",  href: `/${lang}/admin/settings`, icon: Settings,        label: "Settings",   color: C.ink },
