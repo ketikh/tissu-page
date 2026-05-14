@@ -27,17 +27,17 @@ export default function HomeClient({ lang, products: rawProducts, heroCMS }: Hom
   const copy = getLandingCopy(lang);
 
   // CMS values win when present; otherwise we keep the original copy.
-  const eyebrow      = pickLocalized(heroCMS, "eyebrow",  lang, "");
-  const titlePart1   = pickLocalized(heroCMS, "title",    lang, copy.hero.titlePart1);
-  const titleItalic  = pickLocalized(heroCMS, "italic",   lang, copy.hero.titleItalic);
-  const lead         = pickLocalized(heroCMS, "lead",     lang, copy.hero.lead);
-  const ctaText      = pickLocalized(heroCMS, "cta_text", lang, copy.hero.ctaPrimary);
+  const eyebrow      = pickLocalized(heroCMS, "eyebrow",     lang, "");
+  const titlePart1   = pickLocalized(heroCMS, "title",       lang, copy.hero.titlePart1);
+  const titleItalic  = pickLocalized(heroCMS, "italic",      lang, copy.hero.titleItalic);
+  const titleLine2   = pickLocalized(heroCMS, "title_line2", lang, copy.hero.titlePart2);
+  const lead         = pickLocalized(heroCMS, "lead",        lang, copy.hero.lead);
+  const ctaText      = pickLocalized(heroCMS, "cta_text",    lang, copy.hero.ctaPrimary);
   const ctaLink      = (heroCMS?.cta_link || "").trim() || `/${lang}/shop`;
 
-  const headlineLine1 = heroCMS
-    ? `${titlePart1} ${titleItalic}`.trim()
-    : `${copy.hero.titlePart1} ${copy.hero.titleItalic}`;
-  const headlineLine2 = heroCMS ? "" : copy.hero.titlePart2;
+  // Line 1 is title (+ optional italic suffix); line 2 is the second part.
+  const headlineLine1 = `${titlePart1}${titleItalic ? ` ${titleItalic}` : ""}`.trim();
+  const headlineLine2 = titleLine2;
 
   return (
     <div style={{ background: "#fef0d6" }}>

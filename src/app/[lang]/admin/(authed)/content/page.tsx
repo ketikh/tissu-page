@@ -22,10 +22,13 @@ function buildDefaultPayloads(): Record<string, Record<string, Record<string, st
       hero: {
         eyebrow_ka: ka.hero.eyebrow,
         eyebrow_en: en.hero.eyebrow,
+        // Title is split across two lines on the hero — "line 1" and "line 2".
         title_ka:   ka.hero.titlePart1,
         title_en:   en.hero.titlePart1,
         italic_ka:  ka.hero.titleItalic,
         italic_en:  en.hero.titleItalic,
+        title_line2_ka: ka.hero.titlePart2,
+        title_line2_en: en.hero.titlePart2,
         lead_ka:    ka.hero.lead,
         lead_en:    en.hero.lead,
         cta_text_ka: ka.hero.ctaPrimary,
