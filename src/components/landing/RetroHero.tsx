@@ -13,11 +13,11 @@ import { getLandingCopy } from "@/app/[lang]/landingCopy";
 
 interface RetroHeroProps {
   photoSrc?: string;
-  brand?: React.ReactNode;
-  headlineLine1?: React.ReactNode;
-  headlineLine2?: React.ReactNode;
-  kicker?: React.ReactNode;
-  ctaLabel?: React.ReactNode;
+  brand?: string;
+  headlineLine1?: string;
+  headlineLine2?: string;
+  kicker?: string;
+  ctaLabel?: string;
   ctaHref?: string;
   lang?: Locale;
 }
@@ -128,7 +128,7 @@ export default function RetroHero({
 
         {/* CENTER — TISSU wordmark */}
         <div className="flex justify-center">
-          <Link href={`/${lang}`} aria-label={typeof brand === "string" ? brand : "Tissu"}>
+          <Link href={`/${lang}`} aria-label={brand}>
             <svg
               viewBox="0 0 1282.8 410"
               xmlns="http://www.w3.org/2000/svg"
@@ -246,21 +246,7 @@ export default function RetroHero({
 
 /* ── Helpers ── */
 
-function RevealLine({ text, delay = 0 }: { text: React.ReactNode; delay?: number }) {
-  // When `text` is a plain string we keep the per-character stagger; when it's
-  // a node (e.g. <EditableText/>) we render it as-is so nested handlers and
-  // editing affordances survive — `.split("")` would have destroyed them.
-  if (typeof text !== "string") {
-    return (
-      <motion.span
-        initial={{ opacity: 0, y: 18 }}
-        animate={{ opacity: 1, y: 0, transition: { duration: 0.55, delay, ease: [0.215, 0.61, 0.355, 1] } }}
-        className="inline-block"
-      >
-        {text}
-      </motion.span>
-    );
-  }
+function RevealLine({ text, delay = 0 }: { text: string; delay?: number }) {
   return (
     <motion.span
       initial="hidden"

@@ -21,10 +21,12 @@ export default function ContentClient({
   lang: _lang,
   initialPage,
   initialPayloads,
+  defaultsByPage,
 }: {
   lang: Locale;
   initialPage: string;
   initialPayloads: Record<string, Record<string, unknown>>;
+  defaultsByPage: Record<string, Record<string, Record<string, string>>>;
 }) {
   void _lang;
   const [pageId, setPageId] = useState(initialPage);
@@ -41,12 +43,21 @@ export default function ContentClient({
       .then(r => r.ok ? r.json() : { sections: [] })
       .then((data) => {
         const next: Record<string, Record<string, unknown>> = {};
-        for (const s of data?.sections ?? []) next[s.section] = s.payload || {};
+        const pageDefaults = defaultsByPage[pageId] || {};
+        const pageSchema = findPageSchema(pageId);
+        for (const s of pageSchema?.sections ?? []) {
+          const saved = (data?.sections || []).find((x: { section: string }) => x.section === s.section)?.payload || {};
+          const merged: Record<string, string> = { ...(pageDefaults[s.section] || {}) };
+          for (const [k, v] of Object.entries(saved)) {
+            if (typeof v === "string" && v.trim()) merged[k] = v;
+          }
+          next[s.section] = merged;
+        }
         setPayloads(next);
       })
       .catch(() => setPayloads({}))
       .finally(() => setLoading(false));
-  }, [pageId, initialPage]);
+  }, [pageId, initialPage, defaultsByPage]);
 
   return (
     <div style={{ display: "flex", flexDirection: "column", gap: 24 }}>
