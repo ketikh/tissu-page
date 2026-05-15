@@ -29,8 +29,32 @@ const SOCIAL_CIRCLE: React.CSSProperties = {
   transition: "background 0.18s ease, border-color 0.18s ease",
 };
 
-export function Footer({ dictionary, lang = "ka" }: { dictionary?: any; lang?: Locale }) {
+export interface FooterSocials {
+  facebookUrl: string;
+  tiktokUrl: string;
+  instagramUrl: string;
+}
+
+export function Footer({
+  dictionary,
+  lang = "ka",
+  tagline,
+  socials,
+}: {
+  dictionary?: any;
+  lang?: Locale;
+  tagline?: string;
+  socials?: FooterSocials;
+}) {
   const isKa = lang === "ka";
+
+  const facebookUrl = socials?.facebookUrl?.trim() || "https://facebook.com/thetissushop";
+  const tiktokUrl   = socials?.tiktokUrl?.trim()   || "https://tiktok.com/@thetissushop";
+  const instagramUrl = socials?.instagramUrl?.trim() || "https://instagram.com/thetissushop";
+
+  const taglineText = (tagline && tagline.trim())
+    ? tagline.trim()
+    : (isKa ? "ხელით ნაკერი ჩანთები — სიყვარულით თბილისიდან." : "Handmade bags — made with love in Tbilisi.");
 
   const links = [
     { label: isKa ? "ჩვენი ამბავი" : "Our story", href: `/${lang}/about` },
@@ -86,15 +110,13 @@ export function Footer({ dictionary, lang = "ka" }: { dictionary?: any; lang?: L
           color: C.cream, opacity: 0.85,
           maxWidth: 320, margin: 0,
         }}>
-          {isKa
-            ? "ხელით ნაკერი ჩანთები — სიყვარულით თბილისიდან."
-            : "Handmade bags — made with love in Tbilisi."}
+          {taglineText}
         </p>
 
         {/* Social icons — Facebook · TikTok · Instagram */}
         <div style={{ display: "flex", gap: 14 }}>
           <a
-            href="https://facebook.com/thetissushop"
+            href={facebookUrl}
             target="_blank"
             rel="noopener noreferrer"
             aria-label="Facebook"
@@ -106,7 +128,7 @@ export function Footer({ dictionary, lang = "ka" }: { dictionary?: any; lang?: L
             </svg>
           </a>
           <a
-            href="https://tiktok.com/@thetissushop"
+            href={tiktokUrl}
             target="_blank"
             rel="noopener noreferrer"
             aria-label="TikTok"
@@ -118,7 +140,7 @@ export function Footer({ dictionary, lang = "ka" }: { dictionary?: any; lang?: L
             </svg>
           </a>
           <a
-            href="https://instagram.com/thetissushop"
+            href={instagramUrl}
             target="_blank"
             rel="noopener noreferrer"
             aria-label="Instagram"

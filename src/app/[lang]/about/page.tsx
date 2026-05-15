@@ -1,7 +1,13 @@
 import { getDictionary } from "@/i18n/getDictionary";
 import { Locale } from "@/i18n/config";
+import { fetchCMSSection } from "@/lib/admin-content";
 import Link from "next/link";
 import Image from "next/image";
+
+function pick(cms: Record<string, string> | null | undefined, key: string, fallback: string): string {
+  const v = cms?.[key];
+  return v && typeof v === "string" && v.trim() ? v.trim() : fallback;
+}
 
 const PACIFICO = "var(--font-pacifico), 'Pacifico', cursive";
 const FRAUNCES = "var(--font-fraunces), 'Fraunces', Georgia, serif";
@@ -72,6 +78,11 @@ export default async function AboutPage({ params }: { params: Promise<{ lang: st
   await getDictionary(locale);
   const isKa = locale === "ka";
 
+  const cms = await fetchCMSSection<Record<string, string>>("about", "intro", { revalidate: 30 });
+  const eyebrow = pick(cms, `eyebrow_${locale}`, isKa ? "ჩვენი ამბავი" : "Our story");
+  const titleFromCMS = pick(cms, `title_${locale}`, "");
+  const bodyFromCMS = pick(cms, `body_${locale}`, "");
+
   return (
     <div style={{
       background: "#fffcf5",
@@ -91,7 +102,7 @@ export default async function AboutPage({ params }: { params: Promise<{ lang: st
           className="inline-block text-[11px] font-extrabold uppercase tracking-[0.3em] mb-5"
           style={{ color: C.green, fontFamily: FRAUNCES }}
         >
-          {isKa ? "ჩვენი ამბავი" : "Our story"}
+          {eyebrow}
         </span>
 
         <h1
@@ -105,11 +116,11 @@ export default async function AboutPage({ params }: { params: Promise<{ lang: st
             maxWidth: 820,
           }}
         >
-          {isKa ? (
-            <>ერთი წყვილი ხელი,<br />თითო ჩანთა.</>
-          ) : (
-            <>One pair of hands,<br />one bag at a time.</>
-          )}
+          {titleFromCMS
+            ? titleFromCMS
+            : isKa
+              ? (<>ერთი წყვილი ხელი,<br />თითო ჩანთა.</>)
+              : (<>One pair of hands,<br />one bag at a time.</>)}
         </h1>
 
         <p
@@ -120,11 +131,14 @@ export default async function AboutPage({ params }: { params: Promise<{ lang: st
             color: C.greenDeep,
             lineHeight: 1.7,
             maxWidth: 600,
+            whiteSpace: "pre-line",
           }}
         >
-          {isKa
-            ? "Tissu დაიწყო თბილისის მზიან სამზარეულოში — ერთი საკერავი მანქანა, წყალგაუმტარი ტილო და იდეა, რომ ჩანთამ ორჯერ მეტი უნდა შეეძლოს. დღემდე პატარები ვართ, ხელით ვკერავთ."
-            : "Tissu started on a sunny Tbilisi kitchen table — one sewing machine, a roll of canvas, and the idea that a bag should work twice as hard. We're still small, still handmade."}
+          {bodyFromCMS
+            ? bodyFromCMS
+            : isKa
+              ? "Tissu დაიწყო თბილისის მზიან სამზარეულოში — ერთი საკერავი მანქანა, წყალგაუმტარი ტილო და იდეა, რომ ჩანთამ ორჯერ მეტი უნდა შეეძლოს. დღემდე პატარები ვართ, ხელით ვკერავთ."
+              : "Tissu started on a sunny Tbilisi kitchen table — one sewing machine, a roll of canvas, and the idea that a bag should work twice as hard. We're still small, still handmade."}
         </p>
       </section>
 

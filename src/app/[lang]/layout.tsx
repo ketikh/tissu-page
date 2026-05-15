@@ -7,6 +7,7 @@ import { Navbar } from "@/components/layout/Navbar";
 import { Footer } from "@/components/layout/Footer";
 import { CartDrawer } from "@/components/layout/CartDrawer";
 import { getDictionary } from "@/i18n/getDictionary";
+import { fetchCMSSection } from "@/lib/admin-content";
 
 const nunito = Nunito({
   variable: "--font-nunito",
@@ -93,6 +94,19 @@ export default async function RootLayout({
   const locale = lang as Locale;
   const dictionary = await getDictionary(locale);
 
+  // CMS values for the footer — tagline and social links — load in parallel
+  // and fall back silently if the CMS is unreachable.
+  const [footerCMS, contactCMS] = await Promise.all([
+    fetchCMSSection<Record<string, string>>("footer", "main",     { revalidate: 30 }),
+    fetchCMSSection<Record<string, string>>("contact", "details", { revalidate: 30 }),
+  ]);
+  const tagline = (footerCMS?.[`tagline_${locale}`] || "").trim();
+  const socials = {
+    facebookUrl:  (contactCMS?.facebook_url  || "").trim(),
+    tiktokUrl:    (contactCMS?.tiktok_url    || "").trim(),
+    instagramUrl: (contactCMS?.instagram_url || "").trim(),
+  };
+
   return (
     <html
       lang={locale}
@@ -104,7 +118,7 @@ export default async function RootLayout({
         <main className="flex-1 flex flex-col">
           {children}
         </main>
-        <Footer dictionary={dictionary} lang={locale} />
+        <Footer dictionary={dictionary} lang={locale} tagline={tagline} socials={socials} />
       </body>
     </html>
   );
