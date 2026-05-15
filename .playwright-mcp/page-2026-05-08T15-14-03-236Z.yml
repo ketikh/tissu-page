@@ -1,0 +1,168 @@
+- generic [active] [ref=e1]:
+  - banner [ref=e2]:
+    - generic [ref=e5]:
+      - generic [ref=e6]:
+        - button "მაღაზია" [ref=e8]:
+          - generic [ref=e9]: მაღაზია
+          - img [ref=e11]
+        - link "ჩვენი ამბავი" [ref=e13] [cursor=pointer]:
+          - /url: /ka/about
+      - link "Tissu" [ref=e15] [cursor=pointer]:
+        - /url: /ka
+        - img "Tissu" [ref=e16]
+      - generic [ref=e17]:
+        - generic "Select language" [ref=e18]:
+          - generic [ref=e19]:
+            - link "ka" [ref=e20] [cursor=pointer]:
+              - /url: /ka/product/31
+              - text: ka
+            - link "en" [ref=e22] [cursor=pointer]:
+              - /url: /en/product/31
+        - link "ანგარიში" [ref=e23] [cursor=pointer]:
+          - /url: /ka/account
+          - img [ref=e24]
+        - button "კალათა" [ref=e27]:
+          - img [ref=e28]
+    - img [ref=e32]
+  - main [ref=e35]:
+    - generic [ref=e36]:
+      - generic [ref=e37]:
+        - generic:
+          - generic:
+            - img
+          - generic:
+            - img
+          - generic:
+            - img
+          - generic:
+            - img
+          - generic:
+            - img
+          - generic:
+            - img
+          - generic:
+            - img
+          - generic:
+            - img
+          - generic:
+            - img
+          - generic:
+            - img
+        - generic [ref=e38]:
+          - generic [ref=e39]:
+            - link "მთავარი" [ref=e40] [cursor=pointer]:
+              - /url: /ka
+            - generic [ref=e41]: →
+            - link "მაღაზია" [ref=e42] [cursor=pointer]:
+              - /url: /ka/shop
+            - generic [ref=e43]: →
+            - generic [ref=e44]: ქისები
+          - 'heading "Tissu Large #1" [level=1] [ref=e46]'
+          - paragraph [ref=e47]: დიდი (37x27) · ყაყაჩო
+        - img [ref=e49]
+      - generic [ref=e51]:
+        - generic:
+          - generic:
+            - img
+          - generic:
+            - img
+          - generic:
+            - img
+          - generic:
+            - img
+          - generic:
+            - img
+          - generic:
+            - img
+          - generic:
+            - img
+          - generic:
+            - img
+        - generic [ref=e53]:
+          - generic [ref=e54]:
+            - generic [ref=e55]:
+              - 'img "Tissu Large #1" [ref=e56]'
+              - button "Add to wishlist" [ref=e57] [cursor=pointer]:
+                - img [ref=e58]
+              - generic [ref=e60]: ✦ 2 მარაგშია
+            - generic [ref=e61]:
+              - button "front" [ref=e62] [cursor=pointer]:
+                - img "front" [ref=e63]
+              - button "back" [ref=e64] [cursor=pointer]:
+                - img "back" [ref=e65]
+          - generic [ref=e66]:
+            - generic [ref=e68]:
+              - text: ქისები
+              - generic [ref=e69]: ·
+              - generic [ref=e70]: 2 მარაგში
+            - generic [ref=e72]: 74₾
+            - generic [ref=e73]:
+              - generic [ref=e74]: ხელნაკეთი
+              - generic [ref=e75]: წყალგამძლე
+              - generic [ref=e76]: ორმხრივი
+            - generic [ref=e77]:
+              - generic [ref=e78]: რაოდ.
+              - generic [ref=e79]:
+                - button "decrease" [ref=e80] [cursor=pointer]:
+                  - img [ref=e81]
+                - generic [ref=e82]: "1"
+                - button "increase" [ref=e83] [cursor=pointer]:
+                  - img [ref=e84]
+            - generic [ref=e85]:
+              - button "კალათში დამატება" [ref=e86] [cursor=pointer]:
+                - img [ref=e87]
+                - text: კალათში დამატება
+              - button "მაღაზია" [ref=e90] [cursor=pointer]
+            - paragraph [ref=e91]: ✦ ხელნაკეთი თბილისში · სწრაფი მიტანა საქართველოში
+      - generic [ref=e94]:
+        - generic [ref=e95]:
+          - generic [ref=e96]: ✦
+          - generic [ref=e97]: ხელნაკეთი
+          - generic [ref=e98]: ჩვენს სახელოსნოში
+        - generic [ref=e99]:
+          - generic [ref=e100]: ↺
+          - generic [ref=e101]: ორმხრივი
+          - generic [ref=e102]: ორი მხარე, ერთი ჩანთა
+        - generic [ref=e103]:
+          - generic [ref=e104]: 💧
+          - generic [ref=e105]: წყალგამძლე
+          - generic [ref=e106]: სანვარე ტილო
+      - generic [ref=e109]:
+        - generic [ref=e110]:
+          - generic [ref=e111]: ხელით ნაკერი · თბილისი
+          - heading "შეიძლება მოგეწონოს" [level=2] [ref=e112]
+        - generic [ref=e113]:
+          - 'link "Tissu Large #2 74₾ + კალათი" [ref=e114] [cursor=pointer]':
+            - /url: /ka/product/32
+            - generic [ref=e115]:
+              - img [ref=e117]
+              - generic [ref=e120]:
+                - generic [ref=e121]: "Tissu Large #2"
+                - generic [ref=e122]: 74₾
+                - button "+ კალათი" [ref=e123]
+          - 'link "Tissu Large #6 74₾ + კალათი" [ref=e124] [cursor=pointer]':
+            - /url: /ka/product/35
+            - generic [ref=e125]:
+              - img [ref=e127]
+              - generic [ref=e130]:
+                - generic [ref=e131]: "Tissu Large #6"
+                - generic [ref=e132]: 74₾
+                - button "+ კალათი" [ref=e133]
+          - 'link "Tissu Large #7 74₾ + კალათი" [ref=e134] [cursor=pointer]':
+            - /url: /ka/product/36
+            - generic [ref=e135]:
+              - img [ref=e137]
+              - generic [ref=e140]:
+                - generic [ref=e141]: "Tissu Large #7"
+                - generic [ref=e142]: 74₾
+                - button "+ კალათი" [ref=e143]
+          - link "Tissu with strap 74₾ + კალათი" [ref=e144] [cursor=pointer]:
+            - /url: /ka/product/37
+            - generic [ref=e145]:
+              - img [ref=e147]
+              - generic [ref=e150]:
+                - generic [ref=e151]: Tissu with strap
+                - generic [ref=e152]: 74₾
+                - button "+ კალათი" [ref=e153]
+  - button "Open Next.js Dev Tools" [ref=e160] [cursor=pointer]:
+    - img [ref=e161]

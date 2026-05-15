@@ -1,0 +1,157 @@
+- generic [active] [ref=e1]:
+  - button "Open Next.js Dev Tools" [ref=e7] [cursor=pointer]:
+    - img [ref=e8]
+  - banner [ref=e11]:
+    - generic [ref=e12]:
+      - generic [ref=e14]:
+        - generic [ref=e15]:
+          - button "მაღაზია" [ref=e17]:
+            - generic [ref=e18]: მაღაზია
+            - img [ref=e20]
+          - link "ჩვენი ამბავი" [ref=e22] [cursor=pointer]:
+            - /url: /ka/about
+        - link "Tissu" [ref=e24] [cursor=pointer]:
+          - /url: /ka
+          - img "Tissu" [ref=e25]
+        - generic [ref=e26]:
+          - generic "Select language" [ref=e27]:
+            - generic [ref=e28]:
+              - link "ka" [ref=e29] [cursor=pointer]:
+                - /url: /ka/product/38
+                - text: ka
+              - link "en" [ref=e31] [cursor=pointer]:
+                - /url: /en/product/38
+          - link "ანგარიში" [ref=e32] [cursor=pointer]:
+            - /url: /ka/account
+            - img [ref=e33]
+          - button "კალათა" [ref=e36]:
+            - img [ref=e37]
+      - img
+  - main [ref=e40]:
+    - generic [ref=e41]:
+      - generic [ref=e42]:
+        - generic:
+          - generic:
+            - img
+          - generic:
+            - img
+          - generic:
+            - img
+          - generic:
+            - img
+          - generic:
+            - img
+          - generic:
+            - img
+          - generic:
+            - img
+          - generic:
+            - img
+          - generic:
+            - img
+          - generic:
+            - img
+        - generic [ref=e43]:
+          - generic [ref=e44]:
+            - link "მთავარი" [ref=e45] [cursor=pointer]:
+              - /url: /ka
+            - generic [ref=e46]: →
+            - link "მაღაზია" [ref=e47] [cursor=pointer]:
+              - /url: /ka/shop
+            - generic [ref=e48]: →
+            - generic [ref=e49]: ყელსაბამები
+          - heading "ყელსაბამი" [level=1] [ref=e50]
+        - img [ref=e52]
+      - generic [ref=e54]:
+        - generic:
+          - generic:
+            - img
+          - generic:
+            - img
+          - generic:
+            - img
+          - generic:
+            - img
+          - generic:
+            - img
+          - generic:
+            - img
+          - generic:
+            - img
+          - generic:
+            - img
+        - generic [ref=e56]:
+          - generic [ref=e58]:
+            - img "ყელსაბამი" [ref=e59]
+            - button "Add to wishlist" [ref=e60] [cursor=pointer]:
+              - img [ref=e61]
+            - generic [ref=e63]: ✦ 1 მარაგშია
+          - generic [ref=e64]:
+            - generic [ref=e65]:
+              - generic [ref=e66]: ყელსაბამები
+              - generic [ref=e68]: 1 მარაგში
+            - generic [ref=e69]:
+              - generic [ref=e70]: "74"
+              - generic [ref=e71]: ₾
+            - paragraph [ref=e72]:
+              - generic [ref=e73]: ↻
+              - text: ორმხრივი — გადააბრუნე და ახალი ჩანთაა.
+            - generic [ref=e74]:
+              - generic [ref=e75]: ზომა
+              - generic [ref=e76]:
+                - button "პატარა 69₾ 33×25 სმ" [ref=e77] [cursor=pointer]:
+                  - generic [ref=e78]:
+                    - generic [ref=e79]: პატარა
+                    - generic [ref=e80]: 69₾
+                  - generic [ref=e81]: 33×25 სმ
+                - button "დიდი 74₾ 37×27 სმ" [ref=e82] [cursor=pointer]:
+                  - generic [ref=e83]:
+                    - generic [ref=e84]: დიდი
+                    - generic [ref=e85]: 74₾
+                  - generic [ref=e86]: 37×27 სმ
+            - generic [ref=e87]:
+              - generic [ref=e88]:
+                - button "decrease" [ref=e89] [cursor=pointer]:
+                  - img [ref=e90]
+                - generic [ref=e91]: "1"
+                - button "increase" [ref=e92] [cursor=pointer]:
+                  - img [ref=e93]
+              - button "კალათში დამატება" [ref=e94] [cursor=pointer]:
+                - img [ref=e95]
+                - text: კალათში დამატება
+            - generic [ref=e98]:
+              - generic [ref=e99]: მოვლა
+              - list [ref=e100]:
+                - listitem [ref=e101]:
+                  - generic [ref=e103]: გაიწმინდე ნოტიო ნაჭრით
+                - listitem [ref=e104]:
+                  - generic [ref=e106]: ნაზი რეცხვა 30°C-ზე
+                - listitem [ref=e107]:
+                  - generic [ref=e109]: მათეთრებლების გარეშე
+                - listitem [ref=e110]:
+                  - generic [ref=e112]: ჰაერზე გაშრობა რეკომენდებულია
+                - listitem [ref=e113]:
+                  - generic [ref=e115]: უთო შიგნიდან, დაბალ ცეცხლზე
+              - generic [ref=e116]: მასალა
+              - paragraph [ref=e117]: წყალგამძლე საღებავიანი ტილო (Duck Canvas)
+      - generic [ref=e120]:
+        - generic [ref=e121]:
+          - generic [ref=e122]: ხელით ნაკერი · თბილისი
+          - heading "შეიძლება მოგეწონოს" [level=2] [ref=e123]
+        - generic [ref=e124]:
+          - link "ყელსაბამი 15₾ + კალათი" [ref=e125] [cursor=pointer]:
+            - /url: /ka/product/39
+            - generic [ref=e126]:
+              - img [ref=e128]
+              - generic [ref=e131]:
+                - generic [ref=e132]: ყელსაბამი
+                - generic [ref=e133]: 15₾
+                - button "+ კალათი" [ref=e134]
+          - link "ყელსაბამი 16₾ + კალათი" [ref=e135] [cursor=pointer]:
+            - /url: /ka/product/42
+            - generic [ref=e136]:
+              - img [ref=e138]
+              - generic [ref=e141]:
+                - generic [ref=e142]: ყელსაბამი
+                - generic [ref=e143]: 16₾
+                - button "+ კალათი" [ref=e144]

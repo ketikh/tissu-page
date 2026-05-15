@@ -8,6 +8,7 @@ import type { StorefrontProduct } from "@/lib/admin-api";
 interface RetroNecklacesProps {
   isKa?: boolean;
   shopHref?: string;
+  lang?: string;
   products: StorefrontProduct[];
 }
 

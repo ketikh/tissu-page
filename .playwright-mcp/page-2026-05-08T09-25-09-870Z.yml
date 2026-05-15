@@ -1,0 +1,31 @@
+- generic [active] [ref=e1]:
+  - banner [ref=e2]:
+    - generic [ref=e5]:
+      - generic [ref=e6]:
+        - button "Shop" [ref=e8]:
+          - generic [ref=e9]: Shop
+          - img [ref=e11]
+        - link "Our story" [ref=e13] [cursor=pointer]:
+          - /url: /en/about
+      - link "Tissu" [ref=e15] [cursor=pointer]:
+        - /url: /en
+        - img "Tissu" [ref=e16]
+      - generic [ref=e17]:
+        - generic "Select language" [ref=e18]:
+          - generic [ref=e19]:
+            - link "ka" [ref=e20] [cursor=pointer]:
+              - /url: /ka/shop
+            - link "en" [ref=e21] [cursor=pointer]:
+              - /url: /en/shop
+              - text: en
+        - link "Account" [ref=e23] [cursor=pointer]:
+          - /url: /en/account
+          - img [ref=e24]
+        - button "Cart" [ref=e27]:
+          - img [ref=e28]
+    - img [ref=e32]
+  - main [ref=e35]:
+    - generic [ref=e36]: Loading…
+  - button "Open Next.js Dev Tools" [ref=e42] [cursor=pointer]:
+    - img [ref=e43]
+  - alert [ref=e46]

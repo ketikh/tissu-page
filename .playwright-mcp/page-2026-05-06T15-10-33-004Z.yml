@@ -1,0 +1,125 @@
+- generic [active] [ref=e1]:
+  - banner [ref=e2]:
+    - generic [ref=e4]:
+      - button "Menu" [ref=e5]:
+        - img [ref=e6]
+      - link "Tissu" [ref=e7] [cursor=pointer]:
+        - /url: /en
+        - img "Tissu" [ref=e8]
+      - button "Cart" [ref=e9]:
+        - img [ref=e10]
+  - main [ref=e13]:
+    - generic [ref=e14]:
+      - generic [ref=e15]:
+        - generic:
+          - img
+        - generic:
+          - img
+        - generic:
+          - img
+        - generic:
+          - img
+        - generic [ref=e16]:
+          - generic [ref=e17]:
+            - link "home" [ref=e18] [cursor=pointer]:
+              - /url: /en
+            - generic [ref=e19]: ✦
+            - link "shop" [ref=e20] [cursor=pointer]:
+              - /url: /en/shop
+            - generic [ref=e21]: ✦
+            - generic [ref=e22]: Pouches
+          - 'heading "Tissu Large #1" [level=1] [ref=e24]'
+          - paragraph [ref=e25]: დიდი (37x27) · ყაყაჩო
+        - img [ref=e27]
+      - generic [ref=e31]:
+        - generic [ref=e33]:
+          - generic [ref=e34]:
+            - 'img "Tissu Large #1" [ref=e35]'
+            - button "Add to wishlist" [ref=e36] [cursor=pointer]:
+              - img [ref=e37]
+            - generic [ref=e39]: ✦ 2 in stock
+          - generic [ref=e40]:
+            - button "front" [ref=e41] [cursor=pointer]:
+              - img "front" [ref=e42]
+            - button "back" [ref=e43] [cursor=pointer]:
+              - img "back" [ref=e44]
+        - generic [ref=e45]:
+          - generic [ref=e47]:
+            - text: Pouches
+            - generic [ref=e48]: ·
+            - generic [ref=e49]: 2 in stock
+          - generic [ref=e51]: 74₾
+          - generic [ref=e52]:
+            - generic [ref=e53]: Handmade
+            - generic [ref=e54]: Water-resistant
+            - generic [ref=e55]: Reversible
+          - generic [ref=e56]:
+            - generic [ref=e57]: Qty
+            - generic [ref=e58]:
+              - button "decrease" [ref=e59] [cursor=pointer]:
+                - img [ref=e60]
+              - generic [ref=e61]: "1"
+              - button "increase" [ref=e62] [cursor=pointer]:
+                - img [ref=e63]
+          - generic [ref=e64]:
+            - button "Add to bag" [ref=e65] [cursor=pointer]:
+              - img [ref=e66]
+              - text: Add to bag
+            - button "Shop" [ref=e69] [cursor=pointer]
+          - paragraph [ref=e70]: ✦ Handmade in Tbilisi · Fast delivery across Georgia
+      - generic [ref=e73]:
+        - generic [ref=e74]:
+          - generic [ref=e75]: 🚗
+          - generic [ref=e76]: Free shipping
+          - generic [ref=e77]: 1–2 business days
+        - generic [ref=e78]:
+          - generic [ref=e79]: ✦
+          - generic [ref=e80]: Handmade
+          - generic [ref=e81]: In our Tbilisi studio
+        - generic [ref=e82]:
+          - generic [ref=e83]: ↺
+          - generic [ref=e84]: Reversible
+          - generic [ref=e85]: Two sides, one bag
+        - generic [ref=e86]:
+          - generic [ref=e87]: 💧
+          - generic [ref=e88]: Water-resistant
+          - generic [ref=e89]: Canvas that handles rain
+      - generic [ref=e91]:
+        - generic [ref=e92]:
+          - generic [ref=e93]: Handmade in Tbilisi
+          - heading "You might also love" [level=2] [ref=e94]
+        - generic [ref=e95]:
+          - 'link "Tissu Large #2 74₾ + Add" [ref=e96] [cursor=pointer]':
+            - /url: /en/product/32
+            - generic [ref=e97]:
+              - img [ref=e99]
+              - generic [ref=e102]:
+                - generic [ref=e103]: "Tissu Large #2"
+                - generic [ref=e104]: 74₾
+                - button "+ Add" [ref=e105]
+          - 'link "Tissu Large #6 74₾ + Add" [ref=e106] [cursor=pointer]':
+            - /url: /en/product/35
+            - generic [ref=e107]:
+              - img [ref=e109]
+              - generic [ref=e112]:
+                - generic [ref=e113]: "Tissu Large #6"
+                - generic [ref=e114]: 74₾
+                - button "+ Add" [ref=e115]
+          - 'link "Tissu Large #7 74₾ + Add" [ref=e116] [cursor=pointer]':
+            - /url: /en/product/36
+            - generic [ref=e117]:
+              - img [ref=e119]
+              - generic [ref=e122]:
+                - generic [ref=e123]: "Tissu Large #7"
+                - generic [ref=e124]: 74₾
+                - button "+ Add" [ref=e125]
+          - link "Tissu with strap 74₾ + Add" [ref=e126] [cursor=pointer]:
+            - /url: /en/product/37
+            - generic [ref=e127]:
+              - img [ref=e129]
+              - generic [ref=e132]:
+                - generic [ref=e133]: Tissu with strap
+                - generic [ref=e134]: 74₾
+                - button "+ Add" [ref=e135]
+  - button "Open Next.js Dev Tools" [ref=e141] [cursor=pointer]:
+    - img [ref=e142]

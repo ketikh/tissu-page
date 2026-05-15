@@ -1,0 +1,66 @@
+- generic [active] [ref=e1]:
+  - banner [ref=e2]:
+    - generic [ref=e3]:
+      - generic [ref=e4]:
+        - generic [ref=e5]:
+          - button "მაღაზია" [ref=e7]:
+            - generic [ref=e8]: მაღაზია
+            - img [ref=e10]
+          - link "ჩვენი ამბავი" [ref=e12] [cursor=pointer]:
+            - /url: /ka/about
+        - link "Tissu" [ref=e14] [cursor=pointer]:
+          - /url: /ka
+          - img "Tissu" [ref=e15]
+        - generic [ref=e16]:
+          - generic "Select language" [ref=e17]:
+            - generic [ref=e18]:
+              - link "ka" [ref=e19] [cursor=pointer]:
+                - /url: /ka/shop
+                - text: ka
+              - link "en" [ref=e21] [cursor=pointer]:
+                - /url: /en/shop
+          - link "ანგარიში" [ref=e22] [cursor=pointer]:
+            - /url: /ka/account
+            - img [ref=e23]
+          - button "კალათა" [ref=e26]:
+            - img [ref=e27]
+            - generic [ref=e30]: "5"
+      - img
+  - main [ref=e31]:
+    - generic [ref=e32]: Loading…
+  - contentinfo [ref=e33]:
+    - img [ref=e34]
+    - img [ref=e36]
+    - img [ref=e38]
+    - img [ref=e40]
+    - img [ref=e42]
+    - img [ref=e44]
+    - generic [ref=e46]:
+      - img "Tissu" [ref=e47]
+      - paragraph [ref=e48]: ხელით ნაკერი ჩანთები — სიყვარულით თბილისიდან.
+      - generic [ref=e49]:
+        - link "Instagram" [ref=e50] [cursor=pointer]:
+          - /url: https://instagram.com/thetissushop
+          - img [ref=e51]
+        - link "TikTok" [ref=e55] [cursor=pointer]:
+          - /url: https://tiktok.com/@thetissushop
+          - img [ref=e56]
+        - link "Pinterest" [ref=e58] [cursor=pointer]:
+          - /url: https://pinterest.com/thetissushop
+          - img [ref=e59]
+      - generic [ref=e62]:
+        - generic [ref=e63]: © 2026 Tissu · სიყვარულით თბილისიდან
+        - generic [ref=e64]:
+          - link "ჩვენი ამბავი" [ref=e65] [cursor=pointer]:
+            - /url: /ka/about
+          - link "ხშირი კითხვები" [ref=e66] [cursor=pointer]:
+            - /url: /ka/faq
+          - link "კონტაქტი" [ref=e67] [cursor=pointer]:
+            - /url: /ka/contact
+          - link "კონფიდენციალურობა" [ref=e68] [cursor=pointer]:
+            - /url: /ka/privacy
+          - link "წესები" [ref=e69] [cursor=pointer]:
+            - /url: /ka/terms
+  - button "Open Next.js Dev Tools" [ref=e75] [cursor=pointer]:
+    - img [ref=e76]
+  - alert [ref=e79]

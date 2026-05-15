@@ -9,6 +9,8 @@ import type { StorefrontProduct } from "@/lib/admin-api";
 interface RetroProductsProps {
   isKa?: boolean;
   shopHref?: string;
+  /** Locale prefix used when linking to individual product pages (e.g. "en" or "ka"). */
+  lang?: string;
   products: StorefrontProduct[];
   /** Spotlight only a few; max 6. */
   limit?: number;
@@ -458,9 +460,12 @@ function buildInnerPath(spec: FrameSpec): string {
 export default function RetroProducts({
   isKa = false,
   shopHref = "/shop",
+  lang,
   products,
   limit = 4,
 }: RetroProductsProps) {
+  /* Derive lang from shopHref when not passed (e.g. "/en/shop" → "en") so legacy callers still get working links. */
+  const resolvedLang = lang ?? shopHref.split("/").filter(Boolean)[0] ?? "en";
   const showcase = products
     .filter((p) => Boolean(p.image_front))
     .slice(0, Math.min(limit, FRAMES.length));
@@ -521,7 +526,7 @@ export default function RetroProducts({
             }}
           >
             {isKa
-              ? "გადმოატარე კურსორი — ჩანთა მეორე მხარეზე გადადის."
+              ? "გადმოაბრუნე და შეცვალე"
               : "Hover the photo — the bag turns to its other side."}
           </motion.p>
         </div>
@@ -534,6 +539,7 @@ export default function RetroProducts({
               frame={FRAMES[i % FRAMES.length]}
               index={i}
               isKa={isKa}
+              lang={resolvedLang}
             />
           ))}
         </div>
@@ -574,11 +580,13 @@ function MirrorCard({
   frame,
   index,
   isKa,
+  lang,
 }: {
   product: StorefrontProduct;
   frame: Frame;
   index: number;
   isKa: boolean;
+  lang: string;
 }) {
   const [hover, setHover] = useState(false);
   // No alternating offset — keeps the rows visually compact.
@@ -609,8 +617,10 @@ function MirrorCard({
       onMouseLeave={() => setHover(false)}
       onTouchStart={() => setHover((v) => !v)}
     >
-      <div
-        className="relative w-full max-w-80 cursor-pointer"
+      <Link
+        href={`/${lang}/product/${product.id}`}
+        className="relative w-full max-w-80 cursor-pointer block"
+        aria-label={product.name || product.code}
         style={{
           aspectRatio: "4 / 5",
           transform: `rotate(${frame.rotate}deg)`,
@@ -707,7 +717,7 @@ function MirrorCard({
             {hover ? (isKa ? "უკანა მხარე" : "back side") : (isKa ? "გადმოატარე" : "hover")}
           </div>
         )}
-      </div>
+      </Link>
 
       {/* Caption */}
       <div className="mt-5 text-center max-w-65">
@@ -719,7 +729,7 @@ function MirrorCard({
             (isKa ? "ხელით ნაკერი" : "Handmade")}
         </div>
         <Link
-          href={`#product-${product.id}`}
+          href={`/${lang}/product/${product.id}`}
           className="leading-tight hover:underline underline-offset-4 decoration-1"
           style={{
             fontFamily: FRAUNCES,

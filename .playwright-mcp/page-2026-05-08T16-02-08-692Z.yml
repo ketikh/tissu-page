@@ -1,0 +1,42 @@
+- generic [active] [ref=e1]:
+  - generic [ref=e6] [cursor=pointer]:
+    - button "Open Next.js Dev Tools" [ref=e7]:
+      - img [ref=e8]
+    - generic [ref=e11]:
+      - button "Open issues overlay" [ref=e12]:
+        - generic [ref=e13]:
+          - generic [ref=e14]: "0"
+          - generic [ref=e15]: "1"
+        - generic [ref=e16]: Issue
+      - button "Collapse issues badge" [ref=e17]:
+        - img [ref=e18]
+  - banner [ref=e20]:
+    - generic [ref=e21]:
+      - generic [ref=e22]:
+        - generic [ref=e23]:
+          - button "Shop" [ref=e25]:
+            - generic [ref=e26]: Shop
+            - img [ref=e28]
+          - link "Our story" [ref=e30] [cursor=pointer]:
+            - /url: /en/about
+        - link "Tissu" [ref=e32] [cursor=pointer]:
+          - /url: /en
+          - img "Tissu" [ref=e33]
+        - generic [ref=e34]:
+          - generic "Select language" [ref=e35]:
+            - generic [ref=e36]:
+              - link "ka" [ref=e37] [cursor=pointer]:
+                - /url: /ka/shop
+              - link "en" [ref=e38] [cursor=pointer]:
+                - /url: /en/shop
+                - text: en
+          - link "Account" [ref=e40] [cursor=pointer]:
+            - /url: /en/account
+            - img [ref=e41]
+          - button "Cart" [ref=e44]:
+            - img [ref=e45]
+            - generic [ref=e48]: "1"
+      - img
+  - main [ref=e49]:
+    - generic [ref=e50]: Loading…
+  - alert [ref=e51]
