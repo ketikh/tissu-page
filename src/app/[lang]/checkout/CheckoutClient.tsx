@@ -528,7 +528,7 @@ export default function CheckoutClient({ lang, dictionary }: CheckoutClientProps
                           overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap",
                         }}>{productName}</div>
                         {meta && (
-                          <div style={{ fontFamily: PRICE_FONT, fontSize: 11, color: C.ink, opacity: 0.55, marginTop: 2 }}>{meta}</div>
+                          <div style={{ fontFamily: PRICE_FONT, fontSize: 11, color: C.ink, opacity: 0.55, marginTop: 2, whiteSpace: "pre-line", lineHeight: 1.4 }}>{meta}</div>
                         )}
                       </div>
                       <Price value={(item.variant?.price || item.product.price) * item.quantity} />
@@ -833,7 +833,7 @@ export default function CheckoutClient({ lang, dictionary }: CheckoutClientProps
                   display: "flex", flexDirection: "column", gap: 8,
                 }}>
                   <div style={labelStyle}>{isKa ? "თბილისის ზონა" : "Tbilisi zone"}</div>
-                  {(["center", "outskirts", "villages"] as const).map(sub => {
+                  {(["center", "outskirts"] as const).map(sub => {
                     const checked = tbilisiSub === sub;
                     const labels = TBILISI_SUB_LABELS[sub];
                     return (

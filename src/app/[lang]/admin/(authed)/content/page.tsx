@@ -61,7 +61,7 @@ function buildDefaultPayloads(): Record<string, Record<string, Record<string, st
     },
     footer: {
       main: {
-        tagline_ka: "ხელით ნაკერი ჩანთები — სიყვარულით თბილისიდან.",
+        tagline_ka: "ხელნაკეთი ნივთები — სიყვარულით საქართველოდან.",
         tagline_en: "Handmade bags — made with love in Tbilisi.",
       },
       announcement: {

@@ -146,98 +146,20 @@ export function Navbar({ lang, dictionary }: NavbarProps) {
       {/* ── Desktop: 3-column centred-logo layout ── */}
       <div className="hidden md:grid grid-cols-3 items-center px-6 py-3">
 
-        {/* LEFT — Shop dropdown + extra links */}
+        {/* LEFT — single Shop link, dropdown disabled per request */}
         <div className="flex items-center gap-2">
-          {/* Shop with dropdown */}
-          <div className="relative" ref={shopRef}>
-            <button
-              type="button"
-              onClick={() => setShopOpen((v) => !v)}
-              className="flex items-center gap-1.5 px-3.5 py-2 text-[14px] rounded-full transition-colors"
-              style={{
-                fontFamily: FRAUNCES,
-                fontWeight: 600,
-                letterSpacing: "0.01em",
-                color: shopOpen ? C.burnt : C.ink,
-              }}
-            >
-              <span>{copy.nav.shop}</span>
-              <motion.span animate={{ rotate: shopOpen ? 180 : 0 }} transition={{ duration: 0.22 }}>
-                <ChevronDown className="w-3.5 h-3.5" />
-              </motion.span>
-            </button>
-
-            <AnimatePresence>
-              {shopOpen && (
-                <motion.div
-                  initial={{ opacity: 0, y: 8 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  exit={{ opacity: 0, y: 6 }}
-                  transition={{ duration: 0.18, ease: [0.215, 0.61, 0.355, 1] }}
-                  className="absolute left-0 top-full mt-3 z-50 overflow-hidden"
-                  style={{
-                    width: 360,
-                    background: "white",
-                    borderRadius: 18,
-                    border: "1px solid rgba(42,29,20,0.08)",
-                    boxShadow: "0 14px 40px rgba(42,29,20,0.10), 0 2px 8px rgba(42,29,20,0.04)",
-                  }}
-                >
-                  <div className="grid grid-cols-2 gap-1 p-2">
-                    {categories.map((cat) => {
-                      const dot = CAT_DOT[cat.key];
-                      const isAll = cat.key === "all";
-                      return (
-                        <Link
-                          key={cat.href}
-                          href={cat.href}
-                          onClick={() => setShopOpen(false)}
-                          className="group flex items-center gap-2.5 px-3 py-2.5 rounded-xl transition-colors"
-                          style={{
-                            fontFamily: FRAUNCES,
-                            fontWeight: 500,
-                            fontSize: 14,
-                            color: C.ink,
-                            gridColumn: isAll ? "span 2" : undefined,
-                          }}
-                        >
-                          {dot ? (
-                            <span
-                              aria-hidden="true"
-                              className="inline-block rounded-full transition-transform group-hover:scale-110"
-                              style={{ width: 8, height: 8, background: dot, flexShrink: 0 }}
-                            />
-                          ) : (
-                            <span aria-hidden="true" className="inline-block" style={{ width: 8, height: 8, flexShrink: 0 }}>
-                              <span className="block w-full h-full rounded-full" style={{ background: "linear-gradient(135deg,#d56826,#c4849a,#9e8abf)" }} />
-                            </span>
-                          )}
-                          <span className="flex-1 group-hover:text-[#d56826] transition-colors">{cat.label}</span>
-                          <span className="opacity-0 group-hover:opacity-60 transition-opacity" style={{ fontSize: 12 }}>→</span>
-                        </Link>
-                      );
-                    })}
-                  </div>
-                </motion.div>
-              )}
-            </AnimatePresence>
-          </div>
-
-          {rightLinks.map((link) => (
-            <Link
-              key={link.href}
-              href={link.href}
-              className="px-3.5 py-2 text-[14px] rounded-full transition-colors hover:text-[#d56826]"
-              style={{
-                fontFamily: FRAUNCES,
-                fontWeight: 600,
-                letterSpacing: "0.01em",
-                color: pathname === link.href ? C.burnt : C.ink,
-              }}
-            >
-              {link.name}
-            </Link>
-          ))}
+          <Link
+            href={`/${lang}/shop`}
+            className="px-3.5 py-2 text-[14px] rounded-full transition-colors hover:text-[#d56826]"
+            style={{
+              fontFamily: FRAUNCES,
+              fontWeight: 600,
+              letterSpacing: "0.01em",
+              color: pathname.startsWith(`/${lang}/shop`) ? C.burnt : C.ink,
+            }}
+          >
+            {copy.nav.shop}
+          </Link>
         </div>
 
         {/* CENTER — TISSU logo */}
@@ -370,46 +292,16 @@ export function Navbar({ lang, dictionary }: NavbarProps) {
                 </button>
               </div>
 
-              {/* Panel nav */}
+              {/* Panel nav — single Shop link */}
               <nav className="flex flex-col px-6 py-5 gap-1 flex-1">
-                {/* Shop expandable */}
-                <button
-                  type="button"
-                  onClick={() => setMobileShopOpen((v) => !v)}
-                  className="flex items-center justify-between w-full py-3"
+                <Link
+                  href={`/${lang}/shop`}
+                  onClick={() => setIsMobileOpen(false)}
+                  className="py-3 hover:text-[#d56826] transition-colors"
                   style={{ fontFamily: FRAUNCES, fontStyle: "italic", fontWeight: 700, fontSize: 22, color: C.ink, borderBottom: `1px solid ${C.border}` }}
                 >
                   {copy.nav.shop}
-                  <motion.span animate={{ rotate: mobileShopOpen ? 180 : 0 }} transition={{ duration: 0.22 }}>
-                    <ChevronDown className="w-5 h-5" />
-                  </motion.span>
-                </button>
-
-                <AnimatePresence>
-                  {mobileShopOpen && (
-                    <motion.div initial={{ height: 0, opacity: 0 }} animate={{ height: "auto", opacity: 1 }} exit={{ height: 0, opacity: 0 }} transition={{ duration: 0.2 }} className="overflow-hidden">
-                      <div className="pt-1 pb-2 pl-4 flex flex-col gap-0.5">
-                        {categories.map((cat) => (
-                          <Link key={cat.href} href={cat.href} onClick={() => setIsMobileOpen(false)} className="py-2 text-[13px] font-bold uppercase tracking-[0.1em] hover:text-[#d56826] transition-colors" style={{ fontFamily: FRAUNCES, color: C.ink }}>
-                            → {cat.label}
-                          </Link>
-                        ))}
-                      </div>
-                    </motion.div>
-                  )}
-                </AnimatePresence>
-
-                {rightLinks.map((link) => (
-                  <Link
-                    key={link.href}
-                    href={link.href}
-                    onClick={() => setIsMobileOpen(false)}
-                    className="py-3 hover:text-[#d56826] transition-colors"
-                    style={{ fontFamily: FRAUNCES, fontStyle: "italic", fontWeight: 700, fontSize: 22, color: C.ink, borderBottom: `1px solid ${C.border}` }}
-                  >
-                    {link.name}
-                  </Link>
-                ))}
+                </Link>
               </nav>
 
               {/* Panel footer */}

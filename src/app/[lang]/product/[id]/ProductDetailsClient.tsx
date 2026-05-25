@@ -264,12 +264,16 @@ export function ProductDetailsClient({ product, related, lang }: ProductDetailsC
   const [wishlisted, setWishlisted] = useState(false);
   const [selectedSize, setSelectedSize] = useState<"small" | "large">("large");
 
-  /* Two fixed sizes Tissu offers. `enabled` flips off when stock for that size is gone. */
+  /* Two fixed sizes Tissu offers for bags. Necklaces are one-size — we hide the
+   * selector for them and use the product's actual price. */
+  const isNecklace = product.category === "necklace";
   const SIZES = [
     { id: "small" as const, dim: "33×25", price: 69, enabled: true },
     { id: "large" as const, dim: "37×27", price: 74, enabled: true },
   ];
-  const activeSizePrice = SIZES.find((s) => s.id === selectedSize)?.price ?? product.price;
+  const activeSizePrice = isNecklace
+    ? product.price
+    : (SIZES.find((s) => s.id === selectedSize)?.price ?? product.price);
 
   const addItem  = useCartStore((s) => s.addItem);
   const openCart = useUIStore((s) => s.openCart);
@@ -292,16 +296,26 @@ export function ProductDetailsClient({ product, related, lang }: ProductDetailsC
 
   const onAddToCart = () => {
     if (!inStock) return;
+    // Necklaces are one-size with their own admin-set price. Bags also use
+    // their admin-set price now — the hardcoded 69/74 was only ever a
+    // placeholder when the admin couldn't set prices yet.
     const sizeMeta = SIZES.find((s) => s.id === selectedSize)!;
-    const sizeLabelKa = sizeMeta.id === "small" ? `პატარა ${sizeMeta.dim}სმ` : `დიდი ${sizeMeta.dim}სმ`;
-    const sizeLabelEn = sizeMeta.id === "small" ? `Small ${sizeMeta.dim}cm` : `Large ${sizeMeta.dim}cm`;
+    const variantId   = isNecklace ? product.id                : `${product.id}-${sizeMeta.id}`;
+    const variantPrice = isNecklace ? product.price             : product.price;
+    const variantSize  = isNecklace ? "one"                     : sizeMeta.id;
+    const variantLabelKa = isNecklace
+      ? (product.name || product.code)
+      : (sizeMeta.id === "small" ? `პატარა ${sizeMeta.dim}სმ` : `დიდი ${sizeMeta.dim}სმ`);
+    const variantLabelEn = isNecklace
+      ? (product.name || product.code)
+      : (sizeMeta.id === "small" ? `Small ${sizeMeta.dim}cm`   : `Large ${sizeMeta.dim}cm`);
     const variant = {
-      id: `${product.id}-${sizeMeta.id}`,
-      size: sizeMeta.id,
-      color: { en: sizeLabelEn, ka: sizeLabelKa },
+      id: variantId,
+      size: variantSize,
+      color: { en: variantLabelEn, ka: variantLabelKa },
       colorCode: catColor.bg,
       inStock: true,
-      price: sizeMeta.price,
+      price: variantPrice,
     };
     try {
       addItem(
@@ -311,7 +325,7 @@ export function ProductDetailsClient({ product, related, lang }: ProductDetailsC
           subtitle:    { en: sub,  ka: sub  },
           description: { en: "",   ka: ""   },
           materials: [], careInstructions: [], reviews: [],
-          price:       sizeMeta.price,
+          price:       variantPrice,
           images:      [product.image_front, product.image_back].filter(Boolean) as string[],
           variants: [variant],
           category: product.category as any, featured: true, badges: [],
@@ -571,7 +585,8 @@ export function ProductDetailsClient({ product, related, lang }: ProductDetailsC
                 )}
               </motion.div>
 
-              {/* Reversible note — quiet single line under the price */}
+              {/* Reversible note — bags only. Necklaces don't get this line. */}
+              {!isNecklace && (
               <motion.p
                 initial={{ opacity: 0, y: 4 }}
                 animate={{ opacity: 1, y: 0 }}
@@ -589,6 +604,7 @@ export function ProductDetailsClient({ product, related, lang }: ProductDetailsC
                   ? "ორმხრივი — გადააბრუნე და ახალი ჩანთაა."
                   : "Reversible — flip inside-out for a fresh face."}
               </motion.p>
+              )}
 
               {/* Description — plain paragraph, no decorative box */}
               {product.description && (
@@ -608,7 +624,8 @@ export function ProductDetailsClient({ product, related, lang }: ProductDetailsC
                 </motion.p>
               )}
 
-              {/* Size selector */}
+              {/* Size selector — bags only; necklaces are one-size. */}
+              {!isNecklace && (
               <div style={{ marginBottom: 22 }}>
                 <div style={{
                   fontFamily: FRAUNCES, fontStyle: "italic", fontSize: 11, color: C.champagne,
@@ -666,6 +683,7 @@ export function ProductDetailsClient({ product, related, lang }: ProductDetailsC
                   })}
                 </div>
               </div>
+              )}
 
               {/* Quantity + Add-to-bag — clean modern row */}
               <div style={{ display: "flex", alignItems: "stretch", gap: 10, marginBottom: 24, flexWrap: "wrap" }}>
@@ -727,21 +745,31 @@ export function ProductDetailsClient({ product, related, lang }: ProductDetailsC
                   fontFamily: "system-ui, -apple-system, 'Segoe UI', sans-serif",
                   fontSize: 14, lineHeight: 1.5, color: C.ink, opacity: 0.78,
                 }}>
-                  {(isKa
-                    ? [
-                        "გაიწმინდე ნოტიო ნაჭრით",
-                        "ნაზი რეცხვა 30°C-ზე",
-                        "მათეთრებლების გარეშე",
-                        "ჰაერზე გაშრობა რეკომენდებულია",
-                        "უთო შიგნიდან, დაბალ ცეცხლზე",
-                      ]
-                    : [
-                        "Wipe clean with damp cloth",
-                        "Gentle wash at 30°C",
-                        "Do not bleach",
-                        "Air dry recommended",
-                        "Iron inside out on low heat",
-                      ]
+                  {(isNecklace
+                    ? (isKa
+                        ? [
+                            "მოარიდე ხანგრძლივ წყალთან კონტაქტს",
+                            "მოარიდე სუნამოს, კოსმეტიკას და ქიმიკატებს",
+                          ]
+                        : [
+                            "Avoid prolonged contact with water",
+                            "Keep away from perfume, cosmetics and chemicals",
+                          ])
+                    : (isKa
+                        ? [
+                            "გაიწმინდე ნოტიო ნაჭრით",
+                            "ნაზი რეცხვა 30°C-ზე",
+                            "მათეთრებლების გარეშე",
+                            "ჰაერზე გაშრობა რეკომენდებულია",
+                            "უთო შიგნიდან, დაბალ ცეცხლზე",
+                          ]
+                        : [
+                            "Wipe clean with damp cloth",
+                            "Gentle wash at 30°C",
+                            "Do not bleach",
+                            "Air dry recommended",
+                            "Iron inside out on low heat",
+                          ])
                   ).map((line) => (
                     <li key={line} style={{ display: "flex", gap: 12, alignItems: "flex-start" }}>
                       <span aria-hidden="true" style={{
@@ -753,21 +781,25 @@ export function ProductDetailsClient({ product, related, lang }: ProductDetailsC
                   ))}
                 </ul>
 
-                <div style={{
-                  fontFamily: FRAUNCES, fontWeight: 600,
-                  fontSize: 12, letterSpacing: "0.16em", textTransform: "uppercase",
-                  color: C.ink, opacity: 0.55,
-                  marginBottom: 8,
-                }}>
-                  {isKa ? "მასალა" : "Material"}
-                </div>
-                <p style={{
-                  fontFamily: "system-ui, -apple-system, 'Segoe UI', sans-serif",
-                  fontSize: 14, lineHeight: 1.5, color: C.ink, opacity: 0.78,
-                  margin: 0,
-                }}>
-                  {isKa ? "წყალგამძლე საღებავიანი ტილო (Duck Canvas)" : "Water-Repellent Duck Canvas"}
-                </p>
+                {!isNecklace && (
+                  <>
+                    <div style={{
+                      fontFamily: FRAUNCES, fontWeight: 600,
+                      fontSize: 12, letterSpacing: "0.16em", textTransform: "uppercase",
+                      color: C.ink, opacity: 0.55,
+                      marginBottom: 8,
+                    }}>
+                      {isKa ? "მასალა" : "Material"}
+                    </div>
+                    <p style={{
+                      fontFamily: "system-ui, -apple-system, 'Segoe UI', sans-serif",
+                      fontSize: 14, lineHeight: 1.5, color: C.ink, opacity: 0.78,
+                      margin: 0,
+                    }}>
+                      {isKa ? "წყალგამძლე საღებავიანი ტილო (Duck Canvas)" : "Water-Repellent Duck Canvas"}
+                    </p>
+                  </>
+                )}
               </div>
             </motion.div>
           </div>

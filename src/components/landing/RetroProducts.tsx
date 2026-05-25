@@ -486,7 +486,7 @@ export default function RetroProducts({
       />
 
       <div className="container relative">
-        <div className="text-center mb-10 md:mb-12">
+        <div className="text-center mb-3 md:mb-4">
           <motion.span
             initial={{ opacity: 0, y: 6 }}
             animate={{ opacity: 1, y: 0 }}
@@ -494,41 +494,26 @@ export default function RetroProducts({
             className="inline-block text-[11px] font-extrabold uppercase tracking-[0.3em]"
             style={{ color: C.mustard }}
           >
-            {isKa ? "გაზაფხულის კოლექცია" : "Spring drop · curated few"}
+            {isKa
+              ? "ორმხრივი ჩანთები მათთვის, ვისაც ცვალებადი ხასიათი აქვს"
+              : "Reversible bags for the ever-changing mood"}
           </motion.span>
 
           <motion.h2
             initial={{ opacity: 0, y: 14 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.85, delay: 0.2, ease: [0.215, 0.61, 0.355, 1] }}
-            className="font-retro-display mt-4 leading-[0.95]"
+            className="font-retro-display mt-4 leading-[0.95] whitespace-nowrap"
             style={{
               fontFamily: isKa ? ALK_LIFE : FRAUNCES,
               fontStyle: isKa ? "normal" : "italic",
               fontWeight: 900,
-              fontSize: "clamp(40px, 6.5vw, 80px)",
+              fontSize: "clamp(28px, 4.5vw, 56px)",
               color: C.cream,
             }}
           >
-            {isKa ? <>ერთი ცალი, ორი მხარე.</> : <>One bag, two sides.</>}
+            {isKa ? "ერთი ჩანთა ორი განწყობა" : "One bag, two moods"}
           </motion.h2>
-
-          <motion.p
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            transition={{ duration: 0.7, delay: 0.4 }}
-            className="mt-3 max-w-md mx-auto"
-            style={{
-              fontFamily: FRAUNCES,
-              fontStyle: "italic",
-              opacity: 0.85,
-              fontSize: 16,
-            }}
-          >
-            {isKa
-              ? "გადმოაბრუნე და შეცვალე"
-              : "Hover the photo — the bag turns to its other side."}
-          </motion.p>
         </div>
 
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-x-10 gap-y-4 md:gap-y-6 max-w-2xl mx-auto">

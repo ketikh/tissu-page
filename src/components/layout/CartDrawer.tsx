@@ -258,6 +258,8 @@ export function CartDrawer({ dictionary, lang }: CartDrawerProps) {
                             <p style={{
                               fontFamily: PRICE_FONT, fontSize: 11.5, color: C.ink, opacity: 0.55,
                               margin: "3px 0 0 0",
+                              whiteSpace: "pre-line",
+                              lineHeight: 1.4,
                             }}>
                               {variantLabel}
                             </p>

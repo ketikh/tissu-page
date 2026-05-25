@@ -54,10 +54,9 @@ export function Footer({
 
   const taglineText = (tagline && tagline.trim())
     ? tagline.trim()
-    : (isKa ? "ხელით ნაკერი ჩანთები — სიყვარულით თბილისიდან." : "Handmade bags — made with love in Tbilisi.");
+    : (isKa ? "ხელნაკეთი ნივთები — სიყვარულით საქართველოდან." : "Handmade goods — with love from Georgia.");
 
   const links = [
-    { label: isKa ? "ჩვენი ამბავი" : "Our story", href: `/${lang}/about` },
     { label: isKa ? "ხშირი კითხვები" : "FAQ", href: `/${lang}/faq` },
     { label: isKa ? "კონტაქტი" : "Contact", href: `/${lang}/contact` },
     { label: isKa ? "კონფიდენციალურობა" : "Privacy", href: `/${lang}/privacy` },

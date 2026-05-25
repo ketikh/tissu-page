@@ -319,6 +319,8 @@ export default function ShopClient({ lang, dictionary, products }: ShopClientPro
   const sp = useSearchParams();
   const isKa = lang === "ka";
   const [pageSize, setPageSize] = useState(8);
+  // "scatter" = editorial 2-col offset layout (default), "grid" = compact 4-col grid.
+  const [gridMode, setGridMode] = useState<"scatter" | "grid">("scatter");
 
   const catParam: CategoryValue = CAT_ALIASES[sp.get("category") ?? "all"] ?? "all";
   const sortParam = (sp.get("sort") as SortValue) ?? "featured";
@@ -520,6 +522,45 @@ export default function ShopClient({ lang, dictionary, products }: ShopClientPro
                 })}
               </div>
 
+              {/* Grid mode toggle — 2-col editorial vs 4-col compact */}
+              <div style={{
+                display: "inline-flex",
+                background: "white",
+                border: `1.5px solid rgba(42,29,20,0.14)`,
+                borderRadius: 999,
+                padding: 3,
+                flexShrink: 0,
+              }}>
+                {([
+                  { val: "scatter", label: isKa ? "2" : "2" },
+                  { val: "grid",    label: isKa ? "4" : "4" },
+                ] as const).map(({ val, label }) => {
+                  const active = gridMode === val;
+                  return (
+                    <button
+                      key={val}
+                      type="button"
+                      onClick={() => setGridMode(val)}
+                      aria-label={`${label} columns`}
+                      style={{
+                        fontFamily: FRAUNCES,
+                        fontWeight: 700,
+                        fontSize: 12,
+                        background: active ? C.ink : "transparent",
+                        color: active ? C.cream : C.ink,
+                        border: "none",
+                        borderRadius: 999,
+                        padding: "6px 14px",
+                        cursor: "pointer",
+                        transition: "background 0.18s ease, color 0.18s ease",
+                      }}
+                    >
+                      {label}
+                    </button>
+                  );
+                })}
+              </div>
+
               {/* Sort dropdown */}
               <div style={{ position: "relative", flexShrink: 0 }}>
                 <select
@@ -571,21 +612,30 @@ export default function ShopClient({ lang, dictionary, products }: ShopClientPro
             </div>
           ) : (
             <div className="relative">
-              {/* Editorial 2-column scatter */}
-              <div className="flex flex-col md:flex-row md:gap-10 lg:gap-14 gap-16">
-                {/* Left column */}
-                <div className="flex-1 flex flex-col gap-20 md:gap-28">
-                  {visible.slice(0, pageSize).filter((_, i) => i % 2 === 0).map((p, i) => (
-                    <ShopCard key={p.id} product={p} index={i * 2} lang={lang} isKa={isKa} copy={copy} />
+              {gridMode === "scatter" ? (
+                /* Editorial 2-column scatter */
+                <div className="flex flex-col md:flex-row md:gap-10 lg:gap-14 gap-16">
+                  {/* Left column */}
+                  <div className="flex-1 flex flex-col gap-20 md:gap-28">
+                    {visible.slice(0, pageSize).filter((_, i) => i % 2 === 0).map((p, i) => (
+                      <ShopCard key={p.id} product={p} index={i * 2} lang={lang} isKa={isKa} copy={copy} />
+                    ))}
+                  </div>
+                  {/* Right column — shifted down */}
+                  <div className="flex-1 flex flex-col gap-20 md:gap-28 md:pt-36 lg:pt-44">
+                    {visible.slice(0, pageSize).filter((_, i) => i % 2 === 1).map((p, i) => (
+                      <ShopCard key={p.id} product={p} index={i * 2 + 1} lang={lang} isKa={isKa} copy={copy} />
+                    ))}
+                  </div>
+                </div>
+              ) : (
+                /* Compact 4-column grid */
+                <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-x-6 gap-y-12 md:gap-y-14">
+                  {visible.slice(0, pageSize).map((p, i) => (
+                    <ShopCard key={p.id} product={p} index={i} lang={lang} isKa={isKa} copy={copy} />
                   ))}
                 </div>
-                {/* Right column — shifted down */}
-                <div className="flex-1 flex flex-col gap-20 md:gap-28 md:pt-36 lg:pt-44">
-                  {visible.slice(0, pageSize).filter((_, i) => i % 2 === 1).map((p, i) => (
-                    <ShopCard key={p.id} product={p} index={i * 2 + 1} lang={lang} isKa={isKa} copy={copy} />
-                  ))}
-                </div>
-              </div>
+              )}
 
               {/* Load more */}
               {visible.length > pageSize && (

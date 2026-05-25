@@ -148,8 +148,10 @@ function buildInner(spec: NecklaceFrameSpec): string {
 export default function RetroNecklaces({
   isKa = false,
   shopHref = "/shop",
+  lang,
   products,
 }: RetroNecklacesProps) {
+  const resolvedLang = lang ?? shopHref.split("/").filter(Boolean)[0] ?? "en";
   const necklaces = useMemo(
     () => products.filter((p) => p.category === "necklace" && Boolean(p.image_front)),
     [products]
@@ -188,7 +190,7 @@ export default function RetroNecklaces({
             }}
           >
             {isKa
-              ? <>შარფი-ყელსაბამი — სურვილის მიხედვით.</>
+              ? <>შარფი-ყელსაბამი.</>
               : <>A scarf, a necklace — your way.</>}
           </motion.h2>
         </div>
@@ -201,9 +203,10 @@ export default function RetroNecklaces({
               frame={FRAMES[i % FRAMES.length]}
               index={i}
               isKa={isKa}
+              lang={resolvedLang}
             />
           ))}
-          <BuildYourOwnCard isKa={isKa} />
+          <BuildYourOwnCard isKa={isKa} lang={resolvedLang} />
         </div>
 
         <div className="mt-6 md:mt-8 flex justify-center">
@@ -239,12 +242,15 @@ function NecklaceCard({
   frame,
   index,
   isKa,
+  lang,
 }: {
   product: StorefrontProduct;
   frame: NecklaceFrame;
   index: number;
   isKa: boolean;
+  lang: string;
 }) {
+  const productHref = `/${lang}/product/${product.id}`;
   const [hover, setHover] = useState(false);
   const hasBack = Boolean(product.image_back);
   const isNew = product.tags.includes("new");
@@ -264,8 +270,9 @@ function NecklaceCard({
       onMouseLeave={() => setHover(false)}
       onTouchStart={() => setHover((v) => !v)}
     >
-      <div
-        className="relative w-full max-w-80 cursor-pointer"
+      <Link
+        href={productHref}
+        className="relative w-full max-w-80 cursor-pointer block"
         style={{
           aspectRatio: "4 / 5",
           transform: `rotate(${frame.rotate}deg)`,
@@ -335,11 +342,11 @@ function NecklaceCard({
             {isKa ? "ახალი" : "New"}
           </span>
         )}
-      </div>
+      </Link>
 
       <div className="mt-5 text-center max-w-65">
         <Link
-          href={`#product-${product.id}`}
+          href={productHref}
           className="leading-tight hover:underline underline-offset-4 decoration-1"
           style={{ fontFamily: FRAUNCES, fontStyle: "italic", fontWeight: 700, fontSize: 22, color: C.cream }}
         >
@@ -354,7 +361,7 @@ function NecklaceCard({
   );
 }
 
-function BuildYourOwnCard({ isKa }: { isKa: boolean }) {
+function BuildYourOwnCard({ isKa, lang }: { isKa: boolean; lang: string }) {
   const swatches = ["#c4849a", "#c9a86c", "#9e8abf", "#7aaa8a", "#f3b62b", "#6b9eb5"];
 
   return (
@@ -366,7 +373,7 @@ function BuildYourOwnCard({ isKa }: { isKa: boolean }) {
       className="flex flex-col items-center"
     >
       <Link
-        href="#necklace-builder"
+        href={`/${lang}/necklace-builder`}
         className="relative w-full max-w-80 group"
         style={{ aspectRatio: "4 / 5", display: "block" }}
       >

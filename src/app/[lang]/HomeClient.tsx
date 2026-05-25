@@ -61,6 +61,7 @@ export default function HomeClient({ lang, products: rawProducts, heroCMS }: Hom
       <RetroNecklaces
         isKa={lang === "ka"}
         shopHref={`/${lang}/shop`}
+        lang={lang}
         products={rawProducts}
       />
 

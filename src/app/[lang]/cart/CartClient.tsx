@@ -369,6 +369,8 @@ export default function CartClient({ dictionary, lang }: CartClientProps) {
                           fontFamily: PRICE_FONT,
                           fontSize: 12, color: C.ink, opacity: 0.55,
                           marginTop: 4,
+                          whiteSpace: "pre-line",
+                          lineHeight: 1.4,
                         }}>
                           {variantLabel}
                         </span>

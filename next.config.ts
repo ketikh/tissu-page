@@ -5,6 +5,9 @@ const nextConfig: NextConfig = {
   turbopack: {
     root: path.resolve(__dirname),
   },
+  // Hide the floating "N" / dev indicator at the bottom of the page so the
+  // bottom-right corner stays clean during development.
+  devIndicators: false,
   images: {
     remotePatterns: [
       // Cloudinary — product photos served by the tissu-agent admin.

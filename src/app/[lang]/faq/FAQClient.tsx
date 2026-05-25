@@ -137,7 +137,7 @@ export default function FAQClient({ faqs, lang, dictionary }: FAQClientProps) {
                 fontSize: 22,
                 color: C.champagne,
                 background: C.beige,
-                border: `1.5px dashed ${C.champagne}`,
+                border: `1.5px solid ${C.champagne}`,
                 borderRadius: 28,
               }}
             >
@@ -195,10 +195,7 @@ export default function FAQClient({ faqs, lang, dictionary }: FAQClientProps) {
                         transition={{ duration: 0.3, ease: [0.22, 1, 0.36, 1] }}
                       >
                         <div className="px-6 pb-6">
-                          <div
-                            className="pt-4"
-                            style={{ borderTop: `1.5px dashed ${C.champagne}` }}
-                          >
+                          <div className="pt-4">
                             <p
                               style={{
                                 fontFamily: FRAUNCES,
@@ -242,8 +239,8 @@ export default function FAQClient({ faqs, lang, dictionary }: FAQClientProps) {
             style={{ fontFamily: FRAUNCES, fontStyle: "italic", fontSize: 15, color: C.champagne, maxWidth: 420 }}
           >
             {isKa
-              ? "მოგვწერე — პასუხს ხელით ვწერთ 1-2 დღეში."
-              : "Drop us a line — we reply by hand within a day or two."}
+              ? "უბრალოდ დაგვიკავშირდი."
+              : "Just get in touch."}
           </p>
           <Link
             href={`/${lang}/contact`}

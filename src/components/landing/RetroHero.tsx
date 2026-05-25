@@ -117,13 +117,6 @@ export default function RetroHero({
           >
             {copy.nav.shop}
           </Link>
-          <Link
-            href={`/${lang}/about`}
-            className="hidden md:inline-flex px-3 py-2 text-[12px] font-extrabold uppercase tracking-[0.14em] rounded-full transition-colors hover:bg-[rgba(254,240,214,0.15)]"
-            style={{ fontFamily: FRAUNCES, color: C.cream, textShadow: "0 1px 6px rgba(0,0,0,0.4)" }}
-          >
-            {copy.nav.story}
-          </Link>
         </div>
 
         {/* CENTER — TISSU wordmark */}
@@ -257,21 +250,34 @@ function RevealLine({ text, delay = 0 }: { text: string; delay?: number }) {
       }}
       className="inline-block"
     >
-      {text.split("").map((ch, i) => (
-        <motion.span
-          key={i}
-          variants={{
-            hidden: { opacity: 0, y: 18 },
-            visible: { opacity: 1, y: 0, transition: { duration: 0.55, ease: [0.215, 0.61, 0.355, 1] } },
-          }}
-          className="inline-block"
-        >
-          {ch === " " ? " " : ch}
-        </motion.span>
-      ))}
+      {text.split(/(\s+)/).map((tok, ti) => {
+        const isRainbow = RAINBOW_WORDS.includes(tok.toLowerCase());
+        return (
+          <span key={ti} className="inline-block">
+            {Array.from(tok).map((ch, ci) => (
+              <motion.span
+                key={ci}
+                variants={{
+                  hidden: { opacity: 0, y: 18 },
+                  visible: { opacity: 1, y: 0, transition: { duration: 0.55, ease: [0.215, 0.61, 0.355, 1] } },
+                }}
+                className="inline-block"
+                style={isRainbow ? { color: RAINBOW_COLORS[ci % RAINBOW_COLORS.length] } : undefined}
+              >
+                {ch === " " ? " " : ch}
+              </motion.span>
+            ))}
+          </span>
+        );
+      })}
     </motion.span>
   );
 }
+
+// Words that get rainbow per-letter colouring. Each character cycles through
+// the brand palette so the headline word stands out playfully.
+const RAINBOW_WORDS = ["ფერადი", "colour", "colorful"];
+const RAINBOW_COLORS = ["#d56826", "#f3b62b", "#3f6f56", "#c4849a", "#9e8abf", "#6b9eb5"];
 
 function FlowerCorner({ side }: { side: "left" | "right" }) {
   const isLeft = side === "left";

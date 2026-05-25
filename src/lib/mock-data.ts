@@ -160,7 +160,7 @@ export const mockFAQs: FAQItem[] = [
   {
     question: { ka: "როგორ ვაკეთებ შეკვეთას?", en: "How do I place an order?" },
     answer: {
-      ka: "ჩანთა ვირჩევთ, ვამატებთ კალათში და \"შეკვეთის გაგზავნა\"-ზე ვაჭერთ. შეგვიყვანე საკონტაქტო ინფორმაცია — ჩვენ თვითონ დაგიკავშირდებით გადახდისა და მიწოდების შესათანხმებლად.",
+      ka: "ჩანთას ვირჩევთ, ვამატებთ კალათში და \"შეკვეთის გაგზავნა\"-ზე ვაჭერთ. შეგვიყვანე საკონტაქტო ინფორმაცია — ჩვენ თვითონ დაგიკავშირდებით გადახდისა და მიწოდების შესათანხმებლად.",
       en: "Add a bag to the cart and tap \"Place order request\". Enter your contact details — we'll reach out to agree on payment and delivery.",
     },
   },
@@ -195,8 +195,8 @@ export const mockFAQs: FAQItem[] = [
   {
     question: { ka: "შეიძლება ჩასადების სარეცხ მანქანაში გარეცხვა?", en: "Can I machine wash the sleeve?" },
     answer: {
-      ka: "არა — ჩვენი ჩანთებს სტრუქტურული შემავსებელი აქვს, რომელიც მანქანაში ფორმას კარგავს. რეკომენდირებულია ლაქების მსუბუქი გაწმენდა სველი ქსოვილით.",
-      en: "No — most of our products have structural padding that loses shape in the wash. Spot cleaning with a damp cloth is recommended.",
+      ka: "კი — ჩვენი ჩანთები შეიძლება გაირეცხოს მანქანაში დაბალ ბრუნვაზე და დაბალ ტემპერატურაზე, ხელით რეცხვის რეჟიმზე.",
+      en: "Yes — our bags can be machine washed on a low spin and low temperature, on the hand-wash cycle.",
     },
   },
 ];

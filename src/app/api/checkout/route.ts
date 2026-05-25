@@ -143,10 +143,15 @@ export async function POST(req: Request) {
           address: { city: shippingAddress.city, street: shippingAddress.streetAddress },
           items: items.map(i => {
             const meta = lookup.get(String(i.productId));
+            const name = typeof i.productName === "object"
+              ? (i.productName as any)?.ka || (i.productName as any)?.en || ""
+              : String(i.productName || "");
+            const variantName = typeof i.variantName === "object"
+              ? (i.variantName as any)?.ka || (i.variantName as any)?.en || ""
+              : String(i.variantName || "");
             return {
-              name: typeof i.productName === "object"
-                ? (i.productName as any)?.ka || (i.productName as any)?.en || ""
-                : String(i.productName || ""),
+              name,
+              variant: variantName,
               code: meta?.code,
               image: meta?.image || i.image,
               quantity: i.quantity,

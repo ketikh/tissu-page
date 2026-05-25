@@ -3,14 +3,13 @@
  * displayed shipping fee is taken from here. Final price is still confirmed
  * by Tissu after the order request lands.
  *
- * Tariff structure (per the brief):
- *  Tbilisi (central districts) ............... 6 GEL
- *  Tbilisi outskirts (Lilo, Zahesi, ...) ..... 7 GEL
- *  Rustavi ................................... 8 GEL
- *  Tbilisi villages (Tskneti, Shindisi, ...) . 10 GEL
- *  Regional cities (Kutaisi, Batumi, ...) .... 8 GEL
- *  Other Georgian towns (daba) ............... 10 GEL
- *  Other Georgian villages ................... 12 GEL
+ * Tariff structure:
+ *  Tbilisi (central districts) ............................. 6 GEL
+ *  Tbilisi outside-center (Lilo, Zahesi, Tskneti, ...) ..... 10 GEL
+ *  Rustavi ................................................. 8 GEL
+ *  Regional cities (Kutaisi, Batumi, ...) .................. 8 GEL
+ *  Other Georgian towns (daba) ............................. 10 GEL
+ *  Other Georgian villages ................................. 12 GEL
  */
 
 export type DeliveryRegion =
@@ -47,18 +46,8 @@ export const DELIVERY_ZONES: DeliveryZone[] = [
     region: "tbilisi",
     regionLabel: { ka: "თბილისი", en: "Tbilisi" },
     label: {
-      ka: "ლილო · ზაჰესი · ორხევი · ფონიჭალა · აეროპორტი · ქოშიგორა",
-      en: "Lilo · Zahesi · Orkhevi · Ponichala · Airport · Khoshigora",
-    },
-    fee: 7,
-  },
-  {
-    id: "tbilisi-villages",
-    region: "tbilisi",
-    regionLabel: { ka: "თბილისი", en: "Tbilisi" },
-    label: {
-      ka: "წყნეთი · შინდისი · ტაბახმელა · წავკისი · ოქროყანა",
-      en: "Tskneti · Shindisi · Tabakhmela · Tsavkisi · Okroyana",
+      ka: "თბილისი — ცენტრის გარეთ (ლილო · ზაჰესი · წყნეთი · შინდისი · ქოშიგორა · აეროპორტი · ფონიჭალა · ტაბახმელა · ოქროყანა და ა.შ.)",
+      en: "Tbilisi — outside the centre (Lilo · Zahesi · Tskneti · Shindisi · Khoshigora · Airport · Ponichala · Tabakhmela · Okroyana etc.)",
     },
     fee: 10,
   },
@@ -210,13 +199,12 @@ export const DEFAULT_DELIVERY_FEE = 6;
 // village). The fee is derived from those answers.
 
 export type TopArea = "tbilisi" | "rustavi" | "region";
-export type TbilisiSub = "center" | "outskirts" | "villages";
+export type TbilisiSub = "center" | "outskirts";
 export type PlaceType = "city" | "town" | "village";
 
 export const TBILISI_SUB_FEE: Record<TbilisiSub, number> = {
   center: 6,
-  outskirts: 7,
-  villages: 10,
+  outskirts: 10,
 };
 
 export const PLACE_TYPE_FEE: Record<PlaceType, number> = {
@@ -231,19 +219,11 @@ export const TBILISI_SUB_LABELS: Record<TbilisiSub, { ka: string; en: string; hi
     en: "Tbilisi (central districts)",
   },
   outskirts: {
-    ka: "თბილისის გარეუბანი",
-    en: "Tbilisi outskirts",
+    ka: "თბილისი — ცენტრის გარეთ",
+    en: "Tbilisi — outside the centre",
     hint: {
-      ka: "ლილო · ზაჰესი · ორხევი · ფონიჭალა · აეროპორტი · ქოშიგორა",
-      en: "Lilo · Zahesi · Orkhevi · Ponichala · Airport · Khoshigora",
-    },
-  },
-  villages: {
-    ka: "თბილისის სოფლები",
-    en: "Tbilisi villages",
-    hint: {
-      ka: "წყნეთი · შინდისი · ტაბახმელა · წავკისი · ოქროყანა",
-      en: "Tskneti · Shindisi · Tabakhmela · Tsavkisi · Okroyana",
+      ka: "ლილო · ზაჰესი · წყნეთი · შინდისი · ქოშიგორა · ფონიჭალა · ტაბახმელა · ოქროყანა და ა.შ.",
+      en: "Lilo · Zahesi · Tskneti · Shindisi · Khoshigora · Ponichala · Tabakhmela · Okroyana etc.",
     },
   },
 };
