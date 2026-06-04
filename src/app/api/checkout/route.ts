@@ -1,16 +1,16 @@
 import { NextResponse } from "next/server";
-import { prisma } from "@/lib/prisma";
-import { createClient } from "@/lib/supabase/server";
 import { notifyAdminNewOrder } from "@/lib/notifications";
 import { fetchStorefrontProducts } from "@/lib/admin-api";
 
 /**
- * Manual order intake. No online payment is taken here — Tissu reaches out
- * after submit to agree on payment and delivery details.
+ * Order intake. The tissu-agent now owns orders end-to-end — we forward the
+ * checkout payload to `POST /api/admin/orders` (admin-keyed, server-side only)
+ * and the agent persists, decrements stock when status enters `preparing`, and
+ * exposes the order to its admin UI.
  *
- * Order is created with status `pending_confirmation` and `paymentMethod` is
- * always `undecided` at submit time. Customer contact preference and notes
- * live inside the `shippingAddress` JSON blob alongside the address fields.
+ * We still fire the Telegram notification from here (best-effort) because the
+ * site is what sees the customer-facing copy and zone labels in their final
+ * form. Once the agent ships its own notify pipeline this block can go.
  */
 
 interface OrderItemInput {
@@ -52,6 +52,21 @@ interface CheckoutPayload {
 
 const VALID_CONTACT = new Set(["phone", "whatsapp", "viber"]);
 
+const ADMIN_API_URL = process.env.ADMIN_API_URL?.replace(/\/$/, "");
+const ADMIN_API_KEY = process.env.ADMIN_API_KEY;
+
+function pickLocalized(value: unknown): { ka: string; en: string } {
+  if (value && typeof value === "object") {
+    const o = value as Record<string, unknown>;
+    return {
+      ka: typeof o.ka === "string" ? o.ka : "",
+      en: typeof o.en === "string" ? o.en : "",
+    };
+  }
+  const s = typeof value === "string" ? value : "";
+  return { ka: s, en: s };
+}
+
 export async function POST(req: Request) {
   try {
     const body = (await req.json()) as Partial<CheckoutPayload>;
@@ -60,7 +75,6 @@ export async function POST(req: Request) {
       customer, shippingAddress, contactMethod, deliveryZone, notes, termsAccepted,
     } = body;
 
-    // Validate required pieces
     if (!Array.isArray(items) || items.length === 0) {
       return NextResponse.json({ error: "Cart is empty" }, { status: 400 });
     }
@@ -76,16 +90,79 @@ export async function POST(req: Request) {
     if (!termsAccepted) {
       return NextResponse.json({ error: "Terms must be accepted" }, { status: 400 });
     }
+    if (!ADMIN_API_URL || !ADMIN_API_KEY) {
+      console.error("[checkout] ADMIN_API_URL / ADMIN_API_KEY not configured");
+      return NextResponse.json({ error: "Order service unavailable" }, { status: 503 });
+    }
 
-    // Attach user if signed in (optional — guests can order too).
-    let userId: string | undefined = undefined;
-    const supabase = await createClient();
-    const { data: { user } } = await supabase.auth.getUser();
-    if (user) userId = user.id;
+    const agentPayload = {
+      customer_name: `${customer.firstName} ${customer.lastName}`.trim(),
+      customer_phone: customer.phone,
+      customer_email: customer.email || undefined,
+      address_street: shippingAddress.streetAddress,
+      address_city: shippingAddress.city,
+      address_zone: deliveryZone
+        ? {
+            id: deliveryZone.id,
+            label_ka: deliveryZone.label?.ka || "",
+            label_en: deliveryZone.label?.en || "",
+            fee: deliveryZone.fee ?? 0,
+          }
+        : null,
+      contact_method: contactMethod,
+      payment_method: "undecided",
+      subtotal: subtotal ?? 0,
+      shipping: shipping ?? 0,
+      discount: discount ?? 0,
+      total: total ?? 0,
+      notes: notes || "",
+      items: items.map((i) => {
+        const pname = pickLocalized(i.productName);
+        const vname = pickLocalized(i.variantName);
+        return {
+          product_id: i.productId,
+          variant_id: i.variantId || "",
+          quantity: i.quantity,
+          price: i.price,
+          product_name_ka: pname.ka,
+          product_name_en: pname.en,
+          variant_name_ka: vname.ka,
+          variant_name_en: vname.en,
+          image_url: i.image,
+        };
+      }),
+    };
 
-    // Pack the full customer + delivery snapshot into the existing JSON column
-    // so the schema doesn't have to change.
-    const addressJson = JSON.stringify({
+    const agentRes = await fetch(`${ADMIN_API_URL}/api/admin/orders`, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        Accept: "application/json",
+        "X-API-Key": ADMIN_API_KEY,
+      },
+      body: JSON.stringify(agentPayload),
+      cache: "no-store",
+    });
+
+    if (!agentRes.ok) {
+      const text = await agentRes.text().catch(() => "");
+      console.error(`[checkout] agent rejected order (${agentRes.status}):`, text);
+      return NextResponse.json(
+        { error: "Order could not be created" },
+        { status: agentRes.status >= 500 ? 502 : 400 },
+      );
+    }
+
+    const created = await agentRes.json();
+    const orderId = String(created?.id ?? created?.order?.id ?? "");
+    if (!orderId) {
+      console.error("[checkout] agent returned no order id:", created);
+      return NextResponse.json({ error: "Order id missing" }, { status: 502 });
+    }
+
+    // Translate back to the legacy shape the checkout client expects (it
+    // JSON.parses shippingAddress + per-item productName/variantName).
+    const legacyAddress = JSON.stringify({
       firstName: customer.firstName,
       lastName: customer.lastName,
       streetAddress: shippingAddress.streetAddress,
@@ -98,40 +175,36 @@ export async function POST(req: Request) {
       notes: notes || "",
     });
 
-    const order = await prisma.order.create({
-      data: {
-        status: "pending_confirmation",
-        subtotal: subtotal ?? 0,
-        shipping: shipping ?? 0,
-        discount: discount ?? 0,
-        total: total ?? 0,
-        paymentMethod: "undecided",
-        shippingAddress: addressJson,
-        userId,
-        items: {
-          create: items.map(item => ({
-            productId: item.productId,
-            variantId: item.variantId,
-            quantity: item.quantity,
-            price: item.price,
-            productName: JSON.stringify(item.productName ?? {}),
-            variantName: JSON.stringify(item.variantName ?? {}),
-            image: item.image,
-          })),
-        },
-      },
-      include: { items: true },
-    });
+    const legacyOrder = {
+      id: orderId,
+      date: new Date().toISOString(),
+      status: "pending_confirmation",
+      subtotal: subtotal ?? 0,
+      shipping: shipping ?? 0,
+      discount: discount ?? 0,
+      total: total ?? 0,
+      paymentMethod: "undecided",
+      shippingAddress: legacyAddress,
+      items: items.map((i) => ({
+        id: `${orderId}-${i.productId}-${i.variantId}`,
+        productId: i.productId,
+        variantId: i.variantId,
+        quantity: i.quantity,
+        price: i.price,
+        productName: JSON.stringify(i.productName ?? {}),
+        variantName: JSON.stringify(i.variantName ?? {}),
+        image: i.image,
+      })),
+    };
 
-    // Enrich items with admin product code + image so the Telegram message
-    // can show the SKU and a photo of each bag. Lookup is best-effort.
+    // Fire-and-forget Telegram notify. Best-effort: never blocks the response.
     (async () => {
       try {
         const adminProducts = await fetchStorefrontProducts();
-        const lookup = new Map(adminProducts.map(p => [String(p.id), { code: p.code, image: p.image_front }]));
+        const lookup = new Map(adminProducts.map((p) => [String(p.id), { code: p.code, image: p.image_front }]));
 
         await notifyAdminNewOrder({
-          orderId: order.id,
+          orderId,
           customer: {
             firstName: customer.firstName,
             lastName: customer.lastName,
@@ -141,17 +214,13 @@ export async function POST(req: Request) {
           contactMethod,
           deliveryZone: deliveryZone || undefined,
           address: { city: shippingAddress.city, street: shippingAddress.streetAddress },
-          items: items.map(i => {
+          items: items.map((i) => {
             const meta = lookup.get(String(i.productId));
-            const name = typeof i.productName === "object"
-              ? (i.productName as any)?.ka || (i.productName as any)?.en || ""
-              : String(i.productName || "");
-            const variantName = typeof i.variantName === "object"
-              ? (i.variantName as any)?.ka || (i.variantName as any)?.en || ""
-              : String(i.variantName || "");
+            const pname = pickLocalized(i.productName);
+            const vname = pickLocalized(i.variantName);
             return {
-              name,
-              variant: variantName,
+              name: pname.ka || pname.en || "",
+              variant: vname.ka || vname.en || "",
               code: meta?.code,
               image: meta?.image || i.image,
               quantity: i.quantity,
@@ -168,7 +237,7 @@ export async function POST(req: Request) {
       }
     })();
 
-    return NextResponse.json({ order }, { status: 201 });
+    return NextResponse.json({ order: legacyOrder }, { status: 201 });
   } catch (error) {
     console.error("Checkout Create Error:", error);
     const message = error instanceof Error ? error.message : "Failed to submit order";

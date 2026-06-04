@@ -7,7 +7,6 @@ import {
   LogOut,
   ExternalLink,
   ImageIcon,
-  MessageSquare,
 } from "lucide-react";
 
 const FRAUNCES = "var(--font-alk-life), var(--font-fraunces), 'Fraunces', Georgia, serif";
@@ -34,13 +33,11 @@ export default function AdminShell({
 }) {
   const pathname = usePathname();
 
-  // Trimmed admin — orders/products/content/promo are handled by the tissu-
-  // agent admin. Photos is site-only (frame positioning). Reviews stays for
-  // now because the agent doesn't host them yet — once it does, this tab
-  // moves there too.
+  // Trimmed admin — orders, products, content, promo, and reviews now live in
+  // the tissu-agent admin. Photos is site-only (per-product frame positioning
+  // for the shop grid + home spotlight), so it stays here.
   const items = [
-    { id: "photos",  href: `/${lang}/admin/photos`,  icon: ImageIcon,     label: "Photos",  color: C.mustard },
-    { id: "reviews", href: `/${lang}/admin/reviews`, icon: MessageSquare, label: "Reviews", color: C.rose },
+    { id: "photos", href: `/${lang}/admin/photos`, icon: ImageIcon, label: "Photos", color: C.mustard },
   ];
 
   // Match active link: exact for dashboard, prefix for the rest.

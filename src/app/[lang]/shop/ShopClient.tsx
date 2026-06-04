@@ -378,16 +378,25 @@ export default function ShopClient({ lang, dictionary, products, photoPositions 
   }, [products]);
   const showModelFilter = catParam === "bag" && bagModels.length > 1;
 
-  // Build category filter pills from the agent's `/storefront/categories`
-  // endpoint (the agent owns the localised labels + emoji + ordering). Any
-  // product whose category isn't yet in that list gets a stub pill with its
-  // raw slug, so nothing disappears while the admin is still naming things.
+  // Build category filter pills from the agent. The localised labels live on
+  // each product (`category_name_ka` / `category_name_en`) and on the
+  // `/storefront/categories` endpoint — we prefer the products' names when
+  // present (one round trip already paid) and fall back to the categories
+  // endpoint, then to the raw slug. The agent's sort order from the
+  // categories endpoint is honoured when available.
   const categoryBySlug = new Map(categories.map((c) => [c.slug, c]));
+  const productNamesBySlug = new Map<string, { ka: string; en: string }>();
+  for (const p of products) {
+    const slug = p.category;
+    if (!slug || productNamesBySlug.has(slug)) continue;
+    productNamesBySlug.set(slug, {
+      ka: p.category_name_ka || "",
+      en: p.category_name_en || "",
+    });
+  }
   const presentCategorySlugs = Array.from(
     new Set(products.map((p) => p.category).filter(Boolean)),
   );
-  // Start with categories the agent told us about (in their sort order),
-  // then append any extras seen on products but missing from the agent list.
   const orderedSlugs = [
     ...categories.filter((c) => presentCategorySlugs.includes(c.slug)).map((c) => c.slug),
     ...presentCategorySlugs.filter((slug) => !categoryBySlug.has(slug)).sort(),
@@ -397,9 +406,10 @@ export default function ShopClient({ lang, dictionary, products, photoPositions 
     { label: copy.shop.filters.all, val: "all" },
     ...orderedSlugs.map((slug) => {
       const cat = categoryBySlug.get(slug);
-      const label = cat
-        ? (lang === "ka" ? cat.name_ka : cat.name_en) || slug
-        : slug;
+      const names = productNamesBySlug.get(slug);
+      const fromCat = cat ? (lang === "ka" ? cat.name_ka : cat.name_en) : "";
+      const fromProd = names ? (lang === "ka" ? names.ka : names.en) : "";
+      const label = (fromProd || fromCat || slug).trim() || slug;
       return { label, emoji: cat?.emoji, val: slug as CategoryValue };
     }),
   ];

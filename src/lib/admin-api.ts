@@ -45,6 +45,10 @@ export interface StorefrontProduct {
    *  uploaded any yet. */
   gallery_images?: string[];
   category: StorefrontCategory;
+  /** Bilingual category labels supplied by the agent (preferred over the
+   *  hard-coded landingCopy filter labels). */
+  category_name_ka?: string;
+  category_name_en?: string;
   tags: string[];
   updated_at: string;
 }
@@ -99,7 +103,11 @@ interface InventoryItem {
   stock?: number;
   image_url?: string;
   image_url_back?: string | null;
+  gallery_images?: string[];
   category?: string;
+  category_slug?: string;
+  category_name_ka?: string;
+  category_name_en?: string;
   tags?: string | string[];
   updated_at?: string;
 }
@@ -124,6 +132,9 @@ function mapInventoryToProduct(it: InventoryItem): StorefrontProduct {
       ? it.tags.split(/[,\s]+/)
       : [];
   const tags = Array.from(new Set(rawTags.map((t) => t.trim().toLowerCase()).filter(Boolean)));
+  const gallery = Array.isArray(it.gallery_images)
+    ? it.gallery_images.filter((u): u is string => typeof u === "string" && u.trim().length > 0)
+    : undefined;
   return {
     id: String(it.id),
     code: it.code ?? "",
@@ -139,7 +150,10 @@ function mapInventoryToProduct(it: InventoryItem): StorefrontProduct {
     in_stock: stock > 0,
     image_front: it.image_url ?? "",
     image_back: it.image_url_back ?? null,
-    category: mapCategory(it.category),
+    gallery_images: gallery && gallery.length > 0 ? gallery : undefined,
+    category: mapCategory(it.category_slug ?? it.category),
+    category_name_ka: it.category_name_ka?.trim() || undefined,
+    category_name_en: it.category_name_en?.trim() || undefined,
     tags,
     updated_at: it.updated_at ?? new Date().toISOString(),
   };

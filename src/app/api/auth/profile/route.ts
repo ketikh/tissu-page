@@ -19,7 +19,7 @@ export async function GET() {
 
     let user = await prisma.user.findUnique({
       where: { id: authUser.id },
-      include: { addresses: true, orders: { include: { items: true } } },
+      include: { addresses: true },
     });
 
     // Auto-create profile if it doesn't exist (e.g., OAuth login)
@@ -32,7 +32,7 @@ export async function GET() {
           firstName: meta?.first_name || meta?.full_name?.split(" ")[0] || "User",
           lastName: meta?.last_name || meta?.full_name?.split(" ").slice(1).join(" ") || "",
         },
-        include: { addresses: true, orders: { include: { items: true } } },
+        include: { addresses: true },
       });
     }
 
@@ -65,7 +65,7 @@ export async function POST(req: Request) {
         firstName: firstName || "User",
         lastName: lastName || "",
       },
-      include: { addresses: true, orders: { include: { items: true } } },
+      include: { addresses: true },
     });
 
     return NextResponse.json(user, { status: 201 });
@@ -88,7 +88,7 @@ export async function PATCH(req: Request) {
     const updatedUser = await prisma.user.update({
       where: { id: authUser.id },
       data: { firstName, lastName, phone, email },
-      include: { addresses: true, orders: { include: { items: true } } },
+      include: { addresses: true },
     });
 
     return NextResponse.json(updatedUser, { status: 200 });

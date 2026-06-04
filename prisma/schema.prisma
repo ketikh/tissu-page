@@ -16,7 +16,6 @@ model User {
   lastName  String
   phone     String?
   addresses Address[]
-  orders    Order[]
   createdAt DateTime  @default(now())
   updatedAt DateTime  @updatedAt
 
@@ -34,47 +33,6 @@ model Address {
   isDefault     Boolean @default(false)
   userId        String
   user          User    @relation(fields: [userId], references: [id], onDelete: Cascade)
-
-  @@schema("website")
-}
-
-model Order {
-  // Manual order flow — no online payment is taken at submit time. Tissu
-  // reaches out to confirm availability, payment method, and delivery details.
-  // Lifecycle (in the `status` column):
-  //   pending_confirmation → confirmed → awaiting_payment → paid
-  //                        → preparing → shipped → completed → cancelled
-  // Payment is always manual; `paymentMethod` carries one of:
-  //   undecided | bank_transfer | cash_on_delivery
-  // Extra fields (contactMethod, deliveryMethod, notes, email) live inside
-  // the `shippingAddress` JSON blob so the schema stays untouched.
-  id              String      @id @default(cuid())
-  date            DateTime    @default(now())
-  status          String      @default("pending_confirmation")
-  subtotal        Float
-  shipping        Float
-  discount        Float
-  total           Float
-  paymentMethod   String      @default("undecided")
-  userId          String?
-  user            User?       @relation(fields: [userId], references: [id], onDelete: Cascade)
-  items           OrderItem[]
-  shippingAddress String      // JSON: { firstName, lastName, streetAddress, city, phone, email?, contactMethod, deliveryMethod, notes? }
-
-  @@schema("website")
-}
-
-model OrderItem {
-  id          String @id @default(cuid())
-  productId   String
-  variantId   String
-  quantity    Int
-  price       Float
-  productName String // JSON string
-  variantName String // JSON string
-  image       String
-  orderId     String
-  order       Order  @relation(fields: [orderId], references: [id], onDelete: Cascade)
 
   @@schema("website")
 }
