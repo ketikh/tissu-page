@@ -8,6 +8,7 @@ import RetroProducts from "@/components/landing/RetroProducts";
 import RetroNecklaces from "@/components/landing/RetroNecklaces";
 import RetroAbout from "@/components/landing/RetroAbout";
 import RetroReviews from "@/components/landing/RetroReviews";
+import { cloudinaryThumb } from "@/lib/cloudinary";
 
 interface HomeProps {
   lang: Locale;
@@ -83,7 +84,7 @@ export default function HomeClient({ lang, products: rawProducts, heroCMS, photo
                 text: { ka: r.comment, en: r.comment },
                 name: r.name,
                 meta: { ka: "", en: "" },
-                photo: r.photoUrl || "",
+                photo: r.photoUrl ? cloudinaryThumb(r.photoUrl, 600) : "",
                 soldOut,
               };
             })
