@@ -14,6 +14,8 @@ interface HomeProps {
   dictionary: any;
   products: StorefrontProduct[];
   heroCMS?: Record<string, string>;
+  photoPositions?: import("@/lib/shop-photo-positions").PhotoPositions;
+  reviews?: import("@/lib/admin-reviews").AdminReview[];
 }
 
 function pickLocalized(cms: Record<string, string> | undefined, base: string, lang: Locale, fallback: string): string {
@@ -23,7 +25,7 @@ function pickLocalized(cms: Record<string, string> | undefined, base: string, la
   return v && v.trim() ? v.trim() : fallback;
 }
 
-export default function HomeClient({ lang, products: rawProducts, heroCMS }: HomeProps) {
+export default function HomeClient({ lang, products: rawProducts, heroCMS, photoPositions = {}, reviews = [] }: HomeProps) {
   const copy = getLandingCopy(lang);
 
   // CMS values win when present; otherwise we keep the original copy.
@@ -56,6 +58,7 @@ export default function HomeClient({ lang, products: rawProducts, heroCMS }: Hom
         shopHref={`/${lang}/shop`}
         products={rawProducts}
         limit={4}
+        photoPositions={photoPositions}
       />
 
       <RetroNecklaces
@@ -66,7 +69,26 @@ export default function HomeClient({ lang, products: rawProducts, heroCMS }: Hom
       />
 
       <RetroAbout isKa={lang === "ka"} shopHref={`/${lang}/shop`} />
-      <RetroReviews isKa={lang === "ka"} />
+      <RetroReviews
+        isKa={lang === "ka"}
+        reviews={reviews.length > 0
+          ? reviews.map(r => {
+              // If the review is linked to a product, surface that product's
+              // current stock status so we can stamp "sold out" over the photo.
+              const linked = r.productId
+                ? rawProducts.find(p => p.id === r.productId)
+                : undefined;
+              const soldOut = linked ? !linked.in_stock : false;
+              return {
+                text: { ka: r.comment, en: r.comment },
+                name: r.name,
+                meta: { ka: "", en: "" },
+                photo: r.photoUrl || "",
+                soldOut,
+              };
+            })
+          : undefined}
+      />
     </div>
   );
 }

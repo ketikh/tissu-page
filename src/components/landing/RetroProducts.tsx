@@ -5,6 +5,13 @@ import { motion } from "framer-motion";
 import { useMemo, useState } from "react";
 import { RotateCw } from "lucide-react";
 import type { StorefrontProduct } from "@/lib/admin-api";
+import {
+  type PhotoPosition,
+  type PhotoPositions,
+  buildHomePhotoTransform,
+  buildHomeBackPhotoTransform,
+  isHomeFeatured,
+} from "@/lib/shop-photo-positions";
 
 interface RetroProductsProps {
   isKa?: boolean;
@@ -14,6 +21,7 @@ interface RetroProductsProps {
   products: StorefrontProduct[];
   /** Spotlight only a few; max 6. */
   limit?: number;
+  photoPositions?: PhotoPositions;
 }
 
 const PACIFICO = "var(--font-pacifico), 'Pacifico', cursive";
@@ -326,7 +334,7 @@ type DripSpec = {
 };
 type FrameSpec = FlowerSpec | BlobSpec | DripSpec;
 
-interface Frame {
+export interface Frame {
   name: string;
   color: string;
   rotate: number;
@@ -336,7 +344,7 @@ interface Frame {
 // Each card uses the same paint-drip family but the drips emerge from a
 // different edge. Drip count + depth profile + corner radius are tuned so
 // the four feel related but visually distinct. (4 sides: L, B, T, R.)
-const FRAMES: readonly Frame[] = [
+export const FRAMES: readonly Frame[] = [
   // #1 — drips reaching out to the LEFT.
   {
     name: "drip-left",
@@ -407,7 +415,7 @@ const FRAMES: readonly Frame[] = [
   },
 ] as const;
 
-function buildOuterPath(spec: FrameSpec): string {
+export function buildOuterPath(spec: FrameSpec): string {
   switch (spec.kind) {
     case "flower":
       return flowerPath(spec.bumps, spec.baseR, spec.bumpH, 200, 250, spec.jitter ?? 0);
@@ -429,7 +437,7 @@ function buildOuterPath(spec: FrameSpec): string {
   }
 }
 
-function buildInnerPath(spec: FrameSpec): string {
+export function buildInnerPath(spec: FrameSpec): string {
   switch (spec.kind) {
     case "flower":
       return flowerPath(
@@ -463,11 +471,17 @@ export default function RetroProducts({
   lang,
   products,
   limit = 4,
+  photoPositions = {},
 }: RetroProductsProps) {
   /* Derive lang from shopHref when not passed (e.g. "/en/shop" → "en") so legacy callers still get working links. */
   const resolvedLang = lang ?? shopHref.split("/").filter(Boolean)[0] ?? "en";
-  const showcase = products
-    .filter((p) => Boolean(p.image_front))
+
+  // Only products the admin has explicitly marked appear here. If nothing is
+  // marked yet, fall back to the first few so the section isn't empty during
+  // initial set-up.
+  const eligible = products.filter((p) => Boolean(p.image_front));
+  const featured = eligible.filter((p) => isHomeFeatured(photoPositions[p.id]));
+  const showcase = (featured.length > 0 ? featured : eligible)
     .slice(0, Math.min(limit, FRAMES.length));
 
   return (
@@ -525,6 +539,7 @@ export default function RetroProducts({
               index={i}
               isKa={isKa}
               lang={resolvedLang}
+              position={photoPositions[p.id]}
             />
           ))}
         </div>
@@ -566,18 +581,19 @@ function MirrorCard({
   index,
   isKa,
   lang,
+  position,
 }: {
   product: StorefrontProduct;
   frame: Frame;
   index: number;
   isKa: boolean;
   lang: string;
+  position?: PhotoPosition;
 }) {
   const [hover, setHover] = useState(false);
   // No alternating offset — keeps the rows visually compact.
   const offsetY = 0;
   const hasBack = Boolean(product.image_back);
-  const isNew = product.tags.includes("new");
 
   // Outer silhouette of the frame and inner shape used to clip the photo.
   // Style is dispatched on `frame.spec.kind` (flower / blob / drip).
@@ -598,9 +614,6 @@ function MirrorCard({
       }}
       style={{ marginTop: offsetY }}
       className="group flex flex-col items-center"
-      onMouseEnter={() => setHover(true)}
-      onMouseLeave={() => setHover(false)}
-      onTouchStart={() => setHover((v) => !v)}
     >
       <Link
         href={`/${lang}/product/${product.id}`}
@@ -611,6 +624,9 @@ function MirrorCard({
           transform: `rotate(${frame.rotate}deg)`,
           transition: "transform 0.6s cubic-bezier(0.215, 0.61, 0.355, 1)",
         }}
+        onMouseEnter={() => setHover(true)}
+        onMouseLeave={() => setHover(false)}
+        onTouchStart={() => setHover((v) => !v)}
       >
         {/* The whole frame is one SVG: the colourful curly matte sits underneath
             and the product photo is rendered as <image> on top, clipped to the
@@ -632,62 +648,60 @@ function MirrorCard({
           {/* Outer matte — the visible curly colour ring */}
           <path d={outerPath} fill={frame.color} />
 
-          {/* Front photo, clipped to the inner scallop. Rectangular source,
-              curly visible shape — corners hidden by the clip. */}
-          <image
-            href={product.image_front}
-            x="0"
-            y="0"
-            width="400"
-            height="500"
-            preserveAspectRatio="xMidYMid meet"
-            clipPath={`url(#${clipId})`}
-            style={{
-              filter: "saturate(0.96) sepia(0.04)",
-              opacity: hover && hasBack ? 0 : 1,
-              transition: "opacity 0.6s ease",
-            }}
-          />
-
-          {/* Back photo (revealed on hover) */}
-          {hasBack && (
+          {/* Photo group — wrapped in the clip so the per-product zoom/x/y
+              transform can never overflow the scallop. The transform is
+              centred for a 400×500 viewBox (different from /shop's 400×400). */}
+          <g clipPath={`url(#${clipId})`}>
             <image
-              href={product.image_back!}
+              href={product.image_front}
               x="0"
               y="0"
               width="400"
               height="500"
               preserveAspectRatio="xMidYMid meet"
-              clipPath={`url(#${clipId})`}
+              transform={buildHomePhotoTransform(position)}
               style={{
                 filter: "saturate(0.96) sepia(0.04)",
-                opacity: hover ? 1 : 0,
+                opacity: hover && hasBack ? 0 : 1,
                 transition: "opacity 0.6s ease",
               }}
             />
-          )}
+
+            {hasBack && (
+              <image
+                href={product.image_back!}
+                x="0"
+                y="0"
+                width="400"
+                height="500"
+                preserveAspectRatio="xMidYMid meet"
+                transform={buildHomeBackPhotoTransform(position)}
+                style={{
+                  filter: "saturate(0.96) sepia(0.04)",
+                  opacity: hover ? 1 : 0,
+                  transition: "opacity 0.6s ease",
+                }}
+              />
+            )}
+          </g>
         </svg>
 
-        {/* New badge */}
-        {isNew && (
-          <span
-            className="absolute -top-3 left-2 px-3 py-1 text-[9px] font-extrabold uppercase tracking-[0.22em] z-10"
-            style={{
-              background: C.mustard,
-              color: C.ink,
-              fontFamily: FRAUNCES,
-              transform: "rotate(-6deg)",
-              boxShadow: "0 3px 0 #d99820",
-              borderRadius: 999,
-            }}
-          >
-            {isKa ? "ახალი" : "New"}
-          </span>
-        )}
+        {/* "New" badge removed — agent's admin panel owns product tags. */}
 
-        {/* Hover hint */}
+        {/* Flip button — hover or click to reveal the back photo */}
         {hasBack && (
-          <div
+          <button
+            type="button"
+            aria-label={isKa ? "გადმოატრიალე" : "Flip"}
+            onMouseEnter={() => setHover(true)}
+            onMouseLeave={() => setHover(false)}
+            onClick={(e) => {
+              // The button sits inside the product <Link>. Clicking it should
+              // flip the photo, not navigate.
+              e.preventDefault();
+              e.stopPropagation();
+              setHover((v) => !v);
+            }}
             className="absolute -bottom-3 right-2 inline-flex items-center gap-1.5 px-3 py-1.5 text-[10px] font-extrabold uppercase tracking-[0.2em] rounded-full z-10"
             style={{
               background: hover ? C.mustard : C.cream,
@@ -696,11 +710,13 @@ function MirrorCard({
               transition: "background 0.3s ease, transform 0.3s ease",
               transform: hover ? "rotate(0deg)" : "rotate(-4deg)",
               boxShadow: "0 4px 8px rgba(42,29,20,0.18)",
+              border: "none",
+              cursor: "pointer",
             }}
           >
             <RotateCw className="w-3 h-3" />
-            {hover ? (isKa ? "უკანა მხარე" : "back side") : (isKa ? "გადმოატარე" : "hover")}
-          </div>
+            {hover ? (isKa ? "უკანა მხარე" : "back side") : (isKa ? "გადმოატრიალე" : "flip")}
+          </button>
         )}
       </Link>
 

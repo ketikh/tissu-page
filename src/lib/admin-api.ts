@@ -11,13 +11,18 @@
 
 import { getLandingCopy } from "@/app/[lang]/landingCopy";
 
-export type StorefrontCategory =
+// Canonical built-in categories. The admin can also add their own categories
+// in the agent and they'll flow through as plain strings — `StorefrontCategory`
+// is a string so custom values aren't lost in the trip from agent → site.
+export type KnownStorefrontCategory =
   | "pouch"
   | "laptop"
   | "tote"
   | "kidsbackpack"
   | "apron"
   | "necklace";
+
+export type StorefrontCategory = KnownStorefrontCategory | (string & {});
 
 export interface StorefrontProduct {
   id: string;
@@ -34,6 +39,11 @@ export interface StorefrontProduct {
   in_stock: boolean;
   image_front: string;
   image_back: string | null;
+  /** Optional extra "lookbook" photos for this product — separate from the
+   *  inventory front/back photo the Telegram bot uses. The Pinterest agent
+   *  reads from the same field. Empty / missing when the admin hasn't
+   *  uploaded any yet. */
+  gallery_images?: string[];
   category: StorefrontCategory;
   tags: string[];
   updated_at: string;
@@ -75,7 +85,83 @@ async function adminFetch<T>(path: string, init?: RequestInit): Promise<T | null
   }
 }
 
+interface InventoryItem {
+  id: number | string;
+  code?: string;
+  product_name?: string;
+  model?: string;
+  size?: string;
+  color?: string;
+  description?: string | null;
+  price?: number;
+  on_sale?: boolean;
+  sale_price?: number | null;
+  stock?: number;
+  image_url?: string;
+  image_url_back?: string | null;
+  category?: string;
+  tags?: string | string[];
+  updated_at?: string;
+}
+
+/** Pass the agent's category slug through unchanged. Display names come from
+ *  the new `/api/storefront/categories` endpoint, so we don't need to alias
+ *  slugs on this side anymore. */
+function mapCategory(raw: string | undefined): StorefrontCategory {
+  const trimmed = (raw ?? "").trim().toLowerCase();
+  return trimmed || "bag";
+}
+
+function mapInventoryToProduct(it: InventoryItem): StorefrontProduct {
+  const stock = typeof it.stock === "number" ? it.stock : 0;
+  // On-sale items use sale_price as price + the regular price as original.
+  const onSale = Boolean(it.on_sale && typeof it.sale_price === "number");
+  const price = onSale ? (it.sale_price as number) : (it.price ?? 0);
+  const original = onSale ? (it.price ?? null) : null;
+  const rawTags: string[] = Array.isArray(it.tags)
+    ? it.tags
+    : typeof it.tags === "string" && it.tags.trim()
+      ? it.tags.split(/[,\s]+/)
+      : [];
+  const tags = Array.from(new Set(rawTags.map((t) => t.trim().toLowerCase()).filter(Boolean)));
+  return {
+    id: String(it.id),
+    code: it.code ?? "",
+    name: it.product_name ?? "",
+    model: it.model ?? "",
+    size: it.size ?? "",
+    color: it.color ?? "",
+    description: it.description ?? null,
+    price,
+    original_price: original,
+    currency: "GEL",
+    stock,
+    in_stock: stock > 0,
+    image_front: it.image_url ?? "",
+    image_back: it.image_url_back ?? null,
+    category: mapCategory(it.category),
+    tags,
+    updated_at: it.updated_at ?? new Date().toISOString(),
+  };
+}
+
+/** The agent returns inventory wrapped: `{ inventory: [...] }`. */
+interface InventoryResponse {
+  inventory?: InventoryItem[];
+}
+
 export async function fetchStorefrontProducts(): Promise<StorefrontProduct[]> {
+  // The agent's /api/storefront/products hides sold-out items, so we go
+  // through the admin inventory endpoint (server-side, admin key never leaves
+  // the server) and reshape it. Falls back to the storefront endpoint, then
+  // to the local placeholder list.
+  const inv = await adminFetch<InventoryResponse>("/api/inventory");
+  const items = inv?.inventory;
+  if (Array.isArray(items) && items.length > 0) {
+    return items
+      .filter((it) => Boolean(it.image_url))
+      .map(mapInventoryToProduct);
+  }
   const data = await adminFetch<ProductsResponse>("/api/storefront/products");
   if (data?.products?.length) return data.products;
   return fallbackProducts();

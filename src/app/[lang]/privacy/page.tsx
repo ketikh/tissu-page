@@ -64,7 +64,7 @@ function EnBody() {
 
       <h2>1. Who we are</h2>
       <p>
-        Tissu Shop · Tbilisi, Georgia · contact: <a href="mailto:hello@tissu.ge">hello@tissu.ge</a>.
+        Tissu Shop · Tbilisi, Georgia · contact: <a href="mailto:tissu@georgia@gmail.com">tissu@georgia@gmail.com</a>.
         We are the data controller for the information described below.
       </p>
 
@@ -79,15 +79,9 @@ function EnBody() {
       </ul>
       <h3>When you create an account</h3>
       <ul>
-        <li>Email and a hashed password (via Supabase Auth)</li>
+        <li>Email and a securely hashed password</li>
         <li>Optional profile data you choose to add</li>
       </ul>
-      <h3>Payment data</h3>
-      <p>
-        We do <strong>not</strong> store your card details. Payments are processed by third-party
-        providers (e.g. Stripe, bank card gateways). Those providers receive the card data directly
-        and return only a transaction result to us.
-      </p>
       <h3>Technical data</h3>
       <ul>
         <li>IP address and approximate location (for fraud prevention and analytics)</li>
@@ -97,7 +91,7 @@ function EnBody() {
 
       <h2>3. Why we use it</h2>
       <ul>
-        <li>To fulfil your order (ship the product, confirm payment, contact you about delivery)</li>
+        <li>To fulfil your order (contact you about payment and delivery)</li>
         <li>To provide customer support</li>
         <li>To comply with Georgian tax and accounting law</li>
         <li>To improve the site (aggregated analytics)</li>
@@ -105,16 +99,10 @@ function EnBody() {
       </ul>
 
       <h2>4. Third parties we share data with</h2>
-      <ul>
-        <li><strong>Supabase</strong> — account authentication and database hosting</li>
-        <li><strong>Cloudinary</strong> — product image delivery (no customer data)</li>
-        <li><strong>Railway</strong> — application hosting</li>
-        <li><strong>Payment processor</strong> (Stripe / TBC / BOG) — when you check out</li>
-        <li><strong>Shipping provider</strong> — to deliver your order</li>
-      </ul>
       <p>
-        We do not sell your data. We do not share it for advertising purposes without explicit
-        consent.
+        We only share the minimum necessary to fulfil your order — for example, your name,
+        address and phone with the courier so they can deliver the package. We do not sell your
+        data and we do not share it for advertising purposes without your explicit consent.
       </p>
 
       <h2>5. How long we keep it</h2>
@@ -136,7 +124,7 @@ function EnBody() {
         <li>Withdraw consent to marketing at any time</li>
       </ul>
       <p>
-        Email <a href="mailto:hello@tissu.ge">hello@tissu.ge</a> and we will respond within 30 days.
+        Email <a href="mailto:tissu@georgia@gmail.com">tissu@georgia@gmail.com</a> and we will respond within 30 days.
       </p>
 
       <h2>7. Security</h2>
@@ -163,7 +151,7 @@ function EnBody() {
       <h2>10. Contact</h2>
       <p>
         Questions about this policy or a data request? Email{" "}
-        <a href="mailto:hello@tissu.ge">hello@tissu.ge</a>.
+        <a href="mailto:tissu@georgia@gmail.com">tissu@georgia@gmail.com</a>.
       </p>
     </>
   );
@@ -182,7 +170,7 @@ function KaBody() {
       <h2>1. ვინ ვართ</h2>
       <p>
         Tissu Shop · თბილისი, საქართველო · საკონტაქტო:{" "}
-        <a href="mailto:hello@tissu.ge">hello@tissu.ge</a>. ქვემოთ აღწერილი ინფორმაციის მონაცემთა
+        <a href="mailto:tissu@georgia@gmail.com">tissu@georgia@gmail.com</a>. ქვემოთ აღწერილი ინფორმაციის მონაცემთა
         დამუშავებაზე პასუხისმგებელი სუბიექტი ვართ.
       </p>
 
@@ -200,12 +188,6 @@ function KaBody() {
         <li>ელფოსტა და დაჰეშილი პაროლი (Supabase Auth-ის მეშვეობით)</li>
         <li>ნებაყოფლობითი პროფილის მონაცემები</li>
       </ul>
-      <h3>გადახდის მონაცემები</h3>
-      <p>
-        ბარათის მონაცემებს <strong>არ ვინახავთ</strong>. გადახდას ამუშავებენ გარე პროვაიდერები
-        (მაგ. Stripe, ბანკის გეითვეი). ბარათის მონაცემები მათ პირდაპირ ერგებათ — ჩვენ მხოლოდ
-        ტრანზაქციის შედეგს ვიღებთ.
-      </p>
       <h3>ტექნიკური მონაცემები</h3>
       <ul>
         <li>IP მისამართი და სავარაუდო მდებარეობა (უსაფრთხოებისა და ანალიტიკისთვის)</li>
@@ -215,7 +197,7 @@ function KaBody() {
 
       <h2>3. როგორ ვიყენებთ</h2>
       <ul>
-        <li>შეკვეთის შესასრულებლად (მიწოდება, გადახდის დადასტურება, კონტაქტი)</li>
+        <li>შეკვეთის შესასრულებლად (გადახდისა და მიწოდების შესათანხმებლად კონტაქტი)</li>
         <li>კლიენტის მხარდაჭერისთვის</li>
         <li>ქართული საგადასახადო კანონმდებლობასთან შესაბამისობისთვის</li>
         <li>საიტის გასაუმჯობესებლად (ანონიმიზებული ანალიტიკა)</li>
@@ -223,15 +205,10 @@ function KaBody() {
       </ul>
 
       <h2>4. მესამე მხარეები, ვისაც ვუზიარებთ</h2>
-      <ul>
-        <li><strong>Supabase</strong> — ავტორიზაცია და ბაზის ჰოსტინგი</li>
-        <li><strong>Cloudinary</strong> — პროდუქტის ფოტოების მიწოდება (კლიენტის მონაცემები არ იყრება)</li>
-        <li><strong>Railway</strong> — აპლიკაციის ჰოსტინგი</li>
-        <li><strong>გადახდის პროვაიდერი</strong> (Stripe / TBC / BOG) — შეკვეთის დასრულებისას</li>
-        <li><strong>კურიერი</strong> — მიწოდებისთვის</li>
-      </ul>
       <p>
-        თქვენს მონაცემებს არ ვყიდით. სარეკლამო მიზნებისთვის კი არ ვუზიარებთ მკაფიო თანხმობის გარეშე.
+        ვაზიარებთ მხოლოდ მინიმუმს, რაც შეკვეთის შესასრულებლად აუცილებელია — მაგალითად,
+        თქვენი სახელი, მისამართი და ტელეფონი კურიერთან, რომ ამანათი მიგიტანოთ. თქვენს
+        მონაცემებს არ ვყიდით და სარეკლამო მიზნებისთვის არ ვუზიარებთ მკაფიო თანხმობის გარეშე.
       </p>
 
       <h2>5. რამდენ ხანს ვინახავთ</h2>
@@ -253,7 +230,7 @@ function KaBody() {
         <li>ნებისმიერ დროს გაუქმდეს მარკეტინგის თანხმობა</li>
       </ul>
       <p>
-        მოგვწერეთ <a href="mailto:hello@tissu.ge">hello@tissu.ge</a>-ზე — ვუპასუხებთ 30 დღის
+        მოგვწერეთ <a href="mailto:tissu@georgia@gmail.com">tissu@georgia@gmail.com</a>-ზე — ვუპასუხებთ 30 დღის
         განმავლობაში.
       </p>
 
@@ -280,7 +257,7 @@ function KaBody() {
       <h2>10. კონტაქტი</h2>
       <p>
         კითხვები ან მონაცემთა მოთხოვნა? მოგვწერეთ:{" "}
-        <a href="mailto:hello@tissu.ge">hello@tissu.ge</a>.
+        <a href="mailto:tissu@georgia@gmail.com">tissu@georgia@gmail.com</a>.
       </p>
     </>
   );

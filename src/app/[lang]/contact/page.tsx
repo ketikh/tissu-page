@@ -3,8 +3,8 @@ import { fetchCMSSection } from "@/lib/admin-content";
 import ContactClient from "./ContactClient";
 
 const DEFAULTS = {
-  email: "hello@tissu.ge",
-  phone: "+995 555 12 34 56",
+  email: "tissu@georgia@gmail.com",
+  phone: "+995 598 22 94 38",
   instagramUrl: "https://instagram.com/thetissushop",
 };
 

@@ -253,7 +253,6 @@ function NecklaceCard({
   const productHref = `/${lang}/product/${product.id}`;
   const [hover, setHover] = useState(false);
   const hasBack = Boolean(product.image_back);
-  const isNew = product.tags.includes("new");
 
   const outerPath = useMemo(() => buildOuter(frame.spec), [frame]);
   const innerPath = useMemo(() => buildInner(frame.spec), [frame]);
@@ -327,21 +326,6 @@ function NecklaceCard({
           )}
         </svg>
 
-        {isNew && (
-          <span
-            className="absolute -top-3 left-2 px-3 py-1 text-[9px] font-extrabold uppercase tracking-[0.22em] z-10"
-            style={{
-              background: C.champagne,
-              color: C.ink,
-              fontFamily: FRAUNCES,
-              transform: "rotate(-6deg)",
-              boxShadow: "0 3px 0 #a0804a",
-              borderRadius: 999,
-            }}
-          >
-            {isKa ? "ახალი" : "New"}
-          </span>
-        )}
       </Link>
 
       <div className="mt-5 text-center max-w-65">

@@ -50,8 +50,8 @@ function buildDefaultPayloads(): Record<string, Record<string, Record<string, st
     },
     contact: {
       details: {
-        phone:         "+995 555 12 34 56",
-        email:         "hello@tissu.ge",
+        phone:         "+995 598 22 94 38",
+        email:         "tissu@georgia@gmail.com",
         instagram_url: "https://instagram.com/thetissushop",
         facebook_url:  "https://facebook.com/thetissushop",
         tiktok_url:    "https://tiktok.com/@thetissushop",

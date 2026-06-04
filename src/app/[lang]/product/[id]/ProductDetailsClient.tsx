@@ -10,6 +10,7 @@ import type { Locale } from "@/i18n/config";
 import type { StorefrontProduct } from "@/lib/admin-api";
 import { useCartStore } from "@/store/useCartStore";
 import { useUIStore } from "@/store/useUIStore";
+import { cloudinaryCutout } from "@/lib/cloudinary";
 import { useStoreHydration } from "@/store/useHydration";
 import { getLandingCopy } from "@/app/[lang]/landingCopy";
 
@@ -286,7 +287,10 @@ export function ProductDetailsClient({ product, related, lang }: ProductDetailsC
   const sub       = [product.size, product.color].filter(Boolean).join(" · ");
   const isKa      = lang === "ka";
   const curr      = product.currency === "GEL" ? "₾" : ` ${product.currency}`;
-  const categoryLabel = copy.shop.filters[product.category === "tote" ? "bag" : product.category];
+  // The filter dictionary only knows the canonical categories; custom ones
+  // from the agent get displayed under their raw name.
+  const filterKey = (product.category === "tote" ? "bag" : product.category) as keyof typeof copy.shop.filters;
+  const categoryLabel = (copy.shop.filters as Record<string, string>)[filterKey] ?? product.category;
   const baseCatColor = CAT_COLORS[product.category] ?? { bg: C.rose, text: C.cream, shadow: "#9c6078" };
   /* Optional admin override — set a tag like `color:#hex` or `color:rose` to recolor banner + buttons */
   const tagColor = colorFromTags(product.tags || []);
@@ -467,20 +471,6 @@ export function ProductDetailsClient({ product, related, lang }: ProductDetailsC
                 >
                   <Heart size={18} fill={wishlisted ? C.rose : "none"} stroke={wishlisted ? C.rose : "#bbb"} strokeWidth={2} />
                 </motion.button>
-
-                {product.tags.includes("new") && (
-                  <span style={{
-                    position: "absolute", top: 14, left: 14, zIndex: 2,
-                    background: C.mustard, color: C.ink,
-                    fontFamily: FRAUNCES, fontStyle: "italic", fontWeight: 700,
-                    fontSize: 10, letterSpacing: "0.18em", textTransform: "uppercase",
-                    padding: "4px 12px", borderRadius: 999,
-                    boxShadow: `0 3px 0 ${C.mustardDeep}`,
-                    transform: "rotate(-4deg)",
-                  }}>
-                    {isKa ? "ახალი" : "New"}
-                  </span>
-                )}
 
                 <div style={{
                   position: "absolute", bottom: 14, left: 14, zIndex: 2,
@@ -806,6 +796,60 @@ export function ProductDetailsClient({ product, related, lang }: ProductDetailsC
         </div>
       </div>
 
+      {/* ══ LOOKBOOK strip — admin-uploaded showcase photos for THIS product ══ */}
+      {product.gallery_images && product.gallery_images.length > 0 && (
+        <section style={{ background: C.cream, padding: "56px 0 64px" }}>
+          <div className="container">
+            <div className="text-center" style={{ marginBottom: 28 }}>
+              <span style={{
+                fontFamily: FRAUNCES, fontSize: 11, fontWeight: 700,
+                letterSpacing: "0.3em", textTransform: "uppercase",
+                color: catColor.bg,
+              }}>
+                {isKa ? "ცხოვრებაში" : "In real life"}
+              </span>
+              <h2 style={{
+                fontFamily: isKa ? "var(--font-alk-life), serif" : FRAUNCES,
+                fontWeight: 900,
+                fontStyle: isKa ? "normal" : "italic",
+                fontSize: "clamp(24px, 3vw, 36px)",
+                color: C.ink,
+                margin: "8px 0 0",
+              }}>
+                {isKa ? "ფოტოები მოდელზე" : "On model"}
+              </h2>
+            </div>
+            <div
+              className="grid gap-3 md:gap-4"
+              style={{
+                gridTemplateColumns: "repeat(auto-fill, minmax(220px, 1fr))",
+              }}
+            >
+              {product.gallery_images.filter(u => /^https?:\/\//i.test(u)).map((url, i) => (
+                <div
+                  key={i}
+                  style={{
+                    aspectRatio: "3 / 4",
+                    borderRadius: 16,
+                    overflow: "hidden",
+                    background: "#f5f5f5",
+                    boxShadow: "0 6px 18px rgba(42,29,20,0.10)",
+                  }}
+                >
+                  {/* eslint-disable-next-line @next/next/no-img-element */}
+                  <img
+                    src={url}
+                    alt=""
+                    loading="lazy"
+                    style={{ width: "100%", height: "100%", objectFit: "cover", display: "block" }}
+                  />
+                </div>
+              ))}
+            </div>
+          </div>
+        </section>
+      )}
+
       {/* ══ RELATED — auto-scrolling carousel ══ */}
       {related.length > 0 && (
         <section style={{ background: C.burnt, position: "relative", padding: "64px 0 72px", overflow: "hidden" }}>
@@ -871,6 +915,11 @@ function DripCard({ product, lang, isKa, index }: { product: StorefrontProduct; 
   const addItem  = useCartStore((s) => s.addItem);
   const openCart = useUIStore((s) => s.openCart);
 
+  // Same fallback dance as shop cards — cutout for the photos that work,
+  // original URL for the ones where Cloudinary's background remover fails.
+  const [cutoutFailed, setCutoutFailed] = useState(false);
+  const frontSrc = cutoutFailed ? product.image_front : cloudinaryCutout(product.image_front);
+
   const frame     = RELATED_FRAMES[index % RELATED_FRAMES.length];
   const name      = product.name || product.code;
   const curr      = product.currency === "GEL" ? "₾" : ` ${product.currency}`;
@@ -914,9 +963,14 @@ function DripCard({ product, lang, isKa, index }: { product: StorefrontProduct; 
             style={{ filter: "drop-shadow(0 18px 22px rgba(42,29,20,0.28))", overflow: "visible" }}
           >
             <defs><clipPath id={clipId}><path d={innerPath} /></clipPath></defs>
+            {/* Frame body provides the coloured backdrop behind the transparent bag photo. */}
             <path d={outerPath} fill={frame.color} />
-            <image href={product.image_front} x="0" y="0" width="400" height="500"
-              preserveAspectRatio="xMidYMid meet" clipPath={`url(#${clipId})`}
+            {/* Photo: background removed by Cloudinary + a small inset so it
+             *  reads more like a polaroid than a tight crop. */}
+            <image href={frontSrc}
+              x="22" y="22" width="356" height="456"
+              preserveAspectRatio="xMidYMin meet" clipPath={`url(#${clipId})`}
+              onError={() => setCutoutFailed(true)}
               style={{ filter: "saturate(0.96) sepia(0.04)" }}
             />
           </svg>

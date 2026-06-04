@@ -21,7 +21,19 @@ const C = {
   greenDeep: "#2c5640",
   champagne: "#c9a86c",
   rose: "#c4849a",
+  burnt: "#d56826",
+  lilac: "#9e8abf",
 };
+
+// Rotating card accents — each FAQ card picks the next colour in the cycle so
+// the list reads as a colourful zine rather than a uniform accordion.
+const ACCENTS = [
+  { color: C.burnt,   shadow: "rgba(213,104,38,0.30)" },
+  { color: C.mustard, shadow: "rgba(217,152,32,0.34)" },
+  { color: C.green,   shadow: "rgba(63,111,86,0.30)" },
+  { color: C.rose,    shadow: "rgba(196,132,154,0.30)" },
+  { color: C.lilac,   shadow: "rgba(158,138,191,0.28)" },
+];
 
 interface FAQClientProps {
   faqs: FAQItem[];
@@ -126,8 +138,8 @@ export default function FAQClient({ faqs, lang, dictionary }: FAQClientProps) {
           </div>
         </div>
 
-        {/* Accordion list */}
-        <div className="space-y-3">
+        {/* Accordion list — colourful cards with a rotating accent colour. */}
+        <div className="space-y-4">
           {visible.length === 0 ? (
             <div
               className="text-center py-14"
@@ -136,7 +148,7 @@ export default function FAQClient({ faqs, lang, dictionary }: FAQClientProps) {
                 fontStyle: "italic",
                 fontSize: 22,
                 color: C.champagne,
-                background: C.beige,
+                background: "white",
                 border: `1.5px solid ${C.champagne}`,
                 borderRadius: 28,
               }}
@@ -146,40 +158,77 @@ export default function FAQClient({ faqs, lang, dictionary }: FAQClientProps) {
           ) : (
             visible.map((f, i) => {
               const open = activeIndex === i;
+              const accent = ACCENTS[i % ACCENTS.length];
               return (
-                <div
+                <motion.div
                   key={i}
-                  className="overflow-hidden transition-all"
+                  layout
+                  transition={{ duration: 0.3, ease: [0.22, 1, 0.36, 1] }}
+                  className="relative overflow-hidden"
                   style={{
-                    background: open ? C.beige : C.cream,
+                    background: "white",
                     borderRadius: 22,
-                    border: `1.5px solid ${open ? C.ink : C.champagne}`,
+                    border: `1.5px solid ${open ? accent.color : "rgba(42,29,20,0.08)"}`,
+                    boxShadow: open
+                      ? `0 12px 0 ${accent.shadow}, 0 18px 32px rgba(42,29,20,0.10)`
+                      : `0 4px 0 rgba(42,29,20,0.06)`,
+                    transform: open ? "translateY(-2px)" : "translateY(0)",
+                    transition: "transform 0.25s ease, box-shadow 0.25s ease, border-color 0.25s ease",
                   }}
                 >
+                  {/* Coloured left edge — grows wider when expanded. */}
+                  <span
+                    aria-hidden="true"
+                    style={{
+                      position: "absolute",
+                      left: 0, top: 0, bottom: 0,
+                      width: open ? 8 : 5,
+                      background: accent.color,
+                      transition: "width 0.25s ease",
+                    }}
+                  />
+
                   <button
                     type="button"
                     onClick={() => setActiveIndex(open ? null : i)}
-                    className="w-full px-6 py-5 flex items-center justify-between text-left gap-4"
+                    className="w-full pl-7 pr-5 py-5 flex items-center justify-between text-left gap-4"
                   >
+                    <div className="flex items-center gap-4 flex-1 min-w-0">
+                      {/* Number bubble in the accent colour. */}
+                      <span
+                        style={{
+                          width: 38, height: 38,
+                          borderRadius: 999,
+                          background: open ? accent.color : `${accent.color}1f`,
+                          color: open ? C.cream : accent.color,
+                          fontFamily: FRAUNCES, fontWeight: 800, fontSize: 13,
+                          display: "inline-flex", alignItems: "center", justifyContent: "center",
+                          flexShrink: 0,
+                          transition: "background 0.25s ease, color 0.25s ease",
+                        }}
+                      >
+                        {String(i + 1).padStart(2, "0")}
+                      </span>
+                      <span
+                        style={{
+                          fontFamily: isKa ? ALK_LIFE : FRAUNCES,
+                          fontStyle: isKa ? "normal" : "italic",
+                          fontWeight: 700,
+                          fontSize: "clamp(16px, 1.55vw, 20px)",
+                          color: C.ink,
+                          lineHeight: 1.3,
+                        }}
+                      >
+                        {f.question[lang]}
+                      </span>
+                    </div>
                     <span
+                      className="shrink-0 w-10 h-10 rounded-full inline-flex items-center justify-center"
                       style={{
-                        fontFamily: isKa ? ALK_LIFE : FRAUNCES,
-                        fontStyle: isKa ? "normal" : "italic",
-                        fontWeight: 700,
-                        fontSize: "clamp(16px, 1.5vw, 20px)",
-                        color: open ? C.green : C.ink,
-                        lineHeight: 1.3,
-                        transition: "color 0.2s",
-                      }}
-                    >
-                      {f.question[lang]}
-                    </span>
-                    <span
-                      className="shrink-0 w-9 h-9 rounded-full inline-flex items-center justify-center transition-colors"
-                      style={{
-                        background: open ? C.ink : C.beige,
-                        color: open ? C.cream : C.ink,
-                        border: `1.5px solid ${open ? C.ink : C.champagne}`,
+                        background: open ? accent.color : "white",
+                        color: open ? C.cream : accent.color,
+                        border: `1.5px solid ${accent.color}`,
+                        transition: "background 0.25s ease, color 0.25s ease",
                       }}
                     >
                       {open ? <Minus className="w-4 h-4" /> : <Plus className="w-4 h-4" />}
@@ -194,70 +243,76 @@ export default function FAQClient({ faqs, lang, dictionary }: FAQClientProps) {
                         exit={{ height: 0, opacity: 0 }}
                         transition={{ duration: 0.3, ease: [0.22, 1, 0.36, 1] }}
                       >
-                        <div className="px-6 pb-6">
-                          <div className="pt-4">
-                            <p
-                              style={{
-                                fontFamily: FRAUNCES,
-                                fontStyle: "italic",
-                                fontSize: 15,
-                                color: C.greenDeep,
-                                lineHeight: 1.7,
-                              }}
-                            >
-                              {f.answer[lang]}
-                            </p>
-                          </div>
+                        <div className="pl-20 pr-6 pb-6">
+                          <p
+                            style={{
+                              fontFamily: FRAUNCES,
+                              fontSize: 15,
+                              color: C.ink,
+                              opacity: 0.75,
+                              lineHeight: 1.7,
+                              whiteSpace: "pre-line",
+                            }}
+                          >
+                            {f.answer[lang]}
+                          </p>
                         </div>
                       </motion.div>
                     )}
                   </AnimatePresence>
-                </div>
+                </motion.div>
               );
             })
           )}
         </div>
 
-        {/* Still have questions */}
+        {/* Still have questions — bright green block, mustard CTA, decorative spots */}
         <div
-          className="mt-16 md:mt-24 py-12 px-8 md:px-14 text-center"
-          style={{ background: C.ink, borderRadius: 32 }}
+          className="relative mt-16 md:mt-24 py-14 px-8 md:px-14 text-center overflow-hidden"
+          style={{ background: C.green, borderRadius: 32 }}
         >
-          <h2
-            className="mb-3"
-            style={{
-              fontFamily: isKa ? ALK_LIFE : PACIFICO,
-              fontWeight: 400,
-              fontSize: "clamp(24px, 3vw, 40px)",
-              color: C.cream,
-            }}
-          >
-            {isKa ? "კიდევ გაქვს კითხვა?" : "Still have a question?"}
-          </h2>
-          <p
-            className="mb-7 mx-auto"
-            style={{ fontFamily: FRAUNCES, fontStyle: "italic", fontSize: 15, color: C.champagne, maxWidth: 420 }}
-          >
-            {isKa
-              ? "უბრალოდ დაგვიკავშირდი."
-              : "Just get in touch."}
-          </p>
-          <Link
-            href={`/${lang}/contact`}
-            className="inline-flex items-center gap-2.5 font-extrabold text-[13px] uppercase tracking-[0.2em] transition-transform hover:-translate-y-0.5 active:translate-y-0.5"
-            style={{
-              fontFamily: FRAUNCES,
-              fontWeight: 800,
-              background: C.mustard,
-              color: C.ink,
-              borderRadius: 999,
-              padding: "13px 30px",
-              boxShadow: `0 5px 0 ${C.mustardDeep}`,
-            }}
-          >
-            {isKa ? "კონტაქტი" : "Contact us"}
-            <span aria-hidden="true">→</span>
-          </Link>
+          {/* Decorative pebbles inside the CTA */}
+          <span aria-hidden="true" style={{ position: "absolute", top: -24, left: -24, width: 100, height: 100, background: C.mustard, opacity: 0.32, borderRadius: "55% 45% 50% 50% / 50% 55% 45% 50%" }} />
+          <span aria-hidden="true" style={{ position: "absolute", bottom: -30, right: -10, width: 130, height: 130, background: C.rose, opacity: 0.28, borderRadius: "55% 45% 50% 50% / 50% 55% 45% 50%" }} />
+          <span aria-hidden="true" style={{ position: "absolute", top: 30, right: "30%", color: C.mustard, opacity: 0.65 }}>
+            <svg width={20} height={20} viewBox="0 0 24 24"><path d="M12 2 L13.8 10.2 L22 12 L13.8 13.8 L12 22 L10.2 13.8 L2 12 L10.2 10.2 Z" fill="currentColor" /></svg>
+          </span>
+
+          <div style={{ position: "relative", zIndex: 1 }}>
+            <h2
+              className="mb-3"
+              style={{
+                fontFamily: isKa ? ALK_LIFE : PACIFICO,
+                fontWeight: 400,
+                fontSize: "clamp(26px, 3.3vw, 44px)",
+                color: C.cream,
+              }}
+            >
+              {isKa ? "კიდევ გაქვს კითხვა?" : "Still have a question?"}
+            </h2>
+            <p
+              className="mb-7 mx-auto"
+              style={{ fontFamily: FRAUNCES, fontStyle: "italic", fontSize: 16, color: C.cream, opacity: 0.85, maxWidth: 420 }}
+            >
+              {isKa ? "უბრალოდ დაგვიკავშირდი." : "Just get in touch."}
+            </p>
+            <Link
+              href={`/${lang}/contact`}
+              className="inline-flex items-center gap-2.5 font-extrabold text-[13px] uppercase tracking-[0.2em] transition-transform hover:-translate-y-0.5 active:translate-y-0.5"
+              style={{
+                fontFamily: FRAUNCES,
+                fontWeight: 800,
+                background: C.mustard,
+                color: C.ink,
+                borderRadius: 999,
+                padding: "14px 32px",
+                boxShadow: `0 6px 0 ${C.mustardDeep}`,
+              }}
+            >
+              {isKa ? "კონტაქტი" : "Contact us"}
+              <span aria-hidden="true">→</span>
+            </Link>
+          </div>
         </div>
       </div>
 

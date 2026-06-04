@@ -36,27 +36,27 @@ export interface FooterSocials {
 }
 
 export function Footer({
-  dictionary,
+  dictionary: _dictionary,
   lang = "ka",
-  tagline,
   socials,
 }: {
   dictionary?: any;
   lang?: Locale;
+  // `tagline` is intentionally accepted-and-ignored for backwards compatibility
+  // with callers; the footer tagline was removed to avoid duplicating the
+  // copyright line. Callers may stop passing it whenever they like.
   tagline?: string;
   socials?: FooterSocials;
 }) {
+  void _dictionary;
   const isKa = lang === "ka";
 
   const facebookUrl = socials?.facebookUrl?.trim() || "https://facebook.com/thetissushop";
-  const tiktokUrl   = socials?.tiktokUrl?.trim()   || "https://tiktok.com/@thetissushop";
   const instagramUrl = socials?.instagramUrl?.trim() || "https://instagram.com/thetissushop";
-
-  const taglineText = (tagline && tagline.trim())
-    ? tagline.trim()
-    : (isKa ? "ხელნაკეთი ნივთები — სიყვარულით საქართველოდან." : "Handmade goods — with love from Georgia.");
+  // TikTok removed from the footer per request; tiktokUrl is intentionally not read.
 
   const links = [
+    { label: isKa ? "გალერეა" : "Gallery", href: `/${lang}/gallery` },
     { label: isKa ? "ხშირი კითხვები" : "FAQ", href: `/${lang}/faq` },
     { label: isKa ? "კონტაქტი" : "Contact", href: `/${lang}/contact` },
     { label: isKa ? "კონფიდენციალურობა" : "Privacy", href: `/${lang}/privacy` },
@@ -102,16 +102,6 @@ export function Footer({
           style={{ height: 48, width: "auto", filter: "drop-shadow(0 2px 14px rgba(0,0,0,0.22))" }}
         />
 
-        {/* Tagline */}
-        <p style={{
-          fontFamily: FRAUNCES, fontStyle: "italic",
-          fontSize: 15, lineHeight: 1.6,
-          color: C.cream, opacity: 0.85,
-          maxWidth: 320, margin: 0,
-        }}>
-          {taglineText}
-        </p>
-
         {/* Social icons — Facebook · TikTok · Instagram */}
         <div style={{ display: "flex", gap: 14 }}>
           <a
@@ -124,18 +114,6 @@ export function Footer({
           >
             <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
               <path d="M22 12a10 10 0 1 0-11.56 9.88v-6.99H7.9V12h2.54V9.8c0-2.5 1.49-3.89 3.77-3.89 1.09 0 2.24.2 2.24.2v2.46h-1.26c-1.24 0-1.63.77-1.63 1.56V12h2.77l-.44 2.89h-2.33v6.99A10 10 0 0 0 22 12z" />
-            </svg>
-          </a>
-          <a
-            href={tiktokUrl}
-            target="_blank"
-            rel="noopener noreferrer"
-            aria-label="TikTok"
-            style={SOCIAL_CIRCLE}
-            className="hover:bg-[rgba(254,240,214,0.15)]"
-          >
-            <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
-              <path d="M16.6 5.8a4.8 4.8 0 0 1-2.8-1.8v9.4a4.2 4.2 0 1 1-4.2-4.2v2.2a2 2 0 1 0 2 2V2h2a4.8 4.8 0 0 0 3 3v2.8z" />
             </svg>
           </a>
           <a
@@ -163,7 +141,7 @@ export function Footer({
           style={{ fontFamily: FRAUNCES, fontSize: 12 }}
         >
           <span style={{ color: "rgba(254,240,214,0.55)" }}>
-            © {new Date().getFullYear()} Tissu · {isKa ? "სიყვარულით თბილისიდან" : "Made with love in Tbilisi"}
+            © {new Date().getFullYear()} Tissu · {isKa ? "სიყვარულით საქართველოდან" : "With love from Georgia"}
           </span>
           <div className="flex items-center gap-5 flex-wrap justify-center">
             {links.map(l => (

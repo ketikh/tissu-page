@@ -122,22 +122,8 @@ export default function ContactClient({ lang, info }: { lang: Locale; info: Cont
       </svg>
 
       <div className="container max-w-6xl" style={{ position: "relative" }}>
-        {/* Pill + heading */}
+        {/* Heading — single, no duplicate pill above */}
         <div style={{ textAlign: "center", marginBottom: 36 }}>
-          <span style={{
-            display: "inline-flex", alignItems: "center", gap: 8,
-            fontFamily: FRAUNCES, fontSize: 13, fontWeight: 600,
-            letterSpacing: "0.06em",
-            color: C.ink, opacity: 0.7,
-            background: "white",
-            border: `1px solid rgba(42,29,20,0.10)`,
-            borderRadius: 999,
-            padding: "6px 14px",
-            marginBottom: 14,
-          }}>
-            <Star size={10} />
-            {isKa ? "მოგვწერე" : "Get in touch"}
-          </span>
           <h1 style={{
             fontFamily: FRAUNCES, fontWeight: 700,
             fontSize: "clamp(30px, 5vw, 48px)",
@@ -147,19 +133,8 @@ export default function ContactClient({ lang, info }: { lang: Locale; info: Cont
             maxWidth: 560,
             marginLeft: "auto", marginRight: "auto",
           }}>
-            {isKa ? "გვიამბე შენი ამბავი." : "Tell us your story."}
+            {isKa ? "მოგვწერე" : "Get in touch"}
           </h1>
-          <p style={{
-            fontFamily: FRAUNCES, fontStyle: "italic",
-            fontSize: 15,
-            color: C.ink, opacity: 0.65,
-            margin: "12px auto 0",
-            maxWidth: 520, lineHeight: 1.55,
-          }}>
-            {isKa
-              ? "შეკითხვა, სურვილი ან უბრალოდ მოსალმება — ხელით ვპასუხობთ ყველა მესიჯს ჩვეულებრივ 1–2 დღეში."
-              : "A question, a wish or just a hello — we reply by hand, usually in 1–2 days."}
-          </p>
         </div>
 
         <div className="grid lg:grid-cols-[1fr_1.1fr] gap-8 items-start">
@@ -250,7 +225,7 @@ export default function ContactClient({ lang, info }: { lang: Locale; info: Cont
                 display: "flex", alignItems: "center", gap: 10,
               }}>
                 <Star size={14} color={C.burnt} />
-                {isKa ? "მოგვწერე" : "Send us a message"}
+                {isKa ? "გვითხარი" : "Send us a message"}
               </h2>
 
               {submitted ? (
@@ -286,7 +261,23 @@ export default function ContactClient({ lang, info }: { lang: Locale; info: Cont
 
                   <div style={{ display: "flex", flexDirection: "column", gap: 6 }}>
                     <label style={labelStyle}>{isKa ? "თემა" : "Topic"}</label>
-                    <select style={{ ...inputStyle, padding: "0 16px", cursor: "pointer" }}>
+                    <select
+                      style={{
+                        ...inputStyle,
+                        padding: "0 44px 0 16px",
+                        cursor: "pointer",
+                        appearance: "none",
+                        WebkitAppearance: "none",
+                        MozAppearance: "none",
+                        // Custom chevron drawn into the right-hand inset so the
+                        // dropdown arrow consistently sits on the right edge.
+                        backgroundImage:
+                          "url(\"data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 12 12' fill='none'%3E%3Cpath d='M2 4l4 4 4-4' stroke='%232a1d14' stroke-width='1.5' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E\")",
+                        backgroundRepeat: "no-repeat",
+                        backgroundPosition: "right 16px center",
+                        backgroundSize: "12px 12px",
+                      }}
+                    >
                       <option>{isKa ? "შეკითხვა" : "A question"}</option>
                       <option>{isKa ? "შეკვეთა / ყელსაბამი" : "Custom necklace order"}</option>
                       <option>{isKa ? "საბითუმო" : "Wholesale"}</option>
@@ -301,7 +292,7 @@ export default function ContactClient({ lang, info }: { lang: Locale; info: Cont
                       required
                       rows={5}
                       placeholder={isKa ? "მოგვიყევი..." : "Tell us everything..."}
-                      style={{ ...inputStyle, height: "auto", padding: "12px 16px", lineHeight: 1.55, resize: "vertical", minHeight: 120 }}
+                      style={{ ...inputStyle, height: "auto", padding: "12px 16px", lineHeight: 1.55, resize: "none", minHeight: 120 }}
                     />
                   </div>
 

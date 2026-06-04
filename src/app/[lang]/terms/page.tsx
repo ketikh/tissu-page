@@ -64,46 +64,53 @@ function EnBody() {
       <p>
         Tissu Shop is a small handmade studio based in Tbilisi, Georgia. All products are made to
         order or curated in small batches. Contact:{" "}
-        <a href="mailto:hello@tissu.ge">hello@tissu.ge</a>.
+        <a href="mailto:tissu@georgia@gmail.com">tissu@georgia@gmail.com</a>.
       </p>
 
       <h2>2. Products</h2>
       <ul>
         <li>
-          Our bags are handmade from water-resistant canvas. Small variations between pieces are
-          part of the handmade character — they are not defects.
+          Our products — bags, necklaces, kids' bags and aprons — are handmade. Small variations
+          between pieces are part of their handmade character, not defects.
         </li>
         <li>Colours on your screen may differ slightly from the real fabric.</li>
         <li>Stock is limited. We update the shop as items sell.</li>
-        <li>Necklaces are made to order (~7 days). Bags are ready-to-ship unless noted otherwise.</li>
+        <li>
+          Necklaces are made to order. Most orders ship the next business day (we don't ship on
+          weekends).
+        </li>
       </ul>
 
       <h2>3. Prices and payment</h2>
       <ul>
-        <li>Prices are in Georgian Lari (₾), VAT included where applicable.</li>
-        <li>Payment is taken at checkout via our payment provider.</li>
-        <li>We do not store card details. Refer to the Privacy Policy for details.</li>
+        <li>Prices are in Georgian Lari (₾).</li>
+        <li>
+          Payment is by bank transfer to our account. After you place an order we contact you with
+          the account details and confirm shipping once the transfer arrives.
+        </li>
         <li>
           We reserve the right to cancel an order if a product is mispriced due to an obvious error;
-          we will refund any amount paid.
+          any amount paid will be refunded.
         </li>
       </ul>
 
       <h2>4. Shipping</h2>
       <ul>
-        <li>We ship from Tbilisi. Domestic delivery typically 2–4 business days.</li>
-        <li>Free shipping on orders over 150₾. Under that, shipping is shown at checkout.</li>
-        <li>International shipping may be available on request; contact us before ordering.</li>
+        <li>We ship from Tbilisi within Georgia.</li>
+        <li>Orders placed on a working day usually ship the next business day. We don't ship on weekends.</li>
         <li>Risk of loss transfers to you once the courier accepts the package.</li>
       </ul>
 
       <h2>5. Returns and refunds</h2>
       <ul>
         <li>
-          You may return unused, unwashed items within <strong>14 days</strong> of delivery for a
+          You may return unused, unwashed items within <strong>3 days</strong> of delivery for a
           refund.
         </li>
-        <li>Return shipping is the customer's responsibility unless the item is defective.</li>
+        <li>
+          The customer arranges and pays for return shipping. Return address:
+          <strong> 14 Moscow Avenue, Tbilisi</strong>.
+        </li>
         <li>
           Made-to-order items (including necklaces customised with your fabric/shell choice) are
           non-refundable unless defective.
@@ -154,7 +161,7 @@ function EnBody() {
 
       <h2>12. Contact</h2>
       <p>
-        Questions? Email <a href="mailto:hello@tissu.ge">hello@tissu.ge</a>.
+        Questions? Email <a href="mailto:tissu@georgia@gmail.com">tissu@georgia@gmail.com</a>.
       </p>
     </>
   );
@@ -172,25 +179,30 @@ function KaBody() {
       <p>
         Tissu Shop — ხელით ნაკერი ჩანთების მცირე სტუდიაა თბილისში. ყველა ნივთი შეკვეთით ან მცირე
         სერიებით იქმნება. საკონტაქტო:{" "}
-        <a href="mailto:hello@tissu.ge">hello@tissu.ge</a>.
+        <a href="mailto:tissu@georgia@gmail.com">tissu@georgia@gmail.com</a>.
       </p>
 
       <h2>2. პროდუქტები</h2>
       <ul>
         <li>
-          ჩვენი ჩანთები ხელითაა ნაკერი წყალგაუმტარი ტილოსგან. მცირე განსხვავებები ცალებს შორის —
-          ხელით ნაწარმოების ნიშანია, არა ნაკლი.
+          ჩვენი პროდუქცია — ჩანთები, ყელსაბამები, საბავშვო ჩანთები და წინსაფრები — ხელითაა
+          დამზადებული. ცალებს შორის მცირე განსხვავება ხელით ნაწარმოების ნიშანია, არა ნაკლი.
         </li>
         <li>ფერი ეკრანზე შეიძლება ოდნავ განსხვავდებოდეს რეალურ ქსოვილისგან.</li>
         <li>მარაგი შეზღუდულია. საიტს ვანახლებთ, როცა პროდუქტი გაიყიდება.</li>
-        <li>ყელსაბამები შეკვეთით იქმნება (~7 დღე). ჩანთები მზა მოდელებია, თუ სხვა მითითებული არ არის.</li>
+        <li>
+          ყელსაბამები შეკვეთით იქმნება. შეკვეთის გაცემიდან მეორე სამუშაო დღეს ვაგზავნით.
+          შაბათ-კვირას მიწოდება არ ხდება.
+        </li>
       </ul>
 
       <h2>3. ფასი და გადახდა</h2>
       <ul>
-        <li>ფასი მითითებულია ქართულ ლარში (₾), დღგ ჩათვლით, როცა ეს ვრცელდება.</li>
-        <li>გადახდა ხორციელდება checkout-ზე ჩვენი გადახდის პროვაიდერის მეშვეობით.</li>
-        <li>ბარათის მონაცემებს არ ვინახავთ. დეტალები იხ. პერსონალურ მონაცემთა პოლიტიკაში.</li>
+        <li>ფასი მითითებულია ქართულ ლარში (₾).</li>
+        <li>
+          გადახდა ხორციელდება ბანკის ანგარიშზე ჩარიცხვით. შეკვეთის გაცემის შემდეგ დაგიკავშირდებით
+          რეკვიზიტებით და ჩარიცხვის შემოწმების შემდეგ ვაგზავნით ნივთს.
+        </li>
         <li>
           თუ პროდუქტზე ფასი აშკარა შეცდომითაა მითითებული, შეკვეთის გაუქმების უფლება გვაქვს —
           გადახდილი თანხა სრულად დაბრუნდება.
@@ -199,19 +211,22 @@ function KaBody() {
 
       <h2>4. მიწოდება</h2>
       <ul>
-        <li>ვიგზავნით თბილისიდან. საქართველოში მიწოდება — 2–4 სამუშაო დღე.</li>
-        <li>150₾-დან მიწოდება უფასოა. მისგან ქვემოთ — ღირებულება ჩანს checkout-ზე.</li>
-        <li>საერთაშორისო მიწოდება შესაძლოა ინდივიდუალურად — მოგვწერეთ შეკვეთამდე.</li>
+        <li>ვიგზავნით თბილისიდან, საქართველოს მასშტაბით.</li>
+        <li>
+          სამუშაო დღეს გაცემული შეკვეთა ჩვეულებრივ მეორე სამუშაო დღეს იგზავნება. შაბათ-კვირას
+          მიწოდება არ ხდება.
+        </li>
         <li>პროდუქტის დაკარგვის რისკი გადადის თქვენზე, როცა კურიერი მიიღებს ამანათს.</li>
       </ul>
 
       <h2>5. დაბრუნება და კომპენსაცია</h2>
       <ul>
         <li>
-          გამოუყენებელი, გაურეცხავი ნივთის დაბრუნება შეგიძლიათ <strong>14 დღეში</strong> მიღებიდან.
+          გამოუყენებელი, გაურეცხავი ნივთის დაბრუნება შეგიძლიათ <strong>3 დღეში</strong> მიღებიდან.
         </li>
         <li>
-          დაბრუნების ტრანსპორტირება მყიდველის ხარჯზეა, გარდა იმ შემთხვევისა, როცა ნივთი დეფექტიანია.
+          დაბრუნებას მომხმარებელი თავად უზრუნველყოფს. მისამართი:
+          <strong> მოსკოვის გამზირი 14, თბილისი</strong>.
         </li>
         <li>
           შეკვეთით დამზადებული ნივთები (მათ შორის ინდივიდუალური ყელსაბამები) არ ექვემდებარება
@@ -268,7 +283,7 @@ function KaBody() {
 
       <h2>12. კონტაქტი</h2>
       <p>
-        შეკითხვები? მოგვწერეთ <a href="mailto:hello@tissu.ge">hello@tissu.ge</a>.
+        შეკითხვები? მოგვწერეთ <a href="mailto:tissu@georgia@gmail.com">tissu@georgia@gmail.com</a>.
       </p>
     </>
   );

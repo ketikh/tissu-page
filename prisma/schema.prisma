@@ -78,3 +78,14 @@ model OrderItem {
 
   @@schema("website")
 }
+
+// Simple key/value bucket for site-wide admin settings that don't fit the
+// tissu-agent CMS (which has a fixed page/section schema). E.g. per-product
+// photo positions for the shop grid.
+model AppSetting {
+  key       String   @id
+  value     String   // JSON, stringified
+  updatedAt DateTime @updatedAt
+
+  @@schema("website")
+}

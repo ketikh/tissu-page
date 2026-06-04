@@ -188,8 +188,8 @@ export const mockFAQs: FAQItem[] = [
   {
     question: { ka: "როგორია დაბრუნების პოლიტიკა?", en: "What is the return policy?" },
     answer: {
-      ka: "ნივთის დაბრუნება შესაძლებელია 14 დღის განმავლობაში, თუ ის გამოუყენებელია და თავდაპირველ მდგომარეობაშია.",
-      en: "You can return items within 14 days if they are unused and in their original condition.",
+      ka: "ნივთის დაბრუნება შესაძლებელია 3 დღის განმავლობაში, თუ ის გამოუყენებელია და თავდაპირველ მდგომარეობაშია. დაბრუნებას მომხმარებელი თავად უზრუნველყოფს — მისამართი: მოსკოვის გამზირი 14, თბილისი.",
+      en: "Items can be returned within 3 days if unused and in their original condition. The customer arranges the return themselves — address: 14 Moscow Avenue, Tbilisi.",
     },
   },
   {

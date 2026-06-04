@@ -10,6 +10,8 @@ import { getLandingCopy } from "@/app/[lang]/landingCopy";
 import { motion } from "framer-motion";
 import { useCartStore } from "@/store/useCartStore";
 import { useUIStore } from "@/store/useUIStore";
+import { buildPhotoTransform, buildBackPhotoTransform } from "@/lib/shop-photo-positions";
+import { cloudinaryCutout } from "@/lib/cloudinary";
 
 const PACIFICO = "var(--font-pacifico), 'Pacifico', cursive";
 const FRAUNCES = "var(--font-fraunces), 'Fraunces', Georgia, serif";
@@ -130,15 +132,13 @@ function stadiumBottom(cx: number, cy: number, hw: number, ht: number, cr: numbe
 /* ── Frame shapes — organic outlines, product always visible ─────── */
 type Frame = { path: () => string; color: string };
 
+// Per request — every product card uses the same rounded-rectangle frame.
+// We only rotate the rim colour so the grid still reads as a colourful zine.
 const FRAMES: Frame[] = [
-  { path: () => flowerArc(4, 65, 95),                      color: C.rose },    // 4-petal clover
-  { path: () => roundedRect(340, 340, 200, 200, 70),       color: C.green },
-  { path: () => stadiumBottom(200, 185, 152, 210, 24),     color: C.mustard },
-  { path: () => blob(10, 160, 158, 0.12, 200, 200, 22),    color: C.blue },
-  { path: () => flowerArc(4, 68, 98),                      color: C.mustard },  // 4-petal clover variant
-  { path: () => blob(10, 170, 150, 0.10, 200, 200, 15),    color: C.green },
-  { path: () => stadiumBottom(200, 190, 148, 205, 26),     color: C.rose },
-  { path: () => roundedRect(360, 320, 200, 200, 65),       color: C.blue },
+  { path: () => roundedRect(340, 340, 200, 200, 56), color: C.rose },
+  { path: () => roundedRect(340, 340, 200, 200, 56), color: C.green },
+  { path: () => roundedRect(340, 340, 200, 200, 56), color: C.mustard },
+  { path: () => roundedRect(340, 340, 200, 200, 56), color: C.blue },
 ];
 
 /* ── Category styling ────────────────────────────────────────────── */
@@ -283,15 +283,23 @@ function MiniClover({ color, size, style }: { color: string; size: number; style
 }
 
 /* ── Types ───────────────────────────────────────────────────────── */
-interface ShopClientProps { lang: Locale; dictionary: any; products: StorefrontProduct[] }
+interface ShopClientProps {
+  lang: Locale;
+  dictionary: any;
+  products: StorefrontProduct[];
+  photoPositions?: import("@/lib/shop-photo-positions").PhotoPositions;
+  categories?: import("@/lib/storefront-categories").StorefrontCategoryEntry[];
+}
 type CategoryValue = "all" | StorefrontCategory;
 type SortValue     = "featured" | "new" | "price-low" | "price-high";
 
 const CAT_ALIASES: Record<string, CategoryValue> = {
   all: "all", pouches: "pouch", pouch: "pouch",
   "laptop-sleeves": "laptop", laptop: "laptop",
-  totes: "tote", tote: "tote",
+  totes: "tote", tote: "bag",  // legacy URLs that used tote map to the agent's bag slug
+  bag: "bag", bags: "bag",
   "kids-backpacks": "kidsbackpack", kidsbackpack: "kidsbackpack",
+  kidsbag: "kidsbag",
   aprons: "apron", apron: "apron",
   necklaces: "necklace", necklace: "necklace",
 };
@@ -313,42 +321,87 @@ function hexFaint(hex: string, a = 0.14): string {
 
 /* ════════════════════════ MAIN COMPONENT ══════════════════════════ */
 
-export default function ShopClient({ lang, dictionary, products }: ShopClientProps) {
+export default function ShopClient({ lang, dictionary, products, photoPositions = {}, categories = [] }: ShopClientProps) {
   const copy = getLandingCopy(lang);
   const router = useRouter();
   const sp = useSearchParams();
   const isKa = lang === "ka";
-  const [pageSize, setPageSize] = useState(8);
-  // "scatter" = editorial 2-col offset layout (default), "grid" = compact 4-col grid.
-  const [gridMode, setGridMode] = useState<"scatter" | "grid">("scatter");
+  // Show the whole catalogue by default — the bag count is small, and a
+  // hidden second page was masking sold-out items.
+  const [pageSize, setPageSize] = useState(100);
+  // "scatter" = editorial 2-col offset layout, "grid" = compact 4-col grid (default).
+  const [gridMode, setGridMode] = useState<"scatter" | "grid">("grid");
 
-  const catParam: CategoryValue = CAT_ALIASES[sp.get("category") ?? "all"] ?? "all";
+  // Treat unknown / custom categories from the agent as the raw URL value
+  // so the matching filter pill still works.
+  const rawCat = sp.get("category") ?? "all";
+  const catParam: CategoryValue = CAT_ALIASES[rawCat] ?? (rawCat as CategoryValue);
   const sortParam = (sp.get("sort") as SortValue) ?? "featured";
+  // Model sub-filter — only shown for the bags / laptop-bags category since
+  // that's where "ფხრიწიანი" / "თასმიანი" actually applies.
+  const modelParam = sp.get("model") ?? "all";
 
   const setParam = (key: string, val: string | null) => {
     const p = new URLSearchParams(sp.toString());
     if (val && val !== "all") p.set(key, val); else p.delete(key);
-    if (key === "category") setPageSize(8);
+    if (key === "category") {
+      setPageSize(100);
+      // Switching the top-level category resets the model sub-filter so
+      // we don't carry a stale "ფხრიწიანი" into a category that doesn't
+      // have that model at all.
+      p.delete("model");
+    }
     router.push(`?${p.toString()}`, { scroll: false });
   };
 
   const visible = useMemo(() => {
     let r = products.filter((p) => Boolean(p.image_front));
     if (catParam !== "all") r = r.filter((p) => p.category === catParam);
+    if (modelParam !== "all") r = r.filter((p) => (p.model || "").trim() === modelParam);
     if (sortParam === "price-low") r.sort((a, b) => a.price - b.price);
     else if (sortParam === "price-high") r.sort((a, b) => b.price - a.price);
     else if (sortParam === "new") r.sort((a, b) => (b.tags.includes("new") ? 1 : 0) - (a.tags.includes("new") ? 1 : 0));
     return r;
-  }, [products, catParam, sortParam]);
+  }, [products, catParam, modelParam, sortParam]);
 
-  const cats: Array<{ label: string; val: CategoryValue }> = [
-    { label: copy.shop.filters.all,          val: "all" },
-    { label: copy.shop.filters.pouch,        val: "pouch" },
-    { label: copy.shop.filters.laptop,       val: "laptop" },
-    { label: copy.shop.filters.bag,          val: "tote" },
-    { label: copy.shop.filters.kidsbackpack, val: "kidsbackpack" },
-    { label: copy.shop.filters.apron,        val: "apron" },
-    { label: copy.shop.filters.necklace,     val: "necklace" },
+  // The agent stores `model` as a free-text field — collect the unique values
+  // present in the bags category so each one becomes its own filter pill.
+  const bagModels = useMemo(() => {
+    const set = new Set<string>();
+    for (const p of products) {
+      if (p.category === "bag") {
+        const m = (p.model || "").trim();
+        if (m) set.add(m);
+      }
+    }
+    return Array.from(set).sort();
+  }, [products]);
+  const showModelFilter = catParam === "bag" && bagModels.length > 1;
+
+  // Build category filter pills from the agent's `/storefront/categories`
+  // endpoint (the agent owns the localised labels + emoji + ordering). Any
+  // product whose category isn't yet in that list gets a stub pill with its
+  // raw slug, so nothing disappears while the admin is still naming things.
+  const categoryBySlug = new Map(categories.map((c) => [c.slug, c]));
+  const presentCategorySlugs = Array.from(
+    new Set(products.map((p) => p.category).filter(Boolean)),
+  );
+  // Start with categories the agent told us about (in their sort order),
+  // then append any extras seen on products but missing from the agent list.
+  const orderedSlugs = [
+    ...categories.filter((c) => presentCategorySlugs.includes(c.slug)).map((c) => c.slug),
+    ...presentCategorySlugs.filter((slug) => !categoryBySlug.has(slug)).sort(),
+  ];
+
+  const cats: Array<{ label: string; emoji?: string; val: CategoryValue }> = [
+    { label: copy.shop.filters.all, val: "all" },
+    ...orderedSlugs.map((slug) => {
+      const cat = categoryBySlug.get(slug);
+      const label = cat
+        ? (lang === "ka" ? cat.name_ka : cat.name_en) || slug
+        : slug;
+      return { label, emoji: cat?.emoji, val: slug as CategoryValue };
+    }),
   ];
 
 
@@ -475,9 +528,9 @@ export default function ShopClient({ lang, dictionary, products }: ShopClientPro
         <main className="px-6 md:px-14 lg:px-20 pt-0 pb-24">
 
           {/* ── Filter + Sort bar (clean, non-sticky) ── */}
-          <div className="py-6 mb-2">
+          <div className="py-6 mb-2 flex flex-col gap-3">
+            {/* Row 1 — category pills only, full width so they wrap cleanly */}
             <div className="flex flex-wrap items-center gap-x-4 gap-y-3">
-              {/* Category pills — tactile press-down buttons (active = pressed in) */}
               <div className="flex flex-wrap gap-2.5 gap-y-3 flex-1 min-w-0" style={{ paddingBottom: 4 }}>
                 {cats.map((cat) => {
                   const active = catParam === cat.val;
@@ -515,13 +568,44 @@ export default function ShopClient({ lang, dictionary, products }: ShopClientPro
                         transition: "background 0.18s ease, border-color 0.18s ease, color 0.18s ease",
                       }}
                     >
-                      <span style={{ fontSize: 13, opacity: active ? 1 : 0.7 }}>{CAT_BOTANICAL[cat.val]}</span>
+                      <span style={{ fontSize: 13, opacity: active ? 1 : 0.7 }}>{cat.emoji ?? CAT_BOTANICAL[cat.val] ?? "✦"}</span>
                       {cat.label}
                     </motion.button>
                   );
                 })}
               </div>
+            </div>
 
+            {/* Row 1b — model sub-filter (only on the bags / laptop-bags tab) */}
+            {showModelFilter && (
+              <div className="flex flex-wrap items-center gap-2.5">
+                <span style={{
+                  fontFamily: FRAUNCES, fontSize: 12, fontWeight: 700,
+                  letterSpacing: "0.16em", textTransform: "uppercase",
+                  color: C.ink, opacity: 0.6, marginRight: 4,
+                }}>
+                  {isKa ? "მოდელი" : "Model"}
+                </span>
+                <ModelChip
+                  active={modelParam === "all"}
+                  onClick={() => setParam("model", null)}
+                >
+                  {isKa ? "ყველა" : "All"}
+                </ModelChip>
+                {bagModels.map((m) => (
+                  <ModelChip
+                    key={m}
+                    active={modelParam === m}
+                    onClick={() => setParam("model", m)}
+                  >
+                    {m}
+                  </ModelChip>
+                ))}
+              </div>
+            )}
+
+            {/* Row 2 — grid toggle + sort, on their own line below the pills */}
+            <div className="flex flex-wrap items-center justify-end gap-x-3 gap-y-2">
               {/* Grid mode toggle — 2-col editorial vs 4-col compact */}
               <div style={{
                 display: "inline-flex",
@@ -618,13 +702,13 @@ export default function ShopClient({ lang, dictionary, products }: ShopClientPro
                   {/* Left column */}
                   <div className="flex-1 flex flex-col gap-20 md:gap-28">
                     {visible.slice(0, pageSize).filter((_, i) => i % 2 === 0).map((p, i) => (
-                      <ShopCard key={p.id} product={p} index={i * 2} lang={lang} isKa={isKa} copy={copy} />
+                      <ShopCard key={p.id} product={p} index={i * 2} lang={lang} isKa={isKa} copy={copy} position={photoPositions[p.id]} />
                     ))}
                   </div>
                   {/* Right column — shifted down */}
                   <div className="flex-1 flex flex-col gap-20 md:gap-28 md:pt-36 lg:pt-44">
                     {visible.slice(0, pageSize).filter((_, i) => i % 2 === 1).map((p, i) => (
-                      <ShopCard key={p.id} product={p} index={i * 2 + 1} lang={lang} isKa={isKa} copy={copy} />
+                      <ShopCard key={p.id} product={p} index={i * 2 + 1} lang={lang} isKa={isKa} copy={copy} position={photoPositions[p.id]} />
                     ))}
                   </div>
                 </div>
@@ -632,7 +716,7 @@ export default function ShopClient({ lang, dictionary, products }: ShopClientPro
                 /* Compact 4-column grid */
                 <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-x-6 gap-y-12 md:gap-y-14">
                   {visible.slice(0, pageSize).map((p, i) => (
-                    <ShopCard key={p.id} product={p} index={i} lang={lang} isKa={isKa} copy={copy} />
+                    <ShopCard key={p.id} product={p} index={i} lang={lang} isKa={isKa} copy={copy} position={photoPositions[p.id]} />
                   ))}
                 </div>
               )}
@@ -668,11 +752,50 @@ export default function ShopClient({ lang, dictionary, products }: ShopClientPro
 
 /* ════════════════════════ SHOP CARD ════════════════════════════════ */
 
-function ShopCard({ product, index, lang, isKa, copy }: {
+function ModelChip({
+  active,
+  onClick,
+  children,
+}: {
+  active: boolean;
+  onClick: () => void;
+  children: React.ReactNode;
+}) {
+  return (
+    <button
+      type="button"
+      onClick={onClick}
+      style={{
+        fontFamily: FRAUNCES, fontWeight: 600, fontSize: 12,
+        padding: "7px 14px",
+        borderRadius: 999,
+        background: active ? C.ink : "white",
+        color: active ? C.cream : C.ink,
+        border: `1.5px solid ${active ? C.ink : "rgba(42,29,20,0.14)"}`,
+        cursor: "pointer",
+        transition: "background 0.18s, color 0.18s",
+      }}
+    >
+      {children}
+    </button>
+  );
+}
+
+function ShopCard({ product, index, lang, isKa, copy, position }: {
   product: StorefrontProduct; index: number; lang: Locale; isKa: boolean;
   copy: ReturnType<typeof getLandingCopy>;
+  position?: import("@/lib/shop-photo-positions").PhotoPosition;
 }) {
   const [hover, setHover] = useState(false);
+  // Cloudinary's background-removal addon fails on some photos with a 400.
+  // We optimistically request the cutout version and fall back to the
+  // original image if it doesn't load.
+  const [frontCutoutFailed, setFrontCutoutFailed] = useState(false);
+  const [backCutoutFailed,  setBackCutoutFailed]  = useState(false);
+  const frontSrc = frontCutoutFailed ? product.image_front : cloudinaryCutout(product.image_front);
+  const backSrc  = product.image_back
+    ? (backCutoutFailed ? product.image_back : cloudinaryCutout(product.image_back))
+    : "";
 
   const addItem  = useCartStore((s) => s.addItem);
   const openCart = useUIStore((s) => s.openCart);
@@ -722,17 +845,38 @@ function ShopCard({ product, index, lang, isKa, copy }: {
         className="relative w-full"
         style={{ aspectRatio: "1 / 1" }}
       >
-        {product.tags.includes("new") && (
-          <span
-            className="absolute -top-2 right-3 z-10 px-3 py-1 text-[9px] font-extrabold uppercase tracking-[0.22em]"
-            style={{
-              background: C.mustard, color: C.ink, fontFamily: FRAUNCES,
-              transform: "rotate(8deg)", borderRadius: 999,
-              boxShadow: `0 3px 0 ${C.mustardDeep}`,
-            }}
-          >
-            {isKa ? "ახალი" : "New"}
-          </span>
+        {/* Tag-driven badges removed — the agent's admin panel is the
+         *  source of truth and we don't add anything decorative on top. */}
+
+        {/* Sold-out badge + diagonal stamp over the photo */}
+        {!inStock && (
+          <>
+            <span
+              className="absolute -top-2 right-3 z-10 px-3 py-1 text-[9px] font-extrabold uppercase tracking-[0.22em]"
+              style={{
+                background: C.ink, color: "white", fontFamily: FRAUNCES,
+                transform: "rotate(6deg)", borderRadius: 999,
+                boxShadow: "0 3px 0 rgba(0,0,0,0.35)",
+              }}
+            >
+              {isKa ? "გაყიდულია" : "Sold out"}
+            </span>
+            <span
+              aria-hidden="true"
+              className="absolute z-10 px-4 py-1.5 text-[11px] font-extrabold uppercase tracking-[0.3em]"
+              style={{
+                top: "50%", left: "50%",
+                transform: "translate(-50%, -50%) rotate(-12deg)",
+                background: "rgba(42,29,20,0.85)", color: C.cream,
+                fontFamily: FRAUNCES,
+                borderRadius: 6,
+                boxShadow: "0 6px 14px rgba(0,0,0,0.30)",
+                whiteSpace: "nowrap",
+              }}
+            >
+              {isKa ? "გაყიდულია" : "Sold out"}
+            </span>
+          </>
         )}
 
         <svg
@@ -740,26 +884,43 @@ function ShopCard({ product, index, lang, isKa, copy }: {
           preserveAspectRatio="xMidYMid meet"
           aria-hidden="true"
           className="absolute inset-0 w-full h-full"
-          style={{ filter: "drop-shadow(0 10px 22px rgba(0,0,0,0.14))", overflow: "visible" }}
+          style={{
+            filter: inStock
+              ? "drop-shadow(0 10px 22px rgba(0,0,0,0.14))"
+              : "drop-shadow(0 10px 22px rgba(0,0,0,0.10)) saturate(0.4) opacity(0.85)",
+            overflow: "visible",
+          }}
         >
           <defs><clipPath id={clipId}><path d={path} /></clipPath></defs>
 
-          <image
-            href={product.image_front}
-            x="0" y="0" width="400" height="400"
-            preserveAspectRatio="xMidYMid slice"
-            clipPath={`url(#${clipId})`}
-            style={{ filter: "saturate(0.95) sepia(0.02)", opacity: hover && hasBack ? 0 : 1, transition: "opacity 0.5s ease" }}
-          />
-          {hasBack && (
+          {/* Everything photo-related (backdrop + image + hover image) is
+           *  wrapped in a single clip group so a zoomed image can never
+           *  escape the rounded frame. */}
+          <g clipPath={`url(#${clipId})`}>
+            {/* Soft coloured backdrop matching this card's frame. */}
+            <rect x="0" y="0" width="400" height="400" fill={frame.color} fillOpacity="0.18" />
+
+            {/* Front photo — `transform` applies the per-product position
+             *  saved on /admin/photos. */}
             <image
-              href={product.image_back!}
+              href={frontSrc}
               x="0" y="0" width="400" height="400"
-              preserveAspectRatio="xMidYMid slice"
-              clipPath={`url(#${clipId})`}
-              style={{ filter: "saturate(0.95) sepia(0.02)", opacity: hover ? 1 : 0, transition: "opacity 0.5s ease" }}
+              preserveAspectRatio="xMidYMin meet"
+              transform={buildPhotoTransform(position)}
+              onError={() => setFrontCutoutFailed(true)}
+              style={{ filter: "saturate(0.95) sepia(0.02)", opacity: hover && hasBack ? 0 : 1, transition: "opacity 0.5s ease" }}
             />
-          )}
+            {hasBack && (
+              <image
+                href={backSrc}
+                x="0" y="0" width="400" height="400"
+                preserveAspectRatio="xMidYMin meet"
+                transform={buildBackPhotoTransform(position)}
+                onError={() => setBackCutoutFailed(true)}
+                style={{ filter: "saturate(0.95) sepia(0.02)", opacity: hover ? 1 : 0, transition: "opacity 0.5s ease" }}
+              />
+            )}
+          </g>
           <path d={path} fill="none" stroke={frame.color} strokeWidth="7" strokeLinejoin="round" />
         </svg>
       </Link>

@@ -241,7 +241,7 @@
               - /url: https://instagram.com
               - img [ref=e262]
             - link "Email" [ref=e265] [cursor=pointer]:
-              - /url: mailto:hello@tissu.ge
+              - /url: mailto:tissu@georgia@gmail.com
               - img [ref=e266]
         - generic [ref=e269]:
           - generic [ref=e270]: მაღაზია
@@ -290,8 +290,8 @@
               - generic [ref=e304]: თბილისი, საქართველო
             - listitem [ref=e305]:
               - img [ref=e306]
-              - link "hello@tissu.ge" [ref=e309] [cursor=pointer]:
-                - /url: mailto:hello@tissu.ge
+              - link "tissu@georgia@gmail.com" [ref=e309] [cursor=pointer]:
+                - /url: mailto:tissu@georgia@gmail.com
       - generic [ref=e310]:
         - generic [ref=e311]: © 2026 Tissu · ყველა უფლება დაცულია
         - generic [ref=e312]:

@@ -10,7 +10,7 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   const products = await fetchStorefrontProducts();
   const now = new Date();
 
-  const staticPaths = ["", "/shop", "/contact", "/faq", "/privacy", "/terms"];
+  const staticPaths = ["", "/shop", "/gallery", "/contact", "/faq", "/privacy", "/terms"];
 
   const entries: MetadataRoute.Sitemap = [];
 

@@ -9,6 +9,9 @@ interface Review {
   name: string;
   meta: { en: string; ka: string };
   photo: string;
+  /** When the linked product is out of stock, show a sold-out badge on
+   *  the photo so visitors don't get their hopes up. */
+  soldOut?: boolean;
 }
 
 interface RetroReviewsProps {
@@ -179,17 +182,64 @@ export default function RetroReviews({ isKa = false, reviews = DEFAULT_REVIEWS }
               transform: "rotate(-2deg)",
             }}
           >
-            <Image
-              src={review.photo}
-              alt={review.name}
-              fill
-              sizes="260px"
-              className="object-cover"
-              style={{ filter: "saturate(0.95) sepia(0.05)" }}
-              key={review.photo}
-            />
+            {review.photo ? (
+              <Image
+                src={review.photo}
+                alt={review.name}
+                fill
+                sizes="260px"
+                className="object-cover"
+                style={{
+                  filter: review.soldOut
+                    ? "saturate(0.4) opacity(0.8)"
+                    : "saturate(0.95) sepia(0.05)",
+                }}
+                key={review.photo}
+              />
+            ) : (
+              // Admin-added reviews come without a photo — show the customer's
+              // initials on a cream tile as a placeholder.
+              <div
+                aria-hidden="true"
+                style={{
+                  position: "absolute", inset: 0,
+                  display: "flex", alignItems: "center", justifyContent: "center",
+                  background: C.cream,
+                  color: C.green,
+                  fontFamily: PACIFICO,
+                  fontSize: 72,
+                }}
+              >
+                {review.name.split(/\s+/).map((n) => n[0]).slice(0, 2).join("")}
+              </div>
+            )}
             <span className="absolute -top-3 -right-3 text-3xl" style={{ color: C.mustard }}>✦</span>
             <span className="absolute -bottom-3 -left-3 text-2xl" style={{ color: C.green }}>✦</span>
+
+            {/* Sold-out stamp — only when the linked product is out of stock. */}
+            {review.soldOut && (
+              <span
+                aria-hidden="true"
+                style={{
+                  position: "absolute",
+                  top: "50%", left: "50%",
+                  transform: "translate(-50%, -50%) rotate(-10deg)",
+                  background: "rgba(42,29,20,0.85)",
+                  color: C.cream,
+                  fontFamily: FRAUNCES,
+                  fontWeight: 800,
+                  fontSize: 12,
+                  letterSpacing: "0.3em",
+                  textTransform: "uppercase",
+                  padding: "6px 14px",
+                  borderRadius: 6,
+                  boxShadow: "0 6px 14px rgba(0,0,0,0.30)",
+                  whiteSpace: "nowrap",
+                }}
+              >
+                {isKa ? "გაყიდულია" : "Sold out"}
+              </span>
+            )}
           </div>
 
           {/* Quote — text wears its own marker-tape highlight */}
@@ -224,19 +274,21 @@ export default function RetroReviews({ isKa = false, reviews = DEFAULT_REVIEWS }
               >
                 — {review.name}
               </span>
-              <span
-                style={{
-                  ...STICKER_STYLE,
-                  fontFamily: FRAUNCES,
-                  fontWeight: 700,
-                  fontSize: 11,
-                  letterSpacing: "0.22em",
-                  textTransform: "uppercase",
-                  color: C.green,
-                }}
-              >
-                {isKa ? review.meta.ka : review.meta.en}
-              </span>
+              {(isKa ? review.meta.ka : review.meta.en) && (
+                <span
+                  style={{
+                    ...STICKER_STYLE,
+                    fontFamily: FRAUNCES,
+                    fontWeight: 700,
+                    fontSize: 11,
+                    letterSpacing: "0.22em",
+                    textTransform: "uppercase",
+                    color: C.green,
+                  }}
+                >
+                  {isKa ? review.meta.ka : review.meta.en}
+                </span>
+              )}
             </div>
           </div>
         </motion.div>

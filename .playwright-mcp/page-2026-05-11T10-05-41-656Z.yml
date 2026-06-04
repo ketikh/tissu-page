@@ -260,8 +260,8 @@
               - generic [ref=e280]: თბილისი, საქართველო
             - listitem [ref=e281]:
               - img [ref=e282]
-              - link "hello@tissu.ge" [ref=e285] [cursor=pointer]:
-                - /url: mailto:hello@tissu.ge
+              - link "tissu@georgia@gmail.com" [ref=e285] [cursor=pointer]:
+                - /url: mailto:tissu@georgia@gmail.com
       - generic [ref=e286]:
         - generic [ref=e287]: © 2026 Tissu · სიყვარულით თბილისიდან
         - generic [ref=e288]:
