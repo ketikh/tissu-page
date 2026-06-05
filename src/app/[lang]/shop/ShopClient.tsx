@@ -426,16 +426,6 @@ export default function ShopClient({ lang, dictionary, products, photoPositions 
         <FloatFlower color={C.mustard} size={30} petals={6} style={{ right: "20%", bottom: "32%", opacity: 0.35, transform: "rotate(-9deg)"  }} />
 
         <div className="relative z-10 text-center px-6 pt-16 md:pt-24">
-          <motion.span
-            initial={{ opacity: 0, y: 8 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.5 }}
-            className="inline-block text-[10px] font-extrabold uppercase tracking-[0.35em] mb-5"
-            style={{ color: C.cream, opacity: 0.72, fontFamily: FRAUNCES }}
-          >
-            {isKa ? "ხელით ნაკერი · თბილისი" : "Handmade in Tbilisi"}
-          </motion.span>
-
           <motion.div
             initial={{ opacity: 0, y: 22 }}
             animate={{ opacity: 1, y: 0 }}
@@ -457,16 +447,6 @@ export default function ShopClient({ lang, dictionary, products, photoPositions 
               {isKa ? "ჩანთები." : "bags."}
             </div>
           </motion.div>
-
-          <motion.p
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 0.72 }}
-            transition={{ duration: 0.6, delay: 0.4 }}
-            className="mt-6 mx-auto"
-            style={{ fontFamily: FRAUNCES, fontStyle: "italic", fontSize: 16, color: C.cream, maxWidth: 400 }}
-          >
-            {isKa ? "ყოველი ნემსი ხელით — ჩვენს სტუდიაში." : "Every stitch by hand, in our studio."}
-          </motion.p>
         </div>
 
         <div className="absolute bottom-0 left-0 w-full" style={{ height: 140, lineHeight: 0 }}>

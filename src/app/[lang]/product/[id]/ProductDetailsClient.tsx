@@ -865,14 +865,6 @@ export function ProductDetailsClient({ product, related, lang }: ProductDetailsC
 
           <div className="container relative">
             <div className="text-center" style={{ marginBottom: 44 }}>
-              <span style={{
-                fontFamily: FRAUNCES, fontStyle: "italic", fontWeight: 700,
-                fontSize: 10, color: C.mustard,
-                letterSpacing: "0.35em", textTransform: "uppercase",
-                display: "block", marginBottom: 8,
-              }}>
-                {isKa ? "ხელით ნაკერი · თბილისი" : "Handmade in Tbilisi"}
-              </span>
               <h2 style={{
                 fontFamily: isKa ? ALK_LIFE : FRAUNCES,
                 fontStyle: isKa ? "normal" : "italic",
