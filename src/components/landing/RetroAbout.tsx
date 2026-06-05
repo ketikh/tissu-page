@@ -72,7 +72,7 @@ export default function RetroAbout({
             className="inline-block text-[11px] font-extrabold uppercase tracking-[0.3em]"
             style={{ color: C.green }}
           >
-            {isKa ? "ჩვენი ამბავი · ხელნაკეთი ბრენდი" : "Coaching for handmade brands"}
+            {isKa ? "ჩვენი ამბავი · ხელნაკეთი ბრენდი" : "Our story · handmade brand"}
           </motion.span>
 
           <motion.h2
@@ -89,7 +89,7 @@ export default function RetroAbout({
           >
             {isKa
               ? "ჩვენი ბრენდი ორიგინალური გახდა სწორედ ორმხრივი ჩანთების დამსახურებით."
-              : (<>What makes our brand <br />original is its reversible bags.</>)}
+              : (<>What makes our brand <br />unique is its reversible bags.</>)}
           </motion.h2>
 
           <motion.div

@@ -263,14 +263,23 @@ export function ProductDetailsClient({ product, related, lang }: ProductDetailsC
   const [activeSide, setActiveSide] = useState<"front" | "back">("front");
   const [quantity,   setQuantity]   = useState(1);
   const [wishlisted, setWishlisted] = useState(false);
-  const [selectedSize, setSelectedSize] = useState<"small" | "large">("large");
+  /* Each inventory row in the agent represents ONE specific product in ONE
+   * specific size. We detect "large" from the product name (admin codes the
+   * size that way: "Tissu Large #4", "ჩანთა დიდი", etc.). If the name doesn't
+   * say large, treat it as a small-only item and disable the Large button. */
+  const isNecklace = product.category === "necklace";
+  const productName = (product.name || "").toLowerCase();
+  const isLargeOnly = /\blarge\b|დიდი/.test(productName);
+  const isSmallOnly = !isLargeOnly;
+  const [selectedSize, setSelectedSize] = useState<"small" | "large">(
+    isLargeOnly ? "large" : "small",
+  );
 
   /* Two fixed sizes Tissu offers for bags. Necklaces are one-size — we hide the
    * selector for them and use the product's actual price. */
-  const isNecklace = product.category === "necklace";
   const SIZES = [
-    { id: "small" as const, dim: "33×25", price: 69, enabled: true },
-    { id: "large" as const, dim: "37×27", price: 74, enabled: true },
+    { id: "small" as const, dim: "33×25", price: 69, enabled: !isLargeOnly },
+    { id: "large" as const, dim: "37×27", price: 74, enabled: !isSmallOnly },
   ];
   const activeSizePrice = isNecklace
     ? product.price

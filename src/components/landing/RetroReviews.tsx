@@ -250,8 +250,10 @@ export default function RetroReviews({ isKa = false, reviews = DEFAULT_REVIEWS }
                 fontFamily: isKa ? ALK_LIFE : FRAUNCES,
                 fontStyle: isKa ? "normal" : "italic",
                 fontWeight: 700,
-                fontSize: "clamp(20px, 2.5vw, 26px)",
-                lineHeight: 1.85,
+                // English Fraunces italic runs wider than KA Alk Life — shrink
+                // it so the marker-tape highlight doesn't dominate the card.
+                fontSize: isKa ? "clamp(20px, 2.5vw, 26px)" : "clamp(15px, 1.7vw, 19px)",
+                lineHeight: isKa ? 1.85 : 1.7,
                 color: C.greenDeep,
               }}
             >
