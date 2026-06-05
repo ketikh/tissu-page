@@ -74,7 +74,7 @@ export async function generateMetadata({ params }: { params: Promise<{ lang: str
   const locale = lang as Locale;
   const dictionary = await getDictionary(locale);
   return {
-    title: locale === "ka" ? "Tissu | ხელით ნაკერი ჩანთები" : "Tissu — handmade with love",
+    title: locale === "ka" ? "Tissu - დამზადებულია საქართველოში" : "Tissu - Made in Georgia",
     description: dictionary.home.hero.description,
   };
 }
