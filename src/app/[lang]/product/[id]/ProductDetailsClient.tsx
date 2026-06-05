@@ -489,8 +489,8 @@ export function ProductDetailsClient({ product, related, lang }: ProductDetailsC
                   color: inStock ? C.green : C.rose,
                 }}>
                   {inStock
-                    ? `✦ ${product.stock} ${isKa ? "მარაგშია" : "in stock"}`
-                    : isKa ? "გაყიდულია" : "Sold out"}
+                    ? (isKa ? "✦ მარაგშია" : "✦ In stock")
+                    : (isKa ? "გაყიდულია" : "Sold out")}
                 </div>
               </div>
 
@@ -552,7 +552,7 @@ export function ProductDetailsClient({ product, related, lang }: ProductDetailsC
                   fontFamily: "system-ui, -apple-system, 'Segoe UI', sans-serif",
                   fontSize: 12, color: C.ink, opacity: 0.55,
                 }}>
-                  {inStock ? `${product.stock} ${isKa ? "მარაგში" : "in stock"}` : (isKa ? "გაყიდულია" : "Sold out")}
+                  {inStock ? (isKa ? "მარაგშია" : "In stock") : (isKa ? "გაყიდულია" : "Sold out")}
                 </span>
               </motion.div>
 
