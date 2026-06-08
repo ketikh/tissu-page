@@ -6,6 +6,7 @@ import { i18n, Locale } from "@/i18n/config";
 import { Navbar } from "@/components/layout/Navbar";
 import { Footer } from "@/components/layout/Footer";
 import { CartDrawer } from "@/components/layout/CartDrawer";
+import MobileMotionGate from "@/components/MobileMotionGate";
 import { getDictionary } from "@/i18n/getDictionary";
 import { fetchCMSSection } from "@/lib/admin-content";
 
@@ -120,12 +121,14 @@ export default async function RootLayout({
         <link rel="dns-prefetch" href="https://res.cloudinary.com" />
       </head>
       <body className={`min-h-screen flex flex-col antialiased bg-background text-foreground ${locale === "ka" ? "font-noto-sans" : "font-sans"}`}>
-        <Navbar lang={locale} dictionary={dictionary} />
-        <CartDrawer dictionary={dictionary} lang={locale} />
-        <main className="flex-1 flex flex-col">
-          {children}
-        </main>
-        <Footer dictionary={dictionary} lang={locale} tagline={tagline} socials={socials} />
+        <MobileMotionGate>
+          <Navbar lang={locale} dictionary={dictionary} />
+          <CartDrawer dictionary={dictionary} lang={locale} />
+          <main className="flex-1 flex flex-col">
+            {children}
+          </main>
+          <Footer dictionary={dictionary} lang={locale} tagline={tagline} socials={socials} />
+        </MobileMotionGate>
       </body>
     </html>
   );
