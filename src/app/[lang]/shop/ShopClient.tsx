@@ -431,11 +431,6 @@ export default function ShopClient({ lang, dictionary, products, photoPositions 
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.75, ease: [0.215, 0.61, 0.355, 1] }}
           >
-            {!isKa && (
-              <div style={{ fontFamily: PACIFICO, fontSize: "clamp(30px, 5vw, 64px)", color: C.cream, lineHeight: 1.15, marginBottom: "-0.06em" }}>
-                The
-              </div>
-            )}
             <div style={{
               fontFamily: isKa ? ALK_LIFE : FRAUNCES,
               fontStyle: isKa ? "normal" : "italic",
@@ -444,7 +439,7 @@ export default function ShopClient({ lang, dictionary, products, photoPositions 
               color: C.cream,
               lineHeight: 0.88,
             }}>
-              {isKa ? "ჩანთები." : "bags."}
+              {isKa ? "პროდუქცია." : "Products."}
             </div>
           </motion.div>
         </div>
