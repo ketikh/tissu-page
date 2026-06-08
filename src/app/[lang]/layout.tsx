@@ -112,6 +112,13 @@ export default async function RootLayout({
       lang={locale}
       className={`${nunito.variable} ${gloock.variable} ${caveat.variable} ${fraunces.variable} ${pacifico.variable} ${alkLife.variable} ${notoSansGeorgian.variable} ${notoSerifGeorgian.variable} scroll-smooth`}
     >
+      <head>
+        {/* Open the TLS handshake to Cloudinary as soon as the HTML lands —
+            every product/review photo we serve is on res.cloudinary.com, so
+            the first image starts downloading hundreds of ms earlier. */}
+        <link rel="preconnect" href="https://res.cloudinary.com" crossOrigin="anonymous" />
+        <link rel="dns-prefetch" href="https://res.cloudinary.com" />
+      </head>
       <body className={`min-h-screen flex flex-col antialiased bg-background text-foreground ${locale === "ka" ? "font-noto-sans" : "font-sans"}`}>
         <Navbar lang={locale} dictionary={dictionary} />
         <CartDrawer dictionary={dictionary} lang={locale} />

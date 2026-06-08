@@ -4,6 +4,7 @@ import Link from "next/link";
 import { motion } from "framer-motion";
 import { useMemo, useState } from "react";
 import type { StorefrontProduct } from "@/lib/admin-api";
+import { cloudinaryThumb } from "@/lib/cloudinary";
 
 interface RetroNecklacesProps {
   isKa?: boolean;
@@ -294,7 +295,7 @@ function NecklaceCard({
           <path d={outerPath} fill={frame.color} />
 
           <image
-            href={product.image_front}
+            href={cloudinaryThumb(product.image_front, 600)}
             x="0"
             y="0"
             width="400"
@@ -310,7 +311,7 @@ function NecklaceCard({
 
           {hasBack && (
             <image
-              href={product.image_back!}
+              href={cloudinaryThumb(product.image_back!, 600)}
               x="0"
               y="0"
               width="400"

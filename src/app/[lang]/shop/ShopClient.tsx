@@ -11,7 +11,7 @@ import { motion } from "framer-motion";
 import { useCartStore } from "@/store/useCartStore";
 import { useUIStore } from "@/store/useUIStore";
 import { buildPhotoTransform, buildBackPhotoTransform } from "@/lib/shop-photo-positions";
-import { cloudinaryCutout } from "@/lib/cloudinary";
+import { cloudinaryCutout, cloudinaryThumb } from "@/lib/cloudinary";
 
 const PACIFICO = "var(--font-pacifico), 'Pacifico', cursive";
 const FRAUNCES = "var(--font-fraunces), 'Fraunces', Georgia, serif";
@@ -777,9 +777,15 @@ function ShopCard({ product, index, lang, isKa, copy, position }: {
   // original image if it doesn't load.
   const [frontCutoutFailed, setFrontCutoutFailed] = useState(false);
   const [backCutoutFailed,  setBackCutoutFailed]  = useState(false);
-  const frontSrc = frontCutoutFailed ? product.image_front : cloudinaryCutout(product.image_front);
+  const frontSrc = cloudinaryThumb(
+    frontCutoutFailed ? product.image_front : cloudinaryCutout(product.image_front),
+    600,
+  );
   const backSrc  = product.image_back
-    ? (backCutoutFailed ? product.image_back : cloudinaryCutout(product.image_back))
+    ? cloudinaryThumb(
+        backCutoutFailed ? product.image_back : cloudinaryCutout(product.image_back),
+        600,
+      )
     : "";
 
   const addItem  = useCartStore((s) => s.addItem);

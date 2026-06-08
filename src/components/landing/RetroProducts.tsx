@@ -12,6 +12,7 @@ import {
   buildHomeBackPhotoTransform,
   isHomeFeatured,
 } from "@/lib/shop-photo-positions";
+import { cloudinaryThumb } from "@/lib/cloudinary";
 
 interface RetroProductsProps {
   isKa?: boolean;
@@ -653,7 +654,7 @@ function MirrorCard({
               centred for a 400×500 viewBox (different from /shop's 400×400). */}
           <g clipPath={`url(#${clipId})`}>
             <image
-              href={product.image_front}
+              href={cloudinaryThumb(product.image_front, 700)}
               x="0"
               y="0"
               width="400"
@@ -669,7 +670,7 @@ function MirrorCard({
 
             {hasBack && (
               <image
-                href={product.image_back!}
+                href={cloudinaryThumb(product.image_back!, 700)}
                 x="0"
                 y="0"
                 width="400"
