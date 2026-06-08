@@ -2,8 +2,29 @@ import { NextResponse } from "next/server";
 import { createClient } from "@/lib/supabase/server";
 import { prisma } from "@/lib/prisma";
 
+/**
+ * Behind Railway + Cloudflare, `new URL(request.url).origin` returns the
+ * container's internal bind (e.g. `http://0.0.0.0:8080`). For the redirect
+ * after a successful OAuth exchange we want the canonical public URL, so we
+ * prefer SITE_URL → forwarded headers → request origin in that order.
+ */
+function getPublicOrigin(request: Request): string {
+  const configured = process.env.SITE_URL?.trim();
+  if (configured) return configured.replace(/\/$/, "");
+
+  const forwardedHost = request.headers.get("x-forwarded-host");
+  const forwardedProto = request.headers.get("x-forwarded-proto") || "https";
+  if (forwardedHost) return `${forwardedProto}://${forwardedHost}`;
+
+  const host = request.headers.get("host");
+  if (host) return `https://${host}`;
+
+  return new URL(request.url).origin;
+}
+
 export async function GET(request: Request) {
-  const { searchParams, origin } = new URL(request.url);
+  const { searchParams } = new URL(request.url);
+  const origin = getPublicOrigin(request);
   const code = searchParams.get("code");
   const next = searchParams.get("next") ?? "/account";
   const locale = request.headers.get("cookie")?.match(/NEXT_LOCALE=(\w+)/)?.[1] || "ka";
