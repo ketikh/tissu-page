@@ -37,7 +37,7 @@ export async function fetchCMSPage(page: string, opts: { revalidate?: number } =
   try {
     const res = await fetch(`${ADMIN_API_URL}/api/admin/site/${encodeURIComponent(page)}`, {
       headers: headers(),
-      next: { revalidate: opts.revalidate ?? 30 },
+      next: { revalidate: opts.revalidate ?? 300 },
     });
     if (!res.ok) return null;
     return (await res.json()) as CMSPage;

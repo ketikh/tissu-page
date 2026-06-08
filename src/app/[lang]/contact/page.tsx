@@ -23,7 +23,7 @@ export default async function ContactPage({ params }: { params: Promise<{ lang: 
   const locale = lang as Locale;
   const isKa = locale === "ka";
 
-  const cms = await fetchCMSSection<Record<string, string>>("contact", "details", { revalidate: 30 });
+  const cms = await fetchCMSSection<Record<string, string>>("contact", "details", { revalidate: 600 });
 
   const phone = pick(cms, "phone", DEFAULTS.phone);
   const email = pick(cms, "email", DEFAULTS.email);

@@ -14,7 +14,7 @@ export default async function Home({ params }: { params: Promise<{ lang: string 
     fetchStorefrontProducts(),
     // Pull the home hero block from the CMS (revalidates every 30s). If empty,
     // HomeClient falls back to the hard-coded copy in landingCopy.ts.
-    fetchCMSSection<Record<string, string>>("home", "hero", { revalidate: 30 }),
+    fetchCMSSection<Record<string, string>>("home", "hero", { revalidate: 600 }),
     fetchPhotoPositions(),
     fetchAdminReviews(),
   ]);

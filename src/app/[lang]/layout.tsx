@@ -97,8 +97,8 @@ export default async function RootLayout({
   // CMS values for the footer — tagline and social links — load in parallel
   // and fall back silently if the CMS is unreachable.
   const [footerCMS, contactCMS] = await Promise.all([
-    fetchCMSSection<Record<string, string>>("footer", "main",     { revalidate: 30 }),
-    fetchCMSSection<Record<string, string>>("contact", "details", { revalidate: 30 }),
+    fetchCMSSection<Record<string, string>>("footer", "main",     { revalidate: 600 }),
+    fetchCMSSection<Record<string, string>>("contact", "details", { revalidate: 600 }),
   ]);
   const tagline = (footerCMS?.[`tagline_${locale}`] || "").trim();
   const socials = {

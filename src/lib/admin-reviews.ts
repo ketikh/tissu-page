@@ -61,7 +61,7 @@ export async function fetchAdminReviews(): Promise<AdminReview[]> {
         "X-API-Key": STOREFRONT_API_KEY,
         Accept: "application/json",
       },
-      next: { revalidate: 60 },
+      next: { revalidate: 600 },
     });
     if (!res.ok) {
       console.warn(`[reviews] agent returned ${res.status}`);

@@ -60,7 +60,7 @@ interface ProductsResponse {
 
 const ADMIN_API_URL = process.env.ADMIN_API_URL?.replace(/\/$/, "");
 const ADMIN_API_KEY = process.env.ADMIN_API_KEY;
-const REVALIDATE_SECONDS = 60;
+const REVALIDATE_SECONDS = 600;
 
 function adminConfigured(): boolean {
   return Boolean(ADMIN_API_URL && ADMIN_API_KEY);
