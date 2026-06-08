@@ -272,3 +272,35 @@ html[lang="ka"] .font-serif {
     border-top: 1px dashed var(--border);
   }
 }
+
+/* ------------------------------------------------------------------
+   Mobile performance — the home page has many infinite framer-motion
+   animations and CSS filters that pin a phone's GPU at 100% and cause
+   jank/white-flash during scroll. Below 768px and for users who asked
+   for reduced motion, we freeze infinite animations and drop the
+   per-image colour filters so scroll stays smooth.
+   ------------------------------------------------------------------ */
+@media (max-width: 768px), (prefers-reduced-motion: reduce) {
+  .animate-marquee {
+    animation: none;
+  }
+  /* Pause framer-motion infinite loops by short-circuiting CSS animations
+     they emit (mostly transforms). Only top-level animated wrappers on the
+     landing/home are targeted via these helpers. */
+  .tissu-mobile-still,
+  .tissu-mobile-still * {
+    animation: none !important;
+  }
+  /* Drop the cinematic sepia/saturate filter from inline images on phones;
+     they force per-frame GPU rasterisation during scroll. */
+  img[style*="saturate"],
+  img[style*="sepia"] {
+    filter: none !important;
+  }
+  /* backdrop-filter is the single most expensive effect on iOS Safari */
+  [style*="backdropFilter"],
+  [style*="backdrop-filter"] {
+    backdrop-filter: none !important;
+    -webkit-backdrop-filter: none !important;
+  }
+}
