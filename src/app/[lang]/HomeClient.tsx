@@ -15,6 +15,8 @@ interface HomeProps {
   dictionary: any;
   products: StorefrontProduct[];
   heroCMS?: Record<string, string>;
+  aboutCMS?: Record<string, string>;
+  productsCMS?: Record<string, string>;
   photoPositions?: import("@/lib/shop-photo-positions").PhotoPositions;
   reviews?: import("@/lib/admin-reviews").AdminReview[];
 }
@@ -26,7 +28,7 @@ function pickLocalized(cms: Record<string, string> | undefined, base: string, la
   return v && v.trim() ? v.trim() : fallback;
 }
 
-export default function HomeClient({ lang, products: rawProducts, heroCMS, photoPositions = {}, reviews = [] }: HomeProps) {
+export default function HomeClient({ lang, products: rawProducts, heroCMS, aboutCMS, productsCMS, photoPositions = {}, reviews = [] }: HomeProps) {
   const copy = getLandingCopy(lang);
 
   // CMS values win when present; otherwise we keep the original copy.
@@ -41,6 +43,12 @@ export default function HomeClient({ lang, products: rawProducts, heroCMS, photo
   // Line 1 is title (+ optional italic suffix); line 2 is the second part.
   const headlineLine1 = `${titlePart1}${titleItalic ? ` ${titleItalic}` : ""}`.trim();
   const headlineLine2 = titleLine2;
+
+  // CMS overrides for the products + about sections (empty → built-in copy).
+  const productsTitle = pickLocalized(productsCMS, "title", lang, "");
+  const productsSub   = pickLocalized(productsCMS, "sub",   lang, "");
+  const aboutTitle    = pickLocalized(aboutCMS,    "title", lang, "");
+  const aboutCta      = pickLocalized(aboutCMS,    "cta_text", lang, "");
 
   return (
     <div style={{ background: "#fef0d6" }}>
@@ -60,6 +68,8 @@ export default function HomeClient({ lang, products: rawProducts, heroCMS, photo
         products={rawProducts}
         limit={4}
         photoPositions={photoPositions}
+        titleOverride={productsTitle}
+        subOverride={productsSub}
       />
 
       <RetroNecklaces
@@ -69,7 +79,7 @@ export default function HomeClient({ lang, products: rawProducts, heroCMS, photo
         products={rawProducts}
       />
 
-      <RetroAbout isKa={lang === "ka"} shopHref={`/${lang}/shop`} />
+      <RetroAbout isKa={lang === "ka"} shopHref={`/${lang}/shop`} titleOverride={aboutTitle} ctaTextOverride={aboutCta} />
       <RetroReviews
         isKa={lang === "ka"}
         reviews={reviews.length > 0

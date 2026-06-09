@@ -23,6 +23,9 @@ interface RetroProductsProps {
   /** Spotlight only a few; max 6. */
   limit?: number;
   photoPositions?: PhotoPositions;
+  /** CMS overrides (home → "products_grid" section). Empty keeps the defaults. */
+  titleOverride?: string;
+  subOverride?: string;
 }
 
 const PACIFICO = "var(--font-pacifico), 'Pacifico', cursive";
@@ -473,9 +476,13 @@ export default function RetroProducts({
   products,
   limit = 4,
   photoPositions = {},
+  titleOverride,
+  subOverride,
 }: RetroProductsProps) {
   /* Derive lang from shopHref when not passed (e.g. "/en/shop" → "en") so legacy callers still get working links. */
   const resolvedLang = lang ?? shopHref.split("/").filter(Boolean)[0] ?? "en";
+  const headingTitle = (titleOverride || "").trim();
+  const headingSub = (subOverride || "").trim();
 
   // Only products the admin has explicitly marked appear here. If nothing is
   // marked yet, fall back to the first few so the section isn't empty during
@@ -509,7 +516,9 @@ export default function RetroProducts({
             className="inline-block text-[11px] font-extrabold uppercase tracking-[0.3em]"
             style={{ color: C.mustard }}
           >
-            {isKa
+            {headingSub
+              ? headingSub
+              : isKa
               ? "ორმხრივი ჩანთები მათთვის, ვისაც ცვალებადი ხასიათი აქვს"
               : "Reversible bags for the ever-changing mood"}
           </motion.span>
@@ -527,7 +536,7 @@ export default function RetroProducts({
               color: C.cream,
             }}
           >
-            {isKa ? "ერთი ჩანთა ორი განწყობა" : "One bag, two moods"}
+            {headingTitle ? headingTitle : isKa ? "ერთი ჩანთა ორი განწყობა" : "One bag, two moods"}
           </motion.h2>
         </div>
 
