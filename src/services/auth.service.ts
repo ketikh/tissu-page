@@ -114,6 +114,26 @@ class AuthService {
     return true;
   }
 
+  // Change the password while signed in. Supabase's updateUser() does NOT
+  // verify the current password, so we re-authenticate with it first and only
+  // then set the new one. Throws "INVALID_CURRENT" when the current password
+  // is wrong, so the UI can show a precise message.
+  async changePassword(currentPassword: string, newPassword: string): Promise<void> {
+    const supabase = this.getSupabase();
+    const { data } = await supabase.auth.getUser();
+    const email = data?.user?.email;
+    if (!email) throw new Error("NOT_SIGNED_IN");
+
+    const { error: verifyError } = await supabase.auth.signInWithPassword({
+      email,
+      password: currentPassword,
+    });
+    if (verifyError) throw new Error("INVALID_CURRENT");
+
+    const { error } = await supabase.auth.updateUser({ password: newPassword });
+    if (error) throw new Error(error.message);
+  }
+
   async resetPassword(password: string): Promise<boolean> {
     const supabase = this.getSupabase();
 

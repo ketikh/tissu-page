@@ -251,6 +251,14 @@ function RevealLine({ text, delay = 0 }: { text: string; delay?: number }) {
       className="inline-block"
     >
       {text.split(/(\s+)/).map((tok, ti) => {
+        // Whitespace tokens must keep their width — an inline-block span that
+        // holds only a space collapses to zero, gluing neighbouring words
+        // together ("A little" → "Alittle"). Render the gap with white-space:pre.
+        if (/^\s+$/.test(tok)) {
+          return (
+            <span key={ti} style={{ whiteSpace: "pre" }}>{tok}</span>
+          );
+        }
         const isRainbow = RAINBOW_WORDS.includes(tok.toLowerCase());
         return (
           <span key={ti} className="inline-block">

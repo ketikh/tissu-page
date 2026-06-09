@@ -20,8 +20,11 @@ import {
   ChevronDown,
   Phone,
   MessageCircle,
+  Eye,
+  EyeOff,
 } from "lucide-react";
 import { useAuthStore } from "@/store/useAuthStore";
+import { authService } from "@/services/auth.service";
 import { Locale } from "@/i18n/config";
 import { formatPrice } from "@/lib/utils";
 import { useStoreHydration } from "@/store/useHydration";
@@ -588,12 +591,6 @@ function OverviewTab({ user, dictionary, lang, onEdit }: { user: any; dictionary
                   <p style={{ margin: "6px 0 0", color: C.burnt, fontWeight: 600 }}>{user.addresses.find((a: any) => a.isDefault).phone}</p>
                 </div>
               </div>
-              <div style={{ display: "flex", gap: 10, alignItems: "flex-start", paddingTop: 12, borderTop: `1px dashed rgba(42,29,20,0.18)` }}>
-                <Truck size={16} style={{ color: C.burnt, opacity: 0.6, marginTop: 2, flexShrink: 0 }} />
-                <p style={{ fontFamily: SANS, fontSize: 12, color: C.ink, opacity: 0.6, margin: 0, lineHeight: 1.5 }}>
-                  {isKa ? "სწრაფი მიწოდება ავტომატურად აირჩევა შენი ნაგულისხმევი მისამართის მიხედვით." : "The fastest shipping method is auto-selected based on your default address."}
-                </p>
-              </div>
             </div>
           ) : (
             <p style={{ fontFamily: SANS, fontSize: 14, color: C.ink, opacity: 0.6, margin: 0 }}>
@@ -616,12 +613,14 @@ const CONTACT_LABEL_LOCAL: Record<string, { ka: string; en: string }> = {
 function OrdersTab({ user, dictionary, lang }: { user: any; dictionary: any; lang: Locale }) {
   const isKa = lang === "ka";
   const [expandedId, setExpandedId] = useState<string | null>(null);
+  // `orders` may be missing right after a profile refresh — treat it as empty.
+  const orders: any[] = Array.isArray(user.orders) ? user.orders : [];
 
   return (
     <div style={{ display: "flex", flexDirection: "column", gap: 18 }}>
       <SectionTitle color={C.mustard}>{dictionary.account.orders.title}</SectionTitle>
 
-      {user.orders.length === 0 ? (
+      {orders.length === 0 ? (
         <Card padding={48} accent="mustard">
           <div style={{ textAlign: "center", display: "flex", flexDirection: "column", alignItems: "center", gap: 14 }}>
             <span style={{
@@ -641,7 +640,7 @@ function OrdersTab({ user, dictionary, lang }: { user: any; dictionary: any; lan
         </Card>
       ) : (
         <div style={{ display: "flex", flexDirection: "column", gap: 12 }}>
-          {user.orders.map((order: any, idx: number) => {
+          {orders.map((order: any, idx: number) => {
             const isOpen = expandedId === order.id;
             const accent = (["mustard", "burnt", "green", "rose"] as const)[idx % 4];
             // shippingAddress can be either a parsed object or a JSON string,
@@ -1041,20 +1040,120 @@ function SettingsTab({ user, dictionary, lang, onUpdate, isLoading }: any) {
         </form>
       </Card>
 
-      <Card padding={24} accent="rose" style={{ background: C.softCream }}>
-        <div className="flex flex-col gap-3">
+      <PasswordCard lang={lang} />
+    </div>
+  );
+}
+
+/* In-place password change: enter current + new password right here.
+   A "forgot password" link stays available for anyone who can't recall it. */
+function PasswordCard({ lang }: { lang: Locale }) {
+  const isKa = lang === "ka";
+  const [current, setCurrent] = useState("");
+  const [next, setNext] = useState("");
+  const [confirm, setConfirm] = useState("");
+  const [show, setShow] = useState(false);
+  const [busy, setBusy] = useState(false);
+  const [error, setError] = useState("");
+  const [done, setDone] = useState(false);
+
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setError("");
+    setDone(false);
+
+    if (next.length < 8) {
+      setError(isKa ? "ახალი პაროლი მინიმუმ 8 სიმბოლო უნდა იყოს." : "New password must be at least 8 characters.");
+      return;
+    }
+    if (next !== confirm) {
+      setError(isKa ? "ახალი პაროლები არ ემთხვევა." : "The new passwords don't match.");
+      return;
+    }
+
+    setBusy(true);
+    try {
+      await authService.changePassword(current, next);
+      setDone(true);
+      setCurrent(""); setNext(""); setConfirm("");
+      setTimeout(() => setDone(false), 4000);
+    } catch (err) {
+      const code = err instanceof Error ? err.message : "";
+      if (code === "INVALID_CURRENT") {
+        setError(isKa ? "მიმდინარე პაროლი არასწორია." : "Your current password is incorrect.");
+      } else if (code === "NOT_SIGNED_IN") {
+        setError(isKa ? "ჯერ შედი ანგარიშზე." : "Please sign in first.");
+      } else {
+        setError(isKa ? "ვერ მოხერხდა პაროლის შეცვლა. სცადე თავიდან." : "Couldn't change the password. Please try again.");
+      }
+    } finally {
+      setBusy(false);
+    }
+  };
+
+  const pwInputWrap: React.CSSProperties = { position: "relative", display: "flex", alignItems: "center" };
+  const pwInput: React.CSSProperties = { ...input, paddingRight: 42 };
+  const eyeBtn: React.CSSProperties = {
+    position: "absolute", right: 10, background: "none", border: "none",
+    cursor: "pointer", color: C.ink, opacity: 0.5, display: "inline-flex",
+  };
+
+  return (
+    <Card padding={24} accent="rose" style={{ background: C.softCream }}>
+      <form onSubmit={handleSubmit} style={{ display: "flex", flexDirection: "column", gap: 14 }}>
+        <div className="flex flex-col gap-1">
           <h3 style={{ fontFamily: FRAUNCES, fontWeight: 700, fontSize: 18, color: C.ink, margin: 0 }}>
-            {isKa ? "პაროლი და უსაფრთხოება" : "Password & security"}
+            {isKa ? "პაროლის შეცვლა" : "Change password"}
           </h3>
           <p style={{ fontFamily: SANS, fontSize: 13, color: C.ink, opacity: 0.65, margin: 0, lineHeight: 1.55 }}>
-            {isKa ? "შეცვალე პაროლი ან მართე უსაფრთხოების პარამეტრები." : "Change your password or manage security settings."}
+            {isKa ? "შეიყვანე მიმდინარე პაროლი და ახალი პაროლი." : "Enter your current password and a new one."}
           </p>
-          <Link href={`/${lang}/account/forgot-password`} style={{ ...outlineButton, display: "inline-flex", width: "auto", padding: "10px 18px" }} className="hover:bg-[rgba(42,29,20,0.05)]">
-            {isKa ? "პაროლის შეცვლა" : "Change password"}
+        </div>
+
+        <div style={{ display: "flex", flexDirection: "column", gap: 6 }}>
+          <label style={label}>{isKa ? "მიმდინარე პაროლი" : "Current password"}</label>
+          <div style={pwInputWrap}>
+            <input style={pwInput} type={show ? "text" : "password"} value={current} autoComplete="current-password"
+              onChange={e => setCurrent(e.target.value)} required />
+            <button type="button" style={eyeBtn} onClick={() => setShow(s => !s)} aria-label={show ? "Hide" : "Show"}>
+              {show ? <EyeOff size={16} /> : <Eye size={16} />}
+            </button>
+          </div>
+        </div>
+
+        <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 14 }}>
+          <div style={{ display: "flex", flexDirection: "column", gap: 6 }}>
+            <label style={label}>{isKa ? "ახალი პაროლი" : "New password"}</label>
+            <input style={input} type={show ? "text" : "password"} value={next} autoComplete="new-password"
+              onChange={e => setNext(e.target.value)} required />
+          </div>
+          <div style={{ display: "flex", flexDirection: "column", gap: 6 }}>
+            <label style={label}>{isKa ? "გაიმეორე ახალი პაროლი" : "Confirm new password"}</label>
+            <input style={input} type={show ? "text" : "password"} value={confirm} autoComplete="new-password"
+              onChange={e => setConfirm(e.target.value)} required />
+          </div>
+        </div>
+
+        {error && (
+          <p style={{ fontFamily: SANS, fontSize: 13, color: C.rose, fontWeight: 600, margin: 0 }}>{error}</p>
+        )}
+
+        <div style={{ display: "flex", alignItems: "center", gap: 16, flexWrap: "wrap", paddingTop: 2 }}>
+          <button type="submit" disabled={busy} style={{ ...primaryButton, width: "auto", padding: "12px 30px", opacity: busy ? 0.7 : 1 }} className="hover:-translate-y-0.5">
+            {busy ? <Loader2 size={18} className="animate-spin" /> : (isKa ? "პაროლის შეცვლა" : "Change password")}
+          </button>
+          {done && (
+            <span style={{ display: "inline-flex", alignItems: "center", gap: 6, fontFamily: SANS, fontSize: 13, color: C.green, fontWeight: 600 }}>
+              <Check size={14} />
+              {isKa ? "პაროლი შეიცვალა" : "Password changed"}
+            </span>
+          )}
+          <Link href={`/${lang}/account/forgot-password`} style={{ fontFamily: SANS, fontSize: 13, color: C.burnt, fontWeight: 600, textDecoration: "underline", marginLeft: "auto" }}>
+            {isKa ? "დაგავიწყდა პაროლი?" : "Forgot your password?"}
           </Link>
         </div>
-      </Card>
-    </div>
+      </form>
+    </Card>
   );
 }
 
@@ -1075,7 +1174,7 @@ function WishlistTab({ dictionary, lang }: { dictionary: any; lang: Locale }) {
           {dictionary.account.sidebar.wishlist}
         </h3>
         <p style={{ fontFamily: SANS, fontSize: 14, color: C.ink, opacity: 0.6, margin: 0 }}>
-          {isKa ? "სასურველთა სია ცარიელია." : "Your wishlist is currently empty."}
+          {isKa ? "სურვილების სია ცარიელია." : "Your wishlist is currently empty."}
         </p>
         <Link href={`/${lang}/shop`} style={{ ...outlineButton, display: "inline-flex", width: "auto", padding: "10px 22px" }} className="hover:bg-[rgba(42,29,20,0.05)]">
           {isKa ? "მაღაზიის დათვალიერება" : "Explore shop"}

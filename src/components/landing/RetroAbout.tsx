@@ -9,6 +9,9 @@ interface RetroAboutProps {
   shopHref?: string;
   /** Two photos shown floating on the left/right of the title block. */
   photos?: { left: string; right: string };
+  /** CMS overrides (home → "about" section). Empty values keep the defaults. */
+  titleOverride?: string;
+  ctaTextOverride?: string;
 }
 
 const PACIFICO = "var(--font-pacifico), 'Pacifico', cursive";
@@ -32,7 +35,11 @@ export default function RetroAbout({
     left: "/static/landing-bag-blue.jpg",
     right: "/static/landing-bag-yellow.jpg",
   },
+  titleOverride,
+  ctaTextOverride,
 }: RetroAboutProps) {
+  const title = (titleOverride || "").trim();
+  const ctaText = (ctaTextOverride || "").trim();
   return (
     <section
       className="relative w-full overflow-hidden py-24 md:py-36"
@@ -87,7 +94,9 @@ export default function RetroAbout({
               fontWeight: isKa ? 700 : 400,
             }}
           >
-            {isKa
+            {title
+              ? title
+              : isKa
               ? "ჩვენი ბრენდი ორიგინალური გახდა სწორედ ორმხრივი ჩანთების დამსახურებით."
               : (<>What makes our brand <br />unique is its reversible bags.</>)}
           </motion.h2>
@@ -109,7 +118,7 @@ export default function RetroAbout({
                 fontWeight: 800,
               }}
             >
-              {isKa ? "დაათვალიერე" : "Browse the shop"}
+              {ctaText ? ctaText : isKa ? "დაათვალიერე" : "Browse the shop"}
             </Link>
           </motion.div>
         </div>

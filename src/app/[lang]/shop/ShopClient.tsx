@@ -289,6 +289,7 @@ interface ShopClientProps {
   products: StorefrontProduct[];
   photoPositions?: import("@/lib/shop-photo-positions").PhotoPositions;
   categories?: import("@/lib/storefront-categories").StorefrontCategoryEntry[];
+  heroCMS?: Record<string, string>;
 }
 type CategoryValue = "all" | StorefrontCategory;
 type SortValue     = "featured" | "new" | "price-low" | "price-high";
@@ -321,8 +322,11 @@ function hexFaint(hex: string, a = 0.14): string {
 
 /* ════════════════════════ MAIN COMPONENT ══════════════════════════ */
 
-export default function ShopClient({ lang, dictionary, products, photoPositions = {}, categories = [] }: ShopClientProps) {
+export default function ShopClient({ lang, dictionary, products, photoPositions = {}, categories = [], heroCMS }: ShopClientProps) {
   const copy = getLandingCopy(lang);
+  // CMS-supplied shop title (set in the admin's "Shop Hero" editor) wins;
+  // otherwise fall back to the built-in copy.
+  const heroTitle = (heroCMS?.[`title_${lang}`] || "").trim() || (lang === "ka" ? "პროდუქცია." : "Products.");
   const router = useRouter();
   const sp = useSearchParams();
   const isKa = lang === "ka";
@@ -439,7 +443,7 @@ export default function ShopClient({ lang, dictionary, products, photoPositions 
               color: C.cream,
               lineHeight: 0.88,
             }}>
-              {isKa ? "პროდუქცია." : "Products."}
+              {heroTitle}
             </div>
           </motion.div>
         </div>

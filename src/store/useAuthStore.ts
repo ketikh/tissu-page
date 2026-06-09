@@ -23,6 +23,15 @@ interface AuthState {
   clearError: () => void;
 }
 
+// The server profile endpoint returns the user without an `orders` array
+// (orders are tracked client-side, per browser). Guarantee `orders` is always
+// an array, and keep any orders already placed in this browser when a fresh
+// profile comes back from the server — otherwise a profile refresh would wipe
+// the order history and leave `orders` undefined, crashing the Orders tab.
+function normalizeUser(fetched: User, prev: User | null): User {
+  return { ...fetched, orders: fetched.orders ?? prev?.orders ?? [] };
+}
+
 export const useAuthStore = create<AuthState>()(
   persist(
     (set) => ({
@@ -34,7 +43,7 @@ export const useAuthStore = create<AuthState>()(
         set({ isLoading: true, error: null });
         try {
           const { user } = await authService.login(credentials);
-          set({ user, isAuthenticated: true, isLoading: false });
+          set((state) => ({ user: normalizeUser(user, state.user), isAuthenticated: true, isLoading: false }));
         } catch (err) {
           const message = err instanceof Error ? err.message : 'Login failed';
           set({ isLoading: false, error: message });
@@ -45,7 +54,7 @@ export const useAuthStore = create<AuthState>()(
         set({ isLoading: true, error: null });
         try {
           const { user } = await authService.register(data);
-          set({ user, isAuthenticated: true, isLoading: false });
+          set((state) => ({ user: normalizeUser(user, state.user), isAuthenticated: true, isLoading: false }));
         } catch (err) {
           const message = err instanceof Error ? err.message : 'Registration failed';
           set({ isLoading: false, error: message });
@@ -100,7 +109,7 @@ export const useAuthStore = create<AuthState>()(
         set({ isLoading: true });
         try {
           const user = await authService.fetchProfile();
-          set({ user, isAuthenticated: true, isLoading: false });
+          set((state) => ({ user: normalizeUser(user, state.user), isAuthenticated: true, isLoading: false }));
         } catch {
           // Non-fatal: keep whatever user we already have in the store. A
           // transient network blip or cookie sync race shouldn't sign people
@@ -181,7 +190,7 @@ export const useAuthStore = create<AuthState>()(
       addOrder: (order) => {
         set((state) => {
           if (!state.user) return state;
-          return { user: { ...state.user, orders: [order, ...state.user.orders] } };
+          return { user: { ...state.user, orders: [order, ...(state.user.orders ?? [])] } };
         });
       },
 

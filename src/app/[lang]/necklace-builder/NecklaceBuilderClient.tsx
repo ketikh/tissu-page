@@ -147,6 +147,13 @@ export default function NecklaceBuilderClient({ lang, fabrics, charms, basePrice
     const charmLabelKa = partsKa.join(", ");
     const charmLabelEn = partsEn.join(", ");
 
+    // Charm thumbnails carried onto the cart item so the customer sees the
+    // exact charms they picked (with photos), not just a text list.
+    const customCharms = charmRows.map(r => {
+      const d = describeRow(r);
+      return { image: d.image, name: { ka: d.ka, en: d.en }, qty: r.qty };
+    }).filter(ch => ch.image);
+
     // Stable variant id from current selection so identical builds merge in the cart.
     const variantKey = charmRows
       .map(r => `${r.charmId}:${r.variantId ?? ""}:${r.qty}`)
@@ -178,6 +185,7 @@ export default function NecklaceBuilderClient({ lang, fabrics, charms, basePrice
         badges: [],
         tags: [],
         featured: false,
+        customCharms,
       } as any,
       {
         id: variantId,
@@ -210,7 +218,7 @@ export default function NecklaceBuilderClient({ lang, fabrics, charms, basePrice
             letterSpacing: "0.3em", textTransform: "uppercase",
             color: C.champagne,
           }}>
-            {isKa ? "ააწყვე შენი" : "Build yours"}
+            {isKa ? "ააწყვე შენი გემოვნებით" : "Build it your way"}
           </span>
           <h1 style={{
             fontFamily: isKa ? ALK_LIFE : PACIFICO,
@@ -220,7 +228,7 @@ export default function NecklaceBuilderClient({ lang, fabrics, charms, basePrice
             marginTop: 12,
             lineHeight: 1.05,
           }}>
-            {isKa ? "შენი ხელით ნაკერი ყელსაბამი" : "Your handmade necklace"}
+            {isKa ? "შენი შექმნილი ყელსაბამი" : "Your own necklace"}
           </h1>
           <p style={{
             fontFamily: FRAUNCES, fontStyle: "italic",
