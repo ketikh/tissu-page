@@ -616,12 +616,14 @@ const CONTACT_LABEL_LOCAL: Record<string, { ka: string; en: string }> = {
 function OrdersTab({ user, dictionary, lang }: { user: any; dictionary: any; lang: Locale }) {
   const isKa = lang === "ka";
   const [expandedId, setExpandedId] = useState<string | null>(null);
+  // `orders` may be missing right after a profile refresh — treat it as empty.
+  const orders: any[] = Array.isArray(user.orders) ? user.orders : [];
 
   return (
     <div style={{ display: "flex", flexDirection: "column", gap: 18 }}>
       <SectionTitle color={C.mustard}>{dictionary.account.orders.title}</SectionTitle>
 
-      {user.orders.length === 0 ? (
+      {orders.length === 0 ? (
         <Card padding={48} accent="mustard">
           <div style={{ textAlign: "center", display: "flex", flexDirection: "column", alignItems: "center", gap: 14 }}>
             <span style={{
@@ -641,7 +643,7 @@ function OrdersTab({ user, dictionary, lang }: { user: any; dictionary: any; lan
         </Card>
       ) : (
         <div style={{ display: "flex", flexDirection: "column", gap: 12 }}>
-          {user.orders.map((order: any, idx: number) => {
+          {orders.map((order: any, idx: number) => {
             const isOpen = expandedId === order.id;
             const accent = (["mustard", "burnt", "green", "rose"] as const)[idx % 4];
             // shippingAddress can be either a parsed object or a JSON string,
