@@ -411,7 +411,7 @@ function BuildYourOwnCard({ isKa, lang }: { isKa: boolean; lang: string }) {
         <div
           style={{ fontFamily: isKa ? ALK_LIFE : FRAUNCES, fontStyle: isKa ? "normal" : "italic", fontWeight: 700, fontSize: 22, color: C.cream }}
         >
-          {isKa ? "ააწყვე შენი" : "Build yours"}
+          {isKa ? "ააწყვე შენი გემოვნებით" : "Build it your way"}
         </div>
         <div
           className="mt-1 text-[11px] uppercase tracking-[0.25em]"

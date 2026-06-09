@@ -376,6 +376,32 @@ export default function CartClient({ dictionary, lang }: CartClientProps) {
                         </span>
                       )}
 
+                      {/* Custom-necklace charms — show each picked charm's photo. */}
+                      {(item.product as any)?.customCharms?.length > 0 && (
+                        <div className="flex flex-wrap gap-2 mt-2.5">
+                          {(item.product as any).customCharms.map((ch: any, i: number) => (
+                            <div
+                              key={i}
+                              title={ch.name?.[lang] || ch.name?.ka || ""}
+                              className="relative shrink-0 overflow-hidden"
+                              style={{ width: 40, height: 40, borderRadius: 9, background: "#fff", border: "1px solid rgba(42,29,20,0.12)" }}
+                            >
+                              {ch.image && /^https?:\/\//i.test(ch.image) && (
+                                // eslint-disable-next-line @next/next/no-img-element
+                                <img src={ch.image} alt={ch.name?.[lang] || ""} style={{ width: "100%", height: "100%", objectFit: "cover", display: "block" }} />
+                              )}
+                              {ch.qty > 1 && (
+                                <span style={{
+                                  position: "absolute", bottom: 0, right: 0,
+                                  background: C.ink, color: "#fff", fontSize: 9, fontWeight: 700,
+                                  padding: "0 3px", borderTopLeftRadius: 6, fontFamily: PRICE_FONT,
+                                }}>×{ch.qty}</span>
+                              )}
+                            </div>
+                          ))}
+                        </div>
+                      )}
+
                       <div className="flex items-center justify-between mt-auto pt-3 gap-3 flex-wrap">
                         {/* Qty stepper */}
                         <div style={{

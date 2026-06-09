@@ -265,6 +265,32 @@ export function CartDrawer({ dictionary, lang }: CartDrawerProps) {
                             </p>
                           )}
 
+                          {/* Custom-necklace charms — show each picked charm's photo. */}
+                          {(item.product as any)?.customCharms?.length > 0 && (
+                            <div className="flex flex-wrap gap-1.5 mt-2">
+                              {(item.product as any).customCharms.map((ch: any, i: number) => (
+                                <div
+                                  key={i}
+                                  title={ch.name?.[lang] || ch.name?.ka || ""}
+                                  className="relative shrink-0 overflow-hidden"
+                                  style={{ width: 34, height: 34, borderRadius: 8, background: "#fff", border: "1px solid rgba(42,29,20,0.12)" }}
+                                >
+                                  {ch.image && /^https?:\/\//i.test(ch.image) && (
+                                    // eslint-disable-next-line @next/next/no-img-element
+                                    <img src={ch.image} alt={ch.name?.[lang] || ""} style={{ width: "100%", height: "100%", objectFit: "cover", display: "block" }} />
+                                  )}
+                                  {ch.qty > 1 && (
+                                    <span style={{
+                                      position: "absolute", bottom: 0, right: 0,
+                                      background: C.ink, color: "#fff", fontSize: 8, fontWeight: 700,
+                                      padding: "0 3px", borderTopLeftRadius: 5, fontFamily: PRICE_FONT,
+                                    }}>×{ch.qty}</span>
+                                  )}
+                                </div>
+                              ))}
+                            </div>
+                          )}
+
                           <div className="flex items-center justify-between mt-auto pt-2.5">
                             <div style={{
                               display: "inline-flex", alignItems: "center",
