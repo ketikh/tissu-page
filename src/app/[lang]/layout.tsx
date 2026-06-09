@@ -73,10 +73,36 @@ const notoSerifGeorgian = Noto_Serif_Georgian({
 export async function generateMetadata({ params }: { params: Promise<{ lang: string }> }): Promise<Metadata> {
   const { lang } = await params;
   const locale = lang as Locale;
-  const dictionary = await getDictionary(locale);
+  const title = locale === "ka" ? "Tissu - დამზადებულია საქართველოში" : "Tissu - Made in Georgia";
+  // Brand-voice share/SEO description (replaces the old generic "laptop sleeves" copy).
+  const description = locale === "ka"
+    ? "ხელნაკეთი ორმხრივი ტილოს ჩანთები, ქისები და აქსესუარები — ნაკერი ხელით თბილისში. ცოტა ფერი ყოველდღე."
+    : "Handmade reversible canvas bags, pouches and accessories — sewn by hand in Tbilisi. A little colour, every day.";
+  const siteUrl = process.env.SITE_URL || "https://tissu.ge";
+  const ogAlt = locale === "ka"
+    ? "Tissu — ხელნაკეთი ორმხრივი ჩანთები თბილისიდან"
+    : "Tissu — handmade reversible bags from Tbilisi";
   return {
-    title: locale === "ka" ? "Tissu - დამზადებულია საქართველოში" : "Tissu - Made in Georgia",
-    description: dictionary.home.hero.description,
+    // metadataBase makes the relative share image resolve to an absolute URL
+    // (https://tissu.ge/og-image.jpg) — Facebook/Twitter require absolute URLs.
+    metadataBase: new URL(siteUrl),
+    title,
+    description,
+    openGraph: {
+      type: "website",
+      siteName: "Tissu",
+      locale: locale === "ka" ? "ka_GE" : "en_US",
+      url: `/${locale}`,
+      title,
+      description,
+      images: [{ url: "/og-image.jpg", width: 1200, height: 630, alt: ogAlt }],
+    },
+    twitter: {
+      card: "summary_large_image",
+      title,
+      description,
+      images: ["/og-image.jpg"],
+    },
   };
 }
 
