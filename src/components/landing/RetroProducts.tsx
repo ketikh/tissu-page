@@ -566,7 +566,7 @@ export default function RetroProducts({
               fontWeight: 800,
             }}
           >
-            {isKa ? "მთელი კოლექცია" : "View the full drop"}
+            {isKa ? "ჩანთების ნახვა" : "Shop all bags"}
             <span aria-hidden="true">→</span>
           </Link>
         </div>

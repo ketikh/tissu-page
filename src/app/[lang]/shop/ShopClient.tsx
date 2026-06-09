@@ -605,16 +605,19 @@ export default function ShopClient({ lang, dictionary, products, photoPositions 
                 flexShrink: 0,
               }}>
                 {([
-                  { val: "scatter", label: isKa ? "2" : "2" },
-                  { val: "grid",    label: isKa ? "4" : "4" },
-                ] as const).map(({ val, label }) => {
+                  // Columns differ by screen: scatter = 1 on phones / 2 on desktop,
+                  // grid = 2 on phones / 4 on desktop. Show the count that's true
+                  // for the current screen so the toggle isn't misleading on mobile.
+                  { val: "scatter", mobile: "1", desktop: "2" },
+                  { val: "grid",    mobile: "2", desktop: "4" },
+                ] as const).map(({ val, mobile, desktop }) => {
                   const active = gridMode === val;
                   return (
                     <button
                       key={val}
                       type="button"
                       onClick={() => setGridMode(val)}
-                      aria-label={`${label} columns`}
+                      aria-label={`${desktop} columns`}
                       style={{
                         fontFamily: FRAUNCES,
                         fontWeight: 700,
@@ -628,7 +631,8 @@ export default function ShopClient({ lang, dictionary, products, photoPositions 
                         transition: "background 0.18s ease, color 0.18s ease",
                       }}
                     >
-                      {label}
+                      <span className="sm:hidden">{mobile}</span>
+                      <span className="hidden sm:inline">{desktop}</span>
                     </button>
                   );
                 })}
