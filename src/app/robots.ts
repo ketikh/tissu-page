@@ -1,6 +1,6 @@
 import type { MetadataRoute } from "next";
 
-const SITE_URL = process.env.SITE_URL?.replace(/\/$/, "") || "https://tissu-page-production.up.railway.app";
+const SITE_URL = process.env.SITE_URL?.replace(/\/$/, "") || "https://tissu.ge";
 
 export default function robots(): MetadataRoute.Robots {
   return {

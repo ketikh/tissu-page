@@ -2,7 +2,7 @@ import type { MetadataRoute } from "next";
 import { fetchStorefrontProducts } from "@/lib/admin-api";
 import { i18n } from "@/i18n/config";
 
-const SITE_URL = process.env.SITE_URL?.replace(/\/$/, "") || "https://tissu-page-production.up.railway.app";
+const SITE_URL = process.env.SITE_URL?.replace(/\/$/, "") || "https://tissu.ge";
 
 export const revalidate = 3600;
 
