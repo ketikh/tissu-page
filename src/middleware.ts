@@ -4,7 +4,9 @@ import { i18n, Locale } from './i18n/config'
 import { updateSession } from './lib/supabase/middleware'
 import { ADMIN_COOKIE_NAME, verifyAdminToken } from './lib/admin-session'
 
-const PROTECTED_PATHS = ["/account", "/checkout"];
+// Checkout is open to guests — they fill in contact + address and we email/call
+// them; no account is required. Only the account area itself needs a login.
+const PROTECTED_PATHS = ["/account"];
 const AUTH_ROUTES = ["/account/login", "/account/register", "/account/forgot-password", "/account/reset-password"];
 const LOGIN_PATH = "/account/login";
 
