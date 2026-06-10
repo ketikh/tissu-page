@@ -197,7 +197,7 @@ export default function RetroHero({
             fontFamily: lang === "ka" ? ALK_LIFE : FRAUNCES,
             fontWeight: 900,
             fontStyle: lang === "ka" ? "normal" : "italic",
-            fontSize: "clamp(40px, 7vw, 96px)",
+            fontSize: "clamp(30px, 7vw, 96px)",
             lineHeight: 0.95,
             letterSpacing: "-0.01em",
             color: C.cream,

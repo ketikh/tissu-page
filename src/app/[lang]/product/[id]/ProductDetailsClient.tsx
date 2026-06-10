@@ -756,18 +756,16 @@ export function ProductDetailsClient({ product, related, lang }: ProductDetailsC
                           ])
                     : (isKa
                         ? [
-                            "გაიწმინდე ნოტიო ნაჭრით",
+                            "გაწმინდე ნოტიო ნაჭრით",
                             "ნაზი რეცხვა 30°C-ზე",
                             "მათეთრებლების გარეშე",
                             "ჰაერზე გაშრობა რეკომენდებულია",
-                            "უთო შიგნიდან, დაბალ ცეცხლზე",
                           ]
                         : [
                             "Wipe clean with damp cloth",
                             "Gentle wash at 30°C",
                             "Do not bleach",
                             "Air dry recommended",
-                            "Iron inside out on low heat",
                           ])
                   ).map((line) => (
                     <li key={line} style={{ display: "flex", gap: 12, alignItems: "flex-start" }}>

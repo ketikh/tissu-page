@@ -2,6 +2,13 @@
 
 @custom-variant dark (&:is(.dark *));
 
+/* Buttons should show the hand cursor (e.g. "add to cart"). Browsers default
+   <button> to the arrow cursor unless told otherwise. */
+button:not(:disabled),
+[role="button"]:not([aria-disabled="true"]) {
+  cursor: pointer;
+}
+
 @theme {
   --font-sans: var(--font-nunito);
   --font-serif: var(--font-gloock);
