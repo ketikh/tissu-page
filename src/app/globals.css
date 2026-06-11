@@ -2,6 +2,13 @@
 
 @custom-variant dark (&:is(.dark *));
 
+/* Buttons should show the hand cursor (e.g. "add to cart"). Browsers default
+   <button> to the arrow cursor unless told otherwise. */
+button:not(:disabled),
+[role="button"]:not([aria-disabled="true"]) {
+  cursor: pointer;
+}
+
 @theme {
   --font-sans: var(--font-nunito);
   --font-serif: var(--font-gloock);
@@ -303,12 +310,8 @@ html[lang="ka"] .font-serif {
     backdrop-filter: none !important;
     -webkit-backdrop-filter: none !important;
   }
-  /* Let the browser skip paint work for sections that aren't on screen.
-     Keeps the DOM intact (so scroll-back doesn't re-mount) but stops the
-     GPU from rasterising every section every frame. */
-  main > section,
-  main > div > section {
-    content-visibility: auto;
-    contain-intrinsic-size: 800px;
-  }
+  /* NOTE: `content-visibility: auto` was removed here — it skipped painting
+     off-screen sections and caused a white flash / jump while scrolling (and
+     on back-navigation). The animation + filter freezes above already keep
+     scrolling smooth, so sections now stay fully rendered. */
 }

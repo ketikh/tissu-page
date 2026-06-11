@@ -362,6 +362,19 @@ export default function ShopClient({ lang, dictionary, products, photoPositions 
     let r = products.filter((p) => Boolean(p.image_front));
     if (catParam !== "all") r = r.filter((p) => p.category === catParam);
     if (modelParam !== "all") r = r.filter((p) => (p.model || "").trim() === modelParam);
+    // Size variants (small + big of one model) collapse to a single card —
+    // prefer the small version; the other size opens via the toggle on the
+    // product page. A big shows only if its small partner isn't in the list.
+    const seenSiblings = new Set<string>();
+    r = r.filter((p) => {
+      if (!p.size_sibling) return true;
+      if (seenSiblings.has(p.id)) return false;
+      if (p.size_sibling.role === "small") {
+        seenSiblings.add(p.size_sibling.sibling_id);
+        return true;
+      }
+      return !r.some((o) => o.id === p.size_sibling!.sibling_id);
+    });
     if (sortParam === "price-low") r.sort((a, b) => a.price - b.price);
     else if (sortParam === "price-high") r.sort((a, b) => b.price - a.price);
     else if (sortParam === "new") r.sort((a, b) => (b.tags.includes("new") ? 1 : 0) - (a.tags.includes("new") ? 1 : 0));
@@ -605,16 +618,19 @@ export default function ShopClient({ lang, dictionary, products, photoPositions 
                 flexShrink: 0,
               }}>
                 {([
-                  { val: "scatter", label: isKa ? "2" : "2" },
-                  { val: "grid",    label: isKa ? "4" : "4" },
-                ] as const).map(({ val, label }) => {
+                  // Columns differ by screen: scatter = 1 on phones / 2 on desktop,
+                  // grid = 2 on phones / 4 on desktop. Show the count that's true
+                  // for the current screen so the toggle isn't misleading on mobile.
+                  { val: "scatter", mobile: "1", desktop: "2" },
+                  { val: "grid",    mobile: "2", desktop: "4" },
+                ] as const).map(({ val, mobile, desktop }) => {
                   const active = gridMode === val;
                   return (
                     <button
                       key={val}
                       type="button"
                       onClick={() => setGridMode(val)}
-                      aria-label={`${label} columns`}
+                      aria-label={`${desktop} columns`}
                       style={{
                         fontFamily: FRAUNCES,
                         fontWeight: 700,
@@ -628,7 +644,8 @@ export default function ShopClient({ lang, dictionary, products, photoPositions 
                         transition: "background 0.18s ease, color 0.18s ease",
                       }}
                     >
-                      {label}
+                      <span className="sm:hidden">{mobile}</span>
+                      <span className="hidden sm:inline">{desktop}</span>
                     </button>
                   );
                 })}

@@ -50,12 +50,6 @@ export default function GalleryClient({ lang, items }: { lang: Locale; items: Ga
       <div className="container py-14 md:py-20 max-w-[1100px]" style={{ position: "relative" }}>
         {/* Hero */}
         <div className="mb-10 md:mb-14 text-center">
-          <span
-            className="inline-block text-[11px] font-extrabold uppercase tracking-[0.3em] mb-4"
-            style={{ color: C.green, fontFamily: FRAUNCES }}
-          >
-            {isKa ? "ლუკბუქი" : "Lookbook"}
-          </span>
           <h1
             className="mb-3"
             style={{

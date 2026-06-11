@@ -88,6 +88,12 @@ export async function generateMetadata({ params }: { params: Promise<{ lang: str
     metadataBase: new URL(siteUrl),
     title,
     description,
+    // Tell Google which URL is canonical and that a Georgian/English pair exists
+    // (hreflang) — helps it index the right language for each searcher.
+    alternates: {
+      canonical: `/${locale}`,
+      languages: { ka: "/ka", en: "/en" },
+    },
     openGraph: {
       type: "website",
       siteName: "Tissu",
@@ -134,6 +140,32 @@ export default async function RootLayout({
     instagramUrl: (contactCMS?.instagram_url || "").trim(),
   };
 
+  // Structured data so Google can show the brand nicely (name, logo, socials)
+  // and understand the site. Rendered as JSON-LD in <head>.
+  const siteUrl = process.env.SITE_URL || "https://tissu.ge";
+  const sameAs = [socials.instagramUrl, socials.facebookUrl, socials.tiktokUrl].filter(Boolean);
+  const jsonLd = {
+    "@context": "https://schema.org",
+    "@graph": [
+      {
+        "@type": "Organization",
+        "@id": `${siteUrl}/#organization`,
+        name: "Tissu",
+        url: siteUrl,
+        logo: `${siteUrl}/static/logo.png`,
+        ...(sameAs.length ? { sameAs } : {}),
+      },
+      {
+        "@type": "WebSite",
+        "@id": `${siteUrl}/#website`,
+        url: siteUrl,
+        name: "Tissu",
+        inLanguage: locale === "ka" ? "ka-GE" : "en-US",
+        publisher: { "@id": `${siteUrl}/#organization` },
+      },
+    ],
+  };
+
   return (
     <html
       lang={locale}
@@ -145,6 +177,10 @@ export default async function RootLayout({
             the first image starts downloading hundreds of ms earlier. */}
         <link rel="preconnect" href="https://res.cloudinary.com" crossOrigin="anonymous" />
         <link rel="dns-prefetch" href="https://res.cloudinary.com" />
+        <script
+          type="application/ld+json"
+          dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd).replace(/</g, "\\u003c") }}
+        />
       </head>
       <body className={`min-h-screen flex flex-col antialiased bg-background text-foreground ${locale === "ka" ? "font-noto-sans" : "font-sans"}`}>
         <MobileMotionGate>

@@ -172,7 +172,7 @@ export const mockFAQs: FAQItem[] = [
     },
   },
   {
-    question: { ka: "რამდენ ხანში დაგიკავშირდებით?", en: "How quickly will you contact me?" },
+    question: { ka: "რამდენ ხანში დამიკავშირდებით?", en: "How quickly will you contact me?" },
     answer: {
       ka: "ჩვეულებრივ 24 საათში გიპასუხებთ — შენ მიერ მითითებული არხით (ზარი, WhatsApp, Messenger ან Instagram).",
       en: "Usually within 24 hours via the channel you chose (phone, WhatsApp, Messenger or Instagram).",

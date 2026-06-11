@@ -51,6 +51,10 @@ export interface StorefrontProduct {
   category_name_en?: string;
   tags: string[];
   updated_at: string;
+  /** Set when this product is one size of a model that exists in two sizes
+   *  (small + big). `sibling_id` is the other size's product id; `role` says
+   *  which size THIS product is. Null/absent when the product has no pair. */
+  size_sibling?: { sibling_id: string; role: "small" | "big" } | null;
 }
 
 interface ProductsResponse {
@@ -164,26 +168,59 @@ interface InventoryResponse {
   inventory?: InventoryItem[];
 }
 
+type SiblingInfo = { sibling_id: string; role: "small" | "big" };
+
+/** Build a complete sibling map keyed by product id. `/api/storefront/products`
+ *  carries `size_sibling`, but it hides sold-out items — so for every pair we
+ *  also write the reverse entry, ensuring a sold-out partner still gets linked. */
+function buildSiblingMap(products?: StorefrontProduct[]): Map<string, SiblingInfo> {
+  const map = new Map<string, SiblingInfo>();
+  for (const p of products ?? []) {
+    const ss = (p as { size_sibling?: { sibling_id?: unknown; role?: unknown } }).size_sibling;
+    if (!ss || ss.sibling_id == null) continue;
+    const id = String(p.id);
+    const siblingId = String(ss.sibling_id);
+    const role: "small" | "big" = ss.role === "big" ? "big" : "small";
+    map.set(id, { sibling_id: siblingId, role });
+    if (!map.has(siblingId)) {
+      map.set(siblingId, { sibling_id: id, role: role === "small" ? "big" : "small" });
+    }
+  }
+  return map;
+}
+
 export async function fetchStorefrontProducts(): Promise<StorefrontProduct[]> {
-  // The agent's /api/storefront/products hides sold-out items, so we go
-  // through the admin inventory endpoint (server-side, admin key never leaves
-  // the server) and reshape it. Falls back to the storefront endpoint, then
-  // to the local placeholder list.
-  const inv = await adminFetch<InventoryResponse>("/api/inventory");
+  // The agent's /api/storefront/products hides sold-out items, so the catalogue
+  // comes from the admin inventory endpoint (server-side, admin key stays on the
+  // server). We fetch the storefront endpoint too — only to read `size_sibling`
+  // (size-variant pairing), which inventory doesn't carry — and merge it in.
+  const [inv, sf] = await Promise.all([
+    adminFetch<InventoryResponse>("/api/inventory"),
+    adminFetch<ProductsResponse>("/api/storefront/products"),
+  ]);
+  const siblings = buildSiblingMap(sf?.products);
   const items = inv?.inventory;
   if (Array.isArray(items) && items.length > 0) {
     return items
       .filter((it) => Boolean(it.image_url))
-      .map(mapInventoryToProduct);
+      .map(mapInventoryToProduct)
+      .map((p) => ({ ...p, size_sibling: siblings.get(p.id) ?? null }));
   }
-  const data = await adminFetch<ProductsResponse>("/api/storefront/products");
-  if (data?.products?.length) return data.products;
+  if (sf?.products?.length) {
+    return sf.products.map((p) => ({ ...p, size_sibling: siblings.get(String(p.id)) ?? null }));
+  }
   return fallbackProducts();
 }
 
 export async function fetchStorefrontProduct(id: string): Promise<StorefrontProduct | null> {
   const direct = await adminFetch<StorefrontProduct>(`/api/storefront/products/${encodeURIComponent(id)}`);
-  if (direct) return direct;
+  if (direct) {
+    const ss = (direct as { size_sibling?: { sibling_id?: unknown; role?: unknown } }).size_sibling;
+    const size_sibling = ss && ss.sibling_id != null
+      ? { sibling_id: String(ss.sibling_id), role: ss.role === "big" ? "big" as const : "small" as const }
+      : null;
+    return { ...direct, size_sibling };
+  }
   const all = await fetchStorefrontProducts();
   return all.find((p) => p.id === id) ?? null;
 }

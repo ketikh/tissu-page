@@ -160,6 +160,18 @@ export function Navbar({ lang, dictionary }: NavbarProps) {
           >
             {copy.nav.shop}
           </Link>
+          <Link
+            href={`/${lang}/gallery`}
+            className="px-3.5 py-2 text-[14px] rounded-full transition-colors hover:text-[#d56826]"
+            style={{
+              fontFamily: FRAUNCES,
+              fontWeight: 600,
+              letterSpacing: "0.01em",
+              color: pathname.startsWith(`/${lang}/gallery`) ? C.burnt : C.ink,
+            }}
+          >
+            {lang === "ka" ? "გალერეა" : "Gallery"}
+          </Link>
         </div>
 
         {/* CENTER — TISSU logo */}
@@ -301,6 +313,14 @@ export function Navbar({ lang, dictionary }: NavbarProps) {
                   style={{ fontFamily: FRAUNCES, fontStyle: "italic", fontWeight: 700, fontSize: 22, color: C.ink, borderBottom: `1px solid ${C.border}` }}
                 >
                   {copy.nav.shop}
+                </Link>
+                <Link
+                  href={`/${lang}/gallery`}
+                  onClick={() => setIsMobileOpen(false)}
+                  className="py-3 hover:text-[#d56826] transition-colors"
+                  style={{ fontFamily: FRAUNCES, fontStyle: "italic", fontWeight: 700, fontSize: 22, color: C.ink, borderBottom: `1px solid ${C.border}` }}
+                >
+                  {lang === "ka" ? "გალერეა" : "Gallery"}
                 </Link>
               </nav>
 

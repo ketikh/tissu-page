@@ -566,7 +566,7 @@ export default function RetroProducts({
               fontWeight: 800,
             }}
           >
-            {isKa ? "მთელი კოლექცია" : "View the full drop"}
+            {isKa ? "ჩანთების ნახვა" : "Shop all bags"}
             <span aria-hidden="true">→</span>
           </Link>
         </div>
@@ -634,9 +634,6 @@ function MirrorCard({
           transform: `rotate(${frame.rotate}deg)`,
           transition: "transform 0.6s cubic-bezier(0.215, 0.61, 0.355, 1)",
         }}
-        onMouseEnter={() => setHover(true)}
-        onMouseLeave={() => setHover(false)}
-        onTouchStart={() => setHover((v) => !v)}
       >
         {/* The whole frame is one SVG: the colourful curly matte sits underneath
             and the product photo is rendered as <image> on top, clipped to the
@@ -706,11 +703,11 @@ function MirrorCard({
             onMouseEnter={() => setHover(true)}
             onMouseLeave={() => setHover(false)}
             onClick={(e) => {
-              // The button sits inside the product <Link>. Clicking it should
-              // flip the photo, not navigate.
+              // The button sits inside the product <Link>; just stop it from
+              // navigating. Flipping is driven purely by hover so the click no
+              // longer fights the hover state (which used to make it stick).
               e.preventDefault();
               e.stopPropagation();
-              setHover((v) => !v);
             }}
             className="absolute -bottom-3 right-2 inline-flex items-center gap-1.5 px-3 py-1.5 text-[10px] font-extrabold uppercase tracking-[0.2em] rounded-full z-10"
             style={{
@@ -736,8 +733,7 @@ function MirrorCard({
           className="text-[10px] uppercase tracking-[0.3em] mb-1"
           style={{ color: C.mustard, fontFamily: FRAUNCES, fontWeight: 700 }}
         >
-          {[product.size, product.color].filter(Boolean).join(" · ") ||
-            (isKa ? "ხელით ნაკერი" : "Handmade")}
+          {isKa ? "ხელით ნაკერი" : "Handmade"}
         </div>
         <Link
           href={`/${lang}/product/${product.id}`}
