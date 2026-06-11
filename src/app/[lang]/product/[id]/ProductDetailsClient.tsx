@@ -623,8 +623,53 @@ export function ProductDetailsClient({ product, related, lang }: ProductDetailsC
                 </motion.p>
               )}
 
-              {/* Size selector — bags only; necklaces are one-size. */}
-              {!isNecklace && (
+              {/* Real size variants: this model exists as two separate products
+                  (small + big). The toggle navigates to the sibling, which has
+                  its own price + stock. */}
+              {product.size_sibling && (
+                <div style={{ marginBottom: 22 }}>
+                  <div style={{
+                    fontFamily: FRAUNCES, fontStyle: "italic", fontSize: 11, color: C.champagne,
+                    letterSpacing: "0.16em", textTransform: "uppercase", marginBottom: 10,
+                  }}>
+                    {isKa ? "ზომა" : "Size"}
+                  </div>
+                  <div style={{ display: "flex", gap: 10, flexWrap: "wrap" }}>
+                    {([
+                      { role: "small" as const, ka: "პატარა", en: "Small", dim: "33×25" },
+                      { role: "big" as const,   ka: "დიდი",   en: "Large", dim: "37×27" },
+                    ]).map((opt) => {
+                      const active = product.size_sibling!.role === opt.role;
+                      const targetId = active ? product.id : product.size_sibling!.sibling_id;
+                      return (
+                        <Link
+                          key={opt.role}
+                          href={`/${lang}/product/${targetId}`}
+                          style={{
+                            flex: "1 1 0", minWidth: 150, padding: "12px 16px",
+                            border: active ? `1.5px solid ${catColor.bg}` : `1.5px solid rgba(42,29,20,0.14)`,
+                            borderRadius: 14,
+                            background: active ? catColor.bg : "transparent",
+                            color: active ? catColor.text : C.ink,
+                            textDecoration: "none",
+                            transition: "background 0.18s, border-color 0.18s, color 0.18s",
+                          }}
+                        >
+                          <div style={{ fontFamily: FRAUNCES, fontWeight: 700, fontSize: 14 }}>
+                            {isKa ? opt.ka : opt.en}
+                          </div>
+                          <div style={{ fontSize: 11, opacity: active ? 0.7 : 0.55, marginTop: 2, fontFamily: "system-ui, sans-serif" }}>
+                            {opt.dim} {isKa ? "სმ" : "cm"}
+                          </div>
+                        </Link>
+                      );
+                    })}
+                  </div>
+                </div>
+              )}
+
+              {/* Built-in size selector — only for bags WITHOUT a real size pair. */}
+              {!isNecklace && !product.size_sibling && (
               <div style={{ marginBottom: 22 }}>
                 <div style={{
                   fontFamily: FRAUNCES, fontStyle: "italic", fontSize: 11, color: C.champagne,

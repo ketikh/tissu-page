@@ -362,6 +362,19 @@ export default function ShopClient({ lang, dictionary, products, photoPositions 
     let r = products.filter((p) => Boolean(p.image_front));
     if (catParam !== "all") r = r.filter((p) => p.category === catParam);
     if (modelParam !== "all") r = r.filter((p) => (p.model || "").trim() === modelParam);
+    // Size variants (small + big of one model) collapse to a single card —
+    // prefer the small version; the other size opens via the toggle on the
+    // product page. A big shows only if its small partner isn't in the list.
+    const seenSiblings = new Set<string>();
+    r = r.filter((p) => {
+      if (!p.size_sibling) return true;
+      if (seenSiblings.has(p.id)) return false;
+      if (p.size_sibling.role === "small") {
+        seenSiblings.add(p.size_sibling.sibling_id);
+        return true;
+      }
+      return !r.some((o) => o.id === p.size_sibling!.sibling_id);
+    });
     if (sortParam === "price-low") r.sort((a, b) => a.price - b.price);
     else if (sortParam === "price-high") r.sort((a, b) => b.price - a.price);
     else if (sortParam === "new") r.sort((a, b) => (b.tags.includes("new") ? 1 : 0) - (a.tags.includes("new") ? 1 : 0));
