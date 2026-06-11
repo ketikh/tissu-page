@@ -55,6 +55,11 @@ export default async function ProductDetailsPage({
     .filter((p) => p.id !== product.id && p.category === product.category)
     .slice(0, 4);
 
+  // The other size of this model (if any), so the page can switch size in place.
+  const sibling = product.size_sibling
+    ? allProducts.find((p) => p.id === product.size_sibling!.sibling_id) ?? null
+    : null;
+
   // Product structured data → lets Google show price + availability in results.
   const productJsonLd = {
     "@context": "https://schema.org",
@@ -83,6 +88,7 @@ export default async function ProductDetailsPage({
       />
       <ProductDetailsClient
         product={product}
+        sibling={sibling}
         related={related}
         lang={locale}
         dictionary={dictionary}

@@ -251,14 +251,27 @@ function MiniClover({ color, size, style }: { color: string; size: number; style
 
 interface ProductDetailsClientProps {
   product: StorefrontProduct;
+  /** The other size of this model, when it exists as a separate product. */
+  sibling?: StorefrontProduct | null;
   related: StorefrontProduct[];
   lang: Locale;
   dictionary?: unknown;
 }
 
-export function ProductDetailsClient({ product, related, lang }: ProductDetailsClientProps) {
+export function ProductDetailsClient({ product: urlProduct, sibling = null, related, lang }: ProductDetailsClientProps) {
   useStoreHydration();
   const copy = getLandingCopy(lang);
+
+  // Size variants live as two products, but we switch between them IN PLACE
+  // (no navigation, the URL never changes). `product` below is always the
+  // currently-selected size, so the rest of the page reflects its price/stock.
+  const pairRole = urlProduct.size_sibling?.role;
+  const hasPair = Boolean(pairRole && sibling);
+  const [sizeRole, setSizeRole] = useState<"small" | "big">(pairRole ?? "small");
+  const product = useMemo(
+    () => (hasPair ? (sizeRole === pairRole ? urlProduct : sibling!) : urlProduct),
+    [hasPair, sizeRole, pairRole, urlProduct, sibling],
+  );
 
   const [activeSide, setActiveSide] = useState<"front" | "back">("front");
   const [quantity,   setQuantity]   = useState(1);
@@ -281,7 +294,7 @@ export function ProductDetailsClient({ product, related, lang }: ProductDetailsC
     { id: "small" as const, dim: "33×25", price: 69, enabled: !isLargeOnly },
     { id: "large" as const, dim: "37×27", price: 74, enabled: !isSmallOnly },
   ];
-  const activeSizePrice = isNecklace
+  const activeSizePrice = isNecklace || hasPair
     ? product.price
     : (SIZES.find((s) => s.id === selectedSize)?.price ?? product.price);
 
@@ -312,16 +325,24 @@ export function ProductDetailsClient({ product, related, lang }: ProductDetailsC
     // Necklaces are one-size with their own admin-set price. Bags also use
     // their admin-set price now — the hardcoded 69/74 was only ever a
     // placeholder when the admin couldn't set prices yet.
-    const sizeMeta = SIZES.find((s) => s.id === selectedSize)!;
-    const variantId   = isNecklace ? product.id                : `${product.id}-${sizeMeta.id}`;
-    const variantPrice = isNecklace ? product.price             : product.price;
-    const variantSize  = isNecklace ? "one"                     : sizeMeta.id;
-    const variantLabelKa = isNecklace
-      ? (product.name || product.code)
-      : (sizeMeta.id === "small" ? `პატარა ${sizeMeta.dim}სმ` : `დიდი ${sizeMeta.dim}სმ`);
-    const variantLabelEn = isNecklace
-      ? (product.name || product.code)
-      : (sizeMeta.id === "small" ? `Small ${sizeMeta.dim}cm`   : `Large ${sizeMeta.dim}cm`);
+    let variantId: string, variantPrice: number, variantSize: string;
+    let variantLabelKa: string, variantLabelEn: string;
+    if (isNecklace) {
+      variantId = product.id; variantPrice = product.price; variantSize = "one";
+      variantLabelKa = product.name || product.code;
+      variantLabelEn = product.name || product.code;
+    } else if (hasPair) {
+      // Each size is its own product — add the currently-selected one directly.
+      const dim = sizeRole === "small" ? "33×25" : "37×27";
+      variantId = product.id; variantPrice = product.price; variantSize = sizeRole;
+      variantLabelKa = sizeRole === "small" ? `პატარა ${dim}სმ` : `დიდი ${dim}სმ`;
+      variantLabelEn = sizeRole === "small" ? `Small ${dim}cm`  : `Large ${dim}cm`;
+    } else {
+      const sizeMeta = SIZES.find((s) => s.id === selectedSize)!;
+      variantId = `${product.id}-${sizeMeta.id}`; variantPrice = product.price; variantSize = sizeMeta.id;
+      variantLabelKa = sizeMeta.id === "small" ? `პატარა ${sizeMeta.dim}სმ` : `დიდი ${sizeMeta.dim}სმ`;
+      variantLabelEn = sizeMeta.id === "small" ? `Small ${sizeMeta.dim}cm`   : `Large ${sizeMeta.dim}cm`;
+    }
     const variant = {
       id: variantId,
       size: variantSize,
@@ -626,7 +647,7 @@ export function ProductDetailsClient({ product, related, lang }: ProductDetailsC
               {/* Real size variants: this model exists as two separate products
                   (small + big). The toggle navigates to the sibling, which has
                   its own price + stock. */}
-              {product.size_sibling && (
+              {hasPair && (
                 <div style={{ marginBottom: 22 }}>
                   <div style={{
                     fontFamily: FRAUNCES, fontStyle: "italic", fontSize: 11, color: C.champagne,
@@ -639,19 +660,20 @@ export function ProductDetailsClient({ product, related, lang }: ProductDetailsC
                       { role: "small" as const, ka: "პატარა", en: "Small", dim: "33×25" },
                       { role: "big" as const,   ka: "დიდი",   en: "Large", dim: "37×27" },
                     ]).map((opt) => {
-                      const active = product.size_sibling!.role === opt.role;
-                      const targetId = active ? product.id : product.size_sibling!.sibling_id;
+                      const active = sizeRole === opt.role;
                       return (
-                        <Link
+                        <motion.button
                           key={opt.role}
-                          href={`/${lang}/product/${targetId}`}
+                          type="button"
+                          onClick={() => setSizeRole(opt.role)}
+                          whileTap={{ scale: 0.97 }}
                           style={{
                             flex: "1 1 0", minWidth: 150, padding: "12px 16px",
                             border: active ? `1.5px solid ${catColor.bg}` : `1.5px solid rgba(42,29,20,0.14)`,
                             borderRadius: 14,
                             background: active ? catColor.bg : "transparent",
                             color: active ? catColor.text : C.ink,
-                            textDecoration: "none",
+                            cursor: "pointer", textAlign: "left",
                             transition: "background 0.18s, border-color 0.18s, color 0.18s",
                           }}
                         >
@@ -661,7 +683,7 @@ export function ProductDetailsClient({ product, related, lang }: ProductDetailsC
                           <div style={{ fontSize: 11, opacity: active ? 0.7 : 0.55, marginTop: 2, fontFamily: "system-ui, sans-serif" }}>
                             {opt.dim} {isKa ? "სმ" : "cm"}
                           </div>
-                        </Link>
+                        </motion.button>
                       );
                     })}
                   </div>
@@ -669,7 +691,7 @@ export function ProductDetailsClient({ product, related, lang }: ProductDetailsC
               )}
 
               {/* Built-in size selector — only for bags WITHOUT a real size pair. */}
-              {!isNecklace && !product.size_sibling && (
+              {!isNecklace && !hasPair && (
               <div style={{ marginBottom: 22 }}>
                 <div style={{
                   fontFamily: FRAUNCES, fontStyle: "italic", fontSize: 11, color: C.champagne,
