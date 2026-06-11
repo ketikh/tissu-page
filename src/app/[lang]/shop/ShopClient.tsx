@@ -378,6 +378,27 @@ export default function ShopClient({ lang, dictionary, products, photoPositions 
     if (sortParam === "price-low") r.sort((a, b) => a.price - b.price);
     else if (sortParam === "price-high") r.sort((a, b) => b.price - a.price);
     else if (sortParam === "new") r.sort((a, b) => (b.tags.includes("new") ? 1 : 0) - (a.tags.includes("new") ? 1 : 0));
+    else {
+      // Featured (default): the catalogue arrives grouped by model (all
+      // strapped bags together, all frilled together), which looks too lined
+      // up. Interleave the models round-robin so the kinds alternate — mixed,
+      // not clustered. Deterministic (stable), so server + client match.
+      const groups = new Map<string, typeof r>();
+      for (const p of r) {
+        const key = (p.model || p.category || "").trim().toLowerCase() || "_";
+        const list = groups.get(key);
+        if (list) list.push(p); else groups.set(key, [p]);
+      }
+      const lists = [...groups.values()];
+      const mixed = [] as typeof r;
+      for (let i = 0, added = true; added; i++) {
+        added = false;
+        for (const list of lists) {
+          if (i < list.length) { mixed.push(list[i]); added = true; }
+        }
+      }
+      r = mixed;
+    }
     return r;
   }, [products, catParam, modelParam, sortParam]);
 
