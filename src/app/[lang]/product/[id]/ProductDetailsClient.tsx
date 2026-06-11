@@ -301,8 +301,11 @@ export function ProductDetailsClient({ product: urlProduct, sibling = null, rela
   const addItem  = useCartStore((s) => s.addItem);
   const openCart = useUIStore((s) => s.openCart);
 
-  const hasBack   = Boolean(product.image_back);
-  const activeImg = activeSide === "back" && product.image_back ? product.image_back : product.image_front;
+  // Photos stay fixed to the page's primary product — switching size must NOT
+  // swap the images (both sizes share the same photos).
+  const photo     = urlProduct;
+  const hasBack   = Boolean(photo.image_back);
+  const activeImg = activeSide === "back" && photo.image_back ? photo.image_back : photo.image_front;
   const inStock   = product.in_stock && product.stock > 0;
   const isOnSale  = Boolean(product.original_price && product.original_price > product.price);
   const name      = product.name || product.code;
@@ -360,7 +363,7 @@ export function ProductDetailsClient({ product: urlProduct, sibling = null, rela
           description: { en: "",   ka: ""   },
           materials: [], careInstructions: [], reviews: [],
           price:       variantPrice,
-          images:      [product.image_front, product.image_back].filter(Boolean) as string[],
+          images:      [photo.image_front, photo.image_back].filter(Boolean) as string[],
           variants: [variant],
           category: product.category as any, featured: true, badges: [],
           tags: product.tags ?? [],
@@ -518,7 +521,7 @@ export function ProductDetailsClient({ product: urlProduct, sibling = null, rela
               {hasBack && (
                 <div style={{ display: "flex", gap: 10, marginTop: 14, justifyContent: "center" }}>
                   {(["front", "back"] as const).map((side) => {
-                    const src    = side === "front" ? product.image_front : product.image_back!;
+                    const src    = side === "front" ? photo.image_front : photo.image_back!;
                     const active = activeSide === side;
                     return (
                       <motion.button
@@ -871,7 +874,7 @@ export function ProductDetailsClient({ product: urlProduct, sibling = null, rela
       </div>
 
       {/* ══ LOOKBOOK strip — admin-uploaded showcase photos for THIS product ══ */}
-      {product.gallery_images && product.gallery_images.length > 0 && (
+      {photo.gallery_images && photo.gallery_images.length > 0 && (
         <section style={{ background: C.cream, padding: "56px 0 64px" }}>
           <div className="container">
             <div className="text-center" style={{ marginBottom: 28 }}>
@@ -899,7 +902,7 @@ export function ProductDetailsClient({ product: urlProduct, sibling = null, rela
                 gridTemplateColumns: "repeat(auto-fill, minmax(220px, 1fr))",
               }}
             >
-              {product.gallery_images.filter(u => /^https?:\/\//i.test(u)).map((url, i) => (
+              {photo.gallery_images.filter(u => /^https?:\/\//i.test(u)).map((url, i) => (
                 <div
                   key={i}
                   style={{
