@@ -378,6 +378,27 @@ export default function ShopClient({ lang, dictionary, products, photoPositions 
     if (sortParam === "price-low") r.sort((a, b) => a.price - b.price);
     else if (sortParam === "price-high") r.sort((a, b) => b.price - a.price);
     else if (sortParam === "new") r.sort((a, b) => (b.tags.includes("new") ? 1 : 0) - (a.tags.includes("new") ? 1 : 0));
+    else {
+      // Featured (default): the catalogue arrives grouped by model (all
+      // strapped bags together, all frilled together), which looks too lined
+      // up. Interleave the models round-robin so the kinds alternate — mixed,
+      // not clustered. Deterministic (stable), so server + client match.
+      const groups = new Map<string, typeof r>();
+      for (const p of r) {
+        const key = (p.model || p.category || "").trim().toLowerCase() || "_";
+        const list = groups.get(key);
+        if (list) list.push(p); else groups.set(key, [p]);
+      }
+      const lists = [...groups.values()];
+      const mixed = [] as typeof r;
+      for (let i = 0, added = true; added; i++) {
+        added = false;
+        for (const list of lists) {
+          if (i < list.length) { mixed.push(list[i]); added = true; }
+        }
+      }
+      r = mixed;
+    }
     return r;
   }, [products, catParam, modelParam, sortParam]);
 
@@ -873,21 +894,6 @@ function ShopCard({ product, index, lang, isKa, copy, position }: {
             >
               {isKa ? "გაყიდულია" : "Sold out"}
             </span>
-            <span
-              aria-hidden="true"
-              className="absolute z-10 px-4 py-1.5 text-[11px] font-extrabold uppercase tracking-[0.3em]"
-              style={{
-                top: "50%", left: "50%",
-                transform: "translate(-50%, -50%) rotate(-12deg)",
-                background: "rgba(42,29,20,0.85)", color: C.cream,
-                fontFamily: FRAUNCES,
-                borderRadius: 6,
-                boxShadow: "0 6px 14px rgba(0,0,0,0.30)",
-                whiteSpace: "nowrap",
-              }}
-            >
-              {isKa ? "გაყიდულია" : "Sold out"}
-            </span>
           </>
         )}
 
@@ -897,9 +903,9 @@ function ShopCard({ product, index, lang, isKa, copy, position }: {
           aria-hidden="true"
           className="absolute inset-0 w-full h-full"
           style={{
-            filter: inStock
-              ? "drop-shadow(0 10px 22px rgba(0,0,0,0.14))"
-              : "drop-shadow(0 10px 22px rgba(0,0,0,0.10)) saturate(0.4) opacity(0.85)",
+            // Sold-out items keep their full colour so customers can still see
+            // the design — only the "Sold out" badge marks them.
+            filter: "drop-shadow(0 10px 22px rgba(0,0,0,0.14))",
             overflow: "visible",
           }}
         >

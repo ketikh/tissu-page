@@ -104,6 +104,7 @@ export function Navbar({ lang, dictionary }: NavbarProps) {
   ];
 
   return (
+    <>
     <header
       className="sticky top-0 z-40"
       style={{
@@ -276,8 +277,13 @@ export function Navbar({ lang, dictionary }: NavbarProps) {
           />
         </svg>
       </div>
+      </header>
 
-      {/* ── Mobile slide panel ── */}
+      {/* ── Mobile slide panel — rendered OUTSIDE <header> on purpose.
+          The header carries a CSS `filter` (drop-shadow), which makes it the
+          containing block for any position:fixed descendant — that trapped this
+          panel inside the short header box, so the menu looked like it never
+          opened. Keeping it as a sibling lets `fixed` anchor to the viewport. ── */}
       <AnimatePresence>
         {isMobileOpen && (
           <>
@@ -294,7 +300,14 @@ export function Navbar({ lang, dictionary }: NavbarProps) {
               exit={{ x: "100%" }}
               transition={{ type: "spring", damping: 28, stiffness: 220 }}
               className="fixed top-0 right-0 bottom-0 w-[85%] max-w-[360px] z-[60] flex flex-col overflow-y-auto"
-              style={{ background: C.cream, borderLeft: `1.5px solid rgba(201,168,108,0.35)`, boxShadow: `-8px 0 32px rgba(42,29,20,0.12)` }}
+              style={{
+                background: [
+                  "radial-gradient(circle, rgba(213,104,38,0.06) 1px, transparent 1.6px) 0 0/20px 20px",
+                  "linear-gradient(to bottom, #fff8e9 0%, #fdeed1 100%)",
+                ].join(", "),
+                borderLeft: `1.5px solid rgba(201,168,108,0.35)`,
+                boxShadow: `-8px 0 32px rgba(42,29,20,0.12)`,
+              }}
             >
               {/* Panel header */}
               <div className="flex justify-between items-center px-6 py-5" style={{ borderBottom: `1.5px solid rgba(201,168,108,0.3)` }}>
@@ -304,24 +317,42 @@ export function Navbar({ lang, dictionary }: NavbarProps) {
                 </button>
               </div>
 
-              {/* Panel nav — single Shop link */}
-              <nav className="flex flex-col px-6 py-5 gap-1 flex-1">
-                <Link
-                  href={`/${lang}/shop`}
-                  onClick={() => setIsMobileOpen(false)}
-                  className="py-3 hover:text-[#d56826] transition-colors"
-                  style={{ fontFamily: FRAUNCES, fontStyle: "italic", fontWeight: 700, fontSize: 22, color: C.ink, borderBottom: `1px solid ${C.border}` }}
-                >
-                  {copy.nav.shop}
-                </Link>
-                <Link
-                  href={`/${lang}/gallery`}
-                  onClick={() => setIsMobileOpen(false)}
-                  className="py-3 hover:text-[#d56826] transition-colors"
-                  style={{ fontFamily: FRAUNCES, fontStyle: "italic", fontWeight: 700, fontSize: 22, color: C.ink, borderBottom: `1px solid ${C.border}` }}
-                >
-                  {lang === "ka" ? "გალერეა" : "Gallery"}
-                </Link>
+              {/* Panel nav — main links + shop-by-category */}
+              <nav className="flex flex-col px-6 py-5 flex-1">
+                {[
+                  { href: `/${lang}/shop`,    label: copy.nav.shop },
+                  { href: `/${lang}/gallery`, label: lang === "ka" ? "გალერეა" : "Gallery" },
+                ].map((item) => (
+                  <Link
+                    key={item.href}
+                    href={item.href}
+                    onClick={() => setIsMobileOpen(false)}
+                    className="flex items-center justify-between py-3 hover:text-[#d56826] transition-colors"
+                    style={{ fontFamily: FRAUNCES, fontStyle: "italic", fontWeight: 700, fontSize: 22, color: C.ink, borderBottom: `1px solid ${C.border}` }}
+                  >
+                    <span>{item.label}</span>
+                    <span style={{ color: C.burnt, opacity: 0.5, fontSize: 18 }}>→</span>
+                  </Link>
+                ))}
+
+                {/* Shop by category */}
+                <div className="mt-7 mb-3" style={{ fontFamily: FRAUNCES, fontSize: 11, fontWeight: 700, letterSpacing: "0.18em", textTransform: "uppercase", color: "rgba(42,29,20,0.45)" }}>
+                  {lang === "ka" ? "კატეგორიები" : "Categories"}
+                </div>
+                <div className="flex flex-col">
+                  {categories.filter((c) => c.key !== "all").map((c) => (
+                    <Link
+                      key={c.key}
+                      href={c.href}
+                      onClick={() => setIsMobileOpen(false)}
+                      className="flex items-center gap-3 py-2.5 hover:text-[#d56826] transition-colors"
+                      style={{ fontFamily: FRAUNCES, fontWeight: 600, fontSize: 16, color: C.ink }}
+                    >
+                      <span style={{ width: 9, height: 9, borderRadius: 999, background: CAT_DOT[c.key] || C.mustard, flexShrink: 0 }} />
+                      {c.label}
+                    </Link>
+                  ))}
+                </div>
               </nav>
 
               {/* Panel footer */}
@@ -336,6 +367,6 @@ export function Navbar({ lang, dictionary }: NavbarProps) {
           </>
         )}
       </AnimatePresence>
-    </header>
+    </>
   );
 }

@@ -117,6 +117,13 @@ export default function RetroHero({
           >
             {copy.nav.shop}
           </Link>
+          <Link
+            href={`/${lang}/gallery`}
+            className="hidden md:inline-flex px-3 py-2 text-[12px] font-extrabold uppercase tracking-[0.14em] rounded-full transition-colors hover:bg-[rgba(254,240,214,0.15)]"
+            style={{ fontFamily: FRAUNCES, color: C.cream, textShadow: "0 1px 6px rgba(0,0,0,0.4)" }}
+          >
+            {lang === "ka" ? "გალერეა" : "Gallery"}
+          </Link>
         </div>
 
         {/* CENTER — TISSU wordmark */}

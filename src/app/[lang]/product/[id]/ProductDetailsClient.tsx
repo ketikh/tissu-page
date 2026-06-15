@@ -276,27 +276,14 @@ export function ProductDetailsClient({ product: urlProduct, sibling = null, rela
   const [activeSide, setActiveSide] = useState<"front" | "back">("front");
   const [quantity,   setQuantity]   = useState(1);
   const [wishlisted, setWishlisted] = useState(false);
-  /* Each inventory row in the agent represents ONE specific product in ONE
-   * specific size. We detect "large" from the product name (admin codes the
-   * size that way: "Tissu Large #4", "ჩანთა დიდი", etc.). If the name doesn't
-   * say large, treat it as a small-only item and disable the Large button. */
   const isNecklace = product.category === "necklace";
-  const productName = (product.name || "").toLowerCase();
-  const isLargeOnly = /\blarge\b|დიდი/.test(productName);
-  const isSmallOnly = !isLargeOnly;
-  const [selectedSize, setSelectedSize] = useState<"small" | "large">(
-    isLargeOnly ? "large" : "small",
-  );
-
-  /* Two fixed sizes Tissu offers for bags. Necklaces are one-size — we hide the
-   * selector for them and use the product's actual price. */
-  const SIZES = [
-    { id: "small" as const, dim: "33×25", price: 69, enabled: !isLargeOnly },
-    { id: "large" as const, dim: "37×27", price: 74, enabled: !isSmallOnly },
-  ];
-  const activeSizePrice = isNecklace || hasPair
-    ? product.price
-    : (SIZES.find((s) => s.id === selectedSize)?.price ?? product.price);
+  // Real two-size products are handled by the paired-products selector
+  // (size_sibling) above. Every other product is a SINGLE size — its size text
+  // comes from the admin `size` field and we never invent a small/large choice
+  // (that made no sense for kids' bags, laptop sleeves, aprons, etc.). The price
+  // is always the admin-set product price.
+  const oneSizeText = (product.size || "").trim();
+  const activeSizePrice = product.price;
 
   const addItem  = useCartStore((s) => s.addItem);
   const openCart = useUIStore((s) => s.openCart);
@@ -341,10 +328,10 @@ export function ProductDetailsClient({ product: urlProduct, sibling = null, rela
       variantLabelKa = sizeRole === "small" ? `პატარა ${dim}სმ` : `დიდი ${dim}სმ`;
       variantLabelEn = sizeRole === "small" ? `Small ${dim}cm`  : `Large ${dim}cm`;
     } else {
-      const sizeMeta = SIZES.find((s) => s.id === selectedSize)!;
-      variantId = `${product.id}-${sizeMeta.id}`; variantPrice = product.price; variantSize = sizeMeta.id;
-      variantLabelKa = sizeMeta.id === "small" ? `პატარა ${sizeMeta.dim}სმ` : `დიდი ${sizeMeta.dim}სმ`;
-      variantLabelEn = sizeMeta.id === "small" ? `Small ${sizeMeta.dim}cm`   : `Large ${sizeMeta.dim}cm`;
+      // One-size product — record its real admin-set size (no invented small/large).
+      variantId = product.id; variantPrice = product.price; variantSize = oneSizeText || "one";
+      variantLabelKa = oneSizeText || product.name || product.code;
+      variantLabelEn = oneSizeText || product.name || product.code;
     }
     const variant = {
       id: variantId,
@@ -693,65 +680,20 @@ export function ProductDetailsClient({ product: urlProduct, sibling = null, rela
                 </div>
               )}
 
-              {/* Built-in size selector — only for bags WITHOUT a real size pair. */}
-              {!isNecklace && !hasPair && (
-              <div style={{ marginBottom: 22 }}>
-                <div style={{
-                  fontFamily: FRAUNCES, fontStyle: "italic", fontSize: 11, color: C.champagne,
-                  letterSpacing: "0.16em", textTransform: "uppercase", marginBottom: 10,
-                }}>
-                  {isKa ? "ზომა" : "Size"}
+              {/* One-size products: show the real admin-set size as plain info —
+                  no invented small/large selector. */}
+              {!isNecklace && !hasPair && oneSizeText && (
+                <div style={{ marginBottom: 22 }}>
+                  <div style={{
+                    fontFamily: FRAUNCES, fontStyle: "italic", fontSize: 11, color: C.champagne,
+                    letterSpacing: "0.16em", textTransform: "uppercase", marginBottom: 8,
+                  }}>
+                    {isKa ? "ზომა" : "Size"}
+                  </div>
+                  <div style={{ fontFamily: FRAUNCES, fontWeight: 700, fontSize: 15, color: C.ink }}>
+                    {oneSizeText}
+                  </div>
                 </div>
-                <div style={{ display: "flex", gap: 10, flexWrap: "wrap" }}>
-                  {SIZES.map((s) => {
-                    const active = selectedSize === s.id;
-                    const disabled = !s.enabled;
-                    const labelKa = s.id === "small" ? "პატარა" : "დიდი";
-                    const labelEn = s.id === "small" ? "Small" : "Large";
-                    return (
-                      <motion.button
-                        key={s.id}
-                        type="button"
-                        onClick={() => !disabled && setSelectedSize(s.id)}
-                        disabled={disabled}
-                        whileTap={{ scale: disabled ? 1 : 0.97 }}
-                        style={{
-                          flex: "1 1 0", minWidth: 150,
-                          padding: "12px 16px",
-                          border: active
-                            ? `1.5px solid ${catColor.bg}`
-                            : `1.5px solid rgba(42,29,20,0.14)`,
-                          borderRadius: 14,
-                          background: active ? catColor.bg : "transparent",
-                          color: active ? catColor.text : disabled ? "rgba(42,29,20,0.32)" : C.ink,
-                          cursor: disabled ? "not-allowed" : "pointer",
-                          textAlign: "left",
-                          textDecoration: disabled ? "line-through" : "none",
-                          opacity: disabled ? 0.55 : 1,
-                          transition: "background 0.18s, border-color 0.18s, color 0.18s",
-                        }}
-                      >
-                        <div style={{
-                          fontFamily: FRAUNCES, fontWeight: 700, fontSize: 14,
-                          display: "flex", justifyContent: "space-between", alignItems: "baseline", gap: 8,
-                        }}>
-                          <span>{isKa ? labelKa : labelEn}</span>
-                          <span style={{ fontSize: 13, opacity: active ? 0.95 : 0.7 }}>
-                            {s.price}{curr.trim()}
-                          </span>
-                        </div>
-                        <div style={{
-                          fontSize: 11, opacity: active ? 0.7 : 0.55,
-                          marginTop: 2, fontFamily: "system-ui, sans-serif",
-                        }}>
-                          {s.dim} {isKa ? "სმ" : "cm"}
-                          {disabled && (isKa ? " · არ არის" : " · sold out")}
-                        </div>
-                      </motion.button>
-                    );
-                  })}
-                </div>
-              </div>
               )}
 
               {/* Quantity + Add-to-bag — clean modern row */}
@@ -954,23 +896,43 @@ export function ProductDetailsClient({ product: urlProduct, sibling = null, rela
             </div>
           </div>
 
-          <div
-            className="tissu-related-track"
-            style={{
-              display: "flex",
-              gap: 32,
-              width: "max-content",
-              padding: "0 24px",
-              animation: `tissu-related-marquee ${Math.max(50, related.length * 10)}s linear infinite`,
-              willChange: "transform",
-            }}
-          >
-            {[...related, ...related].map((rp, idx) => (
-              <div key={`${rp.id}-${idx}`} style={{ flex: "0 0 auto", width: 280 }}>
-                <DripCard product={rp} lang={lang} isKa={isKa} index={idx} />
-              </div>
-            ))}
-          </div>
+          {related.length >= 6 ? (
+            <div
+              className="tissu-related-track"
+              style={{
+                display: "flex",
+                gap: 32,
+                width: "max-content",
+                padding: "0 24px",
+                animation: `tissu-related-marquee ${Math.max(50, related.length * 10)}s linear infinite`,
+                willChange: "transform",
+              }}
+            >
+              {[...related, ...related].map((rp, idx) => (
+                <div key={`${rp.id}-${idx}`} style={{ flex: "0 0 auto", width: 280 }}>
+                  <DripCard product={rp} lang={lang} isKa={isKa} index={idx} />
+                </div>
+              ))}
+            </div>
+          ) : (
+            // Too few to loop the marquee — center them instead of leaving them
+            // cramped against the left edge.
+            <div
+              style={{
+                display: "flex",
+                gap: 32,
+                justifyContent: "center",
+                flexWrap: "wrap",
+                padding: "0 24px",
+              }}
+            >
+              {related.map((rp, idx) => (
+                <div key={`${rp.id}-${idx}`} style={{ flex: "0 0 auto", width: 280 }}>
+                  <DripCard product={rp} lang={lang} isKa={isKa} index={idx} />
+                </div>
+              ))}
+            </div>
+          )}
 
           <div style={{ position: "absolute", bottom: 0, left: 0, right: 0, height: 3, background: "repeating-linear-gradient(90deg, #f3b62b 0 18px, #fef0d6 18px 36px)" }} aria-hidden="true" />
         </section>
