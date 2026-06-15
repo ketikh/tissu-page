@@ -104,6 +104,7 @@ export function Navbar({ lang, dictionary }: NavbarProps) {
   ];
 
   return (
+    <>
     <header
       className="sticky top-0 z-40"
       style={{
@@ -276,8 +277,13 @@ export function Navbar({ lang, dictionary }: NavbarProps) {
           />
         </svg>
       </div>
+      </header>
 
-      {/* ── Mobile slide panel ── */}
+      {/* ── Mobile slide panel — rendered OUTSIDE <header> on purpose.
+          The header carries a CSS `filter` (drop-shadow), which makes it the
+          containing block for any position:fixed descendant — that trapped this
+          panel inside the short header box, so the menu looked like it never
+          opened. Keeping it as a sibling lets `fixed` anchor to the viewport. ── */}
       <AnimatePresence>
         {isMobileOpen && (
           <>
@@ -336,6 +342,6 @@ export function Navbar({ lang, dictionary }: NavbarProps) {
           </>
         )}
       </AnimatePresence>
-    </header>
+    </>
   );
 }

@@ -77,7 +77,9 @@ export default function HomeClient({ lang, products: rawProducts, heroCMS, about
 
       <RetroNecklaces
         isKa={lang === "ka"}
-        shopHref={`/${lang}/shop`}
+        // This section showcases necklaces, so its CTA opens the shop already
+        // filtered to necklaces (not the whole catalogue).
+        shopHref={`/${lang}/shop?category=necklace`}
         lang={lang}
         products={rawProducts}
       />

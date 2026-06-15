@@ -894,21 +894,6 @@ function ShopCard({ product, index, lang, isKa, copy, position }: {
             >
               {isKa ? "გაყიდულია" : "Sold out"}
             </span>
-            <span
-              aria-hidden="true"
-              className="absolute z-10 px-4 py-1.5 text-[11px] font-extrabold uppercase tracking-[0.3em]"
-              style={{
-                top: "50%", left: "50%",
-                transform: "translate(-50%, -50%) rotate(-12deg)",
-                background: "rgba(42,29,20,0.85)", color: C.cream,
-                fontFamily: FRAUNCES,
-                borderRadius: 6,
-                boxShadow: "0 6px 14px rgba(0,0,0,0.30)",
-                whiteSpace: "nowrap",
-              }}
-            >
-              {isKa ? "გაყიდულია" : "Sold out"}
-            </span>
           </>
         )}
 
@@ -918,9 +903,9 @@ function ShopCard({ product, index, lang, isKa, copy, position }: {
           aria-hidden="true"
           className="absolute inset-0 w-full h-full"
           style={{
-            filter: inStock
-              ? "drop-shadow(0 10px 22px rgba(0,0,0,0.14))"
-              : "drop-shadow(0 10px 22px rgba(0,0,0,0.10)) saturate(0.4) opacity(0.85)",
+            // Sold-out items keep their full colour so customers can still see
+            // the design — only the "Sold out" badge marks them.
+            filter: "drop-shadow(0 10px 22px rgba(0,0,0,0.14))",
             overflow: "visible",
           }}
         >
