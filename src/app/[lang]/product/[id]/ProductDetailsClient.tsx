@@ -595,8 +595,10 @@ export function ProductDetailsClient({ product: urlProduct, sibling = null, rela
                 )}
               </motion.div>
 
-              {/* Reversible note — bags only. Necklaces don't get this line. */}
-              {!isNecklace && (
+              {/* Reversible note — ONLY the two-sided canvas bags & pouches are
+                  reversible. Aprons, kids' bags, laptop sleeves, necklaces, etc.
+                  must NOT show "flip it and it's a new bag". */}
+              {(product.category === "bag" || product.category === "pouch") && (
               <motion.p
                 initial={{ opacity: 0, y: 4 }}
                 animate={{ opacity: 1, y: 0 }}
