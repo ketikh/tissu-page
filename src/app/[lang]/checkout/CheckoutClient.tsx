@@ -7,7 +7,7 @@ import { useCartStore } from "@/store/useCartStore";
 import { useAuthStore } from "@/store/useAuthStore";
 import { useStoreHydration } from "@/store/useHydration";
 import { formatPrice } from "@/lib/utils";
-import { ChevronLeft, User as UserIcon, CheckCircle2, ShoppingBag, Loader2, Phone, MessageCircle, Mail, Truck, Send } from "lucide-react";
+import { ChevronLeft, User as UserIcon, CheckCircle2, ShoppingBag, Loader2, MessageCircle, Mail, Truck, Send } from "lucide-react";
 import {
   REGION_OPTIONS,
   TBILISI_SUB_LABELS,
@@ -132,7 +132,7 @@ export default function CheckoutClient({ lang, dictionary }: CheckoutClientProps
   });
   const deliveryFee = computedDelivery.fee;
 
-  const [contactMethod, setContactMethod] = useState<"phone" | "whatsapp" | "viber">("phone");
+  const [contactMethod, setContactMethod] = useState<"whatsapp" | "viber">("whatsapp");
   const [termsAccepted, setTermsAccepted] = useState(false);
   // Guests start undecided so the "Continue as guest" button actually does
   // something (it dismisses the login prompt). Order payload uses !isAuthenticated.
@@ -1035,11 +1035,6 @@ export default function CheckoutClient({ lang, dictionary }: CheckoutClientProps
               </p>
 
               <div style={{ display: "flex", flexDirection: "column", gap: 10 }}>
-                {radioOption(
-                  "payment", "phone", contactMethod === "phone",
-                  () => setContactMethod("phone"),
-                  isKa ? "ზარი" : "Phone call", null, null, <Phone size={18} />,
-                )}
                 {radioOption(
                   "payment", "whatsapp", contactMethod === "whatsapp",
                   () => setContactMethod("whatsapp"),
