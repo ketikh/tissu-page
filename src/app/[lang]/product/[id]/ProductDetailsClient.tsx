@@ -959,10 +959,12 @@ function DripCard({ product, lang, isKa, index }: { product: StorefrontProduct; 
   const outerPath = useMemo(() => dripPath(frame.bodyW, frame.bodyH, frame.drips, frame.minD, frame.maxD, frame.corner, frame.side, 200, 250, frame.seed), [frame]);
   const innerPath = useMemo(() => roundedRectPath(frame.bodyW - 28, frame.bodyH - 28, 200, 250, 10), [frame]);
   const clipId    = `dc-${frame.name}-${index}`;
+  const inStock   = product.in_stock && product.stock > 0;
 
   const handleAdd = (e: React.MouseEvent) => {
     e.preventDefault();
     e.stopPropagation();
+    if (!inStock) return;
     try {
       addItem(
         { id: product.id, slug: product.id, name: { en: name, ka: name }, subtitle: { en: "", ka: "" }, description: { en: "", ka: "" },
@@ -1018,16 +1020,20 @@ function DripCard({ product, lang, isKa, index }: { product: StorefrontProduct; 
           </div>
           <button
             onClick={handleAdd}
+            disabled={!inStock}
             style={{
               fontFamily: FRAUNCES, fontStyle: "italic", fontWeight: 700,
-              fontSize: 11, color: C.ink,
-              background: C.cream, border: "none", borderRadius: 999,
-              padding: "6px 16px", cursor: "pointer",
-              boxShadow: `0 3px 0 ${C.mustardDeep}`,
+              fontSize: 11, color: inStock ? C.ink : C.cream,
+              background: inStock ? C.cream : "transparent",
+              border: inStock ? "none" : `1.5px solid ${C.cream}`,
+              borderRadius: 999,
+              padding: "6px 16px", cursor: inStock ? "pointer" : "not-allowed",
+              boxShadow: inStock ? `0 3px 0 ${C.mustardDeep}` : "none",
               letterSpacing: "0.06em",
+              opacity: inStock ? 1 : 0.75,
             }}
           >
-            + {isKa ? "კალათი" : "Add"}
+            {inStock ? `+ ${isKa ? "კალათი" : "Add"}` : (isKa ? "ამოიწურა" : "Sold out")}
           </button>
         </div>
       </motion.div>

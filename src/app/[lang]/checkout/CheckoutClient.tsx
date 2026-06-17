@@ -134,7 +134,9 @@ export default function CheckoutClient({ lang, dictionary }: CheckoutClientProps
 
   const [contactMethod, setContactMethod] = useState<"phone" | "whatsapp" | "viber">("phone");
   const [termsAccepted, setTermsAccepted] = useState(false);
-  const [isGuest, setIsGuest] = useState(!isAuthenticated);
+  // Guests start undecided so the "Continue as guest" button actually does
+  // something (it dismisses the login prompt). Order payload uses !isAuthenticated.
+  const [isGuest, setIsGuest] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [submitError, setSubmitError] = useState<string | null>(null);
   const [errors, setErrors] = useState<Record<string, string>>({});
@@ -182,12 +184,26 @@ export default function CheckoutClient({ lang, dictionary }: CheckoutClientProps
     if (deliveryArea === "region" && !placeName.trim()) newErrors.placeName = dictionary.validation.required;
 
     setErrors(newErrors);
-    return Object.keys(newErrors).length === 0;
+    return newErrors;
   };
 
   const handleSubmitOrder = async () => {
     setSubmitError(null);
-    if (!validateForm()) return;
+    const newErrors = validateForm();
+    if (Object.keys(newErrors).length > 0) {
+      // The submit button is at the bottom of the form, but the empty fields
+      // are up top — so a silent inline error reads as "nothing happened".
+      // Scroll to the first missing field, focus it, and show a friendly note.
+      const order = ["phone", "firstName", "lastName", "street", "city", "placeName", "terms"];
+      const firstKey = order.find((k) => newErrors[k]);
+      const el = firstKey ? document.getElementById(`co-${firstKey}`) : null;
+      if (el) {
+        el.scrollIntoView({ behavior: "smooth", block: "center" });
+        if (typeof el.focus === "function") setTimeout(() => el.focus({ preventScroll: true }), 350);
+      }
+      setSubmitError(isKa ? "გთხოვ, შეავსე მონიშნული ველები." : "Please fill in the highlighted fields.");
+      return;
+    }
 
     setIsSubmitting(true);
 
@@ -235,7 +251,7 @@ export default function CheckoutClient({ lang, dictionary }: CheckoutClientProps
         },
         notes: formData.notes || undefined,
         termsAccepted,
-        isGuest,
+        isGuest: !isAuthenticated,
       };
 
       const response = await fetch("/api/checkout", {
@@ -630,6 +646,15 @@ export default function CheckoutClient({ lang, dictionary }: CheckoutClientProps
                     {dictionary.account.sidebar.logout}
                   </button>
                 </div>
+              ) : isGuest ? (
+                <div className="flex items-center justify-between gap-4">
+                  <div style={{ fontFamily: PRICE_FONT, fontSize: 13, color: C.ink, opacity: 0.75 }}>
+                    {isKa ? "✓ აფორმებ შეკვეთას როგორც სტუმარი" : "✓ Checking out as a guest"}
+                  </div>
+                  <Link href={`/${lang}/account/login`} style={{ fontFamily: FRAUNCES, fontWeight: 600, fontSize: 13, color: C.burnt, textDecoration: "underline", whiteSpace: "nowrap" }}>
+                    {isKa ? "შესვლა" : "Sign in"}
+                  </Link>
+                </div>
               ) : (
                 <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
                   <div>
@@ -682,6 +707,7 @@ export default function CheckoutClient({ lang, dictionary }: CheckoutClientProps
                     {dictionary.checkout.phone}
                   </label>
                   <input
+                    id="co-phone"
                     type="tel"
                     placeholder="+995 5XX XXX XXX"
                     style={errors.phone ? inputErrorStyle : inputStyle}
@@ -720,6 +746,7 @@ export default function CheckoutClient({ lang, dictionary }: CheckoutClientProps
                 <div style={{ display: "flex", flexDirection: "column", gap: 6 }}>
                   <label style={labelStyle}>{dictionary.checkout.firstName}</label>
                   <input
+                    id="co-firstName"
                     placeholder={dictionary.checkout.firstName}
                     style={errors.firstName ? inputErrorStyle : inputStyle}
                     value={formData.firstName}
@@ -729,6 +756,7 @@ export default function CheckoutClient({ lang, dictionary }: CheckoutClientProps
                 <div style={{ display: "flex", flexDirection: "column", gap: 6 }}>
                   <label style={labelStyle}>{dictionary.checkout.lastName}</label>
                   <input
+                    id="co-lastName"
                     placeholder={dictionary.checkout.lastName}
                     style={errors.lastName ? inputErrorStyle : inputStyle}
                     value={formData.lastName}
@@ -739,6 +767,7 @@ export default function CheckoutClient({ lang, dictionary }: CheckoutClientProps
               <div style={{ display: "flex", flexDirection: "column", gap: 6 }}>
                 <label style={labelStyle}>{dictionary.checkout.street}</label>
                 <input
+                  id="co-street"
                   placeholder={dictionary.checkout.street}
                   style={errors.street ? inputErrorStyle : inputStyle}
                   value={formData.street}
@@ -748,6 +777,7 @@ export default function CheckoutClient({ lang, dictionary }: CheckoutClientProps
               <div style={{ display: "flex", flexDirection: "column", gap: 6 }}>
                 <label style={labelStyle}>{dictionary.checkout.city}</label>
                 <input
+                  id="co-city"
                   placeholder={dictionary.checkout.city}
                   style={errors.city ? inputErrorStyle : inputStyle}
                   value={formData.city}
@@ -922,6 +952,7 @@ export default function CheckoutClient({ lang, dictionary }: CheckoutClientProps
                   <div style={{ display: "flex", flexDirection: "column", gap: 6 }}>
                     <label style={labelStyle}>{isKa ? "ქალაქი / სოფელი (კონკრეტული)" : "Specific city / village"}</label>
                     <input
+                      id="co-placeName"
                       placeholder={isKa ? "მაგ.: გორი, ბაკურიანი, აბაშა ..." : "e.g. Gori, Bakuriani, Abasha ..."}
                       style={errors.placeName ? inputErrorStyle : inputStyle}
                       value={placeName}
@@ -1048,6 +1079,7 @@ export default function CheckoutClient({ lang, dictionary }: CheckoutClientProps
               cursor: "pointer", padding: "4px 0",
             }}>
               <input
+                id="co-terms"
                 type="checkbox"
                 checked={termsAccepted}
                 onChange={(e) => setTermsAccepted(e.target.checked)}
