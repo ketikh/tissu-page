@@ -15,6 +15,9 @@
 const RESEND_API_KEY = process.env.RESEND_API_KEY;
 const FROM = process.env.INVOICE_FROM_EMAIL || "Tissu <onboarding@resend.dev>";
 const OWNER_COPY = process.env.INVOICE_OWNER_EMAIL;
+const SITE_URL = process.env.SITE_URL?.replace(/\/$/, "") || "https://tissu.ge";
+// Email clients can't render SVG, so we use the PNG wordmark served from /public.
+const LOGO_URL = `${SITE_URL}/static/logo.png`;
 
 export interface InvoiceItem {
   name: string;
@@ -90,8 +93,8 @@ function buildInvoiceHtml(p: InvoiceParams): string {
 
   return `<!doctype html><html><body style="margin:0;background:#fffcf5;padding:24px;font-family:-apple-system,Segoe UI,sans-serif">
     <div style="max-width:560px;margin:0 auto;background:#fff;border:1px solid #eee2cc;border-radius:16px;overflow:hidden">
-      <div style="background:#d56826;padding:22px 28px">
-        <div style="font-family:Georgia,serif;font-weight:800;font-size:22px;color:#fef0d6">TISSU</div>
+      <div style="background:#fef0d6;padding:20px 28px;border-bottom:3px solid #d56826;text-align:center">
+        <img src="${LOGO_URL}" alt="Tissu" width="132" height="42" style="display:inline-block;border:0;height:42px;width:auto" />
       </div>
       <div style="padding:28px">
         <h1 style="font-family:Georgia,serif;font-size:22px;color:#2a1d14;margin:0 0 8px">${L.title}</h1>
