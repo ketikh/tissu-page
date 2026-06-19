@@ -7,7 +7,7 @@ import { useCartStore } from "@/store/useCartStore";
 import { useAuthStore } from "@/store/useAuthStore";
 import { useStoreHydration } from "@/store/useHydration";
 import { formatPrice } from "@/lib/utils";
-import { ChevronLeft, User as UserIcon, CheckCircle2, ShoppingBag, Loader2, Phone, MessageCircle, Mail, Truck, Send } from "lucide-react";
+import { ChevronLeft, User as UserIcon, CheckCircle2, ShoppingBag, Loader2, MessageCircle, Mail, Truck, Send } from "lucide-react";
 import {
   REGION_OPTIONS,
   TBILISI_SUB_LABELS,
@@ -132,7 +132,7 @@ export default function CheckoutClient({ lang, dictionary }: CheckoutClientProps
   });
   const deliveryFee = computedDelivery.fee;
 
-  const [contactMethod, setContactMethod] = useState<"phone" | "whatsapp" | "viber">("phone");
+  const [contactMethod, setContactMethod] = useState<"whatsapp" | "viber">("whatsapp");
   const [termsAccepted, setTermsAccepted] = useState(false);
   // Guests start undecided so the "Continue as guest" button actually does
   // something (it dismisses the login prompt). Order payload uses !isAuthenticated.
@@ -176,6 +176,8 @@ export default function CheckoutClient({ lang, dictionary }: CheckoutClientProps
   const validateForm = () => {
     const newErrors: Record<string, string> = {};
     if (!formData.phone) newErrors.phone = dictionary.validation.required;
+    if (!formData.email.trim()) newErrors.email = dictionary.validation.required;
+    else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(formData.email.trim())) newErrors.email = dictionary.validation.email;
     if (!formData.firstName) newErrors.firstName = dictionary.validation.required;
     if (!formData.lastName) newErrors.lastName = dictionary.validation.required;
     if (!formData.street) newErrors.street = dictionary.validation.required;
@@ -194,7 +196,7 @@ export default function CheckoutClient({ lang, dictionary }: CheckoutClientProps
       // The submit button is at the bottom of the form, but the empty fields
       // are up top — so a silent inline error reads as "nothing happened".
       // Scroll to the first missing field, focus it, and show a friendly note.
-      const order = ["phone", "firstName", "lastName", "street", "city", "placeName", "terms"];
+      const order = ["phone", "email", "firstName", "lastName", "street", "city", "placeName", "terms"];
       const firstKey = order.find((k) => newErrors[k]);
       const el = firstKey ? document.getElementById(`co-${firstKey}`) : null;
       if (el) {
@@ -226,6 +228,7 @@ export default function CheckoutClient({ lang, dictionary }: CheckoutClientProps
 
       const payload = {
         items: orderPayloadItems,
+        lang,
         subtotal,
         shipping: deliveryFee,
         discount,
@@ -234,7 +237,7 @@ export default function CheckoutClient({ lang, dictionary }: CheckoutClientProps
           firstName: formData.firstName,
           lastName: formData.lastName,
           phone: formData.phone,
-          email: formData.email || undefined,
+          email: formData.email.trim(),
         },
         shippingAddress: {
           streetAddress: formData.street,
@@ -719,18 +722,17 @@ export default function CheckoutClient({ lang, dictionary }: CheckoutClientProps
                 <div style={{ display: "flex", flexDirection: "column", gap: 6 }}>
                   <label style={labelStyle}>
                     {dictionary.checkout.email}
-                    <span style={{ marginLeft: 6, fontWeight: 500, opacity: 0.55, textTransform: "none", letterSpacing: 0 }}>
-                      {isKa ? "(არასავალდებულო)" : "(optional)"}
-                    </span>
                   </label>
                   <input
+                    id="co-email"
                     type="email"
                     placeholder="hello@example.com"
-                    style={inputStyle}
+                    style={errors.email ? inputErrorStyle : inputStyle}
                     value={formData.email}
                     onChange={(e) => setFormData({ ...formData, email: e.target.value })}
                     disabled={isAuthenticated}
                   />
+                  {errors.email && <span style={{ fontFamily: PRICE_FONT, fontSize: 11, color: C.rose, marginLeft: 4 }}>{errors.email}</span>}
                 </div>
               </div>
             </section>
@@ -1034,11 +1036,6 @@ export default function CheckoutClient({ lang, dictionary }: CheckoutClientProps
               </p>
 
               <div style={{ display: "flex", flexDirection: "column", gap: 10 }}>
-                {radioOption(
-                  "payment", "phone", contactMethod === "phone",
-                  () => setContactMethod("phone"),
-                  isKa ? "ზარი" : "Phone call", null, null, <Phone size={18} />,
-                )}
                 {radioOption(
                   "payment", "whatsapp", contactMethod === "whatsapp",
                   () => setContactMethod("whatsapp"),

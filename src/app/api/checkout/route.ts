@@ -1,5 +1,6 @@
 import { NextResponse } from "next/server";
 import { notifyAdminNewOrder } from "@/lib/notifications";
+import { sendOrderInvoice } from "@/lib/invoice-email";
 import { fetchStorefrontProducts } from "@/lib/admin-api";
 
 /**
@@ -48,6 +49,8 @@ interface CheckoutPayload {
   } | null;
   notes?: string;
   termsAccepted: boolean;
+  /** Language the customer was browsing in — used for the invoice email. */
+  lang?: "ka" | "en";
 }
 
 const VALID_CONTACT = new Set(["phone", "whatsapp", "viber"]);
@@ -74,6 +77,7 @@ export async function POST(req: Request) {
       items, subtotal, shipping, discount, total,
       customer, shippingAddress, contactMethod, deliveryZone, notes, termsAccepted,
     } = body;
+    const lang: "ka" | "en" = body.lang === "en" ? "en" : "ka";
 
     if (!Array.isArray(items) || items.length === 0) {
       return NextResponse.json({ error: "Cart is empty" }, { status: 400 });
@@ -236,6 +240,35 @@ export async function POST(req: Request) {
         console.error("[checkout] admin notify failed:", err);
       }
     })();
+
+    // Fire-and-forget customer invoice email. Best-effort: skipped silently if
+    // no email was given or Resend isn't configured; never blocks the response.
+    if (customer.email) {
+      void sendOrderInvoice({
+        orderId,
+        to: customer.email,
+        lang,
+        customerName: `${customer.firstName} ${customer.lastName}`.trim(),
+        phone: customer.phone,
+        addressCity: shippingAddress.city,
+        addressStreet: shippingAddress.streetAddress,
+        items: items.map((i) => {
+          const pname = pickLocalized(i.productName);
+          const vname = pickLocalized(i.variantName);
+          return {
+            name: (lang === "en" ? pname.en : pname.ka) || pname.ka || pname.en || "",
+            variant: (lang === "en" ? vname.en : vname.ka) || "",
+            quantity: i.quantity,
+            price: i.price,
+          };
+        }),
+        subtotal: subtotal ?? 0,
+        shipping: shipping ?? 0,
+        discount: discount ?? 0,
+        total: total ?? 0,
+        notes,
+      });
+    }
 
     return NextResponse.json({ order: legacyOrder }, { status: 201 });
   } catch (error) {
