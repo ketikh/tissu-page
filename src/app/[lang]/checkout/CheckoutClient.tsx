@@ -228,6 +228,7 @@ export default function CheckoutClient({ lang, dictionary }: CheckoutClientProps
 
       const payload = {
         items: orderPayloadItems,
+        lang,
         subtotal,
         shipping: deliveryFee,
         discount,
