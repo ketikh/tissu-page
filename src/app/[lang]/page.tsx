@@ -23,6 +23,14 @@ export default async function Home({ params }: { params: Promise<{ lang: string 
   const section = (name: string) =>
     (homeCMS?.sections?.find((s) => s.section === name)?.payload as Record<string, string> | undefined) || undefined;
 
+  // Featured products are hand-picked in the admin (Site → Home → Featured).
+  const featuredPayload = homeCMS?.sections?.find((s) => s.section === "featured")?.payload as
+    | Record<string, unknown>
+    | undefined;
+  const featuredIds = Array.isArray(featuredPayload?.attached_product_ids)
+    ? (featuredPayload!.attached_product_ids as unknown[]).map(String)
+    : [];
+
   return (
     <HomeClient
       lang={locale}
@@ -31,6 +39,8 @@ export default async function Home({ params }: { params: Promise<{ lang: string 
       heroCMS={section("hero")}
       aboutCMS={section("about")}
       productsCMS={section("products_grid")}
+      featuredCMS={section("featured")}
+      featuredIds={featuredIds}
       photoPositions={photoPositions}
       reviews={adminReviews}
     />

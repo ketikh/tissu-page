@@ -16,42 +16,54 @@ const C = {
   mustardDeep: "#d99820",
 };
 
-interface RetroMixedProps {
+interface RetroFeaturedProps {
   isKa?: boolean;
   lang: string;
   products: StorefrontProduct[];
+  /** Product ids the admin picked (Site → Home → Featured). First 3 are shown. */
+  featuredIds?: string[];
+  /** CMS title override (home → "featured"). */
+  titleOverride?: string;
 }
 
-/** A mixed "new in" showcase — one product per category, round-robin, so the
- *  home surfaces variety (bags, aprons, totes, necklaces…) rather than one kind. */
-export default function RetroMixed({ isKa = false, lang, products }: RetroMixedProps) {
-  const mixed = useMemo(() => {
+/** "Featured products" — exactly 3 in one row, hand-picked from the admin.
+ *  Falls back to a category-spanning sample so the row is never empty. */
+export default function RetroFeatured({ isKa = false, lang, products, featuredIds, titleOverride }: RetroFeaturedProps) {
+  const picks = useMemo(() => {
     const eligible = products.filter((p) => Boolean(p.image_front));
+
+    // Admin-picked ids win, in the chosen order.
+    if (featuredIds && featuredIds.length) {
+      const byId = new Map(eligible.map((p) => [String(p.id), p]));
+      const chosen = featuredIds.map((id) => byId.get(String(id))).filter(Boolean) as StorefrontProduct[];
+      if (chosen.length) return chosen.slice(0, 3);
+    }
+
+    // Fallback: one per category (round-robin) so the row spans kinds.
     const groups = new Map<string, StorefrontProduct[]>();
     for (const p of eligible) {
-      const key = (p.category || "_").toLowerCase();
-      const list = groups.get(key);
-      if (list) list.push(p); else groups.set(key, [p]);
+      const k = (p.category || "_").toLowerCase();
+      const l = groups.get(k); if (l) l.push(p); else groups.set(k, [p]);
     }
     const lists = [...groups.values()];
     const out: StorefrontProduct[] = [];
-    for (let i = 0, added = true; added && out.length < 8; i++) {
+    for (let i = 0, added = true; added && out.length < 3; i++) {
       added = false;
-      for (const list of lists) {
-        if (i < list.length && out.length < 8) { out.push(list[i]); added = true; }
-      }
+      for (const l of lists) { if (i < l.length && out.length < 3) { out.push(l[i]); added = true; } }
     }
     return out;
-  }, [products]);
+  }, [products, featuredIds]);
 
-  if (mixed.length === 0) return null;
+  if (picks.length === 0) return null;
+
+  const title = (titleOverride || "").trim() || (isKa ? "გამორჩეული პროდუქტები" : "Featured products");
 
   return (
     <section className="relative w-full overflow-hidden py-16 md:py-20" style={{ background: C.green, color: C.cream }}>
       <div className="container">
         <div className="text-center mb-10 md:mb-14">
           <span className="inline-block text-[11px] font-extrabold uppercase tracking-[0.3em]" style={{ color: C.mustard, fontFamily: FRAUNCES }}>
-            {isKa ? "სიახლეები" : "New in"}
+            {isKa ? "ხელით შერჩეული" : "Hand-picked"}
           </span>
           <h2
             className="mt-3 leading-[1.05]"
@@ -59,44 +71,41 @@ export default function RetroMixed({ isKa = false, lang, products }: RetroMixedP
               fontFamily: isKa ? ALK_LIFE : FRAUNCES,
               fontStyle: isKa ? "normal" : "italic",
               fontWeight: 900,
-              fontSize: "clamp(28px, 4.5vw, 52px)",
+              fontSize: "clamp(26px, 4.2vw, 50px)",
               color: C.cream,
             }}
           >
-            {isKa ? "ცოტა ყველაფრიდან" : "A little of everything"}
+            {title}
           </h2>
-          <p style={{ fontFamily: FRAUNCES, fontStyle: "italic", fontSize: 15, opacity: 0.85, maxWidth: 520, margin: "12px auto 0", lineHeight: 1.55 }}>
-            {isKa ? "ჩანთები, წინსაფრები, ყელსაბამები — ერთ ადგილას." : "Bags, aprons, necklaces — a bit of everything."}
-          </p>
         </div>
 
-        <div className="grid grid-cols-2 md:grid-cols-4 gap-4 md:gap-6">
-          {mixed.map((p) => {
+        <div className="grid grid-cols-3 gap-3 sm:gap-6 max-w-4xl mx-auto">
+          {picks.map((p) => {
             const name = p.name || p.code;
             const soldOut = !p.in_stock;
             return (
               <Link key={p.id} href={`/${lang}/product/${p.id}`} className="group block">
-                <div className="relative overflow-hidden" style={{ borderRadius: 18, background: C.cream, aspectRatio: "1 / 1" }}>
+                <div className="relative overflow-hidden" style={{ borderRadius: 16, background: C.cream, aspectRatio: "1 / 1" }}>
                   {p.image_front && (
                     // eslint-disable-next-line @next/next/no-img-element
                     <img
-                      src={cloudinaryThumb(p.image_front, 500)}
+                      src={cloudinaryThumb(p.image_front, 600)}
                       alt={name}
                       className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
                       style={{ filter: "saturate(0.96)" }}
                     />
                   )}
                   {soldOut && (
-                    <span style={{ position: "absolute", top: 10, left: 10, background: C.ink, color: C.cream, fontSize: 10, fontWeight: 700, padding: "3px 8px", borderRadius: 999, fontFamily: FRAUNCES }}>
+                    <span style={{ position: "absolute", top: 8, left: 8, background: C.ink, color: C.cream, fontSize: 9, fontWeight: 700, padding: "2px 7px", borderRadius: 999, fontFamily: FRAUNCES }}>
                       {isKa ? "გაყიდულია" : "Sold out"}
                     </span>
                   )}
                 </div>
-                <div className="mt-3 text-center px-1">
-                  <div style={{ fontFamily: FRAUNCES, fontWeight: 600, fontSize: 14, color: C.cream, lineHeight: 1.25, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>
+                <div className="mt-2.5 text-center px-1">
+                  <div style={{ fontFamily: FRAUNCES, fontWeight: 600, fontSize: 13, color: C.cream, lineHeight: 1.25, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>
                     {name}
                   </div>
-                  <div style={{ fontFamily: FRAUNCES, fontWeight: 800, fontSize: 15, color: C.mustard, marginTop: 2 }}>
+                  <div style={{ fontFamily: FRAUNCES, fontWeight: 800, fontSize: 14, color: C.mustard, marginTop: 2 }}>
                     {p.price}₾
                   </div>
                 </div>
