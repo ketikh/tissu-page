@@ -19,7 +19,6 @@ interface HomeProps {
   aboutCMS?: Record<string, string>;
   productsCMS?: Record<string, string>;
   featuredCMS?: Record<string, string>;
-  featuredIds?: string[];
   photoPositions?: import("@/lib/shop-photo-positions").PhotoPositions;
   reviews?: import("@/lib/admin-reviews").AdminReview[];
 }
@@ -31,7 +30,7 @@ function pickLocalized(cms: Record<string, string> | undefined, base: string, la
   return v && v.trim() ? v.trim() : fallback;
 }
 
-export default function HomeClient({ lang, products: rawProducts, heroCMS, aboutCMS, productsCMS, featuredCMS, featuredIds, photoPositions = {}, reviews = [] }: HomeProps) {
+export default function HomeClient({ lang, products: rawProducts, heroCMS, aboutCMS, productsCMS, featuredCMS, photoPositions = {}, reviews = [] }: HomeProps) {
   const copy = getLandingCopy(lang);
 
   // CMS values win when present; otherwise we keep the original copy.
@@ -86,13 +85,14 @@ export default function HomeClient({ lang, products: rawProducts, heroCMS, about
         shopHref={`/${lang}/shop?category=necklace`}
         lang={lang}
         products={rawProducts}
+        photoPositions={photoPositions}
       />
 
       <RetroFeatured
         isKa={lang === "ka"}
         lang={lang}
         products={rawProducts}
-        featuredIds={featuredIds}
+        photoPositions={photoPositions}
         titleOverride={featuredTitle}
       />
 

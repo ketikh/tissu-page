@@ -484,13 +484,14 @@ export default function RetroProducts({
   const headingTitle = (titleOverride || "").trim();
   const headingSub = (subOverride || "").trim();
 
-  // Only products the admin has explicitly marked appear here. If nothing is
-  // marked yet, fall back to the first few so the section isn't empty during
-  // initial set-up.
-  const eligible = products.filter((p) => Boolean(p.image_front));
-  const featured = eligible.filter((p) => isHomeFeatured(photoPositions[p.id]));
-  const showcase = (featured.length > 0 ? featured : eligible)
+  // This is the laptop-cases section ("ერთი ჩანთა ორი განწყობა"). Only
+  // laptop-cases the admin ticked "show on home" appear here — no fallback, so
+  // if nothing is ticked the whole section simply doesn't render.
+  const showcase = products
+    .filter((p) => Boolean(p.image_front) && p.category === "laptop-cases" && isHomeFeatured(photoPositions[p.id]))
     .slice(0, Math.min(limit, FRAMES.length));
+
+  if (showcase.length === 0) return null;
 
   return (
     <section
@@ -729,12 +730,6 @@ function MirrorCard({
 
       {/* Caption */}
       <div className="mt-5 text-center max-w-65">
-        <div
-          className="text-[10px] uppercase tracking-[0.3em] mb-1"
-          style={{ color: C.mustard, fontFamily: FRAUNCES, fontWeight: 700 }}
-        >
-          {isKa ? "ხელით ნაკერი" : "Handmade"}
-        </div>
         <Link
           href={`/${lang}/product/${product.id}`}
           className="leading-tight hover:underline underline-offset-4 decoration-1"

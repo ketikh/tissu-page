@@ -4,6 +4,7 @@ import Link from "next/link";
 import { useMemo } from "react";
 import type { StorefrontProduct } from "@/lib/admin-api";
 import { cloudinaryThumb } from "@/lib/cloudinary";
+import { isHomeFeatured, type PhotoPositions } from "@/lib/shop-photo-positions";
 
 const FRAUNCES = "var(--font-fraunces), 'Fraunces', Georgia, serif";
 const ALK_LIFE = "var(--font-alk-life), serif";
@@ -20,39 +21,31 @@ interface RetroFeaturedProps {
   isKa?: boolean;
   lang: string;
   products: StorefrontProduct[];
-  /** Product ids the admin picked (Site → Home → Featured). First 3 are shown. */
-  featuredIds?: string[];
+  /** Per-product "show on home" flags. Any ticked product that is not a
+   *  laptop-case or a necklace lands in this section. */
+  photoPositions?: PhotoPositions;
   /** CMS title override (home → "featured"). */
   titleOverride?: string;
 }
 
 /** "Featured products" — exactly 3 in one row, hand-picked from the admin.
  *  Falls back to a category-spanning sample so the row is never empty. */
-export default function RetroFeatured({ isKa = false, lang, products, featuredIds, titleOverride }: RetroFeaturedProps) {
-  const picks = useMemo(() => {
-    const eligible = products.filter((p) => Boolean(p.image_front));
-
-    // Admin-picked ids win, in the chosen order.
-    if (featuredIds && featuredIds.length) {
-      const byId = new Map(eligible.map((p) => [String(p.id), p]));
-      const chosen = featuredIds.map((id) => byId.get(String(id))).filter(Boolean) as StorefrontProduct[];
-      if (chosen.length) return chosen.slice(0, 3);
-    }
-
-    // Fallback: one per category (round-robin) so the row spans kinds.
-    const groups = new Map<string, StorefrontProduct[]>();
-    for (const p of eligible) {
-      const k = (p.category || "_").toLowerCase();
-      const l = groups.get(k); if (l) l.push(p); else groups.set(k, [p]);
-    }
-    const lists = [...groups.values()];
-    const out: StorefrontProduct[] = [];
-    for (let i = 0, added = true; added && out.length < 3; i++) {
-      added = false;
-      for (const l of lists) { if (i < l.length && out.length < 3) { out.push(l[i]); added = true; } }
-    }
-    return out;
-  }, [products, featuredIds]);
+export default function RetroFeatured({ isKa = false, lang, products, photoPositions = {}, titleOverride }: RetroFeaturedProps) {
+  // Everything ticked "show on home" that isn't a laptop-case or a necklace
+  // (those have their own sections) shows here — up to 3, in one row.
+  const picks = useMemo(
+    () =>
+      products
+        .filter(
+          (p) =>
+            Boolean(p.image_front) &&
+            isHomeFeatured(photoPositions[p.id]) &&
+            p.category !== "laptop-cases" &&
+            p.category !== "necklace",
+        )
+        .slice(0, 3),
+    [products, photoPositions],
+  );
 
   if (picks.length === 0) return null;
 
@@ -62,11 +55,8 @@ export default function RetroFeatured({ isKa = false, lang, products, featuredId
     <section className="relative w-full overflow-hidden py-16 md:py-20" style={{ background: C.green, color: C.cream }}>
       <div className="container">
         <div className="text-center mb-10 md:mb-14">
-          <span className="inline-block text-[11px] font-extrabold uppercase tracking-[0.3em]" style={{ color: C.mustard, fontFamily: FRAUNCES }}>
-            {isKa ? "ხელით შერჩეული" : "Hand-picked"}
-          </span>
           <h2
-            className="mt-3 leading-[1.05]"
+            className="leading-[1.05]"
             style={{
               fontFamily: isKa ? ALK_LIFE : FRAUNCES,
               fontStyle: isKa ? "normal" : "italic",
