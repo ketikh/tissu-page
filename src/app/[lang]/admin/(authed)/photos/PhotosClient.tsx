@@ -35,6 +35,20 @@ const C = {
 
 const FRAME_COLORS = [C.rose, C.green, C.mustard, "#6b9eb5"];
 
+/** True only when an entry carries no meaningful data at all — so the save can
+ *  safely drop it. Critically this checks homeFeatured and every home/back
+ *  field, not just scale/x/y: a "show on home" tick with no position change
+ *  must still be saved. */
+function isEmptyPosition(p: PhotoPosition): boolean {
+  return (
+    p.scale === 1 && p.x === 0 && p.y === 0 &&
+    !p.homeFeatured &&
+    p.backScale === undefined && p.backX === undefined && p.backY === undefined &&
+    p.homeScale === undefined && p.homeX === undefined && p.homeY === undefined &&
+    p.homeBackScale === undefined && p.homeBackX === undefined && p.homeBackY === undefined
+  );
+}
+
 export default function PhotosClient({
   lang: _lang,
   products,
@@ -118,10 +132,12 @@ export default function PhotosClient({
     setSaving(true);
     setError(null);
     try {
-      // Drop entries that are exactly default to keep the payload small.
+      // Drop only entries with no meaningful data (keeps the payload small).
+      // Must NOT drop a "show on home" tick that left the position at default,
+      // otherwise the homeFeatured flag is silently lost.
       const payload: Record<string, PhotoPosition> = {};
       for (const [id, pos] of Object.entries(positions)) {
-        if (pos.scale === 1 && pos.x === 0 && pos.y === 0) continue;
+        if (isEmptyPosition(pos)) continue;
         payload[id] = pos;
       }
       const res = await fetch("/api/admin/photo-positions", {
