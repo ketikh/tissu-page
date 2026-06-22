@@ -729,12 +729,6 @@ function MirrorCard({
 
       {/* Caption */}
       <div className="mt-5 text-center max-w-65">
-        <div
-          className="text-[10px] uppercase tracking-[0.3em] mb-1"
-          style={{ color: C.mustard, fontFamily: FRAUNCES, fontWeight: 700 }}
-        >
-          {isKa ? "ხელით ნაკერი" : "Handmade"}
-        </div>
         <Link
           href={`/${lang}/product/${product.id}`}
           className="leading-tight hover:underline underline-offset-4 decoration-1"

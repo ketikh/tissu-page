@@ -62,11 +62,8 @@ export default function RetroFeatured({ isKa = false, lang, products, featuredId
     <section className="relative w-full overflow-hidden py-16 md:py-20" style={{ background: C.green, color: C.cream }}>
       <div className="container">
         <div className="text-center mb-10 md:mb-14">
-          <span className="inline-block text-[11px] font-extrabold uppercase tracking-[0.3em]" style={{ color: C.mustard, fontFamily: FRAUNCES }}>
-            {isKa ? "ხელით შერჩეული" : "Hand-picked"}
-          </span>
           <h2
-            className="mt-3 leading-[1.05]"
+            className="leading-[1.05]"
             style={{
               fontFamily: isKa ? ALK_LIFE : FRAUNCES,
               fontStyle: isKa ? "normal" : "italic",
