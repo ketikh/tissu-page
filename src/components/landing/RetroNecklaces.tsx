@@ -162,8 +162,9 @@ export default function RetroNecklaces({
     [products, photoPositions]
   );
 
-  if (necklaces.length === 0) return null;
-
+  // The section always renders so the "build your own" card stays visible —
+  // even when no necklace is ticked for the home page. Only the featured
+  // necklace products (0–2) are gated by the "show on home" flag.
   const showcase = necklaces.slice(0, 2);
 
   return (
