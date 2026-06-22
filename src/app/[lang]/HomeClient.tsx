@@ -6,6 +6,7 @@ import type { StorefrontProduct } from "@/lib/admin-api";
 import RetroHero from "@/components/landing/RetroHero";
 import RetroProducts from "@/components/landing/RetroProducts";
 import RetroNecklaces from "@/components/landing/RetroNecklaces";
+import RetroMixed from "@/components/landing/RetroMixed";
 import RetroAbout from "@/components/landing/RetroAbout";
 import RetroReviews from "@/components/landing/RetroReviews";
 import { cloudinaryThumb } from "@/lib/cloudinary";
@@ -83,6 +84,8 @@ export default function HomeClient({ lang, products: rawProducts, heroCMS, about
         lang={lang}
         products={rawProducts}
       />
+
+      <RetroMixed isKa={lang === "ka"} lang={lang} products={rawProducts} />
 
       <RetroAbout isKa={lang === "ka"} shopHref={`/${lang}/shop`} titleOverride={aboutTitle} ctaTextOverride={aboutCta} />
       <RetroReviews
