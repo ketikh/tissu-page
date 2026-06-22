@@ -7,7 +7,7 @@ import { useCartStore } from "@/store/useCartStore";
 import { useAuthStore } from "@/store/useAuthStore";
 import { useStoreHydration } from "@/store/useHydration";
 import { formatPrice } from "@/lib/utils";
-import { ChevronLeft, User as UserIcon, CheckCircle2, ShoppingBag, Loader2, MessageCircle, Mail, Truck, Send } from "lucide-react";
+import { ChevronLeft, User as UserIcon, CheckCircle2, ShoppingBag, Loader2, MessageCircle, Mail, Truck, Send, Camera } from "lucide-react";
 import {
   REGION_OPTIONS,
   TBILISI_SUB_LABELS,
@@ -290,6 +290,9 @@ export default function CheckoutClient({ lang, dictionary }: CheckoutClientProps
   };
 
   const isKa = lang === "ka";
+
+  // A built-to-order necklace needs photo approval before we finalise it.
+  const hasNecklace = items.some((i) => i.productId === "custom-necklace");
 
   if (items.length === 0) {
     return (
@@ -1069,6 +1072,29 @@ export default function CheckoutClient({ lang, dictionary }: CheckoutClientProps
                 </p>
               </div>
             </section>
+
+            {/* Made-to-order necklace notice — only when one is in the cart. */}
+            {hasNecklace && (
+              <section style={{
+                background: "white",
+                border: `1.5px solid ${C.mustard}`,
+                borderRadius: 14,
+                padding: "16px 18px",
+                display: "flex", gap: 12, alignItems: "flex-start",
+              }}>
+                <Camera size={18} style={{ color: C.burnt, flexShrink: 0, marginTop: 2 }} />
+                <div style={{ fontFamily: PRICE_FONT, fontSize: 13, color: C.ink, lineHeight: 1.55 }}>
+                  <div style={{ fontFamily: FRAUNCES, fontWeight: 700, fontSize: 14, color: C.ink, marginBottom: 4 }}>
+                    {isKa ? "ხელნაკეთი ყელსაბამი — ჯერ ფოტოს დაგიდასტურებთ" : "Handmade necklace — we'll send a photo first"}
+                  </div>
+                  <p style={{ margin: 0, opacity: 0.75 }}>
+                    {isKa
+                      ? "შენი ყელსაბამი ხელით იკერება. შეკვეთის გაგზავნის შემდეგ, საბოლოოდ გაფორმებამდე, გამოგიგზავნით მზა ყელსაბამის რეალურ ფოტოს ფერებისა და ჩარმების გადასამოწმებლად — დამზადება მხოლოდ შენი დადასტურების შემდეგ დაიწყება."
+                      : "Your necklace is sewn by hand. After you send the request — and before it's finalised — we'll send you a real photo of the finished necklace to check the colours and charms. We start making it only after you approve."}
+                  </p>
+                </div>
+              </section>
+            )}
 
             {/* Terms */}
             <label style={{

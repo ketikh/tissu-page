@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { Check, ArrowLeft, ArrowRight, ShoppingBag, Minus, Plus, X } from "lucide-react";
+import { Check, ArrowLeft, ArrowRight, ShoppingBag, Minus, Plus, X, Camera } from "lucide-react";
 import type { Locale } from "@/i18n/config";
 import type { Material, MaterialVariant } from "@/lib/necklace-builder";
 import { OVER_LIMIT_FEE, CHARM_LIMIT_BEFORE_FEE } from "@/lib/necklace-builder";
@@ -392,6 +392,29 @@ export default function NecklaceBuilderClient({ lang, fabrics, charms, basePrice
                   }}>
                     <span>{isKa ? "ჯამი" : "Total"}</span>
                     <span style={{ color: C.mustard }}>{totalPrice} ლ</span>
+                  </div>
+                </div>
+
+                {/* Made-to-order notice: the customer approves a real photo of
+                    the finished necklace before the order is finalised. */}
+                <div style={{
+                  marginTop: 20,
+                  display: "flex", gap: 12, alignItems: "flex-start",
+                  padding: "16px 18px",
+                  background: "rgba(243,182,43,0.12)",
+                  border: `1.5px solid ${C.mustard}`,
+                  borderRadius: 16,
+                }}>
+                  <Camera size={20} style={{ color: C.mustard, flexShrink: 0, marginTop: 2 }} />
+                  <div style={{ fontFamily: FRAUNCES, lineHeight: 1.5 }}>
+                    <div style={{ fontWeight: 800, fontSize: 14, color: C.cream, marginBottom: 4 }}>
+                      {isKa ? "ჯერ ფოტოს დაგიდასტურებ" : "We'll send a photo first"}
+                    </div>
+                    <p style={{ margin: 0, fontSize: 13, color: C.champagne }}>
+                      {isKa
+                        ? "ყელსაბამი ხელით იკერება. შეკვეთის საბოლოოდ გაფორმებამდე გამოგიგზავნი მზა ყელსაბამის რეალურ ფოტოს, რომ ფერები და ჩარმები გადაამოწმო — შეკვეთა მხოლოდ შენი დადასტურების შემდეგ გაფორმდება."
+                        : "Your necklace is sewn by hand. Before the order is finalised we'll send you a real photo of the finished piece so you can check the colours and charms — the order is confirmed only after you approve it."}
+                    </p>
                   </div>
                 </div>
 
