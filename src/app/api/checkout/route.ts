@@ -99,6 +99,32 @@ export async function POST(req: Request) {
       return NextResponse.json({ error: "Order service unavailable" }, { status: 503 });
     }
 
+    // ── Stock guard ──────────────────────────────────────────────────────
+    // Never let an order exceed what is actually in stock. We re-read live
+    // inventory here (the cart is client-side and can be stale) and reject the
+    // whole order if any line asks for more than available, telling the
+    // customer exactly how many are left. Custom necklaces are made to order,
+    // so they are exempt. If the lookup itself fails we don't hard-block — the
+    // agent still decrements/guards stock on its side.
+    try {
+      const liveProducts = await fetchStorefrontProducts();
+      const stockById = new Map(liveProducts.map((p) => [String(p.id), p.stock]));
+      const stockIssues = items
+        .filter((i) => i.productId !== "custom-necklace" && stockById.has(String(i.productId)))
+        .map((i) => {
+          const available = stockById.get(String(i.productId)) ?? 0;
+          const pname = pickLocalized(i.productName);
+          return { productId: String(i.productId), name: pname.ka || pname.en || "", available, requested: i.quantity };
+        })
+        .filter((s) => s.requested > s.available);
+
+      if (stockIssues.length > 0) {
+        return NextResponse.json({ error: "INSUFFICIENT_STOCK", stockIssues }, { status: 409 });
+      }
+    } catch (err) {
+      console.error("[checkout] stock check skipped (lookup failed):", err);
+    }
+
     const agentPayload = {
       customer_name: `${customer.firstName} ${customer.lastName}`.trim(),
       customer_phone: customer.phone,

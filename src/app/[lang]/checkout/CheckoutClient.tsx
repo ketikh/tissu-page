@@ -265,6 +265,20 @@ export default function CheckoutClient({ lang, dictionary }: CheckoutClientProps
 
       const data = await response.json().catch(() => ({}));
       if (!response.ok) {
+        // Out-of-stock: tell the customer exactly how many are left per item.
+        if (response.status === 409 && Array.isArray(data?.stockIssues) && data.stockIssues.length > 0) {
+          const lines = data.stockIssues.map((s: { name: string; available: number; requested: number }) =>
+            isKa
+              ? `„${s.name}" — მარაგშია მხოლოდ ${s.available} (შენ ითხოვე ${s.requested})`
+              : `"${s.name}" — only ${s.available} in stock (you asked for ${s.requested})`,
+          );
+          setSubmitError(
+            (isKa ? "მარაგი არ არის საკმარისი. გთხოვ, შეასწორე რაოდენობა კალათაში:\n" : "Not enough stock. Please adjust the quantity in your basket:\n")
+            + lines.join("\n"),
+          );
+          setIsSubmitting(false);
+          return;
+        }
         throw new Error(data?.error || (isKa ? "შეკვეთის გაგზავნა ვერ მოხერხდა" : "Could not submit the order"));
       }
 
@@ -1136,6 +1150,7 @@ export default function CheckoutClient({ lang, dictionary }: CheckoutClientProps
                 fontFamily: PRICE_FONT, fontSize: 12, color: C.rose,
                 background: `${C.rose}14`, border: `1px solid ${C.rose}33`,
                 borderRadius: 10, padding: "10px 12px", margin: 0,
+                whiteSpace: "pre-line",
               }}>
                 {submitError}
               </p>
