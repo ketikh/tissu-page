@@ -152,11 +152,21 @@ const CAT_COLORS: Record<string, { bg: string; text: string; shadow: string }> =
   necklace:     { bg: C.champagne,text: C.ink,    shadow: "#9a7840" },
 };
 
-/* botanical symbol per category — Unicode florals, no emoji */
-const CAT_BOTANICAL: Record<string, string> = {
-  all: "✦", pouch: "❀", laptop: "✿", tote: "❧",
-  kidsbackpack: "✤", apron: "❦", necklace: "✾",
-};
+/* Friendly emoji per category — keyword-matched so it works across slug
+   variants (laptop-cases, tote-bags, kidsbag, …). Falls back to the admin's
+   own emoji for custom categories, then a neutral tag. */
+function categoryEmoji(val: string, adminEmoji?: string): string {
+  const s = (val || "").toLowerCase();
+  if (s === "all") return "✨";
+  if (s === "new") return "🆕";
+  if (s.includes("necklace")) return "📿";
+  if (s.includes("apron")) return "🧑‍🍳";
+  if (s.includes("kid")) return "🎒";
+  if (s.includes("laptop") || s.includes("case")) return "💻";
+  if (s.includes("pouch")) return "👝";
+  if (s.includes("tote") || s.includes("bag")) return "👜";
+  return adminEmoji || "🏷️";
+}
 
 /* ── Botanical float animation — deterministic from color+size ───── */
 function botanicalAnim(color: string, size: number) {
@@ -554,7 +564,10 @@ export default function ShopClient({ lang, dictionary, products, photoPositions 
           <div className="py-6 mb-2 flex flex-col gap-3">
             {/* Row 1 — category pills only, full width so they wrap cleanly */}
             <div className="flex flex-wrap items-center gap-x-4 gap-y-3">
-              <div className="flex flex-wrap gap-2.5 gap-y-3 flex-1 min-w-0" style={{ paddingBottom: 4 }}>
+              <div
+                className="flex gap-2.5 overflow-x-auto sm:flex-wrap sm:overflow-visible gap-y-3 flex-1 min-w-0 [&::-webkit-scrollbar]:hidden"
+                style={{ paddingBottom: 4, scrollbarWidth: "none" }}
+              >
                 {cats.map((cat) => {
                   const active = catParam === cat.val;
                   const col = CAT_COLORS[cat.val] ?? CAT_COLORS.all;
@@ -591,7 +604,9 @@ export default function ShopClient({ lang, dictionary, products, photoPositions 
                         transition: "background 0.18s ease, border-color 0.18s ease, color 0.18s ease",
                       }}
                     >
-                      <span style={{ fontSize: 13, opacity: active ? 1 : 0.7 }}>{cat.emoji ?? CAT_BOTANICAL[cat.val] ?? "✦"}</span>
+                      <span style={{ fontSize: 16, lineHeight: 1, opacity: active ? 1 : 0.85 }}>
+                        {categoryEmoji(cat.val, cat.emoji)}
+                      </span>
                       {cat.label}
                     </motion.button>
                   );
