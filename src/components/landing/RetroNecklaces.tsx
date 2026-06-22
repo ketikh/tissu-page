@@ -5,12 +5,14 @@ import { motion } from "framer-motion";
 import { useMemo, useState } from "react";
 import type { StorefrontProduct } from "@/lib/admin-api";
 import { cloudinaryThumb } from "@/lib/cloudinary";
+import { isHomeFeatured, type PhotoPositions } from "@/lib/shop-photo-positions";
 
 interface RetroNecklacesProps {
   isKa?: boolean;
   shopHref?: string;
   lang?: string;
   products: StorefrontProduct[];
+  photoPositions?: PhotoPositions;
 }
 
 const PACIFICO = "var(--font-pacifico), 'Pacifico', cursive";
@@ -151,11 +153,13 @@ export default function RetroNecklaces({
   shopHref = "/shop",
   lang,
   products,
+  photoPositions = {},
 }: RetroNecklacesProps) {
   const resolvedLang = lang ?? shopHref.split("/").filter(Boolean)[0] ?? "en";
+  // Only necklaces the admin ticked "show on home" appear here.
   const necklaces = useMemo(
-    () => products.filter((p) => p.category === "necklace" && Boolean(p.image_front)),
-    [products]
+    () => products.filter((p) => p.category === "necklace" && Boolean(p.image_front) && isHomeFeatured(photoPositions[p.id])),
+    [products, photoPositions]
   );
 
   if (necklaces.length === 0) return null;
