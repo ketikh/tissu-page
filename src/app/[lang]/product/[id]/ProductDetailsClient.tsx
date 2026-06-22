@@ -296,7 +296,9 @@ export function ProductDetailsClient({ product: urlProduct, sibling = null, rela
   const inStock   = product.in_stock && product.stock > 0;
   const isOnSale  = Boolean(product.original_price && product.original_price > product.price);
   const name      = product.name || product.code;
-  const sub       = [product.size, product.color].filter(Boolean).join(" · ");
+  // Title only — never surface the internal model/colour name (e.g. "ყაყაჩო")
+  // as a subtitle. Size is shown by the size toggle when a product has one.
+  const sub       = "";
   const isKa      = lang === "ka";
   const curr      = product.currency === "GEL" ? "₾" : ` ${product.currency}`;
   // The filter dictionary only knows the canonical categories; custom ones

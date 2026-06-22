@@ -975,11 +975,8 @@ function ShopCard({ product, index, lang, isKa, copy, position }: {
           {name}
         </Link>
 
-        {product.color && (
-          <div style={{ fontFamily: FRAUNCES, fontStyle: "italic", fontSize: 13, color: C.champagne, marginTop: 2 }}>
-            {product.color}
-          </div>
-        )}
+        {/* No model/colour subtitle — the product title is the only label, so
+            internal names like "ყაყაჩო" never leak onto the storefront. */}
 
         <div className="flex items-baseline gap-2 mt-2">
           <span style={{ fontFamily: PACIFICO, fontSize: "clamp(18px, 1.8vw, 24px)", color: C.burnt, lineHeight: 1.1 }}>
