@@ -865,11 +865,11 @@ function ShopCard({ product, index, lang, isKa, copy, position }: {
           subtitle: { en: "", ka: "" }, description: { en: "", ka: "" }, price: product.price,
           images: [product.image_front, product.image_back].filter(Boolean) as string[],
           variants: [{ id: `${product.id}-d`, size: "one",
-            colorName: { en: product.color || "default", ka: product.color || "default" },
+            colorName: { en: "", ka: "" },
             colorCode: "#264ba0", inStock: true }],
           category: product.category as any, featured: true, badges: [], tags: product.tags ?? [] } as any,
         { id: `${product.id}-d`, size: "one",
-          colorName: { en: product.color || "default", ka: product.color || "default" },
+          colorName: { en: "", ka: "" },
           colorCode: "#264ba0", inStock: true } as any,
         1
       );
