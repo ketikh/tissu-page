@@ -5,7 +5,7 @@ import { motion } from "framer-motion";
 import { useMemo, useState } from "react";
 import type { StorefrontProduct } from "@/lib/admin-api";
 import { cloudinaryThumb } from "@/lib/cloudinary";
-import { isHomeFeatured, type PhotoPositions } from "@/lib/shop-photo-positions";
+import { isHomeFeatured, buildHomePhotoTransform, buildHomeBackPhotoTransform, type PhotoPositions, type PhotoPosition } from "@/lib/shop-photo-positions";
 
 interface RetroNecklacesProps {
   isKa?: boolean;
@@ -209,6 +209,7 @@ export default function RetroNecklaces({
               index={i}
               isKa={isKa}
               lang={resolvedLang}
+              position={photoPositions[p.id]}
             />
           ))}
           <BuildYourOwnCard isKa={isKa} lang={resolvedLang} />
@@ -248,12 +249,14 @@ function NecklaceCard({
   index,
   isKa,
   lang,
+  position,
 }: {
   product: StorefrontProduct;
   frame: NecklaceFrame;
   index: number;
   isKa: boolean;
   lang: string;
+  position?: PhotoPosition;
 }) {
   const productHref = `/${lang}/product/${product.id}`;
   const [hover, setHover] = useState(false);
@@ -305,6 +308,7 @@ function NecklaceCard({
             width="400"
             height="500"
             preserveAspectRatio="xMidYMid meet"
+            transform={buildHomePhotoTransform(position)}
             clipPath={`url(#${clipId})`}
             style={{
               filter: "saturate(0.95) sepia(0.03)",
@@ -321,6 +325,7 @@ function NecklaceCard({
               width="400"
               height="500"
               preserveAspectRatio="xMidYMid meet"
+              transform={buildHomeBackPhotoTransform(position)}
               clipPath={`url(#${clipId})`}
               style={{
                 filter: "saturate(0.95) sepia(0.03)",

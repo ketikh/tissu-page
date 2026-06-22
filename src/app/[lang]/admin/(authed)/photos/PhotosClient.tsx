@@ -288,6 +288,14 @@ function PhotoEditorCard({
   onChange: (patch: Partial<PhotoPosition>) => void;
   onReset: () => void;
 }) {
+  // Featured products (not laptop-cases, not necklaces) land in the square
+  // "Featured" grid; the rest use the tall 4/5 organic home frame. The home
+  // preview mirrors whichever shape the product will actually appear in.
+  const isFeaturedShape = product.category !== "laptop-cases" && product.category !== "necklace";
+  const homeVbh = isFeaturedShape ? 400 : 500;
+  const homeAspect = isFeaturedShape ? "1 / 1" : "4 / 5";
+  const homeFrameForShape = isFeaturedShape ? undefined : homeFrame;
+
   return (
     <div style={{
       background: "white",
@@ -394,13 +402,13 @@ function PhotoEditorCard({
                   frameColor={frameColor}
                   previewKey={`pe-${product.id}-home-front`}
                   url={product.image_front}
-                  transform={buildHomePhotoTransform(position)}
+                  transform={buildHomePhotoTransform(position, 400, homeVbh)}
                   scale={h.scale}
                   x={h.x}
                   y={h.y}
-                  aspectRatio="4 / 5"
-                  viewBoxHeight={500}
-                  homeFrame={homeFrame}
+                  aspectRatio={homeAspect}
+                  viewBoxHeight={homeVbh}
+                  homeFrame={homeFrameForShape}
                   onChange={(patch) => {
                     const out: Partial<PhotoPosition> = {};
                     if (patch.scale !== undefined) out.homeScale = patch.scale;
@@ -422,13 +430,13 @@ function PhotoEditorCard({
                   frameColor={frameColor}
                   previewKey={`pe-${product.id}-home-back`}
                   url={product.image_back}
-                  transform={buildHomeBackPhotoTransform(position)}
+                  transform={buildHomeBackPhotoTransform(position, 400, homeVbh)}
                   scale={h.scale}
                   x={h.x}
                   y={h.y}
-                  aspectRatio="4 / 5"
-                  viewBoxHeight={500}
-                  homeFrame={homeFrame}
+                  aspectRatio={homeAspect}
+                  viewBoxHeight={homeVbh}
+                  homeFrame={homeFrameForShape}
                   onChange={(patch) => {
                     const out: Partial<PhotoPosition> = {};
                     if (patch.scale !== undefined) out.homeBackScale = patch.scale;

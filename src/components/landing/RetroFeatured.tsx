@@ -4,7 +4,7 @@ import Link from "next/link";
 import { useMemo } from "react";
 import type { StorefrontProduct } from "@/lib/admin-api";
 import { cloudinaryThumb } from "@/lib/cloudinary";
-import { isHomeFeatured, type PhotoPositions } from "@/lib/shop-photo-positions";
+import { isHomeFeatured, buildHomePhotoTransform, type PhotoPositions } from "@/lib/shop-photo-positions";
 
 const FRAUNCES = "var(--font-fraunces), 'Fraunces', Georgia, serif";
 const ALK_LIFE = "var(--font-alk-life), serif";
@@ -77,13 +77,16 @@ export default function RetroFeatured({ isKa = false, lang, products, photoPosit
               <Link key={p.id} href={`/${lang}/product/${p.id}`} className="group block">
                 <div className="relative overflow-hidden" style={{ borderRadius: 16, background: C.cream, aspectRatio: "1 / 1" }}>
                   {p.image_front && (
-                    // eslint-disable-next-line @next/next/no-img-element
-                    <img
-                      src={cloudinaryThumb(p.image_front, 600)}
-                      alt={name}
-                      className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
-                      style={{ filter: "saturate(0.96)" }}
-                    />
+                    // SVG render (not <img>) so the admin's home photo position
+                    // (zoom/pan) applies inside this square, matching the editor.
+                    <svg viewBox="0 0 400 400" preserveAspectRatio="xMidYMid meet" className="w-full h-full block" style={{ filter: "saturate(0.96)" }} aria-label={name}>
+                      <image
+                        href={cloudinaryThumb(p.image_front, 600)}
+                        x="0" y="0" width="400" height="400"
+                        preserveAspectRatio="xMidYMid meet"
+                        transform={buildHomePhotoTransform(photoPositions[p.id], 400, 400)}
+                      />
+                    </svg>
                   )}
                   {soldOut && (
                     <span style={{ position: "absolute", top: 8, left: 8, background: C.ink, color: C.cream, fontSize: 9, fontWeight: 700, padding: "2px 7px", borderRadius: 999, fontFamily: FRAUNCES }}>
