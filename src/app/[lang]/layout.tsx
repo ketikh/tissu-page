@@ -7,7 +7,6 @@ import { Navbar } from "@/components/layout/Navbar";
 import { Footer } from "@/components/layout/Footer";
 import { CartDrawer } from "@/components/layout/CartDrawer";
 import MobileMotionGate from "@/components/MobileMotionGate";
-import CloudflareAnalytics from "@/components/CloudflareAnalytics";
 import { getDictionary } from "@/i18n/getDictionary";
 import { fetchCMSSection } from "@/lib/admin-content";
 
@@ -184,7 +183,6 @@ export default async function RootLayout({
         />
       </head>
       <body className={`min-h-screen flex flex-col antialiased bg-background text-foreground ${locale === "ka" ? "font-noto-sans" : "font-sans"}`}>
-        <CloudflareAnalytics />
         <MobileMotionGate>
           <Navbar lang={locale} dictionary={dictionary} />
           <CartDrawer dictionary={dictionary} lang={locale} />
