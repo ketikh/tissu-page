@@ -16,7 +16,7 @@ import {
   homeFrontTransform,
   homeBackTransform,
 } from "@/lib/shop-photo-positions";
-import { cloudinaryCutout } from "@/lib/cloudinary";
+import { cloudinaryCutout, cloudinaryThumb } from "@/lib/cloudinary";
 import { FRAMES as HOME_FRAMES, buildOuterPath, buildInnerPath } from "@/components/landing/RetroProducts";
 
 const FRAUNCES = "var(--font-alk-life), var(--font-fraunces), 'Fraunces', Georgia, serif";
@@ -591,7 +591,10 @@ function PreviewImage({
   viewBoxHeight?: number;
 }) {
   const [failed, setFailed] = useState(false);
-  const src = failed ? url : cloudinaryCutout(url);
+  // Load a light ~600px thumbnail (the same optimized asset the live site
+  // already serves) instead of the full-resolution original — the editor was
+  // pulling several multi-MB images per card, which made resizing lag badly.
+  const src = failed ? url : cloudinaryThumb(cloudinaryCutout(url), 600);
   return (
     <image
       href={src}
