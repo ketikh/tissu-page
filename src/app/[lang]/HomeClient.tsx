@@ -70,7 +70,7 @@ export default function HomeClient({ lang, products: rawProducts, heroCMS, about
         lang={lang}
         // This section showcases bags, so its CTA opens the shop already
         // filtered to bags (not the whole catalogue).
-        shopHref={`/${lang}/shop?category=bag`}
+        shopHref={`/${lang}/shop?category=laptop-cases`}
         products={rawProducts}
         limit={4}
         photoPositions={photoPositions}
