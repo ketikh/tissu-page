@@ -354,16 +354,16 @@ export default function ShopClient({ lang, dictionary, products, photoPositions 
   // Model sub-filter — only shown for the bags / laptop-bags category since
   // that's where "ფხრიწიანი" / "თასმიანი" actually applies.
   const modelParam = sp.get("model") ?? "all";
+  // Size sub-filter — "small" / "big" / "all".
+  const sizeParam  = sp.get("size")  ?? "all";
 
   const setParam = (key: string, val: string | null) => {
     const p = new URLSearchParams(sp.toString());
     if (val && val !== "all") p.set(key, val); else p.delete(key);
     if (key === "category") {
       setPageSize(100);
-      // Switching the top-level category resets the model sub-filter so
-      // we don't carry a stale "ფხრიწიანი" into a category that doesn't
-      // have that model at all.
       p.delete("model");
+      p.delete("size");
     }
     router.push(`?${p.toString()}`, { scroll: false });
   };
@@ -372,19 +372,28 @@ export default function ShopClient({ lang, dictionary, products, photoPositions 
     let r = products.filter((p) => Boolean(p.image_front));
     if (catParam !== "all") r = r.filter((p) => p.category === catParam);
     if (modelParam !== "all") r = r.filter((p) => (p.model || "").trim() === modelParam);
-    // Size variants (small + big of one model) collapse to a single card —
-    // prefer the small version; the other size opens via the toggle on the
-    // product page. A big shows only if its small partner isn't in the list.
-    const seenSiblings = new Set<string>();
-    r = r.filter((p) => {
-      if (!p.size_sibling) return true;
-      if (seenSiblings.has(p.id)) return false;
-      if (p.size_sibling.role === "small") {
-        seenSiblings.add(p.size_sibling.sibling_id);
-        return true;
-      }
-      return !r.some((o) => o.id === p.size_sibling!.sibling_id);
-    });
+    // Size filter: when "small" or "big" is selected show only that variant.
+    // When "all" (default), collapse size pairs to one card (prefer the small).
+    if (sizeParam !== "all") {
+      r = r.filter((p) => {
+        if (!p.size_sibling) return sizeParam === "small";
+        return p.size_sibling.role === sizeParam;
+      });
+    } else {
+      // Size variants (small + big of one model) collapse to a single card —
+      // prefer the small version; the other size opens via the toggle on the
+      // product page. A big shows only if its small partner isn't in the list.
+      const seenSiblings = new Set<string>();
+      r = r.filter((p) => {
+        if (!p.size_sibling) return true;
+        if (seenSiblings.has(p.id)) return false;
+        if (p.size_sibling.role === "small") {
+          seenSiblings.add(p.size_sibling.sibling_id);
+          return true;
+        }
+        return !r.some((o) => o.id === p.size_sibling!.sibling_id);
+      });
+    }
     if (sortParam === "price-low") r.sort((a, b) => a.price - b.price);
     else if (sortParam === "price-high") r.sort((a, b) => b.price - a.price);
     else if (sortParam === "new") r.sort((a, b) => (b.tags.includes("new") ? 1 : 0) - (a.tags.includes("new") ? 1 : 0));
@@ -410,7 +419,7 @@ export default function ShopClient({ lang, dictionary, products, photoPositions 
       r = mixed;
     }
     return r;
-  }, [products, catParam, modelParam, sortParam]);
+  }, [products, catParam, modelParam, sizeParam, sortParam]);
 
   // The agent stores `model` as a free-text field — collect the unique values
   // for the active category so each one becomes its own filter pill.
@@ -427,6 +436,14 @@ export default function ShopClient({ lang, dictionary, products, photoPositions 
     return Array.from(set).sort();
   }, [products, catParam]);
   const showModelFilter = (catParam === "bag" || catParam === "laptop-cases") && bagModels.length > 1;
+
+  // Show size chips (პატარა / დიდი) when the active category contains products
+  // that come in two sizes (size_sibling pairs present).
+  const hasSizeVariants = useMemo(() => {
+    if (catParam === "all") return false;
+    return products.some((p) => p.category === catParam && Boolean(p.size_sibling));
+  }, [products, catParam]);
+  const showSizeFilter = hasSizeVariants;
 
   // Build category filter pills from the agent. The localised labels live on
   // each product (`category_name_ka` / `category_name_en`) and on the
@@ -641,6 +658,28 @@ export default function ShopClient({ lang, dictionary, products, photoPositions 
                     {m}
                   </ModelChip>
                 ))}
+              </div>
+            )}
+
+            {/* Row 1c — size sub-filter (shown when category has small + big variants) */}
+            {showSizeFilter && (
+              <div className="flex flex-wrap items-center gap-2.5">
+                <span style={{
+                  fontFamily: FRAUNCES, fontSize: 12, fontWeight: 700,
+                  letterSpacing: "0.16em", textTransform: "uppercase",
+                  color: C.ink, opacity: 0.6, marginRight: 4,
+                }}>
+                  {isKa ? "ზომა" : "Size"}
+                </span>
+                <ModelChip active={sizeParam === "all"}   onClick={() => setParam("size", null)}>
+                  {isKa ? "ყველა" : "All"}
+                </ModelChip>
+                <ModelChip active={sizeParam === "small"} onClick={() => setParam("size", "small")}>
+                  {isKa ? "პატარა" : "Small"}
+                </ModelChip>
+                <ModelChip active={sizeParam === "big"}   onClick={() => setParam("size", "big")}>
+                  {isKa ? "დიდი" : "Large"}
+                </ModelChip>
               </div>
             )}
 
