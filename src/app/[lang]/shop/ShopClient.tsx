@@ -376,8 +376,14 @@ export default function ShopClient({ lang, dictionary, products, photoPositions 
     // When "all" (default), collapse size pairs to one card (prefer the small).
     if (sizeParam !== "all") {
       r = r.filter((p) => {
-        if (!p.size_sibling) return sizeParam === "small";
-        return p.size_sibling.role === sizeParam;
+        if (p.size_sibling) return p.size_sibling.role === sizeParam;
+        // No pair — derive size from the admin-set size text.
+        const s = (p.size || "").toLowerCase();
+        const isSmall = s.includes("პატარა") || s.includes("small");
+        const isBig   = s.includes("დიდი")   || s.includes("large") || s.includes("big");
+        if (isSmall) return sizeParam === "small";
+        if (isBig)   return sizeParam === "big";
+        return false; // unrecognisable size text — hide from size filters
       });
     } else {
       // Size variants (small + big of one model) collapse to a single card —
