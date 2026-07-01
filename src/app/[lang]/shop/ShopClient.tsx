@@ -376,7 +376,8 @@ export default function ShopClient({ lang, dictionary, products, photoPositions 
     // When "all" (default), collapse size pairs to one card (prefer the small).
     if (sizeParam !== "all") {
       r = r.filter((p) => {
-        if (!p.size_sibling) return sizeParam === "small";
+        // Products with no size pair are one-size — show them in all size views.
+        if (!p.size_sibling) return true;
         return p.size_sibling.role === sizeParam;
       });
     } else {
