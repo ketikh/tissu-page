@@ -413,18 +413,20 @@ export default function ShopClient({ lang, dictionary, products, photoPositions 
   }, [products, catParam, modelParam, sortParam]);
 
   // The agent stores `model` as a free-text field — collect the unique values
-  // present in the bags category so each one becomes its own filter pill.
+  // for the active category so each one becomes its own filter pill.
+  // Shown for bags and laptop-cases, where sub-models ("ფხრიწიანი", "თასმიანი",
+  // "პატარა", etc.) are actually meaningful to shoppers.
   const bagModels = useMemo(() => {
     const set = new Set<string>();
     for (const p of products) {
-      if (p.category === "bag") {
+      if (p.category === catParam) {
         const m = (p.model || "").trim();
         if (m) set.add(m);
       }
     }
     return Array.from(set).sort();
-  }, [products]);
-  const showModelFilter = catParam === "bag" && bagModels.length > 1;
+  }, [products, catParam]);
+  const showModelFilter = (catParam === "bag" || catParam === "laptop-cases") && bagModels.length > 1;
 
   // Build category filter pills from the agent. The localised labels live on
   // each product (`category_name_ka` / `category_name_en`) and on the
