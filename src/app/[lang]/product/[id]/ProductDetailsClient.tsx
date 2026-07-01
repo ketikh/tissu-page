@@ -325,10 +325,10 @@ export function ProductDetailsClient({ product: urlProduct, sibling = null, rela
       variantLabelEn = product.name || product.code;
     } else if (hasPair) {
       // Each size is its own product — add the currently-selected one directly.
-      const dim = sizeRole === "small" ? "33×25" : "37×27";
       variantId = product.id; variantPrice = product.price; variantSize = sizeRole;
-      variantLabelKa = sizeRole === "small" ? `პატარა ${dim}სმ` : `დიდი ${dim}სმ`;
-      variantLabelEn = sizeRole === "small" ? `Small ${dim}cm`  : `Large ${dim}cm`;
+      const sizeText = product.size?.trim() || "";
+      variantLabelKa = sizeText || (sizeRole === "small" ? "პატარა" : "დიდი");
+      variantLabelEn = sizeText || (sizeRole === "small" ? "Small"  : "Large");
     } else {
       // One-size product — record its real admin-set size (no invented small/large).
       variantId = product.id; variantPrice = product.price; variantSize = oneSizeText || "one";
@@ -639,9 +639,9 @@ export function ProductDetailsClient({ product: urlProduct, sibling = null, rela
               )}
 
               {/* Real size variants: this model exists as two separate products
-                  (small + big). The toggle navigates to the sibling, which has
-                  its own price + stock. */}
-              {hasPair && (
+                  (small + big). Both sizes always show; out-of-stock size is
+                  disabled (greyed out) so customers can still see it exists. */}
+              {hasPair && sibling && (
                 <div style={{ marginBottom: 22 }}>
                   <div style={{
                     fontFamily: FRAUNCES, fontStyle: "italic", fontSize: 11, color: C.champagne,
@@ -650,33 +650,40 @@ export function ProductDetailsClient({ product: urlProduct, sibling = null, rela
                     {isKa ? "ზომა" : "Size"}
                   </div>
                   <div style={{ display: "flex", gap: 10, flexWrap: "wrap" }}>
-                    {([
-                      { role: "small" as const, ka: "პატარა", en: "Small", dim: "33×25" },
-                      { role: "big" as const,   ka: "დიდი",   en: "Large", dim: "37×27" },
-                    ]).map((opt) => {
-                      const active = sizeRole === opt.role;
+                    {(pairRole === "small"
+                      ? [{ role: "small" as const, sp: urlProduct }, { role: "big" as const, sp: sibling }]
+                      : [{ role: "small" as const, sp: sibling }, { role: "big" as const, sp: urlProduct }]
+                    ).map(({ role, sp }) => {
+                      const active    = sizeRole === role;
+                      const available = sp.in_stock;
+                      const sizeLabel = sp.size?.trim() || (role === "small"
+                        ? (isKa ? "პატარა" : "Small")
+                        : (isKa ? "დიდი"   : "Large"));
                       return (
                         <motion.button
-                          key={opt.role}
+                          key={role}
                           type="button"
-                          onClick={() => setSizeRole(opt.role)}
-                          whileTap={{ scale: 0.97 }}
+                          onClick={() => { if (available) setSizeRole(role); }}
+                          whileTap={available ? { scale: 0.97 } : {}}
                           style={{
                             flex: "1 1 0", minWidth: 150, padding: "12px 16px",
                             border: active ? `1.5px solid ${catColor.bg}` : `1.5px solid rgba(42,29,20,0.14)`,
                             borderRadius: 14,
-                            background: active ? catColor.bg : "transparent",
-                            color: active ? catColor.text : C.ink,
-                            cursor: "pointer", textAlign: "left",
+                            background: active ? catColor.bg : !available ? "rgba(42,29,20,0.04)" : "transparent",
+                            color: active ? catColor.text : !available ? "rgba(42,29,20,0.32)" : C.ink,
+                            cursor: available ? "pointer" : "not-allowed",
+                            textAlign: "left" as const,
                             transition: "background 0.18s, border-color 0.18s, color 0.18s",
                           }}
                         >
-                          <div style={{ fontFamily: FRAUNCES, fontWeight: 700, fontSize: 14 }}>
-                            {isKa ? opt.ka : opt.en}
+                          <div style={{ fontFamily: FRAUNCES, fontWeight: 700, fontSize: 14, textDecoration: !available ? "line-through" : "none" }}>
+                            {sizeLabel}
                           </div>
-                          <div style={{ fontSize: 11, opacity: active ? 0.7 : 0.55, marginTop: 2, fontFamily: "system-ui, sans-serif" }}>
-                            {opt.dim} {isKa ? "სმ" : "cm"}
-                          </div>
+                          {!available && (
+                            <div style={{ fontSize: 10, marginTop: 3, fontFamily: "system-ui, sans-serif", color: "rgba(42,29,20,0.40)" }}>
+                              {isKa ? "გაყიდულია" : "Sold out"}
+                            </div>
+                          )}
                         </motion.button>
                       );
                     })}
@@ -684,19 +691,28 @@ export function ProductDetailsClient({ product: urlProduct, sibling = null, rela
                 </div>
               )}
 
-              {/* One-size products: show the real admin-set size as plain info —
-                  no invented small/large selector. */}
+              {/* One-size products: show the admin-set size as a styled tag chip. */}
               {!isNecklace && !hasPair && oneSizeText && (
                 <div style={{ marginBottom: 22 }}>
                   <div style={{
                     fontFamily: FRAUNCES, fontStyle: "italic", fontSize: 11, color: C.champagne,
-                    letterSpacing: "0.16em", textTransform: "uppercase", marginBottom: 8,
+                    letterSpacing: "0.16em", textTransform: "uppercase", marginBottom: 10,
                   }}>
                     {isKa ? "ზომა" : "Size"}
                   </div>
-                  <div style={{ fontFamily: FRAUNCES, fontWeight: 700, fontSize: 15, color: C.ink }}>
+                  <span style={{
+                    display: "inline-block",
+                    padding: "10px 18px",
+                    border: `1.5px solid ${catColor.bg}`,
+                    borderRadius: 14,
+                    background: catColor.bg,
+                    color: catColor.text,
+                    fontFamily: FRAUNCES,
+                    fontWeight: 700,
+                    fontSize: 14,
+                  }}>
                     {oneSizeText}
-                  </div>
+                  </span>
                 </div>
               )}
 
