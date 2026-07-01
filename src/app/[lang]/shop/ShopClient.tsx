@@ -383,7 +383,7 @@ export default function ShopClient({ lang, dictionary, products, photoPositions 
         const isBig   = s.includes("დიდი")   || s.includes("large") || s.includes("big");
         if (isSmall) return sizeParam === "small";
         if (isBig)   return sizeParam === "big";
-        return true; // unrecognisable size text — show in all views
+        return false; // unrecognisable size text — hide from size filters
       });
     } else {
       // Size variants (small + big of one model) collapse to a single card —
