@@ -371,6 +371,7 @@ export default function ShopClient({ lang, dictionary, products, photoPositions 
   const visible = useMemo(() => {
     let r = products.filter((p) => Boolean(p.image_front));
     if (catParam !== "all") r = r.filter((p) => p.category === catParam);
+    if (catParam === "necklace" || catParam === "bag") r = r.filter((p) => p.in_stock !== false);
     if (modelParam !== "all") r = r.filter((p) => (p.model || "").trim() === modelParam);
     // Size filter: when "small" or "big" is selected show only that variant.
     // When "all" (default), collapse size pairs to one card (prefer the small).
