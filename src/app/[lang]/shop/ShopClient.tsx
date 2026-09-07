@@ -371,7 +371,10 @@ export default function ShopClient({ lang, dictionary, products, photoPositions 
   const visible = useMemo(() => {
     let r = products.filter((p) => Boolean(p.image_front));
     if (catParam !== "all") r = r.filter((p) => p.category === catParam);
-    if (catParam === "necklace" || catParam === "bag") r = r.filter((p) => p.in_stock !== false);
+    // Sold-out items are hidden from every category — unless the admin has
+    // flagged them as available for pre-order, in which case they stay
+    // visible with a "pre-order" badge instead of being removed.
+    r = r.filter((p) => p.in_stock !== false || p.preorder_available);
     if (modelParam !== "all") r = r.filter((p) => (p.model || "").trim() === modelParam);
     // Size filter: when "small" or "big" is selected show only that variant.
     // When "all" (default), collapse size pairs to one card (prefer the small).
@@ -904,6 +907,10 @@ function ShopCard({ product, index, lang, isKa, copy, position }: {
   const isOnSale = Boolean(product.original_price && product.original_price > product.price);
   const name     = product.name || product.code;
   const inStock  = product.in_stock;
+  // Sold out but the admin ticked "available for pre-order" — still orderable,
+  // just labelled differently instead of a flat "sold out".
+  const isPreorder = !inStock && Boolean(product.preorder_available);
+  const canOrder    = inStock || isPreorder;
 
   const onBuy = (e: React.MouseEvent) => {
     e.preventDefault();
@@ -955,7 +962,7 @@ function ShopCard({ product, index, lang, isKa, copy, position }: {
                 boxShadow: "0 3px 0 rgba(0,0,0,0.35)",
               }}
             >
-              {isKa ? "გაყიდულია" : "Sold out"}
+              {isPreorder ? (isKa ? "წინასწარი შეკვეთით" : "Pre-order") : (isKa ? "გაყიდულია" : "Sold out")}
             </span>
           </>
         )}
@@ -1039,21 +1046,23 @@ function ShopCard({ product, index, lang, isKa, copy, position }: {
 
         <motion.button
           onClick={onBuy}
-          disabled={!inStock}
+          disabled={!canOrder}
           whileTap={{ scale: 0.96 }}
           className="mt-3 font-extrabold text-[10px] uppercase tracking-[0.18em] transition-all hover:-translate-y-0.5 disabled:opacity-40 disabled:cursor-not-allowed"
           style={{
             fontFamily: FRAUNCES,
-            background: inStock ? C.mustard : "transparent",
-            color: inStock ? C.ink : C.champagne,
+            background: canOrder ? C.mustard : "transparent",
+            color: canOrder ? C.ink : C.champagne,
             borderRadius: 999,
             padding: "8px 20px",
-            boxShadow: inStock ? `0 4px 0 ${C.mustardDeep}` : "none",
-            border: inStock ? "none" : `1.5px solid ${C.champagne}`,
+            boxShadow: canOrder ? `0 4px 0 ${C.mustardDeep}` : "none",
+            border: canOrder ? "none" : `1.5px solid ${C.champagne}`,
           }}
         >
           {inStock
             ? (isKa ? "კალათაში →" : "Add to basket →")
+            : isPreorder
+            ? (isKa ? "წინასწარი შეკვეთა →" : "Pre-order →")
             : (isKa ? "ამოიწურა" : "Sold out")}
         </motion.button>
       </div>

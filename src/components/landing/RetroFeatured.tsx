@@ -73,6 +73,7 @@ export default function RetroFeatured({ isKa = false, lang, products, photoPosit
           {picks.map((p) => {
             const name = p.name || p.code;
             const soldOut = !p.in_stock;
+            const preorder = soldOut && Boolean(p.preorder_available);
             return (
               <Link key={p.id} href={`/${lang}/product/${p.id}`} className="group block">
                 <div className="relative overflow-hidden" style={{ borderRadius: 16, background: C.cream, aspectRatio: "1 / 1" }}>
@@ -90,7 +91,7 @@ export default function RetroFeatured({ isKa = false, lang, products, photoPosit
                   )}
                   {soldOut && (
                     <span style={{ position: "absolute", top: 8, left: 8, background: C.ink, color: C.cream, fontSize: 9, fontWeight: 700, padding: "2px 7px", borderRadius: 999, fontFamily: FRAUNCES }}>
-                      {isKa ? "გაყიდულია" : "Sold out"}
+                      {preorder ? (isKa ? "წინასწარი შეკვეთით" : "Pre-order") : (isKa ? "გაყიდულია" : "Sold out")}
                     </span>
                   )}
                 </div>

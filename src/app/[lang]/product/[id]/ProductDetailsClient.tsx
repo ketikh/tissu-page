@@ -294,6 +294,10 @@ export function ProductDetailsClient({ product: urlProduct, sibling = null, rela
   const hasBack   = Boolean(photo.image_back);
   const activeImg = activeSide === "back" && photo.image_back ? photo.image_back : photo.image_front;
   const inStock   = product.in_stock && product.stock > 0;
+  // Sold out but the admin ticked "available for pre-order" — still orderable,
+  // just labelled differently instead of a flat "sold out".
+  const isPreorder = !inStock && Boolean(product.preorder_available);
+  const canOrder    = inStock || isPreorder;
   const isOnSale  = Boolean(product.original_price && product.original_price > product.price);
   const name      = product.name || product.code;
   // Title only — never surface the internal model/colour name (e.g. "ყაყაჩო")
@@ -313,7 +317,7 @@ export function ProductDetailsClient({ product: urlProduct, sibling = null, rela
     : baseCatColor;
 
   const onAddToCart = () => {
-    if (!inStock) return;
+    if (!canOrder) return;
     // Necklaces are one-size with their own admin-set price. Bags also use
     // their admin-set price now — the hardcoded 69/74 was only ever a
     // placeholder when the admin couldn't set prices yet.
@@ -499,10 +503,12 @@ export function ProductDetailsClient({ product: urlProduct, sibling = null, rela
                   background: "rgba(255,255,255,0.92)", backdropFilter: "blur(4px)",
                   borderRadius: 999, padding: "4px 14px",
                   fontFamily: FRAUNCES, fontStyle: "italic", fontSize: 11,
-                  color: inStock ? C.green : C.rose,
+                  color: inStock ? C.green : isPreorder ? C.burnt : C.rose,
                 }}>
                   {inStock
                     ? (isKa ? "✦ მარაგშია" : "✦ In stock")
+                    : isPreorder
+                    ? (isKa ? "✦ წინასწარი შეკვეთით" : "✦ Pre-order")
                     : (isKa ? "გაყიდულია" : "Sold out")}
                 </div>
               </div>
@@ -565,7 +571,11 @@ export function ProductDetailsClient({ product: urlProduct, sibling = null, rela
                   fontFamily: "system-ui, -apple-system, 'Segoe UI', sans-serif",
                   fontSize: 12, color: C.ink, opacity: 0.55,
                 }}>
-                  {inStock ? (isKa ? "მარაგშია" : "In stock") : (isKa ? "გაყიდულია" : "Sold out")}
+                  {inStock
+                    ? (isKa ? "მარაგშია" : "In stock")
+                    : isPreorder
+                    ? (isKa ? "წინასწარი შეკვეთით" : "Pre-order")
+                    : (isKa ? "გაყიდულია" : "Sold out")}
                 </span>
               </motion.div>
 
@@ -655,7 +665,8 @@ export function ProductDetailsClient({ product: urlProduct, sibling = null, rela
                       : [{ role: "small" as const, sp: sibling }, { role: "big" as const, sp: urlProduct }]
                     ).map(({ role, sp }) => {
                       const active    = sizeRole === role;
-                      const available = sp.in_stock;
+                      const sizePreorder = !sp.in_stock && Boolean(sp.preorder_available);
+                      const available = sp.in_stock || sizePreorder;
                       const sizeLabel = sp.size?.trim() || (role === "small"
                         ? (isKa ? "პატარა" : "Small")
                         : (isKa ? "დიდი"   : "Large"));
@@ -676,12 +687,12 @@ export function ProductDetailsClient({ product: urlProduct, sibling = null, rela
                             transition: "background 0.18s, border-color 0.18s, color 0.18s",
                           }}
                         >
-                          <div style={{ fontFamily: FRAUNCES, fontWeight: 700, fontSize: 14, textDecoration: !available ? "line-through" : "none" }}>
+                          <div style={{ fontFamily: FRAUNCES, fontWeight: 700, fontSize: 14, textDecoration: !sp.in_stock && !sizePreorder ? "line-through" : "none" }}>
                             {sizeLabel}
                           </div>
-                          {!available && (
+                          {!sp.in_stock && (
                             <div style={{ fontSize: 10, marginTop: 3, fontFamily: "system-ui, sans-serif", color: "rgba(42,29,20,0.40)" }}>
-                              {isKa ? "გაყიდულია" : "Sold out"}
+                              {sizePreorder ? (isKa ? "წინასწარი შეკვ." : "Pre-order") : (isKa ? "გაყიდულია" : "Sold out")}
                             </div>
                           )}
                         </motion.button>
@@ -736,19 +747,19 @@ export function ProductDetailsClient({ product: urlProduct, sibling = null, rela
                 </div>
 
                 <motion.button
-                  whileHover={{ scale: inStock ? 1.01 : 1 }}
-                  whileTap={{ scale: inStock ? 0.98 : 1 }}
+                  whileHover={{ scale: canOrder ? 1.01 : 1 }}
+                  whileTap={{ scale: canOrder ? 0.98 : 1 }}
                   onClick={onAddToCart}
-                  disabled={!inStock}
+                  disabled={!canOrder}
                   style={{
                     flex: "1 1 0", minWidth: 180,
-                    background: inStock ? catColor.bg : "rgba(201,168,108,0.22)",
-                    color: inStock ? catColor.text : "rgba(42,29,20,0.55)",
+                    background: canOrder ? catColor.bg : "rgba(201,168,108,0.22)",
+                    color: canOrder ? catColor.text : "rgba(42,29,20,0.55)",
                     border: "none", borderRadius: 14,
                     padding: "0 22px", height: 44,
                     fontFamily: FRAUNCES, fontWeight: 600,
                     fontSize: 14, letterSpacing: "0.02em",
-                    cursor: inStock ? "pointer" : "not-allowed",
+                    cursor: canOrder ? "pointer" : "not-allowed",
                     display: "inline-flex", alignItems: "center", justifyContent: "center", gap: 8,
                     transition: "background 0.18s, transform 0.18s",
                   }}
@@ -756,6 +767,8 @@ export function ProductDetailsClient({ product: urlProduct, sibling = null, rela
                   <ShoppingBag size={15} />
                   {inStock
                     ? (isKa ? "კალათში დამატება" : "Add to bag")
+                    : isPreorder
+                    ? (isKa ? "წინასწარი შეკვეთა" : "Pre-order")
                     : (isKa ? "გაყიდულია" : "Sold out")}
                 </motion.button>
               </div>
@@ -978,11 +991,13 @@ function DripCard({ product, lang, isKa, index }: { product: StorefrontProduct; 
   const innerPath = useMemo(() => roundedRectPath(frame.bodyW - 28, frame.bodyH - 28, 200, 250, 10), [frame]);
   const clipId    = `dc-${frame.name}-${index}`;
   const inStock   = product.in_stock && product.stock > 0;
+  const isPreorder = !inStock && Boolean(product.preorder_available);
+  const canOrder    = inStock || isPreorder;
 
   const handleAdd = (e: React.MouseEvent) => {
     e.preventDefault();
     e.stopPropagation();
-    if (!inStock) return;
+    if (!canOrder) return;
     try {
       addItem(
         { id: product.id, slug: product.id, name: { en: name, ka: name }, subtitle: { en: "", ka: "" }, description: { en: "", ka: "" },
@@ -1038,20 +1053,24 @@ function DripCard({ product, lang, isKa, index }: { product: StorefrontProduct; 
           </div>
           <button
             onClick={handleAdd}
-            disabled={!inStock}
+            disabled={!canOrder}
             style={{
               fontFamily: FRAUNCES, fontStyle: "italic", fontWeight: 700,
-              fontSize: 11, color: inStock ? C.ink : C.cream,
-              background: inStock ? C.cream : "transparent",
-              border: inStock ? "none" : `1.5px solid ${C.cream}`,
+              fontSize: 11, color: canOrder ? C.ink : C.cream,
+              background: canOrder ? C.cream : "transparent",
+              border: canOrder ? "none" : `1.5px solid ${C.cream}`,
               borderRadius: 999,
-              padding: "6px 16px", cursor: inStock ? "pointer" : "not-allowed",
-              boxShadow: inStock ? `0 3px 0 ${C.mustardDeep}` : "none",
+              padding: "6px 16px", cursor: canOrder ? "pointer" : "not-allowed",
+              boxShadow: canOrder ? `0 3px 0 ${C.mustardDeep}` : "none",
               letterSpacing: "0.06em",
-              opacity: inStock ? 1 : 0.75,
+              opacity: canOrder ? 1 : 0.75,
             }}
           >
-            {inStock ? `+ ${isKa ? "კალათი" : "Add"}` : (isKa ? "ამოიწურა" : "Sold out")}
+            {inStock
+              ? `+ ${isKa ? "კალათი" : "Add"}`
+              : isPreorder
+              ? (isKa ? "წინასწარი" : "Pre-order")
+              : (isKa ? "ამოიწურა" : "Sold out")}
           </button>
         </div>
       </motion.div>

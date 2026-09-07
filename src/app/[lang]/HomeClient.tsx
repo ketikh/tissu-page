@@ -107,12 +107,14 @@ export default function HomeClient({ lang, products: rawProducts, heroCMS, about
                 ? rawProducts.find(p => p.id === r.productId)
                 : undefined;
               const soldOut = linked ? !linked.in_stock : false;
+              const preorder = soldOut && Boolean(linked?.preorder_available);
               return {
                 text: { ka: r.comment, en: r.comment },
                 name: r.name,
                 meta: { ka: "", en: "" },
                 photo: r.photoUrl ? cloudinaryThumb(r.photoUrl, 600) : "",
                 soldOut,
+                preorder,
               };
             })
           : undefined}

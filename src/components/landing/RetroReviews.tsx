@@ -12,6 +12,9 @@ interface Review {
   /** When the linked product is out of stock, show a sold-out badge on
    *  the photo so visitors don't get their hopes up. */
   soldOut?: boolean;
+  /** Sold out but still orderable — shows a "pre-order" badge instead of
+   *  "sold out" and skips the desaturated look. */
+  preorder?: boolean;
 }
 
 interface RetroReviewsProps {
@@ -190,7 +193,7 @@ export default function RetroReviews({ isKa = false, reviews = DEFAULT_REVIEWS }
                 sizes="260px"
                 className="object-cover"
                 style={{
-                  filter: review.soldOut
+                  filter: review.soldOut && !review.preorder
                     ? "saturate(0.4) opacity(0.8)"
                     : "saturate(0.95) sepia(0.05)",
                 }}
@@ -237,7 +240,7 @@ export default function RetroReviews({ isKa = false, reviews = DEFAULT_REVIEWS }
                   whiteSpace: "nowrap",
                 }}
               >
-                {isKa ? "გაყიდულია" : "Sold out"}
+                {review.preorder ? (isKa ? "წინასწარი შეკვეთით" : "Pre-order") : (isKa ? "გაყიდულია" : "Sold out")}
               </span>
             )}
           </div>

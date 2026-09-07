@@ -37,6 +37,10 @@ export interface StorefrontProduct {
   currency: string;
   stock: number;
   in_stock: boolean;
+  /** Admin-set flag: this model sold out but can still be made to order.
+   *  When true, the storefront shows a "pre-order" badge/button instead of
+   *  hiding the product or marking it plain "sold out". */
+  preorder_available?: boolean;
   image_front: string;
   image_back: string | null;
   /** Optional extra "lookbook" photos for this product — separate from the
@@ -105,6 +109,7 @@ interface InventoryItem {
   on_sale?: boolean;
   sale_price?: number | null;
   stock?: number;
+  preorder_available?: boolean;
   image_url?: string;
   image_url_back?: string | null;
   gallery_images?: string[];
@@ -152,6 +157,7 @@ function mapInventoryToProduct(it: InventoryItem): StorefrontProduct {
     currency: "GEL",
     stock,
     in_stock: stock > 0,
+    preorder_available: Boolean(it.preorder_available),
     image_front: it.image_url ?? "",
     image_back: it.image_url_back ?? null,
     gallery_images: gallery && gallery.length > 0 ? gallery : undefined,
@@ -189,6 +195,16 @@ function buildSiblingMap(products?: StorefrontProduct[]): Map<string, SiblingInf
   return map;
 }
 
+/** `/api/inventory` may not carry `preorder_available` yet even where the
+ *  storefront endpoint does — back it up from there, same idea as siblings. */
+function buildPreorderMap(products?: StorefrontProduct[]): Map<string, boolean> {
+  const map = new Map<string, boolean>();
+  for (const p of products ?? []) {
+    if (p.preorder_available) map.set(String(p.id), true);
+  }
+  return map;
+}
+
 export async function fetchStorefrontProducts(): Promise<StorefrontProduct[]> {
   // The agent's /api/storefront/products hides sold-out items, so the catalogue
   // comes from the admin inventory endpoint (server-side, admin key stays on the
@@ -199,12 +215,17 @@ export async function fetchStorefrontProducts(): Promise<StorefrontProduct[]> {
     adminFetch<ProductsResponse>("/api/storefront/products"),
   ]);
   const siblings = buildSiblingMap(sf?.products);
+  const preorders = buildPreorderMap(sf?.products);
   const items = inv?.inventory;
   if (Array.isArray(items) && items.length > 0) {
     return items
       .filter((it) => Boolean(it.image_url))
       .map(mapInventoryToProduct)
-      .map((p) => ({ ...p, size_sibling: siblings.get(p.id) ?? null }));
+      .map((p) => ({
+        ...p,
+        size_sibling: siblings.get(p.id) ?? null,
+        preorder_available: p.preorder_available || preorders.get(p.id) || false,
+      }));
   }
   if (sf?.products?.length) {
     return sf.products.map((p) => ({ ...p, size_sibling: siblings.get(String(p.id)) ?? null }));
