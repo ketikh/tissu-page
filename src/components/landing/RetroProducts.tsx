@@ -488,7 +488,13 @@ export default function RetroProducts({
   // laptop-cases the admin ticked "show on home" appear here — no fallback, so
   // if nothing is ticked the whole section simply doesn't render.
   const showcase = products
-    .filter((p) => Boolean(p.image_front) && p.category === "laptop-cases" && isHomeFeatured(photoPositions[p.id]))
+    .filter(
+      (p) =>
+        Boolean(p.image_front) &&
+        p.category === "laptop-cases" &&
+        isHomeFeatured(photoPositions[p.id]) &&
+        (p.in_stock !== false || p.preorder_available),
+    )
     .slice(0, Math.min(limit, FRAMES.length));
 
   if (showcase.length === 0) return null;

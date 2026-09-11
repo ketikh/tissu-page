@@ -41,7 +41,8 @@ export default function RetroFeatured({ isKa = false, lang, products, photoPosit
             Boolean(p.image_front) &&
             isHomeFeatured(photoPositions[p.id]) &&
             p.category !== "laptop-cases" &&
-            p.category !== "necklace",
+            p.category !== "necklace" &&
+            (p.in_stock !== false || p.preorder_available),
         )
         .slice(0, 3),
     [products, photoPositions],

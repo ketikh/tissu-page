@@ -158,7 +158,14 @@ export default function RetroNecklaces({
   const resolvedLang = lang ?? shopHref.split("/").filter(Boolean)[0] ?? "en";
   // Only necklaces the admin ticked "show on home" appear here.
   const necklaces = useMemo(
-    () => products.filter((p) => p.category === "necklace" && Boolean(p.image_front) && isHomeFeatured(photoPositions[p.id])),
+    () =>
+      products.filter(
+        (p) =>
+          p.category === "necklace" &&
+          Boolean(p.image_front) &&
+          isHomeFeatured(photoPositions[p.id]) &&
+          (p.in_stock !== false || p.preorder_available),
+      ),
     [products, photoPositions]
   );
 
