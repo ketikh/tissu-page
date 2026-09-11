@@ -823,7 +823,7 @@ export function ProductDetailsClient({ product: urlProduct, sibling = null, rela
                   ))}
                 </ul>
 
-                {!isNecklace && (
+                {product.category === "laptop-cases" && (
                   <>
                     <div style={{
                       fontFamily: FRAUNCES, fontWeight: 600,
