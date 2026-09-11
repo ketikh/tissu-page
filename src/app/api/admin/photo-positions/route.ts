@@ -1,5 +1,6 @@
 import { NextResponse } from "next/server";
 import { cookies } from "next/headers";
+import { revalidatePath } from "next/cache";
 import { ADMIN_COOKIE_NAME, verifyAdminToken } from "@/lib/admin-session";
 import { getSetting, setSetting } from "@/lib/app-settings";
 import type { PhotoPositions } from "@/lib/shop-photo-positions";
@@ -33,6 +34,10 @@ export async function PUT(req: Request) {
     }
     const ok = await setSetting(SETTINGS_KEY, body.positions);
     if (!ok) return NextResponse.json({ error: "Save failed" }, { status: 500 });
+    // The home/shop pages cache product+photo data for several minutes —
+    // without this, a saved "show on home" change wouldn't appear live until
+    // that cache happened to expire on its own.
+    revalidatePath("/", "layout");
     return NextResponse.json({ ok: true }, { status: 200 });
   } catch (err) {
     console.error("[admin/photo-positions PUT] failed:", err);
