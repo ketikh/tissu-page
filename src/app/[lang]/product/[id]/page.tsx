@@ -51,13 +51,21 @@ export default async function ProductDetailsPage({
 
   if (!product) notFound();
 
+  // `/api/storefront/products/{id}` doesn't carry `preorder_available` yet —
+  // backfill it from the inventory-sourced list, which does.
+  const finalProduct = {
+    ...product,
+    preorder_available:
+      product.preorder_available || allProducts.find((p) => p.id === product.id)?.preorder_available || false,
+  };
+
   const related = allProducts
-    .filter((p) => p.id !== product.id && p.category === product.category)
+    .filter((p) => p.id !== finalProduct.id && p.category === finalProduct.category)
     .slice(0, 4);
 
   // The other size of this model (if any), so the page can switch size in place.
-  const sibling = product.size_sibling
-    ? allProducts.find((p) => p.id === product.size_sibling!.sibling_id) ?? null
+  const sibling = finalProduct.size_sibling
+    ? allProducts.find((p) => p.id === finalProduct.size_sibling!.sibling_id) ?? null
     : null;
 
   // Product structured data → lets Google show price + availability in results.
@@ -87,7 +95,7 @@ export default async function ProductDetailsPage({
         dangerouslySetInnerHTML={{ __html: JSON.stringify(productJsonLd).replace(/</g, "\\u003c") }}
       />
       <ProductDetailsClient
-        product={product}
+        product={finalProduct}
         sibling={sibling}
         related={related}
         lang={locale}
