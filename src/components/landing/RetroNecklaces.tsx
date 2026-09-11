@@ -315,7 +315,7 @@ function NecklaceCard({
             y="0"
             width="400"
             height="500"
-            preserveAspectRatio="xMidYMid meet"
+            preserveAspectRatio="xMidYMid slice"
             transform={buildHomePhotoTransform(position)}
             clipPath={`url(#${clipId})`}
             style={{
@@ -332,7 +332,7 @@ function NecklaceCard({
               y="0"
               width="400"
               height="500"
-              preserveAspectRatio="xMidYMid meet"
+              preserveAspectRatio="xMidYMid slice"
               transform={buildHomeBackPhotoTransform(position)}
               clipPath={`url(#${clipId})`}
               style={{
