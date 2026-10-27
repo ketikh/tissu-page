@@ -61,6 +61,7 @@ export function Footer({
     { label: isKa ? "კონტაქტი" : "Contact", href: `/${lang}/contact` },
     { label: isKa ? "კონფიდენციალურობა" : "Privacy", href: `/${lang}/privacy` },
     { label: isKa ? "წესები" : "Terms", href: `/${lang}/terms` },
+    { label: isKa ? "იურიდიული ინფორმაცია" : "Legal Information", href: `/${lang}/legal-information` },
   ];
 
   return (
