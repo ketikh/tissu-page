@@ -1,8 +1,9 @@
 import { feedToCsv } from "@/lib/meta/feed";
-import { FEED_CACHE_SECONDS, feedCacheHeaders, loadFeedItems } from "@/lib/meta/feed-items";
+import { feedCacheHeaders, loadFeedItems } from "@/lib/meta/feed-items";
 
 /** Meta Commerce catalogue feed (CSV). Public, no auth, cached ~1h. */
-export const revalidate = FEED_CACHE_SECONDS;
+// Next.js needs a literal here; keep in sync with FEED_CACHE_SECONDS in feed-items.ts.
+export const revalidate = 3600;
 
 export async function GET() {
   const { items } = await loadFeedItems();

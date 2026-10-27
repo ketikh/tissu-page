@@ -92,7 +92,7 @@ link, image_link, additional_image_link, brand, item_group_id, color, size,
 google_product_category`. Products without a photo or price are skipped.
 Availability is `in stock`, `out of stock`, or `available for order` for sold-out
 items the admin marked as pre-orderable. `item_group_id` groups colour/size
-variants by the admin's *model* name. The feed is cached for one hour.
+variants by the admin's *model* name. The feed regenerates at most every 10 minutes and tells caches (Cloudflare, Meta) to keep it for an hour.
 
 ## 5. Infrastructure notes
 
