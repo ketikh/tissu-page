@@ -9,6 +9,9 @@ import { CartDrawer } from "@/components/layout/CartDrawer";
 import MobileMotionGate from "@/components/MobileMotionGate";
 import { getDictionary } from "@/i18n/getDictionary";
 import { fetchCMSSection } from "@/lib/admin-content";
+import { Suspense } from "react";
+import { MetaPixel } from "@/components/meta/MetaPixel";
+import { getMetaConfig } from "@/lib/meta/config";
 
 const nunito = Nunito({
   variable: "--font-nunito",
@@ -126,6 +129,7 @@ export default async function RootLayout({
   const { lang } = await params;
   const locale = lang as Locale;
   const dictionary = await getDictionary(locale);
+  const metaTracking = getMetaConfig();
 
   // CMS values for the footer — tagline and social links — load in parallel
   // and fall back silently if the CMS is unreachable.
@@ -177,6 +181,9 @@ export default async function RootLayout({
             the first image starts downloading hundreds of ms earlier. */}
         <link rel="preconnect" href="https://res.cloudinary.com" crossOrigin="anonymous" />
         <link rel="dns-prefetch" href="https://res.cloudinary.com" />
+        {metaTracking.domainVerification && (
+          <meta name="facebook-domain-verification" content={metaTracking.domainVerification} />
+        )}
         <script
           type="application/ld+json"
           dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd).replace(/</g, "\\u003c") }}
@@ -191,6 +198,11 @@ export default async function RootLayout({
           </main>
           <Footer dictionary={dictionary} lang={locale} tagline={tagline} socials={socials} />
         </MobileMotionGate>
+        {metaTracking.pixelId && (
+          <Suspense fallback={null}>
+            <MetaPixel pixelId={metaTracking.pixelId} />
+          </Suspense>
+        )}
       </body>
     </html>
   );
