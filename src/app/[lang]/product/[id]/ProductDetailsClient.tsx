@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useMemo } from "react";
+import { useState, useMemo, useEffect } from "react";
 import Image from "next/image";
 import Link from "next/link";
 import { motion } from "framer-motion";
@@ -13,6 +13,8 @@ import { useUIStore } from "@/store/useUIStore";
 import { cloudinaryCutout } from "@/lib/cloudinary";
 import { useStoreHydration } from "@/store/useHydration";
 import { getLandingCopy } from "@/app/[lang]/landingCopy";
+import { trackMetaEvent } from "@/lib/meta/pixel-client";
+import { META_CURRENCY } from "@/lib/meta/events";
 
 const PACIFICO = "var(--font-pacifico), 'Pacifico', cursive";
 const FRAUNCES = "var(--font-fraunces), 'Fraunces', Georgia, serif";
@@ -287,6 +289,17 @@ export function ProductDetailsClient({ product: urlProduct, sibling = null, rela
 
   const addItem  = useCartStore((s) => s.addItem);
   const openCart = useUIStore((s) => s.openCart);
+
+  // Meta Pixel: one ViewContent per product shown (also mirrored server-side).
+  useEffect(() => {
+    trackMetaEvent("ViewContent", {
+      content_ids: [product.id],
+      content_type: "product",
+      content_name: product.name,
+      value: product.price,
+      currency: META_CURRENCY,
+    });
+  }, [product.id, product.name, product.price]);
 
   // Photos stay fixed to the page's primary product — switching size must NOT
   // swap the images (both sizes share the same photos).

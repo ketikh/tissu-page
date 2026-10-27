@@ -4,6 +4,7 @@ import { useState } from "react";
 import Link from "next/link";
 import { Locale } from "@/i18n/config";
 import { Mail, Phone, MapPin, Send, Loader2, Check } from "lucide-react";
+import { trackMetaEvent } from "@/lib/meta/pixel-client";
 
 interface ContactInfo {
   email: string;
@@ -85,6 +86,7 @@ export default function ContactClient({ lang, info }: { lang: Locale; info: Cont
     await new Promise(r => setTimeout(r, 700));
     setSubmitting(false);
     setSubmitted(true);
+    trackMetaEvent("Lead", { content_name: "contact-form" });
   };
 
   return (

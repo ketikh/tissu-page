@@ -2,6 +2,8 @@ import { NextResponse } from "next/server";
 import { notifyAdminNewOrder } from "@/lib/notifications";
 import { sendOrderInvoice } from "@/lib/invoice-email";
 import { fetchStorefrontProducts } from "@/lib/admin-api";
+import { sendMetaEvent } from "@/lib/meta/capi";
+import { META_CURRENCY, roundMoney } from "@/lib/meta/events";
 
 /**
  * Order intake. The tissu-agent now owns orders end-to-end — we forward the
@@ -189,6 +191,32 @@ export async function POST(req: Request) {
       console.error("[checkout] agent returned no order id:", created);
       return NextResponse.json({ error: "Order id missing" }, { status: 502 });
     }
+
+    // Meta Conversions API: server-side Purchase is the reliable copy. Same
+    // event_id as the browser event (the order id) so Meta deduplicates them.
+    // Fire-and-forget: a tracking failure must never affect the order.
+    void sendMetaEvent({
+      eventName: "Purchase",
+      eventId: orderId,
+      eventSourceUrl: req.headers.get("referer") || undefined,
+      customData: {
+        value: roundMoney(total ?? 0),
+        currency: META_CURRENCY,
+        content_ids: items.map((i) => String(i.productId)),
+        content_type: "product",
+        contents: items.map((i) => ({ id: String(i.productId), quantity: i.quantity, item_price: i.price })),
+        num_items: items.reduce((sum, i) => sum + i.quantity, 0),
+      },
+      user: {
+        email: customer.email,
+        phone: customer.phone,
+        firstName: customer.firstName,
+        lastName: customer.lastName,
+        city: shippingAddress.city,
+        country: "ge",
+      },
+      request: req,
+    });
 
     // Translate back to the legacy shape the checkout client expects (it
     // JSON.parses shippingAddress + per-item productName/variantName).

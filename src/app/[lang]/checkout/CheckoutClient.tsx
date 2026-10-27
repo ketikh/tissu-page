@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useCartStore } from "@/store/useCartStore";
@@ -22,6 +22,8 @@ import {
 import Image from "next/image";
 import { Locale } from "@/i18n/config";
 import { Order } from "@/lib/types";
+import { stashPurchase, trackMetaEvent } from "@/lib/meta/pixel-client";
+import { META_CURRENCY, roundMoney } from "@/lib/meta/events";
 
 const FRAUNCES = "var(--font-alk-life), var(--font-fraunces), 'Fraunces', Georgia, serif";
 const PRICE_FONT = "system-ui, -apple-system, 'Segoe UI', sans-serif";
@@ -144,6 +146,20 @@ export default function CheckoutClient({ lang, dictionary }: CheckoutClientProps
   // Final order total uses the zone's delivery fee instead of the cart's
   // estimate, so the customer sees the actual courier price they picked.
   const totalWithDelivery = subtotal - discountAmount + deliveryFee;
+
+  // Meta Pixel: InitiateCheckout once per visit, as soon as the cart is known.
+  const initiateCheckoutTracked = useRef(false);
+  useEffect(() => {
+    if (initiateCheckoutTracked.current || items.length === 0) return;
+    initiateCheckoutTracked.current = true;
+    trackMetaEvent("InitiateCheckout", {
+      value: roundMoney(totalWithDelivery),
+      currency: META_CURRENCY,
+      num_items: items.reduce((sum, item) => sum + item.quantity, 0),
+      content_ids: items.map((item) => item.productId),
+      content_type: "product",
+    });
+  }, [items, totalWithDelivery]);
 
   // Form State — email is optional
   const [formData, setFormData] = useState({
@@ -283,6 +299,21 @@ export default function CheckoutClient({ lang, dictionary }: CheckoutClientProps
       }
 
       const newOrder = data.order;
+
+      // Meta Pixel: the confirmation page fires Purchase once, with the order id
+      // as event id (the checkout API sends the same event server-side, so Meta
+      // deduplicates the pair).
+      stashPurchase({
+        orderId: String(newOrder.id),
+        data: {
+          value: roundMoney(totalWithDelivery),
+          currency: META_CURRENCY,
+          content_ids: orderPayloadItems.map((i) => i.productId),
+          content_type: "product",
+          contents: orderPayloadItems.map((i) => ({ id: i.productId, quantity: i.quantity, item_price: i.price })),
+          num_items: orderPayloadItems.reduce((sum, i) => sum + i.quantity, 0),
+        },
+      });
       const formattedOrder: Order = {
         ...newOrder,
         shippingAddress: JSON.parse(newOrder.shippingAddress),

@@ -9,6 +9,7 @@ import Image from "next/image";
 import { Locale } from "@/i18n/config";
 import { useEffect, useState } from "react";
 import { Order } from "@/lib/types";
+import { trackStashedPurchase } from "@/lib/meta/pixel-client";
 
 const FRAUNCES = "var(--font-alk-life), var(--font-fraunces), 'Fraunces', Georgia, serif";
 const SANS = "system-ui, -apple-system, 'Segoe UI', sans-serif";
@@ -79,6 +80,11 @@ export default function SuccessClient({ lang, orderId }: SuccessClientProps) {
       if (found) setOrder(found);
     }
   }, [isAuthenticated, user, orderId]);
+
+  // Meta Pixel: browser Purchase, exactly once per order (safe on refresh).
+  useEffect(() => {
+    if (orderId) trackStashedPurchase(orderId);
+  }, [orderId]);
 
   const addr = order?.shippingAddress as any;
   const contactMethod: string | undefined = addr?.contactMethod;

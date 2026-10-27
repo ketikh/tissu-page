@@ -1,6 +1,8 @@
 import { create } from "zustand";
 import { persist } from "zustand/middleware";
 import { CartItem, Product, ProductVariant } from "../lib/types";
+import { trackMetaEvent } from "../lib/meta/pixel-client";
+import { META_CURRENCY, roundMoney } from "../lib/meta/events";
 
 interface CartState {
   items: CartItem[];
@@ -42,6 +44,17 @@ export const useCartStore = create<CartState>()(
 
           const id = `${product.id}-${variant.id}-${Date.now()}`;
           return { items: [...state.items, { id, productId: product.id, variantId: variant.id, product, variant, quantity }] };
+        });
+        // Meta Pixel: every add-to-cart path goes through here.
+        const unitPrice = variant.price || product.price;
+        trackMetaEvent("AddToCart", {
+          content_ids: [product.id],
+          content_type: "product",
+          content_name: product.name.en || product.name.ka,
+          value: roundMoney(unitPrice * quantity),
+          currency: META_CURRENCY,
+          contents: [{ id: product.id, quantity, item_price: unitPrice }],
+          num_items: quantity,
         });
       },
 
