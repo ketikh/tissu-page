@@ -26,17 +26,19 @@ up under "Test events".
 | ViewContent | product page (`/ka/product/…`, `/en/product/…`) | mirrored | random, shared |
 | AddToCart | every add-to-cart button (product page, shop grid, necklace builder) | mirrored | random, shared |
 | InitiateCheckout | checkout page, once per visit, when the cart is known | mirrored | random, shared |
-| Purchase | order confirmation page, once per order | sent directly by `/api/checkout` when the order is created | the order id |
+| Purchase | checkout page, the moment `/api/checkout` accepts the order (payment is offline, so submission completes the order) | sent directly by `/api/checkout` when the order is created | the order id |
 | Contact | click on any Instagram / Facebook / Messenger / WhatsApp / Viber / Telegram / mailto / tel link | mirrored | random, shared |
 | Lead | contact form submitted (`/contact`) | mirrored | random, shared |
 
 - All values are in GEL. `content_ids` use the product id from the admin, which is
   also the `id` column of the feed, so events match catalogue items.
 - Browser and server copies share one `event_id`, so Meta deduplicates them.
-- Purchase is idempotent: the checkout page hands the order to the confirmation
-  page through session storage, the confirmation page fires once and remembers
-  the order id, so a refresh never fires it again. The server copy is the
-  reliable one and goes out even if the customer closes the tab.
+- Purchase fires exactly once per created order: the browser fires it as soon
+  as `/api/checkout` returns the new order id, before moving to the
+  confirmation page, and the confirmation page itself fires nothing, so a
+  refresh can never repeat it. `value` is the order total the customer saw
+  (items minus discount plus delivery) in GEL. The server copy is the reliable
+  one and goes out even if the customer closes the tab.
 - Server events carry `client_ip_address` (Cloudflare's `cf-connecting-ip`),
   `client_user_agent`, the `_fbp` / `_fbc` cookies (or `fbc` built from
   `fbclid`), and SHA-256 hashes of email, phone, first name, last name, city
@@ -56,7 +58,8 @@ Code lives in `src/lib/meta/` (shared logic), `src/components/meta/MetaPixel.tsx
 2. Open https://tissu.ge, a product page, add something to the cart, open the
    checkout, click the Instagram icon. The helper should list PageView,
    ViewContent, AddToCart, InitiateCheckout and Contact with their parameters.
-3. Place a test order: on the confirmation page the helper shows Purchase with
+3. Place a test order: Purchase fires on the checkout page the moment the order
+   is accepted and stays listed in the helper on the confirmation page, with
    the order total and the product ids.
 
 ### Conversions API (server)
