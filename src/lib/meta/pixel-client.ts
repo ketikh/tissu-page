@@ -26,8 +26,6 @@ declare global {
 const FBEVENTS_SRC = "https://connect.facebook.net/en_US/fbevents.js";
 const MIRROR_ENDPOINT = "/api/meta/events";
 const MAX_PENDING_EVENTS = 25;
-const PURCHASE_STASH_KEY = "tissu:meta-purchase";
-const PURCHASE_FIRED_PREFIX = "tissu:meta-purchase-fired:";
 
 let pixelInitialized = false;
 const pendingEvents: Array<() => void> = [];
@@ -114,40 +112,5 @@ function mirrorToServer(name: MetaEventName, eventId: string, data?: MetaCustomD
     }).catch(() => undefined);
   } catch {
     // Ignore: the browser event already went out.
-  }
-}
-
-export interface StashedPurchase {
-  orderId: string;
-  data: MetaCustomData;
-}
-
-/** Checkout calls this right after the order is created; the confirmation
- *  page then fires the browser Purchase exactly once. */
-export function stashPurchase(purchase: StashedPurchase): void {
-  try {
-    sessionStorage.setItem(PURCHASE_STASH_KEY, JSON.stringify(purchase));
-  } catch {
-    // Storage unavailable (private mode): the server-side Purchase still goes out.
-  }
-}
-
-/** Fire Purchase for this order once. Refreshing the confirmation page does
- *  not fire it again: the stash is consumed and the order id is remembered. */
-export function trackStashedPurchase(orderId: string): boolean {
-  if (typeof window === "undefined") return false;
-  try {
-    const firedKey = PURCHASE_FIRED_PREFIX + orderId;
-    if (localStorage.getItem(firedKey)) return false;
-    const raw = sessionStorage.getItem(PURCHASE_STASH_KEY);
-    sessionStorage.removeItem(PURCHASE_STASH_KEY);
-    if (!raw) return false;
-    const stashed = JSON.parse(raw) as StashedPurchase;
-    if (stashed.orderId !== orderId) return false;
-    localStorage.setItem(firedKey, "1");
-    trackMetaEvent("Purchase", stashed.data, { eventId: orderId, mirror: false });
-    return true;
-  } catch {
-    return false;
   }
 }

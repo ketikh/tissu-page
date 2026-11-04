@@ -22,7 +22,7 @@ import {
 import Image from "next/image";
 import { Locale } from "@/i18n/config";
 import { Order } from "@/lib/types";
-import { stashPurchase, trackMetaEvent } from "@/lib/meta/pixel-client";
+import { trackMetaEvent } from "@/lib/meta/pixel-client";
 import { META_CURRENCY, roundMoney } from "@/lib/meta/events";
 
 const FRAUNCES = "var(--font-alk-life), var(--font-fraunces), 'Fraunces', Georgia, serif";
@@ -300,12 +300,13 @@ export default function CheckoutClient({ lang, dictionary }: CheckoutClientProps
 
       const newOrder = data.order;
 
-      // Meta Pixel: the confirmation page fires Purchase once, with the order id
-      // as event id (the checkout API sends the same event server-side, so Meta
-      // deduplicates the pair).
-      stashPurchase({
-        orderId: String(newOrder.id),
-        data: {
+      // Meta Pixel: there is no online payment, so the order is complete the
+      // moment it is accepted. Purchase fires right here, once, with the order
+      // id as event id; the checkout API sends the same event server-side and
+      // Meta deduplicates the pair. The confirmation page fires nothing.
+      trackMetaEvent(
+        "Purchase",
+        {
           value: roundMoney(totalWithDelivery),
           currency: META_CURRENCY,
           content_ids: orderPayloadItems.map((i) => i.productId),
@@ -313,7 +314,8 @@ export default function CheckoutClient({ lang, dictionary }: CheckoutClientProps
           contents: orderPayloadItems.map((i) => ({ id: i.productId, quantity: i.quantity, item_price: i.price })),
           num_items: orderPayloadItems.reduce((sum, i) => sum + i.quantity, 0),
         },
-      });
+        { eventId: String(newOrder.id), mirror: false },
+      );
       const formattedOrder: Order = {
         ...newOrder,
         shippingAddress: JSON.parse(newOrder.shippingAddress),
