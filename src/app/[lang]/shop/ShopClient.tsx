@@ -12,6 +12,7 @@ import { useCartStore } from "@/store/useCartStore";
 import { useUIStore } from "@/store/useUIStore";
 import { buildPhotoTransform, buildBackPhotoTransform } from "@/lib/shop-photo-positions";
 import { cloudinaryCutout, cloudinaryThumb } from "@/lib/cloudinary";
+import { hasRecognisableSize, sizeRoleFromText } from "@/lib/product-size";
 
 const PACIFICO = "var(--font-pacifico), 'Pacifico', cursive";
 const FRAUNCES = "var(--font-fraunces), 'Fraunces', Georgia, serif";
@@ -381,13 +382,9 @@ export default function ShopClient({ lang, dictionary, products, photoPositions 
     if (sizeParam !== "all") {
       r = r.filter((p) => {
         if (p.size_sibling) return p.size_sibling.role === sizeParam;
-        // No pair — derive size from the admin-set size text.
-        const s = (p.size || "").toLowerCase();
-        const isSmall = s.includes("პატარა") || s.includes("small");
-        const isBig   = s.includes("დიდი")   || s.includes("large") || s.includes("big");
-        if (isSmall) return sizeParam === "small";
-        if (isBig)   return sizeParam === "big";
-        return false; // unrecognisable size text — hide from size filters
+        // No pair — derive size from the admin-set size text. Unrecognisable
+        // size text (or none) hides the product from the size filters.
+        return sizeRoleFromText(p.size) === sizeParam;
       });
     } else {
       // Size variants (small + big of one model) collapse to a single card —
@@ -448,10 +445,11 @@ export default function ShopClient({ lang, dictionary, products, photoPositions 
   const showModelFilter = (catParam === "bag" || catParam === "laptop-cases") && bagModels.length > 1;
 
   // Show size chips (პატარა / დიდი) when the active category contains products
-  // that come in two sizes (size_sibling pairs present).
+  // that come in two sizes — either linked size pairs (laptop cases) or
+  // single products whose admin-set size says პატარა / დიდი (cosmetic bags).
   const hasSizeVariants = useMemo(() => {
     if (catParam === "all") return false;
-    return products.some((p) => p.category === catParam && Boolean(p.size_sibling));
+    return products.some((p) => p.category === catParam && hasRecognisableSize(p));
   }, [products, catParam]);
   const showSizeFilter = hasSizeVariants;
 
@@ -907,6 +905,14 @@ function ShopCard({ product, index, lang, isKa, copy, position }: {
   const isOnSale = Boolean(product.original_price && product.original_price > product.price);
   const name     = product.name || product.code;
   const inStock  = product.in_stock;
+  // Single-size products whose admin size says პატარა / დიდი (cosmetic bags)
+  // show it under the title, so shoppers can tell the sizes apart in the
+  // grid. Size pairs (laptop cases) keep their toggle on the product page.
+  const sizeRole = product.size_sibling ? null : sizeRoleFromText(product.size);
+  const sizeCaption = sizeRole
+    ? (isKa ? (sizeRole === "small" ? "პატარა ზომა" : "დიდი ზომა")
+            : (sizeRole === "small" ? "Small" : "Large"))
+    : "";
   // Sold out but the admin ticked "available for pre-order" — still orderable,
   // just labelled differently instead of a flat "sold out".
   const isPreorder = !inStock && Boolean(product.preorder_available);
@@ -1031,7 +1037,13 @@ function ShopCard({ product, index, lang, isKa, copy, position }: {
         </Link>
 
         {/* No model/colour subtitle — the product title is the only label, so
-            internal names like "ყაყაჩო" never leak onto the storefront. */}
+            internal names like "ყაყაჩო" never leak onto the storefront. The
+            only extra line is the size, and only when the admin set one. */}
+        {sizeCaption && (
+          <div style={{ fontFamily: FRAUNCES, fontSize: 12, color: C.champagne, letterSpacing: "0.08em", marginTop: 4 }}>
+            {sizeCaption}
+          </div>
+        )}
 
         <div className="flex items-baseline gap-2 mt-2">
           <span style={{ fontFamily: PACIFICO, fontSize: "clamp(18px, 1.8vw, 24px)", color: C.burnt, lineHeight: 1.1 }}>

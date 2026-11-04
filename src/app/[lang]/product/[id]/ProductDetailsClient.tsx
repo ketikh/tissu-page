@@ -319,9 +319,17 @@ export function ProductDetailsClient({ product: urlProduct, sibling = null, rela
   const isKa      = lang === "ka";
   const curr      = product.currency === "GEL" ? "₾" : ` ${product.currency}`;
   // The filter dictionary only knows the canonical categories; custom ones
-  // from the agent get displayed under their raw name.
+  // from the agent (e.g. "cosmetic-bag") use the bilingual name the owner
+  // typed in the admin panel, and only fall back to the raw slug when even
+  // that is missing — a customer should never see "cosmetic-bag".
   const filterKey = (product.category === "tote" ? "bag" : product.category) as keyof typeof copy.shop.filters;
-  const categoryLabel = (copy.shop.filters as Record<string, string>)[filterKey] ?? product.category;
+  const agentCategoryName = (
+    (isKa ? product.category_name_ka : product.category_name_en)?.trim()
+    || product.category_name_ka?.trim()
+    || ""
+  );
+  const categoryLabel =
+    (copy.shop.filters as Record<string, string>)[filterKey] ?? (agentCategoryName || product.category);
   const baseCatColor = CAT_COLORS[product.category] ?? { bg: C.rose, text: C.cream, shadow: "#9c6078" };
   /* Optional admin override — set a tag like `color:#hex` or `color:rose` to recolor banner + buttons */
   const tagColor = colorFromTags(product.tags || []);
