@@ -32,6 +32,49 @@ function digitsOnly(s: string): string {
   return s.replace(/[^\d]/g, "");
 }
 
+// Georgian IBAN: "GE" + 2 check digits + 2-letter bank code + 16 digits.
+const IBAN_RE = /\bGE\d{2}[A-Z]{2}\d{16}\b/g;
+
+const BANK_LABEL: Record<string, string> = {
+  TB: "TBC",
+  BG: "BOG",
+  LB: "Liberty",
+  BS: "Basis",
+  CR: "Credo",
+};
+
+/** Account numbers found in the bank text, in order, without duplicates. */
+export function extractAccountNumbers(text: string): string[] {
+  return [...new Set(text.match(IBAN_RE) || [])];
+}
+
+/** Short bank name for a Georgian IBAN (GE58TB… → "TBC"). */
+export function bankLabelFor(iban: string): string {
+  return BANK_LABEL[iban.slice(4, 6)] || "ბანკი";
+}
+
+function escapeHtml(s: string): string {
+  return s.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
+}
+
+function escapeRegExp(s: string): string {
+  return s.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+}
+
+/** Render plain text as Telegram HTML with every `copyable` value wrapped in
+ *  <code>, which Telegram shows in monospace and copies to the clipboard on
+ *  tap. The whole text is escaped first so customer-typed names or notes
+ *  can't break the markup. A single regex pass (longest value first) means a
+ *  value that is a substring of another never ends up nested. */
+export function telegramHtml(text: string, copyable: string[]): string {
+  const escaped = escapeHtml(text);
+  const values = [...new Set(copyable.map(v => escapeHtml(v.trim())).filter(Boolean))]
+    .sort((a, b) => b.length - a.length);
+  if (values.length === 0) return escaped;
+  const pattern = new RegExp(values.map(escapeRegExp).join("|"), "g");
+  return escaped.replace(pattern, m => `<code>${m}</code>`);
+}
+
 const CONTACT_LABEL: Record<string, string> = {
   phone: "Phone call",
   whatsapp: "WhatsApp",
@@ -51,7 +94,7 @@ interface OrderNotification {
   notes?: string;
 }
 
-function buildMessage(o: OrderNotification): string {
+export function buildMessage(o: OrderNotification): string {
   // Plain text — no emoji, no Markdown. Some clients show emoji as replacement
   // characters; admin asked for clean text.
   const lines: string[] = [];
@@ -96,6 +139,7 @@ async function sendToTelegram(
   chatId: string,
   text: string,
   inlineKeyboard?: Array<Array<{ text: string; url: string }>>,
+  parseMode?: "HTML",
 ): Promise<void> {
   if (!TELEGRAM_BOT_TOKEN) return;
   const url = `https://api.telegram.org/bot${TELEGRAM_BOT_TOKEN}/sendMessage`;
@@ -104,6 +148,7 @@ async function sendToTelegram(
     text,
     disable_web_page_preview: true,
   };
+  if (parseMode) body.parse_mode = parseMode;
   if (inlineKeyboard && inlineKeyboard.length > 0) {
     body.reply_markup = { inline_keyboard: inlineKeyboard };
   }
@@ -121,7 +166,7 @@ async function sendToTelegram(
 /** Build the pre-filled message admin will send to customer through whichever
  *  channel they pick (WhatsApp / Viber / SMS / etc.). The admin can edit it
  *  before hitting "send". */
-function buildCustomerReply(o: OrderNotification): string {
+export function buildCustomerReply(o: OrderNotification): string {
   const lines: string[] = [];
   lines.push(`გამარჯობა${o.customer.firstName ? `, ${o.customer.firstName}` : ""}!`);
   lines.push("");
@@ -153,15 +198,28 @@ function buildCustomerReply(o: OrderNotification): string {
  *  fails to send. So we keep WhatsApp as the one tap-to-message button and
  *  put the phone number prominently in the message body — Telegram makes it
  *  tappable for calls automatically. */
-function buildActionButtons(o: OrderNotification): Array<Array<{ text: string; url: string }>> {
+export function buildActionButtons(
+  o: OrderNotification,
+  accounts: string[] = extractAccountNumbers(BANK_INFO),
+): Array<Array<{ text: string; url: string }>> {
   const phone = digitsOnly(o.customer.phone);
   if (!phone) return [];
   const reply = buildCustomerReply(o);
   const encoded = encodeURIComponent(reply);
 
-  return [[
+  const rows = [[
     { text: "WhatsApp", url: `https://wa.me/${phone}?text=${encoded}` },
   ]];
+  // One button per bank account: it pre-fills a WhatsApp message holding
+  // just the account number, so after the full reply the admin sends the
+  // number on its own and the customer copies it with one long-press
+  // instead of fishing it out of the long message.
+  const accountButtons = accounts.map(iban => ({
+    text: `${bankLabelFor(iban)} ანგარიში → WhatsApp`,
+    url: `https://wa.me/${phone}?text=${encodeURIComponent(iban)}`,
+  }));
+  if (accountButtons.length > 0) rows.push(accountButtons);
+  return rows;
 }
 
 /** Telegram's sendMediaGroup accepts 2–10 photos. For a single photo we have
@@ -210,14 +268,33 @@ async function sendPhotos(chatId: string, photos: { url: string; caption?: strin
 }
 
 
+/** One combined message — order details, then the customer-reply template,
+ *  then the phone line. The action buttons are attached underneath so the
+ *  admin scrolls through and finds them at the very bottom (the user said
+ *  top buttons felt wrong). */
+export function buildCombinedText(order: OrderNotification): string {
+  const phone = digitsOnly(order.customer.phone);
+  const viberLine = phone ? `Viber / ზარი: +${phone}` : "";
+  return [
+    buildMessage(order),
+    "",
+    "---------",
+    "მესიჯი მომხმარებლისთვის (გადააკოპირე ან გამოიყენე WhatsApp ღილაკი ქვევით):",
+    "",
+    buildCustomerReply(order),
+    viberLine && "",
+    viberLine,
+  ].filter(Boolean).join("\n");
+}
+
 export async function notifyAdminNewOrder(order: OrderNotification): Promise<void> {
   if (!TELEGRAM_BOT_TOKEN || !TELEGRAM_CHAT_ID) {
     console.warn("[notify] Telegram not configured — bot token or chat id missing.");
     return;
   }
   console.log(`[notify] sending order ${order.orderId} to Telegram chat ${TELEGRAM_CHAT_ID}`);
-  const orderText = buildMessage(order);
-  const keyboard  = buildActionButtons(order);
+  const accounts  = extractAccountNumbers(BANK_INFO);
+  const keyboard  = buildActionButtons(order, accounts);
   const targets   = [TELEGRAM_CHAT_ID, ...TELEGRAM_EXTRA_CHAT_IDS];
 
   // Photos go first so the buyer's items are visible at the top of the thread.
@@ -228,22 +305,12 @@ export async function notifyAdminNewOrder(order: OrderNotification): Promise<voi
       caption: `[${i.code || ""}] ${i.name} × ${i.quantity}`.trim(),
     }));
 
-  // One combined message at the bottom — order details, then the customer-
-  // reply template, then WhatsApp / Viber buttons attached underneath. This
-  // way the admin scrolls through and the action buttons end up at the very
-  // bottom (the user said top buttons felt wrong).
-  const phone = digitsOnly(order.customer.phone);
-  const viberLine = phone ? `Viber / ზარი: +${phone}` : "";
-  const combined = [
-    orderText,
-    "",
-    "---------",
-    "მესიჯი მომხმარებლისთვის (გადააკოპირე ან გამოიყენე WhatsApp ღილაკი ქვევით):",
-    "",
-    buildCustomerReply(order),
-    viberLine && "",
-    viberLine,
-  ].filter(Boolean).join("\n");
+  // Account numbers go out as tap-to-copy <code> spans (Telegram HTML). The
+  // phone line stays plain so Telegram keeps auto-linking it for calls.
+  // Without any account number we stay in plain text — nothing to mark up.
+  const combined = buildCombinedText(order);
+  const text      = accounts.length > 0 ? telegramHtml(combined, accounts) : combined;
+  const parseMode = accounts.length > 0 ? "HTML" as const : undefined;
 
   for (const chatId of targets) {
     try {
@@ -251,7 +318,7 @@ export async function notifyAdminNewOrder(order: OrderNotification): Promise<voi
         await sendPhotos(chatId, photos);
         console.log(`[notify] sent ${photos.length} photo(s) to ${chatId}`);
       }
-      await sendToTelegram(chatId, combined, keyboard);
+      await sendToTelegram(chatId, text, keyboard, parseMode);
       console.log(`[notify] sent combined text to ${chatId}`);
     } catch (err) {
       console.error(`[notify] send to ${chatId} failed:`, err);
