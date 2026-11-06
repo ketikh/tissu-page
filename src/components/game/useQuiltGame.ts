@@ -12,8 +12,11 @@ import {
   swapSlots,
   type RoundState,
 } from "@/lib/game/puzzle";
+import type { FollowId } from "@/lib/game/follow";
+import type { SavedWin } from "@/lib/game/saved-win";
 import type { QuiltHint } from "./QuiltBoard";
 import { spawnBurst, useQuiltSound, type QuiltSound } from "./quiltEffects";
+import { useSavedWin, writeSavedWin } from "./useSavedWin";
 
 export type QuiltPhase = "intro" | "playing" | "won";
 
@@ -40,6 +43,20 @@ const INTRO_GAME: GameState = {
   stars: [],
 };
 
+/** Board shown behind the end card when a finished game is restored after a page reload. */
+const LAST_ROUND_SIZE = QUILT_ROUNDS[QUILT_ROUNDS.length - 1];
+const FINISHED_ROUND: RoundState = {
+  size: LAST_ROUND_SIZE,
+  perm: Array.from({ length: LAST_ROUND_SIZE * LAST_ROUND_SIZE }, (_, slot) => slot),
+  moves: 0,
+  minMoves: 0,
+};
+
+/** The bags of a saved win. The ids were checked against the product list when it was read. */
+function picksOfSavedWin(win: SavedWin): QuiltProduct[] {
+  return win.productIds.flatMap((id) => QUILT_PRODUCTS.find((product) => product.id === id) ?? []);
+}
+
 const TOAST_MS = 1500;
 const NEXT_ROUND_DELAY_MS = 1750;
 const HINT_TEXT_MS = 2500;
@@ -63,6 +80,11 @@ export interface QuiltGame {
   readonly isSolved: boolean;
   readonly toast: QuiltToast | null;
   readonly isToastShown: boolean;
+  /** Follow buttons the winner has tapped, and the email their code went to. Kept across reloads. */
+  readonly followed: readonly FollowId[];
+  readonly sentTo: string | null;
+  readonly markFollowed: (id: FollowId) => void;
+  readonly markSent: (email: string) => void;
   readonly sound: QuiltSound;
   readonly frameRef: RefObject<HTMLDivElement | null>;
   readonly fxRef: RefObject<HTMLDivElement | null>;
@@ -89,6 +111,7 @@ function useTimers() {
 
 export function useQuiltGame(): QuiltGame {
   const sound = useQuiltSound();
+  const savedWin = useSavedWin();
   const { later, clearAll } = useTimers();
   const frameRef = useRef<HTMLDivElement | null>(null);
   const fxRef = useRef<HTMLDivElement | null>(null);
@@ -124,7 +147,8 @@ export function useQuiltGame(): QuiltGame {
     setGame((current) => ({ ...current, roundIndex, round }));
   };
 
-  const finishGame = () => {
+  const finishGame = (stars: readonly number[]) => {
+    writeSavedWin({ productIds: game.picks.map((product) => product.id), stars, followed: [], sentTo: null });
     setPhase("won");
     sound.play("win");
     sound.vibrate(WIN_BUZZ);
@@ -133,7 +157,8 @@ export function useQuiltGame(): QuiltGame {
   const finishRound = (solvedRound: RoundState) => {
     const earned = starsFor(solvedRound.moves, solvedRound.minMoves);
     const nextIndex = game.roundIndex + 1;
-    setGame({ ...game, round: solvedRound, stars: [...game.stars, earned] });
+    const stars = [...game.stars, earned];
+    setGame({ ...game, round: solvedRound, stars });
     setIsRoundSolved(true);
     setToast({ product: game.picks[game.roundIndex], stars: earned });
     setIsToastShown(true);
@@ -141,7 +166,7 @@ export function useQuiltGame(): QuiltGame {
     sound.vibrate(SOLVED_BUZZ);
     burst(SOLVED_BURST);
     later(() => setIsToastShown(false), TOAST_MS);
-    later(() => (nextIndex >= QUILT_ROUNDS.length ? finishGame() : startRound(nextIndex)), NEXT_ROUND_DELAY_MS);
+    later(() => (nextIndex >= QUILT_ROUNDS.length ? finishGame(stars) : startRound(nextIndex)), NEXT_ROUND_DELAY_MS);
   };
 
   const swap = (slotA: number, slotB: number) => {
@@ -180,6 +205,7 @@ export function useQuiltGame(): QuiltGame {
 
   const startGame = () => {
     clearAll();
+    writeSavedWin(null);
     sound.unlock();
     const picks = pickProducts(QUILT_PRODUCTS, QUILT_ROUNDS);
     const round = createRound(QUILT_ROUNDS[0]);
@@ -193,20 +219,40 @@ export function useQuiltGame(): QuiltGame {
     setPhase("playing");
   };
 
+  const markFollowed = (id: FollowId) => {
+    if (savedWin && !savedWin.followed.includes(id)) {
+      writeSavedWin({ ...savedWin, followed: [...savedWin.followed, id] });
+    }
+  };
+
+  const markSent = (email: string) => {
+    if (savedWin) writeSavedWin({ ...savedWin, sentTo: email });
+  };
+
+  // A page reload starts at the intro. If this tab already holds a finished
+  // game, go straight back to its end card instead.
+  const restoredPicks = phase === "intro" && savedWin ? picksOfSavedWin(savedWin) : null;
+  const picks = restoredPicks ?? game.picks;
+  const roundIndex = restoredPicks ? restoredPicks.length - 1 : game.roundIndex;
+
   return {
-    phase,
-    boardKey: `${game.id}-${game.roundIndex}`,
-    product: game.picks[game.roundIndex],
-    picks: game.picks,
-    roundIndex: game.roundIndex,
-    round: game.round,
-    stars: game.stars,
+    phase: restoredPicks ? "won" : phase,
+    boardKey: restoredPicks ? "restored" : `${game.id}-${game.roundIndex}`,
+    product: picks[roundIndex],
+    picks,
+    roundIndex,
+    round: restoredPicks ? FINISHED_ROUND : game.round,
+    stars: restoredPicks && savedWin ? savedWin.stars : game.stars,
     selected,
     hint,
     isHintTextShown,
-    isSolved: isRoundSolved,
+    isSolved: restoredPicks ? true : isRoundSolved,
     toast,
     isToastShown,
+    followed: savedWin?.followed ?? [],
+    sentTo: savedWin?.sentTo ?? null,
+    markFollowed,
+    markSent,
     sound,
     frameRef,
     fxRef,

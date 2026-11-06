@@ -1,6 +1,8 @@
 import type { Metadata } from "next";
 import { i18n } from "@/i18n/config";
 import { QuiltGame } from "@/components/game/QuiltGame";
+import { fetchCMSSection } from "@/lib/admin-content";
+import { buildFollowLinks } from "@/lib/game/follow";
 import { QUILT_PRODUCTS, getQuiltCopy, type QuiltLocale } from "@/lib/game/content";
 
 const PAGE_PATH = "/game";
@@ -41,5 +43,8 @@ export async function generateMetadata({ params }: { params: Promise<{ lang: str
 
 export default async function GamePage({ params }: { params: Promise<{ lang: string }> }) {
   const { lang } = await params;
-  return <QuiltGame locale={toQuiltLocale(lang)} />;
+  // Same social addresses the site footer shows, managed in the shop admin.
+  const contact = await fetchCMSSection<Record<string, string>>("contact", "details", { revalidate: 600 });
+  const followLinks = buildFollowLinks({ instagram: contact?.instagram_url, facebook: contact?.facebook_url });
+  return <QuiltGame locale={toQuiltLocale(lang)} followLinks={followLinks} />;
 }

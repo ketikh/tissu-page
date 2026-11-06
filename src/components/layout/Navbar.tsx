@@ -173,6 +173,18 @@ export function Navbar({ lang, dictionary }: NavbarProps) {
           >
             {lang === "ka" ? "გალერეა" : "Gallery"}
           </Link>
+          <Link
+            href={`/${lang}/game`}
+            className="px-3.5 py-2 text-[14px] rounded-full transition-colors hover:text-[#d56826]"
+            style={{
+              fontFamily: FRAUNCES,
+              fontWeight: 600,
+              letterSpacing: "0.01em",
+              color: pathname.startsWith(`/${lang}/game`) ? C.burnt : C.ink,
+            }}
+          >
+            {lang === "ka" ? "თამაში" : "Game"}
+          </Link>
         </div>
 
         {/* CENTER — TISSU logo */}
@@ -322,6 +334,7 @@ export function Navbar({ lang, dictionary }: NavbarProps) {
                 {[
                   { href: `/${lang}/shop`,    label: copy.nav.shop },
                   { href: `/${lang}/gallery`, label: lang === "ka" ? "გალერეა" : "Gallery" },
+                  { href: `/${lang}/game`,    label: lang === "ka" ? "თამაში" : "Game" },
                 ].map((item) => (
                   <Link
                     key={item.href}

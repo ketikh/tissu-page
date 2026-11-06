@@ -2,6 +2,7 @@
 
 import { useEffect, useRef } from "react";
 import { QUILT_PRODUCTS, QUILT_ROUNDS, getQuiltCopy, type QuiltCopy, type QuiltLocale } from "@/lib/game/content";
+import type { FollowLink } from "@/lib/game/follow";
 import { QuiltBoard } from "./QuiltBoard";
 import { QuiltEndScreen } from "./QuiltEndScreen";
 import { SoundIcon, SparkleDeco, Squiggle, StarIcon, StarRow } from "./QuiltIcons";
@@ -10,6 +11,8 @@ import styles from "./quiltGame.module.css";
 
 export interface QuiltGameProps {
   readonly locale: QuiltLocale;
+  /** The shop's Instagram and Facebook pages a winner must tap before asking for the code. */
+  readonly followLinks: readonly FollowLink[];
 }
 
 /** Scrambled 3×3 preview on the start card: the photo position of each little patch. */
@@ -78,14 +81,14 @@ function ToastContent({ toast, copy, locale }: { toast: QuiltToast | null; copy:
   );
 }
 
-export function QuiltGame({ locale }: QuiltGameProps) {
+export function QuiltGame({ locale, followLinks }: QuiltGameProps) {
   const copy = getQuiltCopy(locale);
   const game = useQuiltGame();
   const rootRef = useTopOffset();
   const { product, round, sound } = game;
 
   return (
-    <section ref={rootRef} className={styles.root}>
+    <section ref={rootRef} className={game.phase === "won" ? `${styles.root} ${styles.ended}` : styles.root}>
       <div className={styles.app}>
         <div className={styles.hud}>
           <div className={styles.stars} role="img" aria-label={`${copy.starsLabel}: ${game.stars.length} / ${QUILT_ROUNDS.length}`}>
@@ -147,6 +150,11 @@ export function QuiltGame({ locale }: QuiltGameProps) {
             copy={copy}
             picks={game.picks}
             stars={game.stars}
+            followLinks={followLinks}
+            followed={game.followed}
+            sentTo={game.sentTo}
+            onFollow={game.markFollowed}
+            onSent={game.markSent}
             onRetry={game.startGame}
           />
         )}

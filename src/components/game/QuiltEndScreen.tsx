@@ -3,6 +3,7 @@
 import Link from "next/link";
 import { Fragment, useState, type FormEvent } from "react";
 import type { QuiltCopy, QuiltLocale, QuiltProduct } from "@/lib/game/content";
+import type { FollowId, FollowLink } from "@/lib/game/follow";
 import { trackMetaEvent } from "@/lib/meta/pixel-client";
 import { StarRow } from "./QuiltIcons";
 import styles from "./quiltGame.module.css";
@@ -18,6 +19,13 @@ export interface QuiltEndScreenProps {
   readonly copy: QuiltCopy;
   readonly picks: readonly QuiltProduct[];
   readonly stars: readonly number[];
+  readonly followLinks: readonly FollowLink[];
+  /** Follow buttons already tapped. */
+  readonly followed: readonly FollowId[];
+  /** The email the code went to, once it has been sent. */
+  readonly sentTo: string | null;
+  readonly onFollow: (id: FollowId) => void;
+  readonly onSent: (email: string) => void;
   readonly onRetry: () => void;
 }
 
@@ -54,13 +62,52 @@ async function copyText(text: string): Promise<boolean> {
   }
 }
 
+interface FollowStepProps {
+  readonly copy: QuiltCopy;
+  readonly links: readonly FollowLink[];
+  readonly followed: readonly FollowId[];
+  readonly onFollow: (id: FollowId) => void;
+}
+
+/**
+ * "Follow us" buttons. Each opens the shop's page in a new tab and is ticked
+ * once tapped. We can only see the tap, not whether the visitor followed.
+ */
+function FollowStep({ copy, links, followed, onFollow }: FollowStepProps) {
+  if (links.length === 0) return null;
+  return (
+    <div className={styles.follow}>
+      <div className={styles.followTitle}>{copy.followTitle}</div>
+      <div className={styles.followButtons}>
+        {links.map((link) => {
+          const isDone = followed.includes(link.id);
+          return (
+            <a
+              key={link.id}
+              className={isDone ? `${styles.followButton} ${styles.followDone}` : styles.followButton}
+              href={link.url}
+              target="_blank"
+              rel="noopener noreferrer"
+              onClick={() => onFollow(link.id)}
+            >
+              {link.label} <span aria-hidden="true">{isDone ? "✓" : "↗"}</span>
+            </a>
+          );
+        })}
+      </div>
+    </div>
+  );
+}
+
 interface ClaimFormProps {
   readonly locale: QuiltLocale;
   readonly copy: QuiltCopy;
+  /** False until every follow button has been tapped. */
+  readonly hasFollowed: boolean;
   readonly onSent: (email: string) => void;
 }
 
-function ClaimForm({ locale, copy, onSent }: ClaimFormProps) {
+function ClaimForm({ locale, copy, hasFollowed, onSent }: ClaimFormProps) {
   const [email, setEmail] = useState("");
   const [hasConsent, setHasConsent] = useState(false);
   const [message, setMessage] = useState("");
@@ -75,6 +122,10 @@ function ClaimForm({ locale, copy, onSent }: ClaimFormProps) {
   const handleSubmit = async (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault();
     const trimmed = email.trim();
+    if (!hasFollowed) {
+      setMessage(copy.followRequired);
+      return;
+    }
     if (!EMAIL_PATTERN.test(trimmed)) {
       setMessage(copy.invalidEmail);
       return;
@@ -146,8 +197,9 @@ function ShareButton({ copy, totalStars, maxStars }: { copy: QuiltCopy; totalSta
   return <button className={styles.ghost} type="button" onClick={handleShare}>{label}</button>;
 }
 
-export function QuiltEndScreen({ locale, copy, picks, stars, onRetry }: QuiltEndScreenProps) {
-  const [sentTo, setSentTo] = useState<string | null>(null);
+export function QuiltEndScreen(props: QuiltEndScreenProps) {
+  const { locale, copy, picks, stars, followLinks, followed, sentTo, onFollow, onSent, onRetry } = props;
+  const hasFollowed = followLinks.every((link) => followed.includes(link.id));
   const totalStars = stars.reduce((sum, earned) => sum + earned, 0);
   const maxStars = stars.length * STARS_PER_ROUND;
 
@@ -177,7 +229,10 @@ export function QuiltEndScreen({ locale, copy, picks, stars, onRetry }: QuiltEnd
         {sentTo ? (
           <CodeSentBox copy={copy} email={sentTo} />
         ) : (
-          <ClaimForm locale={locale} copy={copy} onSent={setSentTo} />
+          <>
+            <FollowStep copy={copy} links={followLinks} followed={followed} onFollow={onFollow} />
+            <ClaimForm locale={locale} copy={copy} hasFollowed={hasFollowed} onSent={onSent} />
+          </>
         )}
 
         <Link className={styles.primary} href={`/${locale}/shop`}>{copy.toShop}</Link>

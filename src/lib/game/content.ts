@@ -57,6 +57,8 @@ export interface QuiltCopy {
   /** End-screen title; the second part is highlighted. */
   readonly endTitle: readonly [string, string];
   readonly endText: (stars: number, maxStars: number) => string;
+  readonly followTitle: string;
+  readonly followRequired: string;
   readonly emailPlaceholder: string;
   readonly consent: string;
   readonly claim: string;
@@ -98,6 +100,8 @@ const KA: QuiltCopy = {
   endTitle: ["სამივე ", "ააწყვე!"],
   endText: (stars, maxStars) =>
     `${stars} / ${maxStars} ვარსკვლავი. შეიყვანე ელ-ფოსტა და მიიღე 15%-იანი კოდი — ნებისმიერ ჩანთაზე tissu.ge-ზე.`,
+  followTitle: "ჯერ დაგვაფოლოვე 👇",
+  followRequired: "კოდის მისაღებად ჯერ დაგვაფოლოვე: დააჭირე ზემოთ ღილაკებს.",
   emailPlaceholder: "ელ-ფოსტა",
   consent: "ვეთანხმები, რომ TISSU გამომიგზავნის შეთავაზებებს ელ-ფოსტაზე. გამოწერის გაუქმება ნებისმიერ დროს შეიძლება.",
   claim: "კოდის მიღება",
@@ -140,6 +144,8 @@ const EN: QuiltCopy = {
   endTitle: ["All three ", "done!"],
   endText: (stars, maxStars) =>
     `${stars} / ${maxStars} stars. Enter your email and get a 15% code — for any bag on tissu.ge.`,
+  followTitle: "First, follow us 👇",
+  followRequired: "Follow us first to get your code: tap the buttons above.",
   emailPlaceholder: "Email",
   consent: "I agree to receive offers from TISSU by email. You can unsubscribe at any time.",
   claim: "Get the code",
