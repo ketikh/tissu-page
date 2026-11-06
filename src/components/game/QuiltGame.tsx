@@ -60,7 +60,6 @@ function IntroCard({ copy, onStart }: { copy: QuiltCopy; onStart: () => void }) 
         </div>
         <p>{copy.intro}</p>
         <p><b>{copy.promise}</b></p>
-        <p className={styles.small}>{copy.rules}</p>
         <button className={`${styles.primary} ${styles.primaryHot}`} type="button" onClick={onStart}>
           {copy.start}
         </button>

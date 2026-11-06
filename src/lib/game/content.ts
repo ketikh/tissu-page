@@ -43,7 +43,6 @@ export interface QuiltCopy {
   readonly title: readonly [string, string];
   readonly intro: string;
   readonly promise: string;
-  readonly rules: string;
   readonly start: string;
   readonly sample: string;
   readonly starsLabel: string;
@@ -80,13 +79,12 @@ export interface QuiltCopy {
 
 const KA: QuiltCopy = {
   metaTitle: "TISSU — ააწყვე ჩანთა",
-  metaDescription: "ტისუს თამაში: ჩანთის ფოტო ქვილთის ნაჭრებადაა დაჭრილი — ააწყვე სამი ჩანთა და მოიგე 15%-იანი ფასდაკლება.",
+  metaDescription: "ტისუს თამაში: ჩანთის ფოტო ნაჭრებადაა დაჭრილი — ააწყვე სამი ჩანთა და მოიგე 15%-იანი ფასდაკლება.",
   ogTitle: "TISSU — ააწყვე ჩანთა და მოიგე 15%",
   ogDescription: "სამი ჩანთა, არეული ნაჭრები, 15%-იანი კოდი. სცადე!",
   title: ["ააწყვე ", "ჩანთა"],
-  intro: "ჩანთის ფოტო ქვილთის ნაჭრებადაა დაჭრილი და არეული. გადაათრიე ნაჭრები თავის ადგილზე — სწორი ნაჭერი თავისით იკერება.",
+  intro: "ჩანთის ფოტო ნაჭრებადაა დაჭრილი და არეული. გადაათრიე ნაჭრები თავის ადგილზე — სწორი ნაჭერი თავისით იკერება.",
   promise: "სამი ჩანთა — და 15%-იანი კოდი შენია.",
-  rules: "დრო არ გეკიდება · შეცდომა არ ისჯება · რაც ნაკლები სვლა, მით მეტი ვარსკვლავი",
   start: "დაწყება",
   sample: "ნიმუში",
   starsLabel: "ვარსკვლავები",
@@ -124,13 +122,12 @@ const KA: QuiltCopy = {
 
 const EN: QuiltCopy = {
   metaTitle: "TISSU — Build the bag",
-  metaDescription: "The TISSU game: a bag photo is cut into quilt patches — build three bags and win a 15% discount.",
+  metaDescription: "The TISSU game: a bag photo is cut into patches — build three bags and win a 15% discount.",
   ogTitle: "TISSU — Build the bag and win 15%",
   ogDescription: "Three bags, shuffled patches, a 15% code. Give it a try!",
   title: ["Build the ", "bag"],
-  intro: "The bag photo is cut into quilt patches and shuffled. Drag each patch to its place — the right one stitches itself in.",
+  intro: "The bag photo is cut into patches and shuffled. Drag each patch to its place — the right one stitches itself in.",
   promise: "Three bags — and the 15% code is yours.",
-  rules: "No timer · No penalty for mistakes · Fewer moves, more stars",
   start: "Start",
   sample: "Sample",
   starsLabel: "Stars",

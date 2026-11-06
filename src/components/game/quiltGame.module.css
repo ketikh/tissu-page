@@ -463,10 +463,6 @@
   font-size: 0.95rem;
   color: var(--q-ink);
 }
-.card p.small {
-  font-size: 0.8rem;
-  color: var(--q-muted);
-}
 .deco {
   position: absolute;
   right: 14px;
