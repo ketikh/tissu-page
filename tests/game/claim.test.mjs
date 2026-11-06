@@ -119,3 +119,46 @@ test("a failing admin panel is reported as unavailable, not as a crash", async (
   assert.deepEqual(result, { ok: false, reason: "unavailable" });
   assert.equal(state.emails.length, 0);
 });
+
+/** The owner's alert is sent without making the winner wait, so give it a moment to run. */
+const afterAlerts = () => new Promise((resolve) => setImmediate(resolve));
+
+test("the owner is told about every code that is sent, once", async () => {
+  const told = [];
+  const { deps } = fakeDeps({ onIssued: (issued) => { told.push(issued); } });
+  await claimGameCode({ email: "anna@example.com", consent: true, lang: "ka" }, deps);
+  await afterAlerts();
+
+  assert.equal(told.length, 1);
+  assert.equal(told[0].to, "anna@example.com");
+  assert.equal(told[0].code, "GAME-AAAA2222");
+  assert.equal(told[0].expiresAt.toISOString(), "2026-11-13T19:59:59.999Z");
+
+  await claimGameCode({ email: "anna@example.com", consent: true, lang: "ka" }, deps);
+  await afterAlerts();
+  assert.equal(told.length, 1, "a repeat request sends no code, so there is nothing to announce");
+});
+
+test("the owner is not told when no code reached the winner", async () => {
+  const told = [];
+  const { deps } = fakeDeps({ sendCodeEmail: async () => false, onIssued: (issued) => { told.push(issued); } });
+  await claimGameCode({ email: "anna@example.com", consent: true, lang: "ka" }, deps);
+  await claimGameCode({ email: "nope", consent: true, lang: "ka" }, deps);
+  await afterAlerts();
+  assert.equal(told.length, 0);
+});
+
+test("a failing owner alert never changes the winner's answer", async () => {
+  const logged = [];
+  const { deps, state } = fakeDeps({
+    onIssued: async () => { throw new Error("telegram down"); },
+    logError: (message) => logged.push(message),
+  });
+  const result = await claimGameCode({ email: "anna@example.com", consent: true, lang: "ka" }, deps);
+  await afterAlerts();
+
+  assert.deepEqual(result, { ok: true });
+  assert.equal(state.codes.length, 1, "the code stays valid");
+  assert.ok(logged.some((message) => message.includes("could not announce")));
+  assert.equal(logged.some((message) => message.includes("anna@")), false, "no email address in the log");
+});
