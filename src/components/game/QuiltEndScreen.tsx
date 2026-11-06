@@ -9,25 +9,39 @@ import styles from "./quiltGame.module.css";
 
 const STARS_PER_ROUND = 3;
 const EMAIL_PATTERN = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+const CLAIM_ENDPOINT = "/api/game/claim";
+const HTTP_BAD_REQUEST = 400;
+const HTTP_TOO_MANY_REQUESTS = 429;
 
 export interface QuiltEndScreenProps {
   readonly locale: QuiltLocale;
   readonly copy: QuiltCopy;
   readonly picks: readonly QuiltProduct[];
   readonly stars: readonly number[];
-  readonly promoCode: string;
-  /** Where winners' emails are posted. Null means emails are not stored anywhere. */
-  readonly submitUrl: string | null;
   readonly onRetry: () => void;
 }
 
-/** Posts the winner's email to the configured collector (Mailchimp, a form, …). */
-async function submitEmail(submitUrl: string, email: string, stars: readonly number[]): Promise<void> {
-  await fetch(submitUrl, {
-    method: "POST",
-    mode: "no-cors",
-    body: new URLSearchParams({ email, stars: stars.join(""), source: "quilt-game" }),
-  });
+type ClaimOutcome = "sent" | "invalid_email" | "too_many_tries" | "failed";
+
+/**
+ * Asks the server to email this winner a one-time code. The code itself never
+ * comes back to the browser: it only reaches the owner of the email address.
+ */
+async function requestCode(email: string, locale: QuiltLocale): Promise<ClaimOutcome> {
+  try {
+    const response = await fetch(CLAIM_ENDPOINT, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ email, consent: true, lang: locale }),
+    });
+    if (response.ok) return "sent";
+    if (response.status === HTTP_TOO_MANY_REQUESTS) return "too_many_tries";
+    if (response.status === HTTP_BAD_REQUEST) return "invalid_email";
+    return "failed";
+  } catch {
+    // Offline or the request was cut short: the visitor can simply try again.
+    return "failed";
+  }
 }
 
 async function copyText(text: string): Promise<boolean> {
@@ -41,34 +55,44 @@ async function copyText(text: string): Promise<boolean> {
 }
 
 interface ClaimFormProps {
+  readonly locale: QuiltLocale;
   readonly copy: QuiltCopy;
-  readonly stars: readonly number[];
-  readonly submitUrl: string | null;
-  readonly onClaimed: () => void;
+  readonly onSent: (email: string) => void;
 }
 
-function ClaimForm({ copy, stars, submitUrl, onClaimed }: ClaimFormProps) {
+function ClaimForm({ locale, copy, onSent }: ClaimFormProps) {
   const [email, setEmail] = useState("");
   const [hasConsent, setHasConsent] = useState(false);
   const [message, setMessage] = useState("");
   const [isSending, setIsSending] = useState(false);
 
+  const messageFor: Readonly<Record<Exclude<ClaimOutcome, "sent">, string>> = {
+    invalid_email: copy.invalidEmail,
+    too_many_tries: copy.tooManyTries,
+    failed: copy.sendFailed,
+  };
+
   const handleSubmit = async (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault();
     const trimmed = email.trim();
-    if (!EMAIL_PATTERN.test(trimmed)) return setMessage(copy.invalidEmail);
-    if (!hasConsent) return setMessage(copy.consentRequired);
+    if (!EMAIL_PATTERN.test(trimmed)) {
+      setMessage(copy.invalidEmail);
+      return;
+    }
+    if (!hasConsent) {
+      setMessage(copy.consentRequired);
+      return;
+    }
     setMessage("");
     setIsSending(true);
-    try {
-      if (submitUrl) await submitEmail(submitUrl, trimmed, stars);
-      trackMetaEvent("Lead", { content_name: "quilt-game" });
-      onClaimed();
-    } catch {
-      setMessage(copy.sendFailed);
-    } finally {
-      setIsSending(false);
+    const outcome = await requestCode(trimmed, locale);
+    setIsSending(false);
+    if (outcome !== "sent") {
+      setMessage(messageFor[outcome]);
+      return;
     }
+    trackMetaEvent("Lead", { content_name: "quilt-game" });
+    onSent(trimmed);
   };
 
   return (
@@ -96,16 +120,12 @@ function ClaimForm({ copy, stars, submitUrl, onClaimed }: ClaimFormProps) {
   );
 }
 
-function PromoCodeBox({ copy, promoCode }: { copy: QuiltCopy; promoCode: string }) {
-  const [copyLabel, setCopyLabel] = useState(copy.copyCode);
-  const handleCopy = async () => {
-    setCopyLabel((await copyText(promoCode)) ? copy.codeCopied : copy.copyByHand);
-  };
+function CodeSentBox({ copy, email }: { copy: QuiltCopy; email: string }) {
   return (
-    <div className={styles.codeBox}>
-      <div className={styles.codeLabel}>{copy.codeLabel}</div>
-      <div className={styles.code}>{promoCode}</div>
-      <button className={styles.copyButton} type="button" onClick={handleCopy}>{copyLabel}</button>
+    <div className={styles.codeBox} role="status">
+      <div className={styles.sentTitle}>{copy.sentTitle}</div>
+      <div className={styles.sentText}>{copy.sentText(email)}</div>
+      <div className={styles.sentHint}>{copy.sentHint}</div>
       <div className={styles.codeTerms}>{copy.codeTerms}</div>
     </div>
   );
@@ -126,8 +146,8 @@ function ShareButton({ copy, totalStars, maxStars }: { copy: QuiltCopy; totalSta
   return <button className={styles.ghost} type="button" onClick={handleShare}>{label}</button>;
 }
 
-export function QuiltEndScreen({ locale, copy, picks, stars, promoCode, submitUrl, onRetry }: QuiltEndScreenProps) {
-  const [isClaimed, setIsClaimed] = useState(false);
+export function QuiltEndScreen({ locale, copy, picks, stars, onRetry }: QuiltEndScreenProps) {
+  const [sentTo, setSentTo] = useState<string | null>(null);
   const totalStars = stars.reduce((sum, earned) => sum + earned, 0);
   const maxStars = stars.length * STARS_PER_ROUND;
 
@@ -154,10 +174,10 @@ export function QuiltEndScreen({ locale, copy, picks, stars, promoCode, submitUr
           ))}
         </div>
 
-        {isClaimed ? (
-          <PromoCodeBox copy={copy} promoCode={promoCode} />
+        {sentTo ? (
+          <CodeSentBox copy={copy} email={sentTo} />
         ) : (
-          <ClaimForm copy={copy} stars={stars} submitUrl={submitUrl} onClaimed={() => setIsClaimed(true)} />
+          <ClaimForm locale={locale} copy={copy} onSent={setSentTo} />
         )}
 
         <Link className={styles.primary} href={`/${locale}/shop`}>{copy.toShop}</Link>

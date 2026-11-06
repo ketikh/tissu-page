@@ -12,12 +12,6 @@ export const QUILT_ROUNDS: readonly number[] = [3, 3, 4];
 /** How many moves one hint costs. */
 export const QUILT_HINT_COST = 2;
 
-/**
- * Promo code shown to winners when GAME_PROMO_CODE is not set. The code must
- * also exist (active, 15%) in the shop admin, or the cart will reject it.
- */
-export const DEFAULT_QUILT_PROMO_CODE = "TISSU15";
-
 export interface QuiltProduct extends PuzzleProduct {
   readonly id: string;
   /** 900×900 JPG in /public/game. Busy backgrounds make better puzzles than plain ones. */
@@ -69,10 +63,10 @@ export interface QuiltCopy {
   readonly invalidEmail: string;
   readonly consentRequired: string;
   readonly sendFailed: string;
-  readonly codeLabel: string;
-  readonly copyCode: string;
-  readonly codeCopied: string;
-  readonly copyByHand: string;
+  readonly tooManyTries: string;
+  readonly sentTitle: string;
+  readonly sentText: (email: string) => string;
+  readonly sentHint: string;
   readonly codeTerms: string;
   readonly toShop: string;
   readonly share: string;
@@ -110,10 +104,10 @@ const KA: QuiltCopy = {
   invalidEmail: "შეიყვანე სწორი ელ-ფოსტა.",
   consentRequired: "კოდის მისაღებად საჭიროა თანხმობა.",
   sendFailed: "ვერ გაიგზავნა, სცადე ხელახლა.",
-  codeLabel: "შენი 15%-იანი კოდი",
-  copyCode: "კოპირება",
-  codeCopied: "დაკოპირდა ✓",
-  copyByHand: "ხელით დააკოპირე",
+  tooManyTries: "ძალიან ბევრი მცდელობაა. სცადე ცოტა მოგვიანებით.",
+  sentTitle: "კოდი გამოგზავნილია ✓",
+  sentText: (email) => `შეამოწმე ${email} — შენი 15%-იანი კოდი იქ გელოდება.`,
+  sentHint: "ვერ ხედავ? ნახე სპამის საქაღალდეც. ერთ მეილზე ერთი კოდი იგზავნება.",
   codeTerms: "ერთჯერადია · მოქმედებს 7 დღე",
   toShop: "მაღაზიაში →",
   share: "გაუზიარე მეგობარს",
@@ -152,10 +146,10 @@ const EN: QuiltCopy = {
   invalidEmail: "Enter a valid email.",
   consentRequired: "Consent is needed to get the code.",
   sendFailed: "Could not send, please try again.",
-  codeLabel: "Your 15% code",
-  copyCode: "Copy",
-  codeCopied: "Copied ✓",
-  copyByHand: "Copy it by hand",
+  tooManyTries: "Too many tries. Please try again a little later.",
+  sentTitle: "Code sent ✓",
+  sentText: (email) => `Check ${email} — your 15% code is waiting there.`,
+  sentHint: "Can't see it? Look in your spam folder too. One code is sent per email address.",
   codeTerms: "Single use · valid for 7 days",
   toShop: "To the shop →",
   share: "Share with a friend",

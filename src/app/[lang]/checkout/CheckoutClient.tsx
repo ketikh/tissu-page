@@ -115,7 +115,7 @@ interface CheckoutClientProps {
 export default function CheckoutClient({ lang, dictionary }: CheckoutClientProps) {
   useStoreHydration();
   const router = useRouter();
-  const { items, getSummary, clearCart, discount } = useCartStore();
+  const { items, getSummary, clearCart, discount, promoCode } = useCartStore();
   const { user, isAuthenticated, addOrder } = useAuthStore();
   const { subtotal, total, discountAmount, shipping } = getSummary();
   
@@ -248,6 +248,7 @@ export default function CheckoutClient({ lang, dictionary }: CheckoutClientProps
         subtotal,
         shipping: deliveryFee,
         discount,
+        promoCode: promoCode ?? undefined,
         total: totalWithDelivery,
         customer: {
           firstName: formData.firstName,

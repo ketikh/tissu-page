@@ -28,7 +28,7 @@ up under "Test events".
 | InitiateCheckout | checkout page, once per visit, when the cart is known | mirrored | random, shared |
 | Purchase | checkout page, the moment `/api/checkout` accepts the order (payment is offline, so submission completes the order) | sent directly by `/api/checkout` when the order is created | the order id |
 | Contact | click on any Instagram / Facebook / Messenger / WhatsApp / Viber / Telegram / mailto / tel link | mirrored | random, shared |
-| Lead | contact form submitted (`/contact`) | mirrored | random, shared |
+| Lead | contact form submitted (`/contact`); game winner asks for their prize code (`/game`) | mirrored | random, shared |
 
 - All values are in GEL. `content_ids` use the product id from the admin, which is
   also the `id` column of the feed, so events match catalogue items.

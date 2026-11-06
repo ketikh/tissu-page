@@ -1,0 +1,97 @@
+import { NextResponse } from "next/server";
+import { createPromoCode, deletePromoCode, isAdminPromoConfigured, listPromoCodes } from "@/lib/admin-promo";
+import { claimGameCode, type ClaimDeps, type ClaimFailure } from "@/lib/game/claim";
+import { generateGameCode } from "@/lib/game/promo-codes";
+import { isGameEmailConfigured, sendGameCodeEmail } from "@/lib/game/promo-email";
+import { clientKeyFromHeaders, createRateLimiter } from "@/lib/rate-limit";
+
+/**
+ * A game winner asks for their prize. We make a one-time 15% code, save it in
+ * the shop admin's promo list and email it. The code is never returned to the
+ * browser, so it only reaches someone who really owns the email address.
+ */
+
+const MAX_BODY_CHARS = 2048;
+const HOUR_MS = 3_600_000;
+
+/** A household or office shares one address, so leave room for a few players. */
+const perVisitor = createRateLimiter({ limit: 5, windowMs: HOUR_MS });
+/** Backstop against a flood from many addresses: caps how many prize emails go out per day. */
+const dailyEmails = createRateLimiter({ limit: 300, windowMs: 24 * HOUR_MS, maxKeys: 1 });
+
+type ErrorCode = ClaimFailure | "forbidden" | "rate_limited" | "bad_request" | "too_large";
+
+const STATUS_BY_FAILURE: Readonly<Record<ClaimFailure, number>> = {
+  invalid_email: 400,
+  consent_required: 400,
+  send_failed: 502,
+  unavailable: 503,
+};
+
+function failure(status: number, code: ErrorCode, headers?: Record<string, string>) {
+  return NextResponse.json({ success: false, error: { code, message: code } }, { status, headers });
+}
+
+/** Browsers always send Origin on a POST; it must be this site, not another page posting on a visitor's behalf. */
+function isSameOrigin(req: Request): boolean {
+  const origin = req.headers.get("origin");
+  if (!origin) return true; // Not a browser. The rate limits below still apply.
+  try {
+    const originHost = new URL(origin).host;
+    const siteHost = new URL(process.env.SITE_URL || "https://tissu.ge").host;
+    const ownHosts = [req.headers.get("host"), req.headers.get("x-forwarded-host"), siteHost, `www.${siteHost}`];
+    return ownHosts.includes(originHost);
+  } catch {
+    return false; // Unparseable Origin or SITE_URL: refuse rather than guess.
+  }
+}
+
+async function readBody(req: Request): Promise<Record<string, unknown> | ErrorCode> {
+  const text = await req.text();
+  if (text.length > MAX_BODY_CHARS) return "too_large";
+  try {
+    const parsed: unknown = JSON.parse(text);
+    return parsed && typeof parsed === "object" && !Array.isArray(parsed) ? (parsed as Record<string, unknown>) : "bad_request";
+  } catch {
+    return "bad_request"; // Not JSON.
+  }
+}
+
+const logError = (message: string) => console.error(`[game-claim] ${message}`);
+
+const deps: ClaimDeps = {
+  listPromoCodes,
+  createPromoCode,
+  deletePromoCode,
+  sendCodeEmail: async (email) => {
+    if (!dailyEmails.take("all").allowed) {
+      logError("daily prize email cap reached");
+      return false;
+    }
+    return sendGameCodeEmail(email);
+  },
+  generateCode: generateGameCode,
+  now: () => new Date(),
+  logError,
+};
+
+export async function POST(req: Request) {
+  if (!isSameOrigin(req)) return failure(403, "forbidden");
+  if (!isAdminPromoConfigured() || !isGameEmailConfigured()) {
+    logError("the shop admin connection or the email service is not configured");
+    return failure(503, "unavailable");
+  }
+  const limit = perVisitor.take(clientKeyFromHeaders(req.headers));
+  if (!limit.allowed) {
+    return failure(429, "rate_limited", { "Retry-After": String(limit.retryAfterSeconds) });
+  }
+  const body = await readBody(req);
+  if (typeof body === "string") return failure(body === "too_large" ? 413 : 400, body);
+
+  const result = await claimGameCode(
+    { email: body.email, consent: body.consent, lang: body.lang === "en" ? "en" : "ka" },
+    deps,
+  );
+  if (result.ok) return NextResponse.json({ success: true });
+  return failure(STATUS_BY_FAILURE[result.reason], result.reason);
+}

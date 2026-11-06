@@ -10,9 +10,6 @@ import styles from "./quiltGame.module.css";
 
 export interface QuiltGameProps {
   readonly locale: QuiltLocale;
-  readonly promoCode: string;
-  /** Where winners' emails are posted. Null means emails are not stored anywhere. */
-  readonly submitUrl: string | null;
 }
 
 /** Scrambled 3×3 preview on the start card: the photo position of each little patch. */
@@ -81,7 +78,7 @@ function ToastContent({ toast, copy, locale }: { toast: QuiltToast | null; copy:
   );
 }
 
-export function QuiltGame({ locale, promoCode, submitUrl }: QuiltGameProps) {
+export function QuiltGame({ locale }: QuiltGameProps) {
   const copy = getQuiltCopy(locale);
   const game = useQuiltGame();
   const rootRef = useTopOffset();
@@ -150,8 +147,6 @@ export function QuiltGame({ locale, promoCode, submitUrl }: QuiltGameProps) {
             copy={copy}
             picks={game.picks}
             stars={game.stars}
-            promoCode={promoCode}
-            submitUrl={submitUrl}
             onRetry={game.startGame}
           />
         )}

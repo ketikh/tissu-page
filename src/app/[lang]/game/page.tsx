@@ -1,28 +1,9 @@
 import type { Metadata } from "next";
 import { i18n } from "@/i18n/config";
 import { QuiltGame } from "@/components/game/QuiltGame";
-import { DEFAULT_QUILT_PROMO_CODE, QUILT_PRODUCTS, getQuiltCopy, type QuiltLocale } from "@/lib/game/content";
+import { QUILT_PRODUCTS, getQuiltCopy, type QuiltLocale } from "@/lib/game/content";
 
 const PAGE_PATH = "/game";
-
-/** Promo code handed to winners. It must also exist, active, in the shop admin. */
-function readPromoCode(): string {
-  return process.env.GAME_PROMO_CODE?.trim() || DEFAULT_QUILT_PROMO_CODE;
-}
-
-/** Optional address that receives winners' emails (Mailchimp, a form, …). */
-function readSubmitUrl(): string | null {
-  const raw = process.env.GAME_SUBMIT_URL?.trim();
-  if (!raw) return null;
-  try {
-    const url = new URL(raw);
-    if (url.protocol === "https:") return url.toString();
-  } catch {
-    // Not a URL at all: reported below together with non-https addresses.
-  }
-  console.warn("[quilt-game] GAME_SUBMIT_URL is not a valid https address, so winners' emails are not being stored.");
-  return null;
-}
 
 function toQuiltLocale(lang: string): QuiltLocale {
   return lang === "ka" ? "ka" : "en";
@@ -60,5 +41,5 @@ export async function generateMetadata({ params }: { params: Promise<{ lang: str
 
 export default async function GamePage({ params }: { params: Promise<{ lang: string }> }) {
   const { lang } = await params;
-  return <QuiltGame locale={toQuiltLocale(lang)} promoCode={readPromoCode()} submitUrl={readSubmitUrl()} />;
+  return <QuiltGame locale={toQuiltLocale(lang)} />;
 }

@@ -580,27 +580,25 @@
   background: var(--q-pink);
   color: #20302a;
 }
-.codeLabel {
-  font-size: 0.85rem;
-}
-.code {
+.sentTitle {
   font-family: var(--q-head);
-  font-size: 2rem;
-  letter-spacing: 0.12em;
+  font-size: 1.2rem;
+  line-height: 1.15;
   color: var(--q-hot);
-  margin: 2px 0 6px;
+  margin-bottom: 6px;
+}
+.sentText {
+  font-size: 0.9rem;
+  line-height: 1.45;
+  overflow-wrap: anywhere;
   user-select: text;
   -webkit-user-select: text;
 }
-.copyButton {
-  border: 0;
-  background: var(--q-hot);
-  color: #fff;
-  border-radius: 999px;
-  padding: 9px 18px;
-  font-family: var(--q-body);
-  font-weight: 700;
-  cursor: pointer;
+.sentHint {
+  font-size: 0.78rem;
+  line-height: 1.4;
+  margin-top: 6px;
+  opacity: 0.8;
 }
 .codeTerms {
   font-size: 0.78rem;
