@@ -263,9 +263,10 @@
   25% { transform: var(--q-home) rotate(-2.5deg); }
   75% { transform: var(--q-home) rotate(2.5deg); }
 }
-/* Finished bag: the patches close up into the whole photo. */
+/* Finished bag: the patches close up into the whole photo. They overlap by
+   half a pixel, otherwise hairline seams show between them on sharp screens. */
 .board.done .patch {
-  inset: 0;
+  inset: -0.5px;
   border-radius: 0;
   box-shadow: none;
 }
