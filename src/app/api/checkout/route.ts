@@ -4,6 +4,7 @@ import { sendOrderInvoice } from "@/lib/invoice-email";
 import { fetchStorefrontProducts } from "@/lib/admin-api";
 import { sendMetaEvent } from "@/lib/meta/capi";
 import { META_CURRENCY, roundMoney } from "@/lib/meta/events";
+import { resolveOrderPromo } from "@/lib/order-promo";
 
 /**
  * Order intake. The tissu-agent now owns orders end-to-end — we forward the
@@ -31,6 +32,8 @@ interface CheckoutPayload {
   subtotal: number;
   shipping: number;
   discount: number;
+  /** Promo code applied in the cart, if any. */
+  promoCode?: string;
   total: number;
   customer: {
     firstName: string;
@@ -127,6 +130,11 @@ export async function POST(req: Request) {
       console.error("[checkout] stock check skipped (lookup failed):", err);
     }
 
+    // Record the promo code on the order for the owner. A one-time game code
+    // is switched off further down, once the order exists.
+    const orderPromo = await resolveOrderPromo(body.promoCode);
+    const orderNotes = [notes, orderPromo?.note].filter(Boolean).join("\n");
+
     const agentPayload = {
       customer_name: `${customer.firstName} ${customer.lastName}`.trim(),
       customer_phone: customer.phone,
@@ -147,7 +155,7 @@ export async function POST(req: Request) {
       shipping: shipping ?? 0,
       discount: discount ?? 0,
       total: total ?? 0,
-      notes: notes || "",
+      notes: orderNotes,
       items: items.map((i) => {
         const pname = pickLocalized(i.productName);
         const vname = pickLocalized(i.variantName);
@@ -191,6 +199,9 @@ export async function POST(req: Request) {
       console.error("[checkout] agent returned no order id:", created);
       return NextResponse.json({ error: "Order id missing" }, { status: 502 });
     }
+
+    // Fire-and-forget: a one-time code that paid for this order stops working now.
+    if (orderPromo?.redeem) void orderPromo.redeem(orderId);
 
     // Meta Conversions API: server-side Purchase is the reliable copy. Same
     // event_id as the browser event (the order id) so Meta deduplicates them.
@@ -288,7 +299,7 @@ export async function POST(req: Request) {
           subtotal: subtotal ?? 0,
           shipping: shipping ?? 0,
           total: total ?? 0,
-          notes: notes,
+          notes: orderNotes || undefined,
         });
       } catch (err) {
         console.error("[checkout] admin notify failed:", err);

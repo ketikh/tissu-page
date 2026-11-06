@@ -1,0 +1,667 @@
+/* Quilt puzzle game ("ააწყვე ჩანთა"). Every colour and font the game uses is
+   declared on .root, so nothing here leaks into the rest of the site. */
+
+.root {
+  --q-cream: #fff0d5;
+  --q-pink: #ffd5e5;
+  --q-hot: #f50065;
+  --q-green: #205348;
+  --q-yellow: #f8bf27;
+  --q-bg: var(--q-cream);
+  --q-ink: var(--q-green);
+  --q-muted: #5f6f68;
+  --q-surface: #ffffff;
+  --q-shadow: 0 10px 30px rgba(32, 83, 72, 0.14);
+  --q-head: var(--font-alk-life), var(--font-noto-sans), system-ui, sans-serif;
+  --q-body: var(--font-noto-sans), var(--font-nunito), system-ui, -apple-system, "Segoe UI", sans-serif;
+  /* Fill the screen below the site navbar. --q-offset is measured on load. */
+  --q-height: max(580px, calc(100svh - var(--q-offset, 60px)));
+
+  position: relative;
+  width: 100%;
+  height: var(--q-height);
+  overflow: hidden;
+  background: var(--q-bg);
+  color: var(--q-ink);
+  font-family: var(--q-body);
+  line-height: normal;
+  user-select: none;
+  -webkit-user-select: none;
+}
+.root * {
+  box-sizing: border-box;
+  -webkit-tap-highlight-color: transparent;
+}
+
+.app {
+  position: relative;
+  height: 100%;
+  max-width: 460px;
+  margin: 0 auto;
+  display: flex;
+  flex-direction: column;
+  padding: 26px 16px 12px;
+}
+
+/* ---------- top row: stars + sound ---------- */
+.hud {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 8px;
+  height: 44px;
+  flex: 0 0 auto;
+}
+.stars {
+  display: flex;
+  gap: 3px;
+}
+.stars svg {
+  width: 20px;
+  height: 20px;
+}
+.iconButton {
+  width: 38px;
+  height: 38px;
+  border-radius: 50%;
+  border: 0;
+  background: var(--q-surface);
+  color: var(--q-ink);
+  box-shadow: 0 2px 8px rgba(32, 83, 72, 0.1);
+  display: grid;
+  place-items: center;
+  cursor: pointer;
+}
+.iconButton svg {
+  width: 20px;
+  height: 20px;
+}
+
+/* ---------- the bag being built ---------- */
+.stage {
+  flex: 1 1 auto;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  min-height: 0;
+}
+.meta {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  width: 100%;
+  max-width: 360px;
+  height: 74px;
+}
+.thumbWrap {
+  position: relative;
+  flex: 0 0 auto;
+}
+.thumb {
+  width: 64px;
+  height: 64px;
+  border-radius: 16px;
+  object-fit: cover;
+  border: 3px solid var(--q-pink);
+  display: block;
+  background: var(--q-pink);
+}
+.thumbLabel {
+  position: absolute;
+  left: 50%;
+  bottom: -8px;
+  transform: translateX(-50%);
+  background: var(--q-green);
+  color: var(--q-cream);
+  font-size: 0.62rem;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  padding: 2px 8px;
+  border-radius: 999px;
+  white-space: nowrap;
+}
+.metaText {
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+  min-width: 0;
+}
+.level {
+  font-weight: 700;
+  font-size: 0.78rem;
+  letter-spacing: 0.12em;
+  color: var(--q-muted);
+}
+.productName {
+  font-family: var(--q-head);
+  font-size: 1.35rem;
+  font-weight: 400;
+  line-height: 1.1;
+  margin: 0;
+  color: var(--q-ink);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.price {
+  align-self: flex-start;
+  background: var(--q-yellow);
+  color: #20302a;
+  border-radius: 999px;
+  padding: 3px 12px;
+  font-family: var(--q-head);
+  font-size: 0.95rem;
+  line-height: 1.2;
+}
+
+/* ---------- board ---------- */
+.frame {
+  position: relative;
+  /* 262px = everything else stacked in the column (rows, gaps, padding). */
+  width: min(86vw, 360px, calc(var(--q-height) - 262px));
+  aspect-ratio: 1;
+  flex: 0 0 auto;
+}
+.ring {
+  position: absolute;
+  inset: -14px;
+  width: calc(100% + 28px);
+  height: calc(100% + 28px);
+  max-width: none;
+  overflow: visible;
+  pointer-events: none;
+}
+.ringDone {
+  opacity: 0;
+  transition: opacity 0.5s;
+}
+.ringDoneOn {
+  opacity: 1;
+}
+.board {
+  position: absolute;
+  inset: 0;
+  border-radius: 22px;
+  overflow: hidden;
+  background: var(--q-pink);
+  touch-action: none;
+}
+.piece {
+  position: absolute;
+  left: 0;
+  top: 0;
+  transition: transform 0.34s cubic-bezier(0.2, 0.8, 0.2, 1);
+  cursor: grab;
+  touch-action: none;
+  will-change: transform;
+}
+.patch {
+  position: absolute;
+  inset: 3px;
+  border-radius: 9px;
+  background-repeat: no-repeat;
+  box-shadow: inset 0 0 0 1.5px rgba(255, 255, 255, 0.55), 0 1px 3px rgba(32, 83, 72, 0.18);
+  transition: inset 0.5s, border-radius 0.5s, box-shadow 0.3s;
+}
+.patch::after {
+  content: "";
+  position: absolute;
+  inset: 4px;
+  border-radius: 6px;
+  border: 1.5px dashed rgba(255, 255, 255, 0.75);
+  pointer-events: none;
+  transition: opacity 0.4s;
+}
+.piece.selected {
+  z-index: 5;
+}
+.piece.selected .patch {
+  box-shadow: 0 0 0 3px var(--q-hot), 0 8px 18px rgba(245, 0, 101, 0.35);
+  transform: scale(1.04);
+}
+.piece.dragging {
+  transition: none;
+  z-index: 10;
+  cursor: grabbing;
+}
+.piece.dragging .patch {
+  box-shadow: 0 0 0 3px var(--q-hot), 0 14px 28px rgba(32, 83, 72, 0.35);
+  transform: scale(1.06);
+}
+.piece.stitched {
+  cursor: default;
+}
+.piece.stitched .patch {
+  box-shadow: inset 0 0 0 2px var(--q-hot), 0 0 0 0 transparent;
+}
+.piece.stitched .patch::after {
+  border: 2px dashed var(--q-hot);
+  inset: 3px;
+}
+.mark {
+  position: absolute;
+  right: 6px;
+  top: 6px;
+  width: 14px;
+  height: 14px;
+  transition: opacity 0.4s;
+}
+.piece.hinted .patch {
+  animation: hintPulse 0.5s 3;
+}
+@keyframes hintPulse {
+  0%, 100% { box-shadow: 0 0 0 0 var(--q-yellow); }
+  50% { box-shadow: 0 0 0 5px var(--q-yellow); }
+}
+.piece.wobble {
+  animation: wobble 0.35s;
+}
+@keyframes wobble {
+  0%, 100% { transform: var(--q-home) rotate(0); }
+  25% { transform: var(--q-home) rotate(-2.5deg); }
+  75% { transform: var(--q-home) rotate(2.5deg); }
+}
+/* Finished bag: the patches close up into the whole photo. They overlap by
+   half a pixel, otherwise hairline seams show between them on sharp screens. */
+.board.done .patch {
+  inset: -0.5px;
+  border-radius: 0;
+  box-shadow: none;
+}
+.board.done .patch::after,
+.board.done .mark {
+  opacity: 0;
+}
+.frame.pulse {
+  animation: pulse 0.7s;
+}
+@keyframes pulse {
+  0% { transform: scale(1); }
+  40% { transform: scale(1.04); }
+  100% { transform: scale(1); }
+}
+.frame.swapIn {
+  animation: swapIn 0.55s cubic-bezier(0.2, 0.8, 0.2, 1);
+}
+@keyframes swapIn {
+  0% { transform: scale(0.88) rotate(-3deg); opacity: 0; }
+  100% { transform: none; opacity: 1; }
+}
+
+/* ---------- little doodles that fly out when a patch is stitched ---------- */
+.fx {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  overflow: visible;
+}
+.particle {
+  position: absolute;
+  width: 18px;
+  height: 18px;
+  left: 0;
+  top: 0;
+  will-change: transform, opacity;
+  animation: fly 0.8s ease-out forwards;
+}
+.particle svg {
+  width: 100%;
+  height: 100%;
+  display: block;
+}
+@keyframes fly {
+  0% { transform: translate(-50%, -50%) scale(0.4) rotate(0); opacity: 1; }
+  100% {
+    transform: translate(calc(-50% + var(--dx)), calc(-50% + var(--dy))) scale(1.1) rotate(var(--rot));
+    opacity: 0;
+  }
+}
+
+.toast {
+  position: absolute;
+  left: 50%;
+  bottom: 14px;
+  transform: translate(-50%, 0) scale(0.8);
+  background: var(--q-green);
+  color: var(--q-cream);
+  font-family: var(--q-head);
+  font-size: 1.4rem;
+  padding: 12px 24px;
+  border-radius: 999px;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.25s, transform 0.35s cubic-bezier(0.2, 0.9, 0.3, 1.4);
+  box-shadow: var(--q-shadow);
+  white-space: nowrap;
+  z-index: 6;
+  text-align: center;
+}
+.toast.toastShown {
+  opacity: 1;
+  transform: translate(-50%, 0) scale(1);
+}
+.toastDetail {
+  display: block;
+  font-family: var(--q-body);
+  font-size: 0.8rem;
+  font-weight: 700;
+  opacity: 0.9;
+  margin-top: 2px;
+}
+.toastDetail svg {
+  display: inline-block;
+  width: 15px;
+  height: 15px;
+  vertical-align: -3px;
+}
+
+/* ---------- moves + hint ---------- */
+.sub {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  height: 44px;
+}
+.moves {
+  font-weight: 700;
+  font-size: 0.85rem;
+  color: var(--q-muted);
+  letter-spacing: 0.06em;
+}
+.hintButton {
+  border: 2px solid var(--q-green);
+  background: transparent;
+  color: var(--q-ink);
+  border-radius: 999px;
+  padding: 8px 16px;
+  font-family: var(--q-body);
+  font-weight: 700;
+  font-size: 0.85rem;
+  cursor: pointer;
+}
+.hintButton:disabled {
+  opacity: 0.4;
+}
+.howTo {
+  font-size: 0.78rem;
+  color: var(--q-muted);
+  text-align: center;
+  height: 18px;
+  margin: 0;
+}
+
+/* ---------- finished game ----------
+   The end card (follow buttons, email form, links) is taller than a phone
+   screen. Instead of scrolling inside a fixed box, the game area grows with
+   the card and the page scrolls normally; the board behind it is hidden. */
+.root.ended {
+  height: auto;
+  min-height: var(--q-height);
+}
+.ended .app {
+  height: auto;
+  min-height: var(--q-height);
+}
+.ended .hud,
+.ended .stage {
+  display: none;
+}
+.ended .overlay {
+  position: static;
+  flex: 1 1 auto;
+  padding: 0 0 8px;
+  background: none;
+  backdrop-filter: none;
+}
+.ended .card {
+  max-height: none;
+  overflow: visible;
+}
+
+/* ---------- start and end cards ---------- */
+.overlay {
+  position: absolute;
+  inset: 0;
+  z-index: 10;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 16px;
+  background: rgba(255, 240, 213, 0.72);
+  /* Unprefixed only: the build adds -webkit- itself, and writing both by hand
+     makes it drop the standard one, which switches the blur off in Chrome. */
+  backdrop-filter: blur(6px);
+}
+.card {
+  width: 100%;
+  max-width: 380px;
+  max-height: 100%;
+  overflow: auto;
+  background: var(--q-surface);
+  border-radius: 28px;
+  padding: 26px 22px 22px;
+  box-shadow: var(--q-shadow);
+  text-align: center;
+  position: relative;
+}
+.card .cardTitle {
+  font-family: var(--q-head);
+  font-size: 2rem;
+  font-weight: 400;
+  line-height: 1.05;
+  margin: 4px 0 6px;
+  color: var(--q-ink);
+}
+.hot {
+  color: var(--q-hot);
+}
+.card p {
+  margin: 8px 0;
+  line-height: 1.5;
+  font-size: 0.95rem;
+  color: var(--q-ink);
+}
+.deco {
+  position: absolute;
+  right: 14px;
+  top: 14px;
+  width: 30px;
+  height: 30px;
+  pointer-events: none;
+}
+.squiggle {
+  display: block;
+  margin: 8px auto 2px;
+  width: 120px;
+  height: 14px;
+}
+.demo {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 4px;
+  width: 120px;
+  margin: 10px auto 2px;
+  padding: 5px;
+  background: var(--q-pink);
+  border-radius: 14px;
+}
+.demoPatch {
+  display: block;
+  aspect-ratio: 1;
+  border-radius: 6px;
+  background-size: 300% 300%;
+}
+.primary {
+  display: inline-block;
+  width: 100%;
+  border: 0;
+  border-radius: 999px;
+  background: var(--q-green);
+  color: var(--q-cream);
+  font-family: var(--q-head);
+  font-size: 1.25rem;
+  padding: 15px 20px;
+  cursor: pointer;
+  margin-top: 10px;
+  text-decoration: none;
+}
+.primary.primaryHot {
+  background: var(--q-hot);
+  color: #fff;
+}
+.primary:disabled {
+  opacity: 0.6;
+}
+.ghost {
+  display: inline-block;
+  width: 100%;
+  border: 2px solid var(--q-green);
+  border-radius: 999px;
+  background: transparent;
+  color: var(--q-ink);
+  font-family: var(--q-body);
+  font-weight: 700;
+  font-size: 0.95rem;
+  padding: 12px 20px;
+  cursor: pointer;
+  margin-top: 10px;
+  text-decoration: none;
+}
+.quiltRow {
+  display: flex;
+  justify-content: center;
+  gap: 6px;
+  margin: 12px auto 4px;
+  padding: 6px;
+  background: var(--q-pink);
+  border-radius: 18px;
+  width: max-content;
+}
+.quiltRow img {
+  width: 70px;
+  height: 70px;
+  border-radius: 10px;
+  object-fit: cover;
+  outline: 2px dashed #fff;
+  outline-offset: -5px;
+}
+.bigStars {
+  display: flex;
+  justify-content: center;
+  gap: 4px;
+  margin: 6px 0 2px;
+}
+.bigStars svg {
+  width: 26px;
+  height: 26px;
+}
+.starGap {
+  width: 8px;
+}
+.follow {
+  margin-top: 12px;
+}
+.followTitle {
+  font-weight: 700;
+  font-size: 0.9rem;
+  margin-bottom: 8px;
+}
+.followButtons {
+  display: flex;
+  gap: 8px;
+  margin-bottom: 6px;
+}
+.followButton {
+  flex: 1 1 0;
+  min-height: 44px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  border: 2px solid var(--q-hot);
+  border-radius: 999px;
+  background: transparent;
+  color: var(--q-hot);
+  font-family: var(--q-body);
+  font-weight: 700;
+  font-size: 0.9rem;
+  text-decoration: none;
+  cursor: pointer;
+}
+.followButton.followDone {
+  border-color: var(--q-green);
+  background: var(--q-green);
+  color: var(--q-cream);
+}
+.email {
+  width: 100%;
+  padding: 13px 14px;
+  border: 2px solid var(--q-pink);
+  border-radius: 14px;
+  font-size: 1rem;
+  font-family: var(--q-body);
+  background: var(--q-surface);
+  color: var(--q-ink);
+  margin-top: 6px;
+  user-select: text;
+  -webkit-user-select: text;
+}
+.email:focus {
+  outline: none;
+  border-color: var(--q-hot);
+}
+.consent {
+  display: flex;
+  gap: 8px;
+  align-items: flex-start;
+  text-align: left;
+  font-size: 0.78rem;
+  color: var(--q-muted);
+  margin-top: 10px;
+  line-height: 1.4;
+}
+.consent input {
+  margin: 3px 0 0;
+  accent-color: var(--q-hot);
+}
+.message {
+  color: var(--q-hot);
+  font-size: 0.85rem;
+  min-height: 1.2em;
+  margin-top: 6px;
+}
+.codeBox {
+  margin-top: 12px;
+  border: 2px dashed var(--q-hot);
+  border-radius: 18px;
+  padding: 14px;
+  background: var(--q-pink);
+  color: #20302a;
+}
+.sentTitle {
+  font-family: var(--q-head);
+  font-size: 1.2rem;
+  line-height: 1.15;
+  color: var(--q-hot);
+  margin-bottom: 6px;
+}
+.sentText {
+  font-size: 0.9rem;
+  line-height: 1.45;
+  overflow-wrap: anywhere;
+  user-select: text;
+  -webkit-user-select: text;
+}
+.sentHint {
+  font-size: 0.78rem;
+  line-height: 1.4;
+  margin-top: 6px;
+  opacity: 0.8;
+}
+.codeTerms {
+  font-size: 0.78rem;
+  margin-top: 8px;
+  opacity: 0.75;
+}

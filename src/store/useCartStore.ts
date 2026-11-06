@@ -79,7 +79,13 @@ export const useCartStore = create<CartState>()(
         if (!trimmed) return false;
 
         try {
-          const res = await fetch("/api/promo-codes", { cache: "no-store" });
+          // The server checks this one code; it never sends the whole list.
+          const res = await fetch("/api/promo-codes", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ code: trimmed }),
+            cache: "no-store",
+          });
           if (!res.ok) return false;
           const data = await res.json();
           const codes: Array<{ code: string; discount: number }> = data?.promo_codes ?? [];
