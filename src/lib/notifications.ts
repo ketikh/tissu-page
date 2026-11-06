@@ -287,6 +287,23 @@ export function buildCombinedText(order: OrderNotification): string {
   ].filter(Boolean).join("\n");
 }
 
+/**
+ * Sends one short text alert to every admin chat (used by the game). Values in
+ * `copyable` become tap-to-copy. Best-effort: never throws, and does nothing
+ * when Telegram is not configured.
+ */
+export async function notifyAdminText(text: string, copyable: string[] = []): Promise<void> {
+  if (!TELEGRAM_BOT_TOKEN || !TELEGRAM_CHAT_ID) return;
+  const html = telegramHtml(text, copyable);
+  for (const chatId of [TELEGRAM_CHAT_ID, ...TELEGRAM_EXTRA_CHAT_IDS]) {
+    try {
+      await sendToTelegram(chatId, html, undefined, "HTML");
+    } catch (err) {
+      console.error("[notify] text alert failed:", err instanceof Error ? err.message : "unknown error");
+    }
+  }
+}
+
 export async function notifyAdminNewOrder(order: OrderNotification): Promise<void> {
   if (!TELEGRAM_BOT_TOKEN || !TELEGRAM_CHAT_ID) {
     console.warn("[notify] Telegram not configured — bot token or chat id missing.");

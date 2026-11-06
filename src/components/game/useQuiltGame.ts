@@ -57,6 +57,18 @@ function picksOfSavedWin(win: SavedWin): QuiltProduct[] {
   return win.productIds.flatMap((id) => QUILT_PRODUCTS.find((product) => product.id === id) ?? []);
 }
 
+/** Tells the server a game was finished, so the shop owner gets a Telegram alert. */
+function reportGameFinished(stars: readonly number[]): void {
+  fetch("/api/game/finished", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ stars }),
+    keepalive: true,
+  }).catch(() => {
+    // Only a courtesy alert for the owner: a failure must never disturb the winner.
+  });
+}
+
 const TOAST_MS = 1500;
 const NEXT_ROUND_DELAY_MS = 1750;
 const HINT_TEXT_MS = 2500;
@@ -149,6 +161,7 @@ export function useQuiltGame(): QuiltGame {
 
   const finishGame = (stars: readonly number[]) => {
     writeSavedWin({ productIds: game.picks.map((product) => product.id), stars, followed: [], sentTo: null });
+    reportGameFinished(stars);
     setPhase("won");
     sound.play("win");
     sound.vibrate(WIN_BUZZ);

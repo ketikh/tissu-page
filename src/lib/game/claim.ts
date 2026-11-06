@@ -38,6 +38,8 @@ export interface ClaimDeps {
   readonly sendCodeEmail: (email: GameCodeEmail) => Promise<boolean>;
   readonly generateCode: () => string;
   readonly now: () => Date;
+  /** Told about every code that was created and emailed (e.g. to alert the owner). */
+  readonly onIssued?: (issued: GameCodeEmail) => void | Promise<void>;
   /** Receives problems worth a log line. Never given an email address. */
   readonly logError?: (message: string) => void;
 }
@@ -73,6 +75,14 @@ async function removeUnsentCode(id: number, deps: ClaimDeps): Promise<void> {
   }
 }
 
+/** Fire-and-forget: the winner's answer never waits for, or fails because of, the owner's alert. */
+function announceIssued(issued: GameCodeEmail, deps: ClaimDeps): void {
+  if (!deps.onIssued) return;
+  Promise.resolve()
+    .then(() => deps.onIssued?.(issued))
+    .catch((error) => deps.logError?.(`could not announce the new code: ${errorText(error)}`));
+}
+
 export async function claimGameCode(input: ClaimInput, deps: ClaimDeps): Promise<ClaimResult> {
   const email = normalizeEmail(input.email);
   if (!email) return fail("invalid_email");
@@ -91,10 +101,12 @@ export async function claimGameCode(input: ClaimInput, deps: ClaimDeps): Promise
       return fail("unavailable");
     }
 
-    const wasSent = await deps
-      .sendCodeEmail({ to: email, code: created.code, lang: input.lang, expiresAt })
-      .catch(() => false);
-    if (wasSent) return { ok: true };
+    const issued: GameCodeEmail = { to: email, code: created.code, lang: input.lang, expiresAt };
+    const wasSent = await deps.sendCodeEmail(issued).catch(() => false);
+    if (wasSent) {
+      announceIssued(issued, deps);
+      return { ok: true };
+    }
 
     await removeUnsentCode(created.id, deps);
     return fail("send_failed");

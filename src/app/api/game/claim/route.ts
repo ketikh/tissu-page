@@ -1,9 +1,12 @@
 import { NextResponse } from "next/server";
 import { createPromoCode, deletePromoCode, isAdminPromoConfigured, listPromoCodes } from "@/lib/admin-promo";
 import { claimGameCode, type ClaimDeps, type ClaimFailure } from "@/lib/game/claim";
+import { buildGameCodeAlert } from "@/lib/game/owner-alerts";
 import { generateGameCode } from "@/lib/game/promo-codes";
 import { isGameEmailConfigured, sendGameCodeEmail } from "@/lib/game/promo-email";
+import { notifyAdminText } from "@/lib/notifications";
 import { clientKeyFromHeaders, createRateLimiter } from "@/lib/rate-limit";
+import { isSameOrigin, readJsonObject, type BodyProblem } from "@/lib/request-guards";
 
 /**
  * A game winner asks for their prize. We make a one-time 15% code, save it in
@@ -19,7 +22,7 @@ const perVisitor = createRateLimiter({ limit: 5, windowMs: HOUR_MS });
 /** Backstop against a flood from many addresses: caps how many prize emails go out per day. */
 const dailyEmails = createRateLimiter({ limit: 300, windowMs: 24 * HOUR_MS, maxKeys: 1 });
 
-type ErrorCode = ClaimFailure | "forbidden" | "rate_limited" | "bad_request" | "too_large";
+type ErrorCode = ClaimFailure | BodyProblem | "forbidden" | "rate_limited";
 
 const STATUS_BY_FAILURE: Readonly<Record<ClaimFailure, number>> = {
   invalid_email: 400,
@@ -30,31 +33,6 @@ const STATUS_BY_FAILURE: Readonly<Record<ClaimFailure, number>> = {
 
 function failure(status: number, code: ErrorCode, headers?: Record<string, string>) {
   return NextResponse.json({ success: false, error: { code, message: code } }, { status, headers });
-}
-
-/** Browsers always send Origin on a POST; it must be this site, not another page posting on a visitor's behalf. */
-function isSameOrigin(req: Request): boolean {
-  const origin = req.headers.get("origin");
-  if (!origin) return true; // Not a browser. The rate limits below still apply.
-  try {
-    const originHost = new URL(origin).host;
-    const siteHost = new URL(process.env.SITE_URL || "https://tissu.ge").host;
-    const ownHosts = [req.headers.get("host"), req.headers.get("x-forwarded-host"), siteHost, `www.${siteHost}`];
-    return ownHosts.includes(originHost);
-  } catch {
-    return false; // Unparseable Origin or SITE_URL: refuse rather than guess.
-  }
-}
-
-async function readBody(req: Request): Promise<Record<string, unknown> | ErrorCode> {
-  const text = await req.text();
-  if (text.length > MAX_BODY_CHARS) return "too_large";
-  try {
-    const parsed: unknown = JSON.parse(text);
-    return parsed && typeof parsed === "object" && !Array.isArray(parsed) ? (parsed as Record<string, unknown>) : "bad_request";
-  } catch {
-    return "bad_request"; // Not JSON.
-  }
 }
 
 const logError = (message: string) => console.error(`[game-claim] ${message}`);
@@ -72,6 +50,11 @@ const deps: ClaimDeps = {
   },
   generateCode: generateGameCode,
   now: () => new Date(),
+  // The owner hears about every code on Telegram: who got it, the code, its last day.
+  onIssued: (issued) => {
+    const alert = buildGameCodeAlert(issued);
+    return notifyAdminText(alert.text, alert.copyable);
+  },
   logError,
 };
 
@@ -85,7 +68,7 @@ export async function POST(req: Request) {
   if (!limit.allowed) {
     return failure(429, "rate_limited", { "Retry-After": String(limit.retryAfterSeconds) });
   }
-  const body = await readBody(req);
+  const body = await readJsonObject(req, MAX_BODY_CHARS);
   if (typeof body === "string") return failure(body === "too_large" ? 413 : 400, body);
 
   const result = await claimGameCode(
